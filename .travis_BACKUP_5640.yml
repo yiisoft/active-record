@@ -13,7 +13,7 @@ php:
 env:
   - CUBRID_VERSION=9.3.0/CUBRID-9.3.0.0206 CUBRID_PDO_VERSION=9.3.0.0001
 
-<<<<<<< .merge_file_a02932
+<<<<<<< HEAD
 # run build against hhvm but allow them to fail
 # http://docs.travis-ci.com/user/build-configuration/#Rows-That-are-Allowed-To-Fail
 matrix:
@@ -26,7 +26,7 @@ matrix:
 >>>>>>> yiichina/master
 
 =======
->>>>>>> .merge_file_a06108
+>>>>>>> master
 services:
   - memcached
 
@@ -46,7 +46,7 @@ addons:
 
 install:
   - travis_retry composer self-update && composer --version
-<<<<<<< .merge_file_a02932
+<<<<<<< HEAD
 <<<<<<< HEAD
   - travis_retry composer global require "fxp/composer-asset-plugin:1.0.0"
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
@@ -91,7 +91,7 @@ install:
   - tests/data/travis/apc-setup.sh
   - tests/data/travis/memcache-setup.sh
 #  - tests/data/travis/cubrid-setup.sh
->>>>>>> .merge_file_a06108
+>>>>>>> master
 
 before_script:
 <<<<<<< HEAD
@@ -107,7 +107,7 @@ before_script:
 >>>>>>> yiichina/master
   - mysql -e 'CREATE DATABASE yiitest;';
   - psql -U postgres -c 'CREATE DATABASE yiitest;';
-<<<<<<< .merge_file_a02932
+<<<<<<< HEAD
   - tests/unit/data/travis/sphinx-setup.sh
   - mongo yii2test --eval 'db.addUser("travis", "test");'
 # basic and advanced application:
@@ -115,7 +115,7 @@ before_script:
 <<<<<<< HEAD
 =======
 
->>>>>>> .merge_file_a06108
+>>>>>>> master
   - |
     if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
       PHPUNIT_FLAGS="--coverage-clover=coverage.clover"
@@ -123,7 +123,7 @@ before_script:
 
 
 script:
-<<<<<<< .merge_file_a02932
+<<<<<<< HEAD
   - vendor/bin/phpunit --verbose $PHPUNIT_FLAGS --exclude-group mssql,oci,wincache,xcache,zenddata
 =======
 
@@ -150,7 +150,7 @@ script:
     fi
 =======
   - vendor/bin/phpunit --verbose $PHPUNIT_FLAGS --exclude-group mssql,oci,wincache,xcache,zenddata,cubrid
->>>>>>> .merge_file_a06108
+>>>>>>> master
 
 after_script:
 <<<<<<< HEAD
