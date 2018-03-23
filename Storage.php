@@ -8,15 +8,16 @@
 namespace yiiunit\data\ar;
 
 /**
- * DefaultPk.
+ * Class Storage
  *
- * @author Jan Waś <janek.jan@gmail.com>
+ * @author Dmytro Naumenko <d.naumenko.a@gmail.com>
  * @property int $id
+ * @property array $data
  */
-class DefaultPk extends ActiveRecord
+class Storage extends ActiveRecord
 {
     public static function tableName()
     {
-        return 'default_pk';
+        return 'storage';
     }
 }
