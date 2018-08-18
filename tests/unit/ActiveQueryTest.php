@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\framework\db;
+namespace yii\activerecord\tests\unit;
 
 use yii\base\Event;
 use yii\db\ActiveQuery;

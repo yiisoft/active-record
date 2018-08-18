@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace yii\activerecord;
 
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;

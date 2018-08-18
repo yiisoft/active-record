@@ -5,9 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\framework\db;
+namespace yii\activerecord\tests\unit;
 
-use yii\db\ActiveQuery;
+use yii\activerecord\ActiveQuery;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 use yiiunit\data\ar\ActiveRecord;
@@ -32,7 +32,6 @@ use yiiunit\data\ar\OrderWithNullFK;
 use yiiunit\data\ar\Profile;
 use yiiunit\data\ar\ProfileWithConstructor;
 use yiiunit\data\ar\Type;
-use yiiunit\framework\ar\ActiveRecordTestTrait;
 use yiiunit\TestCase;
 
 abstract class ActiveRecordTest extends DatabaseTestCase

@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace yii\activerecord;
 
 /**
  * ActiveQueryInterface defines the common interface to be implemented by active record query classes.

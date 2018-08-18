@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\db;
+namespace yii\activerecord;
 
 /**
  * ActiveQueryTrait implements the common methods and properties for active record query classes.
