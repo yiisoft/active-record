@@ -7,6 +7,9 @@
 
 namespace yii\activerecord;
 
+use yii\db\Connection;
+use yii\db\QueryInterface;
+
 /**
  * ActiveQueryInterface defines the common interface to be implemented by active record query classes.
  *

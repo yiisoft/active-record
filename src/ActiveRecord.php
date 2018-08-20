@@ -7,12 +7,16 @@
 
 namespace yii\activerecord;
 
-use Yii;
-use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
+use yii\db\Connection;
+use yii\db\Expression;
+use yii\db\StaleObjectException;
+use yii\db\TableSchema;
+use yii\exceptions\InvalidArgumentException;
+use yii\exceptions\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
+use yii\helpers\Yii;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -112,6 +116,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param bool $skipIfSet whether existing value should be preserved.
      * This will only set defaults for attributes that are `null`.
      * @return $this the model instance itself.
+     * @throws InvalidConfigException
      */
     public function loadDefaultValues($skipIfSet = true)
     {
@@ -132,7 +137,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public static function getDb()
     {
-        return Yii::$app->getDb();
+        return Yii::getApp()->get('db');
     }
 
     /**
@@ -272,6 +277,7 @@ class ActiveRecord extends BaseActiveRecord
      * Please refer to [[Query::where()]] on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return int the number of rows updated
+     * @throws \yii\db\Exception
      */
     public static function updateAll($attributes, $condition = '', $params = [])
     {
@@ -299,6 +305,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $params the parameters (name => value) to be bound to the query.
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
      * @return int the number of rows updated
+     * @throws \yii\db\Exception
      */
     public static function updateAllCounters($counters, $condition = '', $params = [])
     {
@@ -341,6 +348,7 @@ class ActiveRecord extends BaseActiveRecord
      * Please refer to [[Query::where()]] on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return int the number of rows deleted
+     * @throws \yii\db\Exception
      */
     public static function deleteAll($condition = null, $params = [])
     {
@@ -402,6 +410,7 @@ class ActiveRecord extends BaseActiveRecord
      * Note that an array should be returned even for a table with single primary key.
      *
      * @return string[] the primary keys of the associated database table.
+     * @throws InvalidConfigException
      */
     public static function primaryKey()
     {
@@ -411,7 +420,9 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Returns the list of all attribute names of the model.
      * The default implementation will return all column names of the table associated with this AR class.
+     *
      * @return array list of attribute names.
+     * @throws InvalidConfigException
      */
     public function attributes()
     {
@@ -503,6 +514,7 @@ class ActiveRecord extends BaseActiveRecord
      * meaning all attributes that are loaded from DB will be saved.
      * @return bool whether the attributes are valid and the record is inserted successfully.
      * @throws \Exception|\Throwable in case insert failed.
+     * @throws \yii\db\Exception
      */
     public function insert($runValidation = true, $attributes = null)
     {
@@ -533,9 +545,11 @@ class ActiveRecord extends BaseActiveRecord
 
     /**
      * Inserts an ActiveRecord into DB without considering transaction.
+     *
      * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
      * meaning all attributes that are loaded from DB will be saved.
      * @return bool whether the record is inserted successfully.
+     * @throws InvalidConfigException
      */
     protected function insertInternal($attributes = null)
     {
@@ -610,6 +624,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
      * being updated is outdated.
      * @throws \Exception|\Throwable in case update failed.
+     * @throws \yii\db\Exception
      */
     public function update($runValidation = true, $attributeNames = null)
     {
@@ -656,6 +671,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
      * being deleted is outdated.
      * @throws \Exception|\Throwable in case delete failed.
+     * @throws \yii\db\Exception
      */
     public function delete()
     {
@@ -681,9 +697,11 @@ class ActiveRecord extends BaseActiveRecord
 
     /**
      * Deletes an ActiveRecord without considering transaction.
+     *
      * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
      * @throws StaleObjectException
+     * @throws \yii\db\Exception
      */
     protected function deleteInternal()
     {

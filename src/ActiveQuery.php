@@ -7,7 +7,10 @@
 
 namespace yii\activerecord;
 
-use yii\base\InvalidConfigException;
+use yii\db\Command;
+use yii\db\Connection;
+use yii\db\Query;
+use yii\exceptions\InvalidConfigException;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -102,12 +105,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Constructor.
      * @param string $modelClass the model class associated with this query
-     * @param array $config configurations to be applied to the newly created query object
      */
-    public function __construct($modelClass, $config = [])
+    public function __construct($modelClass)
     {
         $this->modelClass = $modelClass;
-        parent::__construct($config);
     }
 
     /**
@@ -118,7 +119,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function init()
     {
-        parent::init();
         $this->trigger(self::EVENT_INIT);
     }
 
@@ -228,8 +228,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Removes duplicated models by checking their primary key values.
      * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
+     *
      * @param array $models the models to be checked
      * @throws InvalidConfigException if model primary key is empty
+     * @throws \yii\exceptions\InvalidConfigException
      * @return array the distinctive models
      */
     private function removeDuplicatedModels($models)
