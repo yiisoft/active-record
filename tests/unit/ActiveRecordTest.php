@@ -11,28 +11,28 @@ use yii\activerecord\ActiveQuery;
 use yii\db\Query;
 use yii\db\tests\unit\DatabaseTestCase;
 use yii\helpers\ArrayHelper;
-use yiiunit\data\ar\ActiveRecord;
-use yiiunit\data\ar\Animal;
-use yiiunit\data\ar\BitValues;
-use yiiunit\data\ar\Cat;
-use yiiunit\data\ar\Category;
-use yiiunit\data\ar\Customer;
-use yiiunit\data\ar\Document;
-use yiiunit\data\ar\Dossier;
-use yiiunit\data\ar\CustomerQuery;
-use yiiunit\data\ar\CustomerWithConstructor;
-use yiiunit\data\ar\Dog;
-use yiiunit\data\ar\Item;
-use yiiunit\data\ar\NullValues;
-use yiiunit\data\ar\Order;
-use yiiunit\data\ar\OrderItem;
-use yiiunit\data\ar\OrderItemWithConstructor;
-use yiiunit\data\ar\OrderItemWithNullFK;
-use yiiunit\data\ar\OrderWithConstructor;
-use yiiunit\data\ar\OrderWithNullFK;
-use yiiunit\data\ar\Profile;
-use yiiunit\data\ar\ProfileWithConstructor;
-use yiiunit\data\ar\Type;
+use yii\activerecord\tests\data\ActiveRecord;
+use yii\activerecord\tests\data\Animal;
+use yii\activerecord\tests\data\BitValues;
+use yii\activerecord\tests\data\Cat;
+use yii\activerecord\tests\data\Category;
+use yii\activerecord\tests\data\Customer;
+use yii\activerecord\tests\data\Document;
+use yii\activerecord\tests\data\Dossier;
+use yii\activerecord\tests\data\CustomerQuery;
+use yii\activerecord\tests\data\CustomerWithConstructor;
+use yii\activerecord\tests\data\Dog;
+use yii\activerecord\tests\data\Item;
+use yii\activerecord\tests\data\NullValues;
+use yii\activerecord\tests\data\Order;
+use yii\activerecord\tests\data\OrderItem;
+use yii\activerecord\tests\data\OrderItemWithConstructor;
+use yii\activerecord\tests\data\OrderItemWithNullFK;
+use yii\activerecord\tests\data\OrderWithConstructor;
+use yii\activerecord\tests\data\OrderWithNullFK;
+use yii\activerecord\tests\data\Profile;
+use yii\activerecord\tests\data\ProfileWithConstructor;
+use yii\activerecord\tests\data\Type;
 use yiiunit\TestCase;
 
 abstract class ActiveRecordTest extends DatabaseTestCase
@@ -904,10 +904,10 @@ abstract class ActiveRecordTest extends DatabaseTestCase
         $orderItem = OrderItem::findOne([1, 1]);
 
         $orderItemNoJoin = $orderItem->orderItemCompositeNoJoin;
-        $this->assertInstanceOf('yiiunit\data\ar\OrderItem', $orderItemNoJoin);
+        $this->assertInstanceOf('yii\activerecord\tests\data\OrderItem', $orderItemNoJoin);
 
         $orderItemWithJoin = $orderItem->orderItemCompositeWithJoin;
-        $this->assertInstanceOf('yiiunit\data\ar\OrderItem', $orderItemWithJoin);
+        $this->assertInstanceOf('yii\activerecord\tests\data\OrderItem', $orderItemWithJoin);
     }
 
     public function testFindSimpleRelationWithJoin()
@@ -916,15 +916,15 @@ abstract class ActiveRecordTest extends DatabaseTestCase
         $order = Order::findOne(1);
 
         $customerNoJoin = $order->customer;
-        $this->assertInstanceOf('yiiunit\data\ar\Customer', $customerNoJoin);
+        $this->assertInstanceOf('yii\activerecord\tests\data\Customer', $customerNoJoin);
 
         $customerWithJoin = $order->customerJoinedWithProfile;
-        $this->assertInstanceOf('yiiunit\data\ar\Customer', $customerWithJoin);
+        $this->assertInstanceOf('yii\activerecord\tests\data\Customer', $customerWithJoin);
 
         $customerWithJoinIndexOrdered = $order->customerJoinedWithProfileIndexOrdered;
         $this->assertInternalType('array', $customerWithJoinIndexOrdered);
         $this->assertArrayHasKey('user1', $customerWithJoinIndexOrdered);
-        $this->assertInstanceOf('yiiunit\data\ar\Customer', $customerWithJoinIndexOrdered['user1']);
+        $this->assertInstanceOf('yii\activerecord\tests\data\Customer', $customerWithJoinIndexOrdered['user1']);
     }
 
     public function tableNameProvider()
@@ -1770,7 +1770,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
 
     public function testRefresh_querySetAlias_findRecord()
     {
-        $customer = new \yiiunit\data\ar\CustomerWithAlias();
+        $customer = new \yii\activerecord\tests\data\CustomerWithAlias();
         $customer->id = 1;
 
         $customer->refresh();

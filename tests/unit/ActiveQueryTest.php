@@ -89,7 +89,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
     {
         $query = new ActiveQuery(Customer::class);
         $result = $query->one();
-        $this->assertInstanceOf('yiiunit\data\ar\Customer', $result);
+        $this->assertInstanceOf('yii\activerecord\tests\data\Customer', $result);
     }
 
     /**
