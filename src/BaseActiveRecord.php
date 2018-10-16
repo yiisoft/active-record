@@ -7,7 +7,6 @@
 
 namespace yii\activerecord;
 
-use Yii;
 use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
@@ -16,11 +15,12 @@ use yii\base\ModelEvent;
 use yii\base\NotSupportedException;
 use yii\base\UnknownMethodException;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Yii;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
  *
- * See [[\yii\db\ActiveRecord]] for a concrete implementation.
+ * See [[\yii\activerecord\ActiveRecord]] for a concrete implementation.
  *
  * @property array $dirtyAttributes The changed attribute values (name-value pairs). This property is
  * read-only.

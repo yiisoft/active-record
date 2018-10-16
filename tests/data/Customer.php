@@ -5,9 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\data\ar;
+namespace yii\activerecord\tests\data;
 
-use yii\db\ActiveQuery;
+use yii\activerecord\ActiveQuery;
 use yiiunit\framework\db\ActiveRecordTest;
 
 /**

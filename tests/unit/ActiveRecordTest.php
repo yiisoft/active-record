@@ -9,6 +9,7 @@ namespace yii\activerecord\tests\unit;
 
 use yii\activerecord\ActiveQuery;
 use yii\db\Query;
+use yii\db\tests\unit\DatabaseTestCase;
 use yii\helpers\ArrayHelper;
 use yiiunit\data\ar\ActiveRecord;
 use yiiunit\data\ar\Animal;
@@ -1181,13 +1182,13 @@ abstract class ActiveRecordTest extends DatabaseTestCase
 
     public function testUnlinkAllViaTable()
     {
-        /* @var $orderClass \yii\db\ActiveRecordInterface */
+        /* @var $orderClass \yii\activerecord\ActiveRecordInterface */
         $orderClass = $this->getOrderClass();
-        /* @var $orderItemClass \yii\db\ActiveRecordInterface */
+        /* @var $orderItemClass \yii\activerecord\ActiveRecordInterface */
         $orderItemClass = $this->getOrderItemClass();
-        /* @var $itemClass \yii\db\ActiveRecordInterface */
+        /* @var $itemClass \yii\activerecord\ActiveRecordInterface */
         $itemClass = $this->getItemClass();
-        /* @var $orderItemsWithNullFKClass \yii\db\ActiveRecordInterface */
+        /* @var $orderItemsWithNullFKClass \yii\activerecord\ActiveRecordInterface */
         $orderItemsWithNullFKClass = $this->getOrderItemWithNullFKmClass();
 
         // via table with delete

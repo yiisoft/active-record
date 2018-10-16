@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yiiunit\data\ar;
+namespace yii\activerecord\tests\data;
 
 /**
  * ActiveRecord is ...
@@ -13,7 +13,7 @@ namespace yiiunit\data\ar;
  * @author Qiang Xue <qiang.xue@gmail.com>
  * @since 2.0
  */
-class ActiveRecord extends \yii\db\ActiveRecord
+class ActiveRecord extends \yii\activerecord\ActiveRecord
 {
     public static $db;
 
