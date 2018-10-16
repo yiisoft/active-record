@@ -33,13 +33,13 @@ use yii\helpers\Yii;
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
- * To declare an ActiveRecord class you need to extend [[\yii\db\ActiveRecord]] and
+ * To declare an ActiveRecord class you need to extend [[\yii\activerecord\ActiveRecord]] and
  * implement the `tableName` method:
  *
  * ```php
  * <?php
  *
- * class Customer extends \yii\db\ActiveRecord
+ * class Customer extends \yii\activerecord\ActiveRecord
  * {
  *     public static function tableName()
  *     {
@@ -108,7 +108,7 @@ class ActiveRecord extends BaseActiveRecord
      * You may call this method to load default values after creating a new instance:
      *
      * ```php
-     * // class Customer extends \yii\db\ActiveRecord
+     * // class Customer extends \yii\activerecord\ActiveRecord
      * $customer = new Customer();
      * $customer->loadDefaultValues();
      * ```

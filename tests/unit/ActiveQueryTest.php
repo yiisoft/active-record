@@ -8,12 +8,14 @@
 namespace yii\activerecord\tests\unit;
 
 use yii\base\Event;
-use yii\db\ActiveQuery;
+use yii\activerecord\ActiveQuery;
 use yii\db\Connection;
 use yii\db\QueryBuilder;
-use yiiunit\data\ar\ActiveRecord;
-use yiiunit\data\ar\Customer;
-use yiiunit\data\ar\Profile;
+use yii\db\tests\unit\DatabaseTestCase;
+use yii\db\tests\unit\GetTablesAliasTestTrait;
+use yii\activerecord\tests\data\ActiveRecord;
+use yii\activerecord\tests\data\Customer;
+use yii\activerecord\tests\data\Profile;
 
 /**
  * Class ActiveQueryTest the base class for testing ActiveQuery.
@@ -215,15 +217,15 @@ abstract class ActiveQueryTest extends DatabaseTestCase
     {
         $query = new ActiveQuery(Customer::class);
         $result = $query->viaTable(Profile::class, ['id' => 'item_id']);
-        $this->assertInstanceOf('yii\db\ActiveQuery', $result);
-        $this->assertInstanceOf('yii\db\ActiveQuery', $result->via);
+        $this->assertInstanceOf('yii\activerecord\ActiveQuery', $result);
+        $this->assertInstanceOf('yii\activerecord\ActiveQuery', $result->via);
     }
 
     public function testAlias_not_set()
     {
         $query = new ActiveQuery(Customer::class);
         $result = $query->alias('alias');
-        $this->assertInstanceOf('yii\db\ActiveQuery', $result);
+        $this->assertInstanceOf('yii\activerecord\ActiveQuery', $result);
         $this->assertEquals(['alias' => 'customer'], $result->from);
     }
 
@@ -233,7 +235,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $query = new ActiveQuery(Customer::class);
         $query->from = $aliasOld;
         $result = $query->alias('alias');
-        $this->assertInstanceOf('yii\db\ActiveQuery', $result);
+        $this->assertInstanceOf('yii\activerecord\ActiveQuery', $result);
         $this->assertEquals(['alias' => 'old'], $result->from);
     }
 
