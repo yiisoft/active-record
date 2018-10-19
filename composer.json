@@ -67,9 +67,11 @@
     },
     "require-dev": {
         "yiisoft/yii-core": "^3.0@dev",
+        "yiisoft/yii-web": "^3.0@dev",
         "yiisoft/view": "^3.0@dev",
         "yiisoft/di": "^3.0@dev",
         "yiisoft/log": "^3.0@dev",
+        "yiisoft/cache": "^3.0@dev",
         "hiqdev/composer-config-plugin": "^1.0@dev"
     },
     "autoload": {
@@ -84,7 +86,8 @@
         },
         "config-plugin": {
             "params": "config/params.php",
-            "common": "config/common.php"
+            "common": "config/common.php",
+            "tests": ["$common"]
         }
     }
 }
