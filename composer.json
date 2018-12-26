@@ -66,6 +66,7 @@
         "yiisoft/db": "^3.0@dev"
     },
     "require-dev": {
+        "phpunit/phpunit": "^7.3",
         "yiisoft/yii-core": "^3.0@dev",
         "yiisoft/yii-web": "^3.0@dev",
         "yiisoft/view": "^3.0@dev",

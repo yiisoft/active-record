@@ -5,7 +5,9 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\data;
+namespace yii\activerecord\data;
+
+use yii\data\DataFilter;
 
 /**
  * ActiveDataFilter allows composing a filtering condition in a format suitable for [[\yii\db\QueryInterface::where()]].
