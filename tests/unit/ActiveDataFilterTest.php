@@ -7,8 +7,8 @@
 
 namespace yii\tests\framework\data;
 
+use yii\activerecord\data\ActiveDataFilter;
 use yii\base\DynamicModel;
-use yii\data\ActiveDataFilter;
 use yii\tests\TestCase;
 
 class ActiveDataFilterTest extends TestCase
@@ -198,6 +198,7 @@ class ActiveDataFilterTest extends TestCase
                 'like' => 'foo',
             ],
         ];
+
         $expectedResult = ['CALLBACK-LIKE', 'LIKE', 'foo', 'name'];
         $this->assertEquals($expectedResult, $builder->build());
     }
