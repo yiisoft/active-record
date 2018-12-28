@@ -12,6 +12,7 @@ use yii\db\Connection;
 use yii\db\Query;
 use yii\exceptions\InvalidConfigException;
 use yii\di\AbstractContainer;
+use yii\di\Initiable;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -74,7 +75,7 @@ use yii\di\AbstractContainer;
  * @author Carsten Brandt <mail@cebe.cc>
  * @since 2.0
  */
-class ActiveQuery extends Query implements ActiveQueryInterface
+class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
 {
     use ActiveQueryTrait;
     use ActiveRelationTrait;
@@ -112,8 +113,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $this->modelClass = $modelClass;
 
         AbstractContainer::configure($this, $config);
-
-        $this->init();
     }
 
     /**
@@ -122,7 +121,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * an [[EVENT_INIT]] event. If you override this method, make sure you call the parent implementation at the end
      * to ensure triggering of the event.
      */
-    public function init()
+    public function init() : void
     {
         $this->trigger(self::EVENT_INIT);
     }
