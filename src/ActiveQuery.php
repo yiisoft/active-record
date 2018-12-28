@@ -106,9 +106,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * Constructor.
      * @param string $modelClass the model class associated with this query
      */
-    public function __construct($modelClass)
+    public function __construct($modelClass, array $config = [])
     {
         $this->modelClass = $modelClass;
+
+        \yii\di\AbstractContainer::configure($this, $config);
+
+        $this->init();
     }
 
     /**
