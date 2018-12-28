@@ -969,7 +969,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeSave($insert)
     {
-        $event = new ModelEvent(['name' => $insert ? self::EVENT_BEFORE_INSERT : self::EVENT_BEFORE_UPDATE]);
+        $event = new ModelEvent( $insert ? self::EVENT_BEFORE_INSERT : self::EVENT_BEFORE_UPDATE );
         $this->trigger($event);
 
         return $event->isValid;
@@ -995,10 +995,10 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterSave($insert, $changedAttributes)
     {
-        $this->trigger(new AfterSaveEvent([
-            'name' => $insert ? self::EVENT_AFTER_INSERT : self::EVENT_AFTER_UPDATE,
-            'changedAttributes' => $changedAttributes,
-        ]));
+        $this->trigger(new AfterSaveEvent(
+            $insert ? self::EVENT_AFTER_INSERT : self::EVENT_AFTER_UPDATE,
+            $changedAttributes
+        ));
     }
 
     /**
