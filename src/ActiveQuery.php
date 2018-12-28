@@ -11,6 +11,7 @@ use yii\db\Command;
 use yii\db\Connection;
 use yii\db\Query;
 use yii\exceptions\InvalidConfigException;
+use yii\di\AbstractContainer;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -110,7 +111,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $this->modelClass = $modelClass;
 
-        \yii\di\AbstractContainer::configure($this, $config);
+        AbstractContainer::configure($this, $config);
 
         $this->init();
     }
