@@ -11,7 +11,7 @@ use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 use yii\base\Model;
-use yii\base\ModelEvent;
+use yii\base\ValidationEvent;
 use yii\base\NotSupportedException;
 use yii\base\UnknownMethodException;
 use yii\helpers\ArrayHelper;
@@ -969,7 +969,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeSave($insert)
     {
-        $event = new ModelEvent( $insert ? self::EVENT_BEFORE_INSERT : self::EVENT_BEFORE_UPDATE );
+        $event = new ValidationEvent( $insert ? self::EVENT_BEFORE_INSERT : self::EVENT_BEFORE_UPDATE );
         $this->trigger($event);
 
         return $event->isValid;
