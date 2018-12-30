@@ -23,7 +23,7 @@ class Animal extends ActiveRecord
         return 'animal';
     }
 
-    public function __construct(array $config = [])
+    public function __construct()
     {
         $this->type = \get_called_class();
     }
