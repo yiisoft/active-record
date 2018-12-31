@@ -16,6 +16,7 @@ use yii\db\tests\unit\GetTablesAliasTestTrait;
 use yii\activerecord\tests\data\ActiveRecord;
 use yii\activerecord\tests\data\Customer;
 use yii\activerecord\tests\data\Profile;
+use yii\activerecord\ActiveQueryEvent;
 
 /**
  * Class ActiveQueryTest the base class for testing ActiveQuery.
@@ -46,10 +47,10 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $callback = function (\yii\base\Event $event) use ($where) {
             $event->target->where = $where;
         };
-        Event::on(ActiveQuery::class, ActiveQuery::EVENT_INIT, $callback);
-        $result = new ActiveQuery(Customer::class);
+        Event::on('\yii\activerecord\ActiveQuery', ActiveQueryEvent::INIT, $callback);
+        $result = $this->app->createObject(['__class' => ActiveQuery::class], [Customer::class]);
         $this->assertEquals($where, $result->where);
-        Event::off(ActiveQuery::class, ActiveQuery::EVENT_INIT, $callback);
+        Event::off('\yii\activerecord\ActiveQuery', ActiveQueryEvent::INIT, $callback);
     }
 
     /**

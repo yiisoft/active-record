@@ -81,11 +81,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
     use ActiveRelationTrait;
 
     /**
-     * @event Event an event that is triggered when the query is initialized via [[init()]].
-     */
-    const EVENT_INIT = 'init';
-
-    /**
      * @var string the SQL statement to be executed for retrieving AR records.
      * This is set by [[ActiveRecord::findBySql()]].
      */
@@ -112,7 +107,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
     {
         $this->modelClass = $modelClass;
 
-        AbstractContainer::configure($this, $config);
+        parent::__construct($config);
     }
 
     /**
@@ -123,7 +118,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
      */
     public function init() : void
     {
-        $this->trigger(self::EVENT_INIT);
+        $this->trigger(ActiveQueryEvent::init());
     }
 
     /**
