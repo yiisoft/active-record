@@ -11,7 +11,7 @@ use yii\base\Event;
 
 
 /**
- * ActiveRecordSaveEvent represents the event parameter used for an active record event.
+ * ActiveRecordSaveEvent represents the event parameter used for an active record save event.
  *
  * @author Fabrizio Caldarelli <fabrizio.caldarelli@gmail.com>
  * @since 3.0
@@ -54,7 +54,7 @@ class ActiveRecordSaveEvent extends Event
 
     /**
      * Creates BEFORE SAVE event.
-     * @param string $insert active record performed action (insert or update)
+     * @param string $insert specify if action is insert or update ( true for insert, false for update )
      * @return self created event
      */
     public static function before($insert): self
@@ -64,7 +64,7 @@ class ActiveRecordSaveEvent extends Event
 
     /**
      * Creates AFTER SAVE event.
-     * @param string $insert active record performed action (insert or update)
+     * @param string $insert specify if action is insert or update ( true for insert, false for update )
      * @param string $changedAttributes list of changed attributes
      * @return self created event
      */
@@ -74,6 +74,6 @@ class ActiveRecordSaveEvent extends Event
     }
 
     public function getInsert() : bool { return $this->_insert; }
-    public function getChangedAttributes() : bool { return $this->_changedAttributes; }
+    public function getChangedAttributes() : array { return $this->_changedAttributes; }
 
 }
