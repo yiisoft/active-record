@@ -45,47 +45,6 @@ use yii\base\ModelEvent;
 abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
 {
     /**
-     * @event Event an event that is triggered when the record is initialized via [[init()]].
-     */
-    const EVENT_INIT = 'init';
-    /**
-     * @event Event an event that is triggered after the record is created and populated with query result.
-     */
-    const EVENT_AFTER_FIND = 'afterFind';
-    /**
-     * @event ModelEvent an event that is triggered before inserting a record.
-     * You may set [[ModelEvent::isValid]] to be `false` to stop the insertion.
-     */
-    const EVENT_BEFORE_INSERT = 'beforeInsert';
-    /**
-     * @event AfterSaveEvent an event that is triggered after a record is inserted.
-     */
-    const EVENT_AFTER_INSERT = 'afterInsert';
-    /**
-     * @event ModelEvent an event that is triggered before updating a record.
-     * You may set [[ModelEvent::isValid]] to be `false` to stop the update.
-     */
-    const EVENT_BEFORE_UPDATE = 'beforeUpdate';
-    /**
-     * @event AfterSaveEvent an event that is triggered after a record is updated.
-     */
-    const EVENT_AFTER_UPDATE = 'afterUpdate';
-    /**
-     * @event ModelEvent an event that is triggered before deleting a record.
-     * You may set [[ModelEvent::isValid]] to be `false` to stop the deletion.
-     */
-    const EVENT_BEFORE_DELETE = 'beforeDelete';
-    /**
-     * @event Event an event that is triggered after a record is deleted.
-     */
-    const EVENT_AFTER_DELETE = 'afterDelete';
-    /**
-     * @event Event an event that is triggered after a record is refreshed.
-     * @since 2.0.8
-     */
-    const EVENT_AFTER_REFRESH = 'afterRefresh';
-
-    /**
      * @var array attribute values indexed by attribute names
      */
     private $_attributes = [];
@@ -931,7 +890,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
     public function init()
     {
         parent::init();
-        $this->trigger(self::EVENT_INIT);
+        $this->trigger(ActiveRecordInitEvent::init());
     }
 
     /**
