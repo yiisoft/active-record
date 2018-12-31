@@ -942,7 +942,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterFind()
     {
-        $this->trigger(self::EVENT_AFTER_FIND);
+        $this->trigger(ActiveRecordFindEvent::after());
     }
 
     /**
@@ -1019,10 +1019,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeDelete()
     {
-        $event = new ModelEvent(['name' => self::EVENT_BEFORE_DELETE]);
-        $this->trigger($event);
-
-        return $event->isValid;
+        return $this->trigger(ActiveRecordDeleteEvent::before());
     }
 
     /**
@@ -1033,7 +1030,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterDelete()
     {
-        $this->trigger(self::EVENT_AFTER_DELETE);
+        $this->trigger(ActiveRecordDeleteEvent::after());
     }
 
     /**

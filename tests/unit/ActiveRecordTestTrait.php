@@ -12,6 +12,7 @@ use yii\activerecord\BaseActiveRecord;
 use yii\activerecord\tests\data\Customer;
 use yii\activerecord\tests\data\Order;
 use yii\tests\TestCase;
+use yii\activerecord\ActiveRecordFindEvent;
 
 /**
  * This trait provides unit tests shared by the different AR implementations.
@@ -1102,9 +1103,9 @@ trait ActiveRecordTestTrait
         /* @var $this TestCase|ActiveRecordTestTrait */
 
         $afterFindCalls = [];
-        Event::on(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND, function ($event) use (&$afterFindCalls) {
+        Event::on('\yii\activerecord\BaseActiveRecord', ActiveRecordFindEvent::AFTER, function ($event) use (&$afterFindCalls) {
             /* @var $ar BaseActiveRecord */
-            $ar = $event->sender;
+            $ar = $event->target;
             $afterFindCalls[] = [\get_class($ar), $ar->getIsNewRecord(), $ar->getPrimaryKey(), $ar->isRelationPopulated('orders')];
         });
 
@@ -1147,7 +1148,7 @@ trait ActiveRecordTestTrait
         ], $afterFindCalls);
         $afterFindCalls = [];
 
-        Event::off(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND);
+        Event::off('\yii\activerecord\BaseActiveRecord', ActiveRecordFindEvent::AFTER);
     }
 
     public function testAfterRefresh()
