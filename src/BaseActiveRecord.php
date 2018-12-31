@@ -1081,7 +1081,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterRefresh()
     {
-        $this->trigger(self::EVENT_AFTER_REFRESH);
+        $this->trigger(ActiveRecordRefreshEvent::after());
     }
 
     /**
