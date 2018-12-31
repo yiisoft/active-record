@@ -16,6 +16,8 @@ use yii\base\NotSupportedException;
 use yii\base\UnknownMethodException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Yii;
+use yii\db\StaleObjectException;
+use yii\base\ModelEvent;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -969,10 +971,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeSave($insert)
     {
-        $event = new ValidationEvent( $insert ? self::EVENT_BEFORE_INSERT : self::EVENT_BEFORE_UPDATE );
-        $this->trigger($event);
-
-        return $event->isValid;
+        return $this->trigger(ActiveRecordSaveEvent::before($insert));
     }
 
     /**
@@ -995,10 +994,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterSave($insert, $changedAttributes)
     {
-        $this->trigger(new AfterSaveEvent(
-            $insert ? self::EVENT_AFTER_INSERT : self::EVENT_AFTER_UPDATE,
-            $changedAttributes
-        ));
+        return $this->trigger(ActiveRecordSaveEvent::after($insert, $changedAttributes));
     }
 
     /**

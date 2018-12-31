@@ -66,7 +66,7 @@ trait ActiveRecordTestTrait
         /* @var $this TestCase|ActiveRecordTestTrait */
         // find one
         $result = $customerClass::find();
-        $this->assertInstanceOf('\\yii\\db\\ActiveQueryInterface', $result);
+        $this->assertInstanceOf('\\yii\\activerecord\\ActiveQueryInterface', $result);
         $customer = $result->one();
         $this->assertInstanceOf($customerClass, $customer);
 
