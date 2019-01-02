@@ -107,7 +107,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
     {
         $this->modelClass = $modelClass;
 
-        parent::__construct($config);
+        if (!empty($config)) {
+            \yii\di\AbstractContainer::configure($this, $config);
+        }
     }
 
     /**

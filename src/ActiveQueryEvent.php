@@ -21,7 +21,7 @@ class ActiveQueryEvent extends Event
     /**
      * @event raised after executing init 
      */    
-    const INIT = 'activeQuery.init';
+    const INIT = 'yii\base\Event\ActiveQueryEvent::INIT';
 
     /**
      * Creates INIT event.

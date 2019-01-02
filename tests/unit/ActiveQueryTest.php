@@ -47,10 +47,10 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $callback = function (\yii\base\Event $event) use ($where) {
             $event->target->where = $where;
         };
-        Event::on('\yii\activerecord\ActiveQuery', ActiveQueryEvent::INIT, $callback);
+        Event::on(\yii\activerecord\ActiveQuery::class, ActiveQueryEvent::INIT, $callback);
         $result = $this->app->createObject(['__class' => ActiveQuery::class], [Customer::class]);
         $this->assertEquals($where, $result->where);
-        Event::off('\yii\activerecord\ActiveQuery', ActiveQueryEvent::INIT, $callback);
+        Event::off(\yii\activerecord\ActiveQuery::class, ActiveQueryEvent::INIT, $callback);
     }
 
     /**

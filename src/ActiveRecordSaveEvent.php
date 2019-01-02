@@ -22,11 +22,11 @@ class ActiveRecordSaveEvent extends Event
      * @event event raised at the beginning of [[save()]]. You may set
      * [[Event::isValid]] to be false to stop the validation.
      */    
-    const BEFORE = 'activeRecordSave.before';
+    const BEFORE = 'yii\base\Event\ActiveRecordSaveEvent::BEFORE';
     /**
      * @event raised after executing save action
      */
-    const AFTER = 'activeRecordSave.after';
+    const AFTER = 'yii\base\Event\ActiveRecordSaveEvent::AFTER';
 
     /**
      * @var bool insert specify if action is insert or update ( true for insert, false for update )

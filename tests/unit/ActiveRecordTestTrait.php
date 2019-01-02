@@ -12,8 +12,7 @@ use yii\activerecord\BaseActiveRecord;
 use yii\activerecord\tests\data\Customer;
 use yii\activerecord\tests\data\Order;
 use yii\tests\TestCase;
-use yii\activerecord\ActiveRecordFindEvent;
-use yii\activerecord\ActiveRecordRefreshEvent;
+use yii\activerecord\ActiveRecordEvent;
 
 /**
  * This trait provides unit tests shared by the different AR implementations.
@@ -1104,7 +1103,7 @@ trait ActiveRecordTestTrait
         /* @var $this TestCase|ActiveRecordTestTrait */
 
         $afterFindCalls = [];
-        Event::on('\yii\activerecord\BaseActiveRecord', ActiveRecordFindEvent::AFTER, function ($event) use (&$afterFindCalls) {
+        Event::on(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_FIND, function ($event) use (&$afterFindCalls) {
             /* @var $ar BaseActiveRecord */
             $ar = $event->target;
             $afterFindCalls[] = [\get_class($ar), $ar->getIsNewRecord(), $ar->getPrimaryKey(), $ar->isRelationPopulated('orders')];
@@ -1149,7 +1148,7 @@ trait ActiveRecordTestTrait
         ], $afterFindCalls);
         $afterFindCalls = [];
 
-        Event::off('\yii\activerecord\BaseActiveRecord', ActiveRecordFindEvent::AFTER);
+        Event::off(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_FIND);
     }
 
     public function testAfterRefresh()
@@ -1159,7 +1158,7 @@ trait ActiveRecordTestTrait
         /* @var $this TestCase|ActiveRecordTestTrait */
 
         $afterRefreshCalls = [];
-        Event::on('\yii\activerecord\BaseActiveRecord', ActiveRecordRefreshEvent::AFTER, function ($event) use (&$afterRefreshCalls) {
+        Event::on(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_REFRESH, function ($event) use (&$afterRefreshCalls) {
             /* @var $ar BaseActiveRecord */
             $ar = $event->target;
             $afterRefreshCalls[] = [\get_class($ar), $ar->getIsNewRecord(), $ar->getPrimaryKey(), $ar->isRelationPopulated('orders')];
@@ -1170,7 +1169,7 @@ trait ActiveRecordTestTrait
         $customer->refresh();
         $this->assertEquals([[$customerClass, false, 1, false]], $afterRefreshCalls);
         $afterRefreshCalls = [];
-        Event::off('\yii\activerecord\BaseActiveRecord', ActiveRecordRefreshEvent::AFTER);
+        Event::off(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_REFRESH);
 
     }
 

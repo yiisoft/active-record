@@ -11,7 +11,6 @@ use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 use yii\base\Model;
-use yii\base\ValidationEvent;
 use yii\base\NotSupportedException;
 use yii\base\UnknownMethodException;
 use yii\helpers\ArrayHelper;
@@ -890,7 +889,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
     public function init()
     {
         parent::init();
-        $this->trigger(ActiveRecordInitEvent::init());
+        $this->trigger(ActiveRecordEvent::init());
     }
 
     /**
@@ -901,7 +900,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterFind()
     {
-        $this->trigger(ActiveRecordFindEvent::after());
+        $this->trigger(ActiveRecordEvent::afterFind());
     }
 
     /**
@@ -978,7 +977,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeDelete()
     {
-        return $this->trigger(ActiveRecordDeleteEvent::before());
+        return $this->trigger(ActiveRecordEvent::beforeDelete());
     }
 
     /**
@@ -989,7 +988,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterDelete()
     {
-        $this->trigger(ActiveRecordDeleteEvent::after());
+        $this->trigger(ActiveRecordEvent::afterDelete());
     }
 
     /**
@@ -1040,7 +1039,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterRefresh()
     {
-        $this->trigger(ActiveRecordRefreshEvent::after());
+        $this->trigger(ActiveRecordEvent::afterRefresh());
     }
 
     /**
