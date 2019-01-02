@@ -57,7 +57,7 @@ class ActiveRecordSaveEvent extends Event
      * @param string $insert specify if action is insert or update ( true for insert, false for update )
      * @return self created event
      */
-    public static function before($insert): self
+    public static function before(bool $insert): self
     {
         return new static(static::BEFORE, $insert);
     }
@@ -68,12 +68,18 @@ class ActiveRecordSaveEvent extends Event
      * @param string $changedAttributes list of changed attributes
      * @return self created event
      */
-    public static function after($insert, $changedAttributes): self
+    public static function after(bool $insert,array $changedAttributes = null): self
     {
         return (new static(static::AFTER, $insert, $changedAttributes));
     }
 
-    public function getInsert() : bool { return $this->_insert; }
-    public function getChangedAttributes() : array { return $this->_changedAttributes; }
+    public function getInsert() : bool 
+    { 
+        return $this->_insert; 
+    }
+    public function getChangedAttributes() : array 
+    { 
+        return $this->_changedAttributes; 
+    }
 
 }
