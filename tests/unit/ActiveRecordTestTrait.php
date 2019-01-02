@@ -12,6 +12,7 @@ use yii\activerecord\BaseActiveRecord;
 use yii\activerecord\tests\data\Customer;
 use yii\activerecord\tests\data\Order;
 use yii\tests\TestCase;
+use yii\activerecord\ActiveRecordEvent;
 
 /**
  * This trait provides unit tests shared by the different AR implementations.
@@ -66,7 +67,7 @@ trait ActiveRecordTestTrait
         /* @var $this TestCase|ActiveRecordTestTrait */
         // find one
         $result = $customerClass::find();
-        $this->assertInstanceOf('\\yii\\db\\ActiveQueryInterface', $result);
+        $this->assertInstanceOf('\\yii\\activerecord\\ActiveQueryInterface', $result);
         $customer = $result->one();
         $this->assertInstanceOf($customerClass, $customer);
 
@@ -1102,9 +1103,9 @@ trait ActiveRecordTestTrait
         /* @var $this TestCase|ActiveRecordTestTrait */
 
         $afterFindCalls = [];
-        Event::on(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND, function ($event) use (&$afterFindCalls) {
+        Event::on(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_FIND, function ($event) use (&$afterFindCalls) {
             /* @var $ar BaseActiveRecord */
-            $ar = $event->sender;
+            $ar = $event->target;
             $afterFindCalls[] = [\get_class($ar), $ar->getIsNewRecord(), $ar->getPrimaryKey(), $ar->isRelationPopulated('orders')];
         });
 
@@ -1147,7 +1148,7 @@ trait ActiveRecordTestTrait
         ], $afterFindCalls);
         $afterFindCalls = [];
 
-        Event::off(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_FIND);
+        Event::off(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_FIND);
     }
 
     public function testAfterRefresh()
@@ -1157,9 +1158,9 @@ trait ActiveRecordTestTrait
         /* @var $this TestCase|ActiveRecordTestTrait */
 
         $afterRefreshCalls = [];
-        Event::on(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_REFRESH, function ($event) use (&$afterRefreshCalls) {
+        Event::on(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_REFRESH, function ($event) use (&$afterRefreshCalls) {
             /* @var $ar BaseActiveRecord */
-            $ar = $event->sender;
+            $ar = $event->target;
             $afterRefreshCalls[] = [\get_class($ar), $ar->getIsNewRecord(), $ar->getPrimaryKey(), $ar->isRelationPopulated('orders')];
         });
 
@@ -1168,7 +1169,8 @@ trait ActiveRecordTestTrait
         $customer->refresh();
         $this->assertEquals([[$customerClass, false, 1, false]], $afterRefreshCalls);
         $afterRefreshCalls = [];
-        Event::off(BaseActiveRecord::className(), BaseActiveRecord::EVENT_AFTER_REFRESH);
+        Event::off(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_REFRESH);
+
     }
 
     public function testFindEmptyInCondition()
@@ -1266,7 +1268,7 @@ trait ActiveRecordTestTrait
             $this->fail('setter call above MUST throw Exception');
         } catch (\Exception $e) {
             // catch exception "Setting read-only property"
-            $this->assertInstanceOf('yii\base\InvalidCallException', $e);
+            $this->assertInstanceOf('yii\exceptions\InvalidCallException', $e);
         }
 
         // related attribute $customer->orderItems didn't change cause it's read-only

@@ -1420,12 +1420,12 @@ abstract class ActiveRecordTest extends DatabaseTestCase
             ->with('orderItems2')
             ->where(['id' => 1])
             ->one();
-        $orderItem = new OrderItem([
-            'order_id' => $order->id,
-            'item_id' => 3,
-            'quantity' => 1,
-            'subtotal' => 10.0,
-        ]);
+        $orderItem = new OrderItem();
+        $orderItem->order_id = $order->id;
+        $orderItem->item_id = 3;
+        $orderItem->quantity = 1;
+        $orderItem->subtotal = 10.0;
+
         $order->link('orderItems2', $orderItem);
         $this->assertTrue(isset($order->orderItems2['3']));
     }
@@ -1436,12 +1436,12 @@ abstract class ActiveRecordTest extends DatabaseTestCase
             ->with('orderItems3')
             ->where(['id' => 1])
             ->one();
-        $orderItem = new OrderItem([
-            'order_id' => $order->id,
-            'item_id' => 3,
-            'quantity' => 1,
-            'subtotal' => 10.0,
-        ]);
+        $orderItem = new OrderItem();
+        $orderItem->order_id = $order->id;
+        $orderItem->item_id = 3;
+        $orderItem->quantity = 1;
+        $orderItem->subtotal = 10.0;
+    
         $order->link('orderItems3', $orderItem);
         $this->assertTrue(isset($order->orderItems3['1_3']));
     }
@@ -1675,7 +1675,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
      */
     public function testValueEscapingInFindByCondition($filterWithInjection)
     {
-        $this->expectException('yii\base\InvalidArgumentException');
+        $this->expectException('yii\exceptions\InvalidArgumentException');
         $this->expectExceptionMessageRegExp('/^Key "(.+)?" is not a column name and can not be used as a filter$/');
         /** @var Query $query */
         $query = $this->invokeMethod(new Customer(), 'findByCondition', $filterWithInjection);

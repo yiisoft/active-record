@@ -11,11 +11,12 @@ use yii\base\InvalidArgumentException;
 use yii\base\InvalidCallException;
 use yii\base\InvalidConfigException;
 use yii\base\Model;
-use yii\base\ModelEvent;
 use yii\base\NotSupportedException;
 use yii\base\UnknownMethodException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Yii;
+use yii\db\StaleObjectException;
+use yii\base\ModelEvent;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -42,47 +43,6 @@ use yii\helpers\Yii;
  */
 abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
 {
-    /**
-     * @event Event an event that is triggered when the record is initialized via [[init()]].
-     */
-    const EVENT_INIT = 'init';
-    /**
-     * @event Event an event that is triggered after the record is created and populated with query result.
-     */
-    const EVENT_AFTER_FIND = 'afterFind';
-    /**
-     * @event ModelEvent an event that is triggered before inserting a record.
-     * You may set [[ModelEvent::isValid]] to be `false` to stop the insertion.
-     */
-    const EVENT_BEFORE_INSERT = 'beforeInsert';
-    /**
-     * @event AfterSaveEvent an event that is triggered after a record is inserted.
-     */
-    const EVENT_AFTER_INSERT = 'afterInsert';
-    /**
-     * @event ModelEvent an event that is triggered before updating a record.
-     * You may set [[ModelEvent::isValid]] to be `false` to stop the update.
-     */
-    const EVENT_BEFORE_UPDATE = 'beforeUpdate';
-    /**
-     * @event AfterSaveEvent an event that is triggered after a record is updated.
-     */
-    const EVENT_AFTER_UPDATE = 'afterUpdate';
-    /**
-     * @event ModelEvent an event that is triggered before deleting a record.
-     * You may set [[ModelEvent::isValid]] to be `false` to stop the deletion.
-     */
-    const EVENT_BEFORE_DELETE = 'beforeDelete';
-    /**
-     * @event Event an event that is triggered after a record is deleted.
-     */
-    const EVENT_AFTER_DELETE = 'afterDelete';
-    /**
-     * @event Event an event that is triggered after a record is refreshed.
-     * @since 2.0.8
-     */
-    const EVENT_AFTER_REFRESH = 'afterRefresh';
-
     /**
      * @var array attribute values indexed by attribute names
      */
@@ -929,7 +889,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
     public function init()
     {
         parent::init();
-        $this->trigger(self::EVENT_INIT);
+        $this->trigger(ActiveRecordEvent::init());
     }
 
     /**
@@ -940,7 +900,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterFind()
     {
-        $this->trigger(self::EVENT_AFTER_FIND);
+        $this->trigger(ActiveRecordEvent::afterFind());
     }
 
     /**
@@ -969,10 +929,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeSave($insert)
     {
-        $event = new ModelEvent(['name' => $insert ? self::EVENT_BEFORE_INSERT : self::EVENT_BEFORE_UPDATE]);
-        $this->trigger($event);
-
-        return $event->isValid;
+        return $this->trigger(ActiveRecordSaveEvent::before($insert));
     }
 
     /**
@@ -995,10 +952,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterSave($insert, $changedAttributes)
     {
-        $this->trigger(new AfterSaveEvent([
-            'name' => $insert ? self::EVENT_AFTER_INSERT : self::EVENT_AFTER_UPDATE,
-            'changedAttributes' => $changedAttributes,
-        ]));
+        return $this->trigger(ActiveRecordSaveEvent::after($insert, $changedAttributes));
     }
 
     /**
@@ -1023,10 +977,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeDelete()
     {
-        $event = new ModelEvent(['name' => self::EVENT_BEFORE_DELETE]);
-        $this->trigger($event);
-
-        return $event->isValid;
+        return $this->trigger(ActiveRecordEvent::beforeDelete());
     }
 
     /**
@@ -1037,7 +988,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterDelete()
     {
-        $this->trigger(self::EVENT_AFTER_DELETE);
+        $this->trigger(ActiveRecordEvent::afterDelete());
     }
 
     /**
@@ -1088,7 +1039,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterRefresh()
     {
-        $this->trigger(self::EVENT_AFTER_REFRESH);
+        $this->trigger(ActiveRecordEvent::afterRefresh());
     }
 
     /**

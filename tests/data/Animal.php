@@ -23,9 +23,8 @@ class Animal extends ActiveRecord
         return 'animal';
     }
 
-    public function init()
+    public function __construct()
     {
-        parent::init();
         $this->type = \get_called_class();
     }
 

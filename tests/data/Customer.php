@@ -8,7 +8,7 @@
 namespace yii\activerecord\tests\data;
 
 use yii\activerecord\ActiveQuery;
-use yiiunit\framework\db\ActiveRecordTest;
+use yii\activerecord\tests\unit\ActiveRecordTest;
 
 /**
  * Class Customer.
