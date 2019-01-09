@@ -10,5 +10,5 @@ the changes are bearable and require "refactoring", not "rewrite".
 All the "Yes, it is" cool stuff and Yii soul are still in place.
 
 Changes summary:
-* `yii\activerecord\ActiveRecordEvent` replacement for old BaseActiveRecord ::EVENT_INIT, ::EVENT_AFTER_FIND, ::EVENT_BEFORE_DELETE, ::EVENT_AFTER_DELETE events;
-* `yii\activerecord\ActiveRecordSaveEvent` replacement for old BaseActiveRecord ::EVENT_BEFORE_INSERT, ::EVENT_AFTER_INSERT, ::EVENT_BEFORE_UPDATE, ::EVENT_AFTER_UPDATE events;
+* `yii\activerecord\ActiveRecordEvent::EVENT_INIT` was split into `EVENT_AFTER_FIND`, `EVENT_BEFORE_DELETE` `EVENT_AFTER_DELETE` events;
+* `yii\activerecord\ActiveRecordSaveEvent` was split into `EVENT_BEFORE_INSERT`, `EVENT_AFTER_INSERT`, `EVENT_BEFORE_UPDATE`, `EVENT_AFTER_UPDATE` events;
