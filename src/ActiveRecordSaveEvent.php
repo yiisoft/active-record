@@ -22,11 +22,21 @@ class ActiveRecordSaveEvent extends Event
      * @event event raised at the beginning of [[save()]]. You may set
      * [[Event::isValid]] to be false to stop the validation.
      */    
-    const BEFORE = 'yii\base\Event\ActiveRecordSaveEvent::BEFORE';
+    const BEFORE_INSERT = 'yii\base\Event\ActiveRecordSaveEvent::BEFORE_INSERT';
     /**
-     * @event raised after executing save action
+     * @event raised after executing insert action
      */
-    const AFTER = 'yii\base\Event\ActiveRecordSaveEvent::AFTER';
+    const AFTER_INSERT = 'yii\base\Event\ActiveRecordSaveEvent::AFTER_INSERT';
+
+    /**
+     * @event event raised at the beginning of [[save()]]. You may set
+     * [[Event::isValid]] to be false to stop the validation.
+     */    
+    const BEFORE_UPDATE = 'yii\base\Event\ActiveRecordSaveEvent::BEFORE_UPDATE';
+    /**
+     * @event raised after executing update action
+     */
+    const AFTER_UPDATE = 'yii\base\Event\ActiveRecordSaveEvent::AFTER_UPDATE';    
 
     /**
      * @var bool insert specify if action is insert or update ( true for insert, false for update )
@@ -59,7 +69,7 @@ class ActiveRecordSaveEvent extends Event
      */
     public static function before(bool $insert): self
     {
-        return new static(static::BEFORE, $insert);
+        return $insert ? new static(static::BEFORE_INSERT, $insert) : new static(static::BEFORE_UPDATE, $insert);
     }
 
     /**
@@ -70,7 +80,7 @@ class ActiveRecordSaveEvent extends Event
      */
     public static function after(bool $insert,array $changedAttributes = null): self
     {
-        return (new static(static::AFTER, $insert, $changedAttributes));
+        return $insert ? (new static(static::AFTER_INSERT, $insert, $changedAttributes)) :  (new static(static::AFTER_UPDATE, $insert, $changedAttributes));
     }
 
     public function getInsert() : bool 
