@@ -69,7 +69,7 @@ class ActiveRecordSaveEvent extends Event
      */
     public static function before(bool $insert): self
     {
-        return $insert ? new static(static::BEFORE_INSERT, $insert) : new static(static::BEFORE_UPDATE, $insert);
+        return new static($insert ? static::BEFORE_INSERT : static::BEFORE_UPDATE, $insert);
     }
 
     /**
@@ -80,7 +80,7 @@ class ActiveRecordSaveEvent extends Event
      */
     public static function after(bool $insert,array $changedAttributes = null): self
     {
-        return $insert ? (new static(static::AFTER_INSERT, $insert, $changedAttributes)) :  (new static(static::AFTER_UPDATE, $insert, $changedAttributes));
+        return new static($insert ? static::AFTER_INSERT : static::AFTER_UPDATE, $insert, $changedAttributes);
     }
 
     public function getInsert() : bool 
