@@ -929,7 +929,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function beforeSave($insert)
     {
-        return $this->trigger(ActiveRecordSaveEvent::before($insert));
+        return $this->trigger( $insert ? ActiveRecordSaveEvent::beforeInsert() : ActiveRecordSaveEvent::beforeUpdate() );
     }
 
     /**
@@ -952,7 +952,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      */
     public function afterSave($insert, $changedAttributes)
     {
-        return $this->trigger(ActiveRecordSaveEvent::after($insert, $changedAttributes));
+        return $this->trigger( $insert ? ActiveRecordSaveEvent::afterInsert($changedAttributes) : ActiveRecordSaveEvent::afterUpdate($changedAttributes) );
     }
 
     /**

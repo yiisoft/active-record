@@ -63,30 +63,48 @@ class ActiveRecordSaveEvent extends Event
     }
 
     /**
-     * Creates BEFORE SAVE event.
-     * @param string $insert specify if action is insert or update ( true for insert, false for update )
+     * Creates BEFORE INSERT event.
      * @return self created event
      */
-    public static function before(bool $insert): self
+    public static function beforeInsert(): self
     {
-        return new static($insert ? static::BEFORE_INSERT : static::BEFORE_UPDATE, $insert);
+        return new static(static::BEFORE_INSERT, true);
     }
 
     /**
-     * Creates AFTER SAVE event.
-     * @param string $insert specify if action is insert or update ( true for insert, false for update )
+     * Creates AFTER INSERT event.
      * @param string $changedAttributes list of changed attributes
      * @return self created event
      */
-    public static function after(bool $insert,array $changedAttributes = null): self
+    public static function afterInsert(array $changedAttributes = null): self
     {
-        return new static($insert ? static::AFTER_INSERT : static::AFTER_UPDATE, $insert, $changedAttributes);
-    }
+        return new static(static::AFTER_INSERT, true, $changedAttributes);
+    }    
+
+    /**
+     * Creates BEFORE UPDATE event.
+     * @return self created event
+     */
+    public static function beforeUpdate(): self
+    {
+        return new static(static::BEFORE_UPDATE, false);
+    }    
+
+    /**
+     * Creates AFTER UPDATE event.
+     * @param string $changedAttributes list of changed attributes
+     * @return self created event
+     */
+    public static function afterUpdate(array $changedAttributes = null): self
+    {
+        return new static(static::AFTER_UPDATE, false, $changedAttributes);
+    }    
 
     public function getInsert() : bool 
     { 
         return $this->_insert; 
     }
+
     public function getChangedAttributes() : array 
     { 
         return $this->_changedAttributes; 
