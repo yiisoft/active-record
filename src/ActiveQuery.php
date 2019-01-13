@@ -8,7 +8,7 @@
 namespace yii\activerecord;
 
 use yii\db\Command;
-use yii\db\Connection;
+use yii\db\ConnectionInterface;
 use yii\db\Query;
 use yii\exceptions\InvalidConfigException;
 use yii\di\AbstractContainer;
@@ -125,11 +125,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
 
     /**
      * Executes query and returns all results as an array.
-     * @param Connection $db the DB connection used to create the DB command.
+     * @param ConnectionInterface $db the DB connection used to create the DB command.
      * If null, the DB connection returned by [[modelClass]] will be used.
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all($db = null)
+    public function all(ConnectionInterface $db = null)
     {
         return parent::all($db);
     }
@@ -284,13 +284,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
 
     /**
      * Executes query and returns a single row of result.
-     * @param Connection|null $db the DB connection used to create the DB command.
+     * @param ConnectionInterface|null $db the DB connection used to create the DB command.
      * If `null`, the DB connection returned by [[modelClass]] will be used.
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting of [[asArray]],
      * the query result may be either an array or an ActiveRecord object. `null` will be returned
      * if the query results in nothing.
      */
-    public function one($db = null)
+    public function one(ConnectionInterface $db = null)
     {
         $row = parent::one($db);
         if ($row !== false) {
@@ -303,11 +303,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
 
     /**
      * Creates a DB command that can be used to execute this query.
-     * @param Connection|null $db the DB connection used to create the DB command.
+     * @param ConnectionInterface|null $db the DB connection used to create the DB command.
      * If `null`, the DB connection returned by [[modelClass]] will be used.
      * @return Command the created DB command instance.
      */
-    public function createCommand($db = null)
+    public function createCommand(ConnectionInterface $db = null)
     {
         /* @var $modelClass ActiveRecord */
         $modelClass = $this->modelClass;

@@ -11,7 +11,7 @@ use yii\activerecord\ActiveQueryInterface;
 use yii\exceptions\InvalidConfigException;
 use yii\base\Model;
 use yii\data\BaseDataProvider;
-use yii\db\Connection;
+use yii\db\ConnectionInterface;
 use yii\db\QueryInterface;
 use yii\di\Instance;
 
@@ -86,7 +86,7 @@ class ActiveDataProvider extends BaseDataProvider
      * This method will initialize the [[db]] property to make sure it refers to a valid DB connection.
      * @throws InvalidConfigException if [[db]] is invalid.
      */
-    public function __construct(Connection $db, QueryInterface $query)
+    public function __construct(ConnectionInterface $db, QueryInterface $query)
     {
         $this->db = $db;
         $this->query = $query;
