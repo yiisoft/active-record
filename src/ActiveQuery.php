@@ -129,7 +129,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
      * If null, the DB connection returned by [[modelClass]] will be used.
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all(ConnectionInterface $db = null)
+    public function all($db = null)
     {
         return parent::all($db);
     }
@@ -290,7 +290,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
      * the query result may be either an array or an ActiveRecord object. `null` will be returned
      * if the query results in nothing.
      */
-    public function one(ConnectionInterface $db = null)
+    public function one($db = null)
     {
         $row = parent::one($db);
         if ($row !== false) {
@@ -307,7 +307,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
      * If `null`, the DB connection returned by [[modelClass]] will be used.
      * @return Command the created DB command instance.
      */
-    public function createCommand(ConnectionInterface $db = null)
+    public function createCommand($db = null)
     {
         /* @var $modelClass ActiveRecord */
         $modelClass = $this->modelClass;
