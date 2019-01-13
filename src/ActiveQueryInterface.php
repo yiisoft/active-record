@@ -40,7 +40,7 @@ interface ActiveQueryInterface extends QueryInterface
      * the query result may be either an array or an ActiveRecord object. `null` will be returned
      * if the query results in nothing.
      */
-    public function one(ConnectionInterface $db = null);
+    public function one($db = null);
 
     /**
      * Sets the [[indexBy]] property.
