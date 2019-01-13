@@ -7,8 +7,8 @@
 
 namespace yii\activerecord;
 
-use yii\base\InvalidArgumentException;
-use yii\base\InvalidConfigException;
+use yii\exceptions\InvalidArgumentException;
+use yii\exceptions\InvalidConfigException;
 
 /**
  * ActiveRelationTrait implements the common methods and properties for active record relational queries.

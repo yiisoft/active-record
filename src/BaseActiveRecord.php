@@ -7,16 +7,16 @@
 
 namespace yii\activerecord;
 
-use yii\base\InvalidArgumentException;
-use yii\base\InvalidCallException;
-use yii\base\InvalidConfigException;
 use yii\base\Model;
-use yii\base\NotSupportedException;
-use yii\base\UnknownMethodException;
+use yii\base\ModelEvent;
+use yii\db\StaleObjectException;
+use yii\exceptions\InvalidArgumentException;
+use yii\exceptions\InvalidCallException;
+use yii\exceptions\InvalidConfigException;
+use yii\exceptions\NotSupportedException;
+use yii\exceptions\UnknownMethodException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Yii;
-use yii\db\StaleObjectException;
-use yii\base\ModelEvent;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -182,7 +182,7 @@ abstract class BaseActiveRecord extends Model implements ActiveRecordInterface
      * 1. Create a column to store the version number of each row. The column type should be `BIGINT DEFAULT 0`.
      *    Override this method to return the name of this column.
      * 2. Ensure the version value is submitted and loaded to your model before any update or delete.
-     *    Or add [[\yii\behaviors\OptimisticLockBehavior|OptimisticLockBehavior]] to your model 
+     *    Or add [[\yii\behaviors\OptimisticLockBehavior|OptimisticLockBehavior]] to your model
      *    class in order to automate the process.
      * 3. In the Web form that collects the user input, add a hidden field that stores
      *    the lock version of the recording being updated.

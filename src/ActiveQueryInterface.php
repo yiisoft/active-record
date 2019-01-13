@@ -7,7 +7,7 @@
 
 namespace yii\activerecord;
 
-use yii\db\Connection;
+use yii\db\ConnectionInterface;
 use yii\db\QueryInterface;
 
 /**
@@ -34,13 +34,13 @@ interface ActiveQueryInterface extends QueryInterface
 
     /**
      * Executes query and returns a single row of result.
-     * @param Connection $db the DB connection used to create the DB command.
+     * @param ConnectionInterface $db the DB connection used to create the DB command.
      * If `null`, the DB connection returned by [[ActiveQueryTrait::$modelClass|modelClass]] will be used.
      * @return ActiveRecordInterface|array|null a single row of query result. Depending on the setting of [[asArray]],
      * the query result may be either an array or an ActiveRecord object. `null` will be returned
      * if the query results in nothing.
      */
-    public function one($db = null);
+    public function one(ConnectionInterface $db = null);
 
     /**
      * Sets the [[indexBy]] property.

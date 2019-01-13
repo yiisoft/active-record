@@ -7,7 +7,7 @@
 
 namespace yii\activerecord;
 
-use yii\db\Connection;
+use yii\db\ConnectionInterface;
 use yii\db\Expression;
 use yii\db\StaleObjectException;
 use yii\db\TableSchema;
@@ -133,7 +133,7 @@ class ActiveRecord extends BaseActiveRecord
      * Returns the database connection used by this AR class.
      * By default, the "db" application component is used as the database connection.
      * You may override this method if you want to use a different database connection.
-     * @return Connection the database connection used by this AR class.
+     * @return ConnectionInterface the database connection used by this AR class.
      */
     public static function getDb()
     {
