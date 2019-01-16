@@ -13,7 +13,7 @@ use yii\base\Model;
 use yii\data\BaseDataProvider;
 use yii\db\ConnectionInterface;
 use yii\db\QueryInterface;
-use yii\di\Instance;
+use yii\helpers\Yii;
 
 /**
  * ActiveDataProvider implements a data provider based on [[\yii\db\Query]] and [[\yii\activerecord\ActiveQuery]].
@@ -23,30 +23,34 @@ use yii\di\Instance;
  * The following is an example of using ActiveDataProvider to provide ActiveRecord instances:
  *
  * ```php
- * $provider = new ActiveDataProvider([
- *     'query' => Post::find(),
- *     'pagination' => [
- *         'pageSize' => 20,
- *     ],
- * ]);
+ * $provider = new ActiveDataProvider( 
+ *      Yii::$app->db,
+ *      Post::find()
+ * );
+ * $provider->pagination' => [
+ *     'pageSize' => 20,
+ * ];
+ * 
  *
  * // get the posts in the current page
- * $posts = $provider->getModels();
+ * $posts = $provider->getModels(); // or $provider->models
  * ```
  *
  * And the following example shows how to use ActiveDataProvider without ActiveRecord:
  *
  * ```php
  * $query = new Query();
- * $provider = new ActiveDataProvider([
- *     'query' => $query->from('post'),
- *     'pagination' => [
- *         'pageSize' => 20,
- *     ],
- * ]);
+ * $provider = new ActiveDataProvider(
+ *     Yii::$app->db,
+ *     $query->from('post')
+ * );
+ * $provider->pagination' => [
+ *     'pageSize' => 20,
+ * ];
+ * 
  *
  * // get the posts in the current page
- * $posts = $provider->getModels();
+ * $posts = $provider->getModels();  // or $provider->models
  * ```
  *
  * For more details and usage information on ActiveDataProvider, see the [guide article on data providers](guide:output-data-providers).
@@ -82,9 +86,10 @@ class ActiveDataProvider extends BaseDataProvider
 
 
     /**
-     * Initializes the DB connection component.
+     * Create the ActiveDataProvider object.
      * This method will initialize the [[db]] property to make sure it refers to a valid DB connection.
-     * @throws InvalidConfigException if [[db]] is invalid.
+     * @param Connection $db database connection (if null, default db connection will be used)
+     * @param QueryInterface $query query to be executed
      */
     public function __construct(ConnectionInterface $db, QueryInterface $query)
     {
