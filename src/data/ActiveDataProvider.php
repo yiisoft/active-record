@@ -8,12 +8,12 @@
 namespace yii\activerecord\data;
 
 use yii\activerecord\ActiveQueryInterface;
+use yii\db\Connection;
 use yii\exceptions\InvalidConfigException;
 use yii\base\Model;
 use yii\data\BaseDataProvider;
 use yii\db\ConnectionInterface;
 use yii\db\QueryInterface;
-use yii\helpers\Yii;
 
 /**
  * ActiveDataProvider implements a data provider based on [[\yii\db\Query]] and [[\yii\activerecord\ActiveQuery]].
@@ -41,7 +41,7 @@ use yii\helpers\Yii;
  * ```php
  * $query = new Query();
  * $provider = new ActiveDataProvider(
- *     Yii::$app->db,
+ *     Yii::get('db'),
  *     $query->from('post')
  * );
  * $provider->pagination' => [
@@ -87,7 +87,6 @@ class ActiveDataProvider extends BaseDataProvider
 
     /**
      * Create the ActiveDataProvider object.
-     * This method will initialize the [[db]] property to make sure it refers to a valid DB connection.
      * @param Connection $db database connection (if null, default db connection will be used)
      * @param QueryInterface $query query to be executed
      */
