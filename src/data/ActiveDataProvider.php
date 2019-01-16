@@ -50,7 +50,7 @@ use yii\helpers\Yii;
  * 
  *
  * // get the posts in the current page
- * $posts = $provider->getModels();  // ot $provider->models
+ * $posts = $provider->getModels();  // or $provider->models
  * ```
  *
  * For more details and usage information on ActiveDataProvider, see the [guide article on data providers](guide:output-data-providers).
