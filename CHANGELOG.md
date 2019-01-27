@@ -4,5 +4,5 @@ Yii Active Record Change Log
 3.0.0 under development
 -----------------------
 
-- Enh:  Added public method `yii\data\ActiveDataProvider::prepareQuery()` for debug facilitation (GHopperMSK)
+- Enh #40:  Added public method `yii\data\ActiveDataProvider::prepareQuery()` for debug facilitation (GHopperMSK)
 - Enh #34: Adjustments to new DI and events replacements (fabriziocaldarelli)
