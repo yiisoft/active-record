@@ -343,13 +343,22 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
             return parent::queryScalar($selectExpression, $db);
         }
 
-        $command = (new Query())->select([$selectExpression])
+        $command = static::createQueryInstance()->select([$selectExpression])
             ->from(['c' => "({$this->sql})"])
             ->params($this->params)
             ->createCommand($db);
         $this->setCommandCache($command);
 
         return $command->queryScalar();
+    }
+
+    /**
+     * This function can be overridden to customize the Query class.
+     * @return Query
+     */
+    protected static function createQueryInstance()
+    {
+       return new Query();
     }
 
     /**
