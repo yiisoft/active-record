@@ -1170,7 +1170,6 @@ trait ActiveRecordTestTrait
         $this->assertEquals([[$customerClass, false, 1, false]], $afterRefreshCalls);
         $afterRefreshCalls = [];
         Event::off(\yii\activerecord\BaseActiveRecord::class, ActiveRecordEvent::AFTER_REFRESH);
-
     }
 
     public function testFindEmptyInCondition()

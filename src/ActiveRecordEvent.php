@@ -9,7 +9,6 @@ namespace yii\activerecord;
 
 use yii\base\Event;
 
-
 /**
  * ActiveRecordEvent represents the event parameter used for an active record event.
  *
@@ -33,7 +32,7 @@ class ActiveRecordEvent extends Event
     /**
      * @event event raised at the beginning of [[delete()]]. You may set
      * [[Event::isValid]] to be false to stop the validation.
-     */    
+     */
     const BEFORE_DELETE = 'yii\base\Event\ActiveRecordEvent::BEFORE_DELETE';
     /**
      * @event raised after executing delete action
@@ -47,7 +46,7 @@ class ActiveRecordEvent extends Event
     public static function init(): self
     {
         return new static(static::INIT);
-    } 
+    }
 
     /**
      * Creates AFTER FIND event.
@@ -56,7 +55,7 @@ class ActiveRecordEvent extends Event
     public static function afterFind(): self
     {
         return new static(static::AFTER_FIND);
-    } 
+    }
 
     /**
      * Creates AFTER FIND event.
@@ -65,7 +64,7 @@ class ActiveRecordEvent extends Event
     public static function afterRefresh(): self
     {
         return new static(static::AFTER_REFRESH);
-    }     
+    }
 
     /**
      * Creates BEFORE DELETE event.
@@ -84,5 +83,4 @@ class ActiveRecordEvent extends Event
     {
         return new static(static::AFTER_DELETE);
     }
-   
 }

@@ -215,7 +215,7 @@ class ActiveRecord extends BaseActiveRecord
         // valid column names are table column names or column names prefixed with table name
         $columnNames = static::getTableSchema()->getColumnNames();
         $tableName = static::tableName();
-        $columnNames = array_merge($columnNames, array_map(function($columnName) use ($tableName) {
+        $columnNames = array_merge($columnNames, array_map(function ($columnName) use ($tableName) {
             return "$tableName.$columnName";
         }, $columnNames));
         foreach ($condition as $key => $value) {
