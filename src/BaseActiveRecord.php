@@ -15,7 +15,7 @@ use yii\exceptions\InvalidCallException;
 use yii\exceptions\InvalidConfigException;
 use yii\exceptions\NotSupportedException;
 use yii\exceptions\UnknownMethodException;
-use yii\helpers\ArrayHelper;
+use Yiisoft\Arrays\ArrayHelper;
 use yii\helpers\Yii;
 
 /**
