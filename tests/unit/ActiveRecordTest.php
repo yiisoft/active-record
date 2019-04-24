@@ -1589,7 +1589,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
     {
         $orderClass = $this->getOrderClass();
 
-        $orderClass::find()->with('customer')->indexBy(function(Order $order) {
+        $orderClass::find()->with('customer')->indexBy(function (Order $order) {
             $this->assertTrue($order->isRelationPopulated('customer'));
             $this->assertNotEmpty($order->customer->id);
 
@@ -1805,6 +1805,5 @@ abstract class ActiveRecordTest extends DatabaseTestCase
     {
         $cat = new Cat();
         $this->assertFalse(isset($cat->throwable));
-
     }
 }

@@ -9,7 +9,6 @@ namespace yii\activerecord;
 
 use yii\base\Event;
 
-
 /**
  * ActiveQueryEvent represents the event parameter used for an active queryevent.
  *
@@ -19,8 +18,8 @@ use yii\base\Event;
 class ActiveQueryEvent extends Event
 {
     /**
-     * @event raised after executing init 
-     */    
+     * @event raised after executing init
+     */
     const INIT = 'yii\base\Event\ActiveQueryEvent::INIT';
 
     /**
@@ -30,6 +29,5 @@ class ActiveQueryEvent extends Event
     public static function init(): self
     {
         return new static(static::INIT);
-    }    
-
+    }
 }
