@@ -10,7 +10,7 @@ namespace yii\activerecord\tests\unit;
 use yii\activerecord\ActiveQuery;
 use yii\db\Query;
 use yii\db\tests\unit\DatabaseTestCase;
-use yii\helpers\ArrayHelper;
+use Yiisoft\Arrays\ArrayHelper;
 use yii\activerecord\tests\data\ActiveRecord;
 use yii\activerecord\tests\data\Animal;
 use yii\activerecord\tests\data\BitValues;
