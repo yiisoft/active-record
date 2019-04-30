@@ -14,7 +14,7 @@ use yii\db\TableSchema;
 use yii\exceptions\InvalidArgumentException;
 use yii\exceptions\InvalidConfigException;
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Helpers\InflectorHelper;
+use Yiisoft\Inflector\InflectorHelper;
 use Yiisoft\Strings\StringHelper;
 use yii\helpers\Yii;
 
