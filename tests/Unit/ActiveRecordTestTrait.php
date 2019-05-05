@@ -832,9 +832,9 @@ trait ActiveRecordTestTrait
     {
         /* @var $this TestCase|ActiveRecordTestTrait */
 
-        /* @var $customerClass \yii\db\BaseActiveRecord */
+        /* @var $customerClass \Yiisoft\Db\BaseActiveRecord */
         $customerClass = $this->getCustomerClass();
-        /* @var $orderClass \yii\db\BaseActiveRecord */
+        /* @var $orderClass \Yiisoft\Db\BaseActiveRecord */
         $orderClass = $this->getOrderWithNullFKClass();
 
         // in this test all orders are owned by customer 1
@@ -858,9 +858,9 @@ trait ActiveRecordTestTrait
     {
         /* @var $this TestCase|ActiveRecordTestTrait */
 
-        /* @var $customerClass \yii\db\BaseActiveRecord */
+        /* @var $customerClass \Yiisoft\Db\BaseActiveRecord */
         $customerClass = $this->getCustomerClass();
-        /* @var $orderClass \yii\db\BaseActiveRecord */
+        /* @var $orderClass \Yiisoft\Db\BaseActiveRecord */
         $orderClass = $this->getOrderClass();
 
         // in this test all orders are owned by customer 1

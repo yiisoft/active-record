@@ -9,7 +9,7 @@ namespace Yiisoft\ActiveRecord;
 
 use yii\base\Model;
 use yii\base\ModelEvent;
-use yii\db\StaleObjectException;
+use Yiisoft\Db\StaleObjectException;
 use yii\exceptions\InvalidArgumentException;
 use yii\exceptions\InvalidCallException;
 use yii\exceptions\InvalidConfigException;

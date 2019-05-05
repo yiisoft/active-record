@@ -13,9 +13,9 @@ use Yiisoft\ActiveRecord\Tests\Data\ActiveRecord;
 use Yiisoft\ActiveRecord\Tests\Data\Customer;
 use Yiisoft\ActiveRecord\Tests\Data\Item;
 use Yiisoft\ActiveRecord\Tests\Data\Order;
-use yii\db\Query;
-use yii\db\tests\unit\DatabaseTestCase;
-use yii\db\tests\unit\UnqueryableQueryMock;
+use Yiisoft\Db\Query;
+use Yiisoft\Db\Tests\DatabaseTestCase;
+use Yiisoft\Db\Tests\UnqueryableQueryMock;
 
 /**
  * @author Qiang Xue <qiang.xue@gmail.com>

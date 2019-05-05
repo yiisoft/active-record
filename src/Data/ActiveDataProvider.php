@@ -8,15 +8,15 @@
 namespace Yiisoft\ActiveRecord\Data;
 
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use yii\db\Connection;
+use Yiisoft\Db\Connection;
 use yii\exceptions\InvalidConfigException;
 use yii\base\Model;
 use yii\data\BaseDataProvider;
-use yii\db\ConnectionInterface;
-use yii\db\QueryInterface;
+use Yiisoft\Db\ConnectionInterface;
+use Yiisoft\Db\QueryInterface;
 
 /**
- * ActiveDataProvider implements a data provider based on [[\yii\db\Query]] and [[\Yiisoft\ActiveRecord\ActiveQuery]].
+ * ActiveDataProvider implements a data provider based on [[\Yiisoft\Db\Query]] and [[\Yiisoft\ActiveRecord\ActiveQuery]].
  *
  * ActiveDataProvider provides data by performing DB queries using [[query]].
  *
@@ -113,7 +113,7 @@ class ActiveDataProvider extends BaseDataProvider
     public function prepareQuery()
     {
         if (!$this->query instanceof QueryInterface) {
-            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. yii\db\Query or its subclasses.');
+            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. Yiisoft\Db\Query or its subclasses.');
         }
         $query = clone $this->query;
         if (($pagination = $this->getPagination()) !== false) {
@@ -177,7 +177,7 @@ class ActiveDataProvider extends BaseDataProvider
     protected function prepareTotalCount()
     {
         if (!$this->query instanceof QueryInterface) {
-            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. yii\db\Query or its subclasses.');
+            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. Yiisoft\Db\Query or its subclasses.');
         }
         $query = clone $this->query;
         return (int) $query->limit(-1)->offset(-1)->orderBy([])->count('*', $this->db);
