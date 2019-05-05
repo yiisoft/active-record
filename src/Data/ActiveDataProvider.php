@@ -102,6 +102,9 @@ class ActiveDataProvider extends BaseDataProvider
     protected function prepareModels()
     {
         $query = $this->prepareQuery();
+        if ($query->emulateExecution) {
+            return [];
+        }
         return $query->all($this->db);
     }
 
