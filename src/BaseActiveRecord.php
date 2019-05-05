@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\activerecord;
+namespace Yiisoft\ActiveRecord;
 
 use yii\base\Model;
 use yii\base\ModelEvent;
@@ -21,7 +21,7 @@ use yii\helpers\Yii;
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
  *
- * See [[\yii\activerecord\ActiveRecord]] for a concrete implementation.
+ * See [[\Yiisoft\ActiveRecord\ActiveRecord]] for a concrete implementation.
  *
  * @property array $dirtyAttributes The changed attribute values (name-value pairs). This property is
  * read-only.

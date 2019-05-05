@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\activerecord;
+namespace Yiisoft\ActiveRecord;
 
 /**
  * ActiveQueryTrait implements the common methods and properties for active record query classes.
@@ -62,7 +62,7 @@ trait ActiveQueryTrait
      * Customer::find()->with('orders.address')->all();
      * // find customers together with their country and orders of status 1
      * Customer::find()->with([
-     *     'orders' => function (\yii\activerecord\ActiveQuery $query) {
+     *     'orders' => function (\Yiisoft\ActiveRecord\ActiveQuery $query) {
      *         $query->andWhere('status = 1');
      *     },
      *     'country',

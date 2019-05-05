@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\activerecord;
+namespace Yiisoft\ActiveRecord;
 
 use yii\base\Event;
 

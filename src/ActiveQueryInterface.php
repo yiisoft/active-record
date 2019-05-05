@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\activerecord;
+namespace Yiisoft\ActiveRecord;
 
 use yii\db\ConnectionInterface;
 use yii\db\QueryInterface;
@@ -81,7 +81,7 @@ interface ActiveQueryInterface extends QueryInterface
      * Customer::find()->with('orders.address')->all();
      * // find customers together with their country and orders of status 1
      * Customer::find()->with([
-     *     'orders' => function (\yii\activerecord\ActiveQuery $query) {
+     *     'orders' => function (\Yiisoft\ActiveRecord\ActiveQuery $query) {
      *         $query->andWhere('status = 1');
      *     },
      *     'country',
