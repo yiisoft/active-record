@@ -7,10 +7,10 @@
 
 namespace Yiisoft\ActiveRecord;
 
-use yii\db\ConnectionInterface;
-use yii\db\Expression;
-use yii\db\StaleObjectException;
-use yii\db\TableSchema;
+use Yiisoft\Db\ConnectionInterface;
+use Yiisoft\Db\Expression;
+use Yiisoft\Db\StaleObjectException;
+use Yiisoft\Db\TableSchema;
 use yii\exceptions\InvalidArgumentException;
 use yii\exceptions\InvalidConfigException;
 use Yiisoft\Arrays\ArrayHelper;
@@ -277,7 +277,7 @@ class ActiveRecord extends BaseActiveRecord
      * Please refer to [[Query::where()]] on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return int the number of rows updated
-     * @throws \yii\db\Exception
+     * @throws \Yiisoft\Db\Exception
      */
     public static function updateAll($attributes, $condition = '', $params = [])
     {
@@ -305,7 +305,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $params the parameters (name => value) to be bound to the query.
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
      * @return int the number of rows updated
-     * @throws \yii\db\Exception
+     * @throws \Yiisoft\Db\Exception
      */
     public static function updateAllCounters($counters, $condition = '', $params = [])
     {
@@ -348,7 +348,7 @@ class ActiveRecord extends BaseActiveRecord
      * Please refer to [[Query::where()]] on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      * @return int the number of rows deleted
-     * @throws \yii\db\Exception
+     * @throws \Yiisoft\Db\Exception
      */
     public static function deleteAll($condition = null, $params = [])
     {
@@ -514,7 +514,7 @@ class ActiveRecord extends BaseActiveRecord
      * meaning all attributes that are loaded from DB will be saved.
      * @return bool whether the attributes are valid and the record is inserted successfully.
      * @throws \Exception|\Throwable in case insert failed.
-     * @throws \yii\db\Exception
+     * @throws \Yiisoft\Db\Exception
      */
     public function insert($runValidation = true, $attributes = null)
     {
@@ -624,7 +624,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
      * being updated is outdated.
      * @throws \Exception|\Throwable in case update failed.
-     * @throws \yii\db\Exception
+     * @throws \Yiisoft\Db\Exception
      */
     public function update($runValidation = true, $attributeNames = null)
     {
@@ -671,7 +671,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
      * being deleted is outdated.
      * @throws \Exception|\Throwable in case delete failed.
-     * @throws \yii\db\Exception
+     * @throws \Yiisoft\Db\Exception
      */
     public function delete()
     {
@@ -701,7 +701,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
      * @throws StaleObjectException
-     * @throws \yii\db\Exception
+     * @throws \Yiisoft\Db\Exception
      */
     protected function deleteInternal()
     {

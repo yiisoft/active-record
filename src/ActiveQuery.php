@@ -7,9 +7,9 @@
 
 namespace Yiisoft\ActiveRecord;
 
-use yii\db\Command;
-use yii\db\ConnectionInterface;
-use yii\db\Query;
+use Yiisoft\Db\Command;
+use Yiisoft\Db\ConnectionInterface;
+use Yiisoft\Db\Query;
 use yii\exceptions\InvalidConfigException;
 use yii\di\AbstractContainer;
 use yii\di\Initiable;

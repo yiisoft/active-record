@@ -10,7 +10,7 @@ namespace Yiisoft\ActiveRecord\Data;
 use yii\data\DataFilter;
 
 /**
- * ActiveDataFilter allows composing a filtering condition in a format suitable for [[\yii\db\QueryInterface::where()]].
+ * ActiveDataFilter allows composing a filtering condition in a format suitable for [[\Yiisoft\Db\QueryInterface::where()]].
  *
  * @see DataFilter
  *
@@ -50,12 +50,12 @@ class ActiveDataFilter extends DataFilter
         'LIKE' => 'buildOperatorCondition',
     ];
     /**
-     * @var array map filtering operators to operators used in [[\yii\db\QueryInterface::where()]].
+     * @var array map filtering operators to operators used in [[\Yiisoft\Db\QueryInterface::where()]].
      * The format is: `[filterOperator => queryOperator]`.
      * If particular operator keyword does not appear in the map, it will be used as is.
      *
      * Usually the map can be left empty as filter operator names are consistent with the ones
-     * used in [[\yii\db\QueryInterface::where()]]. However, you may want to adjust it in some special cases.
+     * used in [[\Yiisoft\Db\QueryInterface::where()]]. However, you may want to adjust it in some special cases.
      * For example, when using PosgreSQL you may want to setup the following map:
      *
      * ```php

@@ -8,8 +8,8 @@
 namespace Yiisoft\ActiveRecord\Tests\Unit;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use yii\db\Query;
-use yii\db\tests\unit\DatabaseTestCase;
+use Yiisoft\Db\Query;
+use Yiisoft\Db\Tests\DatabaseTestCase;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\ActiveRecord\Tests\Data\ActiveRecord;
 use Yiisoft\ActiveRecord\Tests\Data\Animal;
@@ -1314,7 +1314,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
         $record = Document::findOne(1);
         $record->content = 'Rewrite attempt content';
         $record->version = 0;
-        $this->expectException('yii\db\StaleObjectException');
+        $this->expectException('Yiisoft\Db\StaleObjectException');
         $record->save(false);
     }
 

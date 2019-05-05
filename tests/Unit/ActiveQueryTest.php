@@ -9,10 +9,10 @@ namespace Yiisoft\ActiveRecord\Tests\Unit;
 
 use yii\base\Event;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use yii\db\Connection;
-use yii\db\QueryBuilder;
-use yii\db\tests\unit\DatabaseTestCase;
-use yii\db\tests\unit\GetTablesAliasTestTrait;
+use Yiisoft\Db\Connection;
+use Yiisoft\Db\QueryBuilder;
+use Yiisoft\Db\Tests\DatabaseTestCase;
+use Yiisoft\Db\Tests\GetTablesAliasTestTrait;
 use Yiisoft\ActiveRecord\Tests\Data\ActiveRecord;
 use Yiisoft\ActiveRecord\Tests\Data\Customer;
 use Yiisoft\ActiveRecord\Tests\Data\Profile;
@@ -61,7 +61,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $query = new ActiveQuery(Customer::class);
         $builder = new QueryBuilder(new Connection());
         $result = $query->prepare($builder);
-        $this->assertInstanceOf('yii\db\Query', $result);
+        $this->assertInstanceOf('Yiisoft\Db\Query', $result);
     }
 
     public function testPopulate_EmptyRows()
@@ -100,7 +100,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
     {
         $query = new ActiveQuery(Customer::class);
         $result = $query->createCommand();
-        $this->assertInstanceOf('yii\db\Command', $result);
+        $this->assertInstanceOf('Yiisoft\Db\Command', $result);
     }
 
     /**
