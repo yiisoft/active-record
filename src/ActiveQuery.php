@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\activerecord;
+namespace Yiisoft\ActiveRecord;
 
 use yii\db\Command;
 use yii\db\ConnectionInterface;
@@ -386,7 +386,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
      * Order::find()->joinWith('books', true, 'INNER JOIN')->all();
      * // find all orders, eager loading "books", and sort the orders and books by the book names.
      * Order::find()->joinWith([
-     *     'books' => function (\yii\activerecord\ActiveQuery $query) {
+     *     'books' => function (\Yiisoft\ActiveRecord\ActiveQuery $query) {
      *         $query->orderBy('item.name');
      *     }
      * ])->all();

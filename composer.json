@@ -82,8 +82,8 @@
     },
     "autoload": {
         "psr-4": {
-            "yii\\activerecord\\": "src",
-            "yii\\activerecord\\tests\\": "tests"
+            "Yiisoft\\ActiveRecord\\": "src",
+            "Yiisoft\\ActiveRecord\\Tests\\": "tests"
         }
     },
     "extra": {
