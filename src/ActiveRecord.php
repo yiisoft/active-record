@@ -101,6 +101,28 @@ class ActiveRecord extends BaseActiveRecord
      */
     const OP_ALL = 0x07;
 
+    private $deletable = false;
+
+    /**
+     * @param null $attributeNames
+     * @param bool $clearErrors
+     * @return bool
+     */
+    public function validate($attributeNames = null, $clearErrors = true)
+    {
+        if (empty(static::dependentModels())) {
+            return parent::validate($attributeNames, $clearErrors);
+        }
+
+        $valid = true;
+        $valid = $valid && parent::validate($attributeNames, $clearErrors);
+
+        foreach (static::dependentModels() as $relationName => $dependentModel) {
+            $valid = $valid && parent::validateMultiple($this->$relationName, $attributeNames = null, $clearErrors = true);
+        }
+
+        return $valid;
+    }
 
     /**
      * Loads default values from database table schema.
@@ -418,6 +440,14 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public static function dependentModels()
+    {
+        return [];
+    }
+
+    /**
      * Returns the list of all attribute names of the model.
      * The default implementation will return all column names of the table associated with this AR class.
      *
@@ -473,6 +503,116 @@ class ActiveRecord extends BaseActiveRecord
             }
         }
         parent::populateRecord($record, $row);
+    }
+
+    /**
+     * @param array $data
+     * @param null $formName
+     * @return bool
+     * @throws InvalidConfigException
+     */
+    public function load($data, $formName = null)
+    {
+        if (empty(static::dependentModels())) {
+            return parent::load($data, $formName);
+        }
+
+        $loaded = true;
+        $loaded = $loaded && parent::load($data, $formName);
+
+
+        foreach (static::dependentModels() as $relationName => $dependentModel) {
+            $scope = Inflector::variablize($relationName);
+            if (!isset($data[$scope])) {
+                continue;
+            }
+
+            if (isset($data[$scope][0])) {
+                $oldModels = [];
+                $primaryKeys = null;
+                if ($models = $this->$relationName && !empty($models)) {
+                    $primaryKeys = array_keys($models[0]->getPrimaryKey(true));
+
+                    foreach ($this->$relationName as $model) {
+                        /** @var ActiveRecord $model */
+                        $key = implode('_', array_values($model->primaryKey));
+                        $model->deletable = true;
+                        $oldModels[$key] = $model;
+                    }
+                }
+
+                $models = [];
+
+                foreach ($data[$scope] as $item) {
+                    if (null !== $primaryKeys && isset($oldModels[$key = implode('_', array_values(array_intersect($primaryKeys, $item)))])) {
+                        $loaded = $loaded && $oldModels[$key]->load($item);
+                        $oldModels[$key]->deletable = false;
+                    } else {
+                        /** @var ActiveRecord $model */
+                        $model = new $dependentModel;
+                        $loaded = $loaded && $model->load($item);
+                    }
+
+                    $models[] = $model;
+                }
+
+                $this->populateRelation($relationName, $models);
+            } else {
+                $model = $this->$relationName ?? new $dependentModel;
+                /** @var ActiveRecord $model */
+                $loaded = $loaded && $model->load($data[$scope]);
+                $this->populateRelation($relationName, $model);
+            }
+        }
+
+        return $loaded;
+    }
+
+    /**
+     * @param bool $runValidation
+     * @param null $attributeNames
+     * @return bool
+     * @throws \Throwable
+     */
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        if (empty(static::dependentModels())) {
+            return parent::save($runValidation, $attributeNames);
+        }
+
+        /** @var \Yiisoft\Db\Transaction $transaction */
+        $transaction = static::getDb()->beginTransaction();
+        try {
+            $updated = true;
+            $updated = $updated && parent::save($runValidation, $attributeNames);
+
+            foreach (static::dependentModels() as $relationName => $dependentModel) {
+                /** @var ActiveRecord|ActiveRecord[] $models */
+                $models = $this->$relationName;
+                if (is_iterable($models)) {
+                    foreach ($models as $model) {
+                        if ($model->deletable === true) {
+                            $updated = $updated &&  is_int($model->delete());
+                        } else {
+                            $updated = $updated && $model->save($runValidation, $attributeNames);
+                        }
+                    }
+                } else {
+                    $updated = $updated && $models->save($runValidation, $attributeNames);
+                }
+            }
+
+            if ($updated === false) {
+                $transaction->rollBack();
+            } else {
+                $transaction->commit();
+            }
+
+            return $updated;
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
 
     /**
@@ -654,41 +794,36 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Deletes the table row corresponding to this active record.
-     *
-     * This method performs the following steps in order:
-     *
-     * 1. call [[beforeDelete()]]. If the method returns `false`, it will skip the
-     *    rest of the steps;
-     * 2. delete the record from the database;
-     * 3. call [[afterDelete()]].
-     *
-     * In the above step 1 and 3, events named [[EVENT_BEFORE_DELETE]] and [[EVENT_AFTER_DELETE]]
-     * will be raised by the corresponding methods.
-     *
-     * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
-     * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
-     * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
-     * being deleted is outdated.
-     * @throws \Exception|\Throwable in case delete failed.
-     * @throws \Yiisoft\Db\Exception
+     * @return bool
+     * @throws StaleObjectException
+     * @throws \Throwable
      */
     public function delete()
     {
-        if (!$this->isTransactional(self::OP_DELETE)) {
-            return $this->deleteInternal();
+        if (empty(static::dependentModels())) {
+            return parent::delete();
         }
 
+        /** @var \Yiisoft\Db\Transaction $transaction */
         $transaction = static::getDb()->beginTransaction();
         try {
-            $result = $this->deleteInternal();
-            if ($result === false) {
+            $deleted = true;
+            $deleted = $deleted && parent::delete();
+
+            foreach (static::dependentModels() as $relationName => $dependentModel) {
+                foreach ($this->$relationName as $model) {
+                    /** @var ActiveRecord $model */
+                    $deleted = $deleted && $model->delete();
+                }
+            }
+
+            if ($deleted === false) {
                 $transaction->rollBack();
             } else {
                 $transaction->commit();
             }
 
-            return $result;
+            return $deleted;
         } catch (\Throwable $e) {
             $transaction->rollBack();
             throw $e;

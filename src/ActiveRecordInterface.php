@@ -89,6 +89,13 @@ interface ActiveRecordInterface extends StaticInstanceInterface
     public function getOldPrimaryKey($asArray = false);
 
     /**
+     * Returns the dependent models.
+     *
+     * @return array Dictionary of dependent models, where key is relation name and value is FQCN
+     */
+    public static function dependentModels();
+
+    /**
      * Returns a value indicating whether the given set of attributes represents the primary key for this model.
      * @param array $keys the set of attributes to check
      * @return bool whether the given set of attributes represents the primary key for this model
