@@ -11,8 +11,6 @@ use Yiisoft\Db\Command;
 use Yiisoft\Db\ConnectionInterface;
 use Yiisoft\Db\Query;
 use yii\exceptions\InvalidConfigException;
-use yii\di\AbstractContainer;
-use yii\di\Initiable;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -75,7 +73,7 @@ use yii\di\Initiable;
  * @author Carsten Brandt <mail@cebe.cc>
  * @since 2.0
  */
-class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
+class ActiveQuery extends Query implements ActiveQueryInterface
 {
     use ActiveQueryTrait;
     use ActiveRelationTrait;
