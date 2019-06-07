@@ -113,17 +113,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface, Initiable
     }
 
     /**
-     * Initializes the object.
-     * This method is called at the end of the constructor. The default implementation will trigger
-     * an [[EVENT_INIT]] event. If you override this method, make sure you call the parent implementation at the end
-     * to ensure triggering of the event.
-     */
-    public function init() : void
-    {
-        $this->trigger(ActiveQueryEvent::init());
-    }
-
-    /**
      * Executes query and returns all results as an array.
      * @param ConnectionInterface $db the DB connection used to create the DB command.
      * If null, the DB connection returned by [[modelClass]] will be used.
