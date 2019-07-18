@@ -79,9 +79,8 @@ trait ActiveQueryTrait
      *
      * @return $this the query object itself
      */
-    public function with()
+    public function with(...$with)
     {
-        $with = func_get_args();
         if (isset($with[0]) && is_array($with[0])) {
             // the parameter is given as an array
             $with = $with[0];

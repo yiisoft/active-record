@@ -1,21 +1,12 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
 namespace Yiisoft\ActiveRecord\Data;
 
-use yii\data\DataFilter;
+use Yiisoft\Data\DataFilter;
 
 /**
  * ActiveDataFilter allows composing a filtering condition in a format suitable for [[\Yiisoft\Db\QueryInterface::where()]].
  *
  * @see DataFilter
- *
- * @author Paul Klimov <klimov.paul@gmail.com>
- * @since 2.0.13
  */
 class ActiveDataFilter extends DataFilter
 {

@@ -1,17 +1,11 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
 namespace Yiisoft\ActiveRecord\Data;
 
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\Db\Connection;
 use yii\exceptions\InvalidConfigException;
 use yii\base\Model;
-use yii\data\BaseDataProvider;
+use Yiisoft\Data\BaseDataProvider;
 use Yiisoft\Db\ConnectionInterface;
 use Yiisoft\Db\QueryInterface;
 
