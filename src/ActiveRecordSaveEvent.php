@@ -99,12 +99,12 @@ class ActiveRecordSaveEvent extends Event
         return new static(static::AFTER_UPDATE, false, $changedAttributes);
     }
 
-    public function getInsert() : bool
+    public function getInsert(): bool
     {
         return $this->_insert;
     }
 
-    public function getChangedAttributes() : array
+    public function getChangedAttributes(): array
     {
         return $this->_changedAttributes;
     }

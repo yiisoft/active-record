@@ -1441,7 +1441,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
         $orderItem->item_id = 3;
         $orderItem->quantity = 1;
         $orderItem->subtotal = 10.0;
-    
+
         $order->link('orderItems3', $orderItem);
         $this->assertTrue(isset($order->orderItems3['1_3']));
     }

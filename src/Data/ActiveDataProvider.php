@@ -1,4 +1,5 @@
 <?php
+
 namespace Yiisoft\ActiveRecord\Data;
 
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
