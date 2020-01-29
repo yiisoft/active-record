@@ -1,11 +1,12 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
+
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * ProfileWithConstructor.
@@ -34,5 +35,10 @@ class ProfileWithConstructor extends ActiveRecord
     public static function instantiate($row)
     {
         return (new \ReflectionClass(static::class))->newInstanceWithoutConstructor();
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }

@@ -1,16 +1,16 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
+
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * Class Animal.
  *
- * @author Jose Lorente <jose.lorente.martin@gmail.com>
  * @property int $id
  * @property string $type
  */
@@ -35,11 +35,16 @@ class Animal extends ActiveRecord
 
     /**
      * @param type $row
-     * @return \Yiisoft\ActiveRecord\Tests\Data\Animal
+     * @return \Yii\Extensions\ActiveRecord\Tests\Data\Animal
      */
     public static function instantiate($row)
     {
         $class = $row['type'];
         return new $class();
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }

@@ -11,7 +11,7 @@
     stopOnFailure="false">
     <testsuites>
         <testsuite name="Yii ActiveRecord unit tests">
-            <directory>./tests/unit</directory>
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
 

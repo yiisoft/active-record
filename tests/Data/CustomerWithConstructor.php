@@ -1,11 +1,12 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
+
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * CustomerWithConstructor.
@@ -25,12 +26,11 @@ class CustomerWithConstructor extends ActiveRecord
         return 'customer';
     }
 
-    public function __construct($name, $email, $address)
+    public function __construct($name, $email, $address, $config = [])
     {
         $this->name = $name;
         $this->email = $email;
         $this->address = $address;
-        parent::__construct();
     }
 
     public static function instance($refresh = false)
@@ -46,5 +46,10 @@ class CustomerWithConstructor extends ActiveRecord
     public function getProfile()
     {
         return $this->hasOne(ProfileWithConstructor::class, ['id' => 'profile_id']);
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }

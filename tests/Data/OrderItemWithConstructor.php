@@ -1,11 +1,12 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
+
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * OrderItemWithConstructor.
@@ -42,5 +43,10 @@ class OrderItemWithConstructor extends ActiveRecord
     public function getOrder()
     {
         return $this->hasOne(OrderWithConstructor::class, ['id' => 'order_id']);
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }

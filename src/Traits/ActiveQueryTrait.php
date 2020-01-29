@@ -1,39 +1,38 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
 
-namespace Yiisoft\ActiveRecord;
+declare(strict_types=1);
+
+namespace Yiisoft\ActiveRecord\Traits;
+
+use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * ActiveQueryTrait implements the common methods and properties for active record query classes.
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @author Carsten Brandt <mail@cebe.cc>
- * @since 2.0
  */
 trait ActiveQueryTrait
 {
     /**
-     * @var string the name of the ActiveRecord class.
+     * @var ?string the name of the ActiveRecord class.
      */
     public $modelClass;
+
     /**
      * @var array a list of relations that this query should be performed with
      */
     public $with;
+
     /**
-     * @var bool whether to return each record as an array. If false (default), an object
-     * of [[modelClass]] will be created to represent each record.
+     * @var bool whether to return each record as an array. If false (default), an object of {@see modelClass} will be
+     * created to represent each record.
      */
     public $asArray;
 
-
     /**
-     * Sets the [[asArray]] property.
+     * Sets the {@see asArray} property.
+     *
      * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
+     *
      * @return $this the query object itself
      */
     public function asArray($value = true)
@@ -45,11 +44,12 @@ trait ActiveQueryTrait
     /**
      * Specifies the relations with which this query should be performed.
      *
-     * The parameters to this method can be either one or multiple strings, or a single array
-     * of relation names and the optional callbacks to customize the relations.
+     * The parameters to this method can be either one or multiple strings, or a single array of relation names and the
+     * optional callbacks to customize the relations.
      *
-     * A relation name can refer to a relation defined in [[modelClass]]
-     * or a sub-relation that stands for a relation of a related record.
+     * A relation name can refer to a relation defined in {@see modelClass} or a sub-relation that stands for a relation
+     * of a related record.
+     *
      * For example, `orders.address` means the `address` relation defined
      * in the model class corresponding to the `orders` relation.
      *
@@ -79,8 +79,10 @@ trait ActiveQueryTrait
      *
      * @return $this the query object itself
      */
-    public function with(...$with)
+    public function with()
     {
+        $with = func_get_args();
+
         if (isset($with[0]) && is_array($with[0])) {
             // the parameter is given as an array
             $with = $with[0];
@@ -104,9 +106,10 @@ trait ActiveQueryTrait
 
     /**
      * Converts found rows into model instances.
+     *
      * @param array $rows
+     *
      * @return array|ActiveRecord[]
-     * @since 2.0.11
      */
     protected function createModels($rows)
     {
@@ -114,39 +117,49 @@ trait ActiveQueryTrait
             return $rows;
         } else {
             $models = [];
+
             /* @var $class ActiveRecord */
             $class = $this->modelClass;
+
             foreach ($rows as $row) {
-                $model = $class::instantiate($row);
+                $model = $class::instantiate($row, $this->modelClass::getConnection());
                 $modelClass = get_class($model);
                 $modelClass::populateRecord($model, $row);
+
                 $models[] = $model;
             }
+
             return $models;
         }
     }
 
     /**
      * Finds records corresponding to one or multiple relations and populates them into the primary models.
-     * @param array $with a list of relations that this query should be performed with. Please
-     * refer to [[with()]] for details about specifying this parameter.
+     *
+     * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
+     * for details about specifying this parameter.
      * @param array|ActiveRecord[] $models the primary models (can be either AR instances or arrays)
      */
     public function findWith($with, &$models)
     {
+
         $primaryModel = reset($models);
+
         if (!$primaryModel instanceof ActiveRecordInterface) {
             /* @var $modelClass ActiveRecordInterface */
             $modelClass = $this->modelClass;
             $primaryModel = $modelClass::instance();
         }
+
         $relations = $this->normalizeRelations($primaryModel, $with);
         /* @var $relation ActiveQuery */
+
         foreach ($relations as $name => $relation) {
             if ($relation->asArray === null) {
                 // inherit asArray from primary query
                 $relation->asArray($this->asArray);
             }
+
             $relation->populateRelation($name, $models);
         }
     }
@@ -154,16 +167,21 @@ trait ActiveQueryTrait
     /**
      * @param ActiveRecord $model
      * @param array $with
+     *
      * @return ActiveQueryInterface[]
      */
     private function normalizeRelations($model, $with)
     {
+
         $relations = [];
+
         foreach ($with as $name => $callback) {
+
             if (is_int($name)) {
                 $name = $callback;
                 $callback = null;
             }
+
             if (($pos = strpos($name, '.')) !== false) {
                 // with sub-relations
                 $childName = substr($name, $pos + 1);
@@ -183,7 +201,7 @@ trait ActiveQueryTrait
             if (isset($childName)) {
                 $relation->with[$childName] = $callback;
             } elseif ($callback !== null) {
-                call_user_func($callback, $relation);
+                \call_user_func($callback, $relation);
             }
         }
 

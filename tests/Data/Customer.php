@@ -1,14 +1,12 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Unit\ActiveRecordTest;
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * Class Customer.
@@ -87,19 +85,16 @@ class Customer extends ActiveRecord
         })->orderBy('id');
     }
 
-    public function afterSave($insert, $changedAttributes)
-    {
-        ActiveRecordTest::$afterSaveInsert = $insert;
-        ActiveRecordTest::$afterSaveNewRecord = $this->isNewRecord;
-        parent::afterSave($insert, $changedAttributes);
-    }
-
     /**
-     * {@inheritdoc}
      * @return CustomerQuery
      */
-    public static function find()
+    public static function find(): CustomerQuery
     {
         return new CustomerQuery(\get_called_class());
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }

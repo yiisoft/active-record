@@ -1,11 +1,12 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
+
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * Class Category.
@@ -20,15 +21,15 @@ class Category extends ActiveRecord
         return 'category';
     }
 
-    public function getItems()
-    {
-        return $this->hasMany(Item::class, ['category_id' => 'id']);
-    }
-
     public function getLimitedItems()
     {
         return $this->hasMany(Item::class, ['category_id' => 'id'])
             ->onCondition(['item.id' => [1, 2, 3]]);
+    }
+
+    public function getItems()
+    {
+        return $this->hasMany(Item::class, ['category_id' => 'id']);
     }
 
     public function getOrderItems()
@@ -39,5 +40,10 @@ class Category extends ActiveRecord
     public function getOrders()
     {
         return $this->hasMany(Order::class, ['id' => 'order_id'])->via('orderItems');
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }
