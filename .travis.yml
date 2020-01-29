@@ -1,43 +1,13 @@
-#
-# Travis Setup
-#
-
-# use ubuntu trusty for newer version of nodejs, used for JS testing
-dist: trusty
-
-# faster builds on new travis setup not using sudo
-# temporary disable, see https://github.com/travis-ci/travis-ci/issues/6842
-#sudo: false
-sudo: required
-group: edge
-
-# build only on master branches
-# commented as this prevents people from running builds on their forks:
-# https://github.com/yiisoft/yii2/commit/bd87be990fa238c6d5e326d0a171f38d02dc253a
-#branches:
-#  only:
-#    - master
-#    - 3.0
-
-
-#
-# Test Matrix
-#
-
 language: php
 
 env:
   global:
     - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
-    - TASK_TESTS_PHP=1
-    - TASK_TESTS_COVERAGE=0
     - TRAVIS_SECOND_USER=travis_two
-
 
 services:
   - memcached
   - mysql
-  - postgresql
 
 # cache vendor dirs
 cache:
@@ -46,9 +16,7 @@ cache:
     - $HOME/.composer/cache
     - $HOME/.npm
 
-# try running against postgres 9.6
 addons:
-  postgresql: "9.6"
   apt:
     sources:
       - mysql-5.7-trusty
@@ -60,26 +28,16 @@ addons:
 matrix:
   fast_finish: true
   include:
-    - php: 7.2
-    - php: 7.3
-      env: TASK_TESTS_COVERAGE=1
-    - php: nightly
-      services:
-        - mysql
-        - postgresql
+    - php: 7.4
 
-  allow_failures:
-    - php: nightly
-
+before_install:
+  # Always remove xdebug.
+  - phpenv config-rm xdebug.ini || echo "xdebug is not installed"
 install:
-  - |
-    if [[ $TASK_TESTS_COVERAGE != 1 ]]; then
-      # disable xdebug for performance reasons when code coverage is not needed
-      phpenv config-rm xdebug.ini || echo "xdebug is not installed"
-    fi
-
   # install composer dependencies
   - travis_retry composer self-update
+  # Fast composer install
+  - travis_retry composer global require hirak/prestissimo
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
   - travis_retry composer install $DEFAULT_COMPOSER_FLAGS
 
@@ -87,67 +45,34 @@ before_script:
   # show some versions and env information
   - php --version
   - composer --version
-  - |
-    if [ $TASK_TESTS_PHP == 1 ]; then
-      php -r "echo INTL_ICU_VERSION . \"\n\";"
-      php -r "echo INTL_ICU_DATA_VERSION . \"\n\";"
-      psql --version
-      mysql --version
-    fi
-
-  # initialize databases
-  - |
-    if [ $TASK_TESTS_PHP == 1 ]; then
-      travis_retry mysql -e 'CREATE DATABASE `yiitest`;';
-      mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION';";
-      mysql -e "CREATE USER 'travis'@'localhost' IDENTIFIED WITH mysql_native_password;";
-      mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'travis'@'localhost' WITH GRANT OPTION;";
-      psql -U postgres -c 'CREATE DATABASE yiitest;';
-    fi
-
-  # enable code coverage
-  - |
-    if [ $TASK_TESTS_COVERAGE == 1 ]; then
-      PHPUNIT_FLAGS="--coverage-clover=coverage.clover"
-    fi
-
-  # Disable DEPRECATE messages during PHPUnit initialization on PHP 7.2. To fix them, PHPUnit should be updated to 6.*
-  # For Yii2 tests, messages will be enabled by tests/bootstrap.php
-  - |
-    if [[ $TRAVIS_PHP_VERSION == 7.2 || $TRAVIS_PHP_VERSION = nightly ]]; then
-      echo 'Disabled DEPRECATED notifications for PHP >= 7.2';
-      echo 'error_reporting = E_ALL & ~E_DEPRECATED' >> /tmp/php-config.ini;
-      phpenv config-add /tmp/php-config.ini;
-    fi
-
+  - php -r "echo INTL_ICU_VERSION . \"\n\";"
+  - php -r "echo INTL_ICU_DATA_VERSION . \"\n\";"
+  - mysql --version
+  # Config Mysql
+  - mysql_upgrade
+  - mysql -e 'CREATE DATABASE yiitest;'
 
 script:
   # PHP tests
-  - |
-    if [ $TASK_TESTS_PHP == 1 ]; then
-      vendor/bin/phpunit --verbose $PHPUNIT_FLAGS --exclude-group wincache,xcache
-    fi
+  - phpdbg -qrr vendor/bin/phpunit --verbose --coverage-clover=coverage.clover --exclude-group wincache,xcache
 
 after_script:
-  - |
-    if [ $TASK_TESTS_COVERAGE == 1 ]; then
-      travis_retry wget https://scrutinizer-ci.com/ocular.phar
-      php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-    fi
+  - travis_retry wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
 notifications:
   slack:
     -
       rooms:
         -
-          secure: BwKGGmrFJCWcWAZo/c+k4TprL8Kwk0NL3l89rs1fC+1tdWaXquGJ7AGdYK7nXnaiMY+6sy57d2IaMgnspifeeSgdD5b7Tsv4q8kPoItFpIRp2b41D7lbOEhsFwwvIipnkmwQ6R8SogXQ6JpJ5WuYQnwNfOHnfWlAmoCd1k4V5QZg8gf62xs6cCuUVMejhWvmv6n5h6jpblbxfva9YO9ScQpk3MVOUfqJ1pamgQauVYFKBRcz4j0f4KaBDCxwcpm1Cp2wn5tKzNS6n0/FOAWmg5trv89rIMd5sHuGzstMpPoKLuiwgcWpjjBk9CCHcrczzGkSPukyM2eassfPsZbAhslxkx2smpFeEIuQoqhUJva5rObrvjwyIU7vXkstvvWVEYPvZtJPbFJt9oNO65vmK3yvXkzZHPoMp9f+cZG7t060WXCcfapFKkrgUBRdEZZ6ns7ZIeznGeCllwXtkDS5O+zVpazWosdOLQ8yHsw8Z0MZpwinVapGhk684Ssg3GdcjHI/GhBv/Olumk8EHeQQgVF2L0smW0rTK0gB0Tpolj7JuBGGtrWNaMshKdmfD2c2LmCeLCqclT+8sZ9sj6PBr2RrQw57Hif6ONmelqPb2kL3X38Jy+CtDSLVbKEbDDFnAzKZBOEssoLjqSgS9LwXBACBqUFwTlaXpTBCKlT9KHY=
+          secure: dHnLb/RuGpou1pZ6xu8BvQH3r96e8/QlrBVPDfdVcgxX2f41niU99RTBRUJWHr7lz74lqHMm4VAyXTqNLvQDHtDazsvsOJXnbentoun1cqAbH+kgu1xbzxMXYRYdj0uF+85qn08T0DNfb1Avin58fT9D+gpc9VagYoDojg1Gzf9hiEwPp1J5LxF843dhz2hVOGzr3QGADsG1d6jPZHGNiCFz9RM91sAuvWPROc5DYieRJOmE8GRJ0O8wUH4KLiGLyxCsdDjOGZc+3lttCEvNXTAb/s1Mq6DQwrh6ZtEwFhcG7zbQ1mmlS0YTNK3mof/q8Pr2SLwcCBVQBonzo3eCmXp16eT/TxFNmXr86NvXG1sQOsDflSvRLJbtVdlSi4yprGvn4LLm4ug8ZxKKAkQ+1VGX++2gbwKdk7pNs0KRlalCXjCYuNMKgDH63WpyqvMMpkq1nlipdfXKuPOcZKL5WvEVDoK5/py4z0AZeSJA6Z2K+QYOhssUESRQTv7PUJ+rISs8uc2JhEblwBAPUtmiCkH9zrU8vbQNImXgzrlwSmEDHePm8Fa5EtNUfonGnuGUYu2GDc1OqWUBhol2HBFayrh0kiXhshWti4HjWcZFgWZqkuBKRoCeaXNRma4S+ItjE5SEKNtp9rl4OzB8RWyCsECTkDQyrOnKhhn3ctwg3O0=
       on_success: always
       on_failure: never
       on_pull_requests: false
     -
       rooms:
         -
-          secure: ydDhuyYrn8NWoHy01qC5UL8TD0MM0KM85QsCNQeh8TmF9Q1hUcaH5KwBiXbzIMK5wvk3ql8suzTi6mZxYhwYiIBUSzmFvjKM3rxIjtNjeXseKO7LqoxgVz+F7C3D/HUyY1w06MzRoyNMB95Xbhez5Ynoe2XV1GMU6XRe6STYUNfhteCKx43OFErgo7AnRPOYlxh98vtBOpXcPv4uscVpFz7YcNoslLhkYrLKJoNI1ZPBX/ynIyFN/MT6Zvc6sl0v/PkMzFlCDJcNNI4Tzlw8On0iRdtIYSvMFjXbY2jkz0lSPSwIa9+iei2MBxgJsJxy0hEs1LVFYgU3HMhZYF30oN7MVPGs7R4gX5bh2j4ke9vj/JW6ffEVQuaDnD6SQTFK9aR4QyneJcHhff3Qs3NwqGRCvdPq6Rw7yfLVDaeUlxfsepa+D208kM3RkT9GKoeRO7kMGViT3+GCK582b6IKTgrRE0pe0U4m3WDdjU0SefUnf+49huDE0hXVtFSli83MezvWHPCoEge/R9/0JXGjfrmnk8V8GbiDPF8L7g6iCflKTAHeDV418bFiaV0aK2tXPpFI4Cn+RxvnXL4uUO8B1k8Qs7BGcl18H+SgrHB4XH5VDYircEd2CdPIN7bvueZE85kA+4hhzqPHFc+wZTYv7OZ56F67kpxM8oX8WUqqIKI=
+          secure: TUUaHiKdgiNIOIH2PVfbgMZcC8JS9lqaSsshcBlsHWa2M2S8CkKHw/M2zzqmZ2FNKbRYrLaPDF27JlVKQfrTo4Y/aURhsPK3dhNiajjiNs78O4RMOGW2fdc1s8rQ/Y8dOYEQrAVCQvE1qeiAiiAV3GPFrEQIUfiCbfhy11wjEGRgYPXoRqB2W7LtqH/fPo8UNnBuHh9w/A6cmUyg/LcnyxiYFjqE9+WuhxZgJZc+hA+ZUw7xvu/XjovYbrKrMsFXj+lepvktGXgfmGpdhSteb4aUKfsHvo1iP5dWs95Uo556kEH1E8qEUE+bK2lLENFLh+66303+3WXPoLllkLF7nmHNduPR9ECykI1KghdwZJor7BeVjOJcFQ49ObbxmYUwd5SOxbOwyXTPqAAG3fARo2bisywO4gh3crCymePVHGPflPuidlLlERvKof4Wffz0rN180pwuwdVdMZTsLmjI9/jrClxVelt05p9jmIQTCrgJpwgQNfZIWOj5ammeOyNBu/Fwu1a6sjvWYezYQkbUCyFX50tn3+G4MA1RBtkDMsNy839v6zGP6Ojv2msEJX2bmHFL9MLD1stP6+50Mc5xMINsG9ggjCQsGh303ht+jkLkuwkckYYATsNN8jYTDkFSW1+Z546U5Kq5sRlGVfyz9mT85GFUhrrLpimkUU03oQg=
       on_success: never
       on_failure: always
       on_pull_requests: false

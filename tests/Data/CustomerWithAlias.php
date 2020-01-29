@@ -1,6 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\ActiveRecord\Tests\Data;
+
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * Class Customer.
@@ -34,7 +40,14 @@ class CustomerWithAlias extends ActiveRecord
     public static function find()
     {
         $activeQuery = new CustomerQuery(get_called_class());
+
         $activeQuery->alias('csr');
+
         return $activeQuery;
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }

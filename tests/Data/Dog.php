@@ -1,17 +1,13 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
  * Class Dog.
- *
- * @author Jose Lorente <jose.lorente.martin@gmail.com>
- * @since 2.0
  */
 class Dog extends Animal
 {
@@ -24,5 +20,10 @@ class Dog extends Animal
         parent::populateRecord($record, $row);
 
         $record->does = 'bark';
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }

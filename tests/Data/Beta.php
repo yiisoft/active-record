@@ -9,13 +9,22 @@ use Yiisoft\Db\Connectors\ConnectionPool;
 use Yiisoft\Db\Contracts\ConnectionInterface;
 
 /**
- * {@see https://github.com/yiisoft/yii2/issues/9006}
- *
  * @property int $id
- * @property int $val
+ * @property string $alpha_string_identifier
+ * @property Alpha $alpha
  */
-class BitValues extends ActiveRecord
+class Beta extends ActiveRecord
 {
+    public static function tableName()
+    {
+        return 'beta';
+    }
+
+    public function getAlpha()
+    {
+        return $this->hasOne(Alpha::class, ['string_identifier' => 'alpha_string_identifier']);
+    }
+
     public static function getConnection(): ConnectionInterface
     {
         return ConnectionPool::getConnectionPool('mysql');

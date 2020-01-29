@@ -1,14 +1,10 @@
 <?php
 
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Department
@@ -17,9 +13,6 @@ use Yiisoft\ActiveRecord\ActiveQuery;
  * @property string $title
  *
  * @property Employee[] $employees
- *
- * @author Kolyunya <OleynikovNY@mail.ru>
- * @since 2.0.12
  */
 class Department extends ActiveRecord
 {

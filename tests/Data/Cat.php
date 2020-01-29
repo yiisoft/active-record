@@ -1,17 +1,15 @@
 <?php
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
+
+declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Data;
 
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connectors\ConnectionPool;
+use Yiisoft\Db\Contracts\ConnectionInterface;
+
 /**
  * Class Cat.
- *
- * @author Jose Lorente <jose.lorente.martin@gmail.com>
- * @since 2.0
  */
 class Cat extends Animal
 {
@@ -44,5 +42,10 @@ class Cat extends Animal
     public function getThrowable()
     {
         return 5/0;
+    }
+
+    public static function getConnection(): ConnectionInterface
+    {
+        return ConnectionPool::getConnectionPool('mysql');
     }
 }
