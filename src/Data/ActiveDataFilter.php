@@ -29,7 +29,7 @@ class ActiveDataFilter extends DataFilter
      * ]
      * ```
      */
-    public $conditionBuilders = [
+    public array $conditionBuilders = [
         'AND' => 'buildConjunctionCondition',
         'OR' => 'buildConjunctionCondition',
         'NOT' => 'buildBlockCondition',
@@ -43,13 +43,17 @@ class ActiveDataFilter extends DataFilter
         'NOT IN' => 'buildOperatorCondition',
         'LIKE' => 'buildOperatorCondition',
     ];
+
     /**
-     * @var array map filtering operators to operators used in [[\Yiisoft\Db\QueryInterface::where()]].
+     * @var array map filtering operators to operators used in {@see \Yiisoft\Db\QueryInterface::where()}.
+     *
      * The format is: `[filterOperator => queryOperator]`.
+     *
      * If particular operator keyword does not appear in the map, it will be used as is.
      *
      * Usually the map can be left empty as filter operator names are consistent with the ones
-     * used in [[\Yiisoft\Db\QueryInterface::where()]]. However, you may want to adjust it in some special cases.
+     * used in {@see \Yiisoft\Db\QueryInterface::where()}. However, you may want to adjust it in some special cases.
+     *
      * For example, when using PosgreSQL you may want to setup the following map:
      *
      * ```php
@@ -58,7 +62,7 @@ class ActiveDataFilter extends DataFilter
      * ]
      * ```
      */
-    public $queryOperatorMap = [];
+    public array $queryOperatorMap = [];
 
 
     /**
@@ -76,15 +80,16 @@ class ActiveDataFilter extends DataFilter
 
     /**
      * @param array $condition
+     *
      * @return array built condition.
      */
-    protected function buildCondition($condition)
+    protected function buildCondition(array $condition): array
     {
         $parts = [];
         foreach ($condition as $key => $value) {
             if (isset($this->conditionBuilders[$key])) {
                 $method = $this->conditionBuilders[$key];
-                if (is_string($method)) {
+                if (\is_string($method)) {
                     $callback = [$this, $method];
                 } else {
                     $callback = $method;
@@ -96,10 +101,10 @@ class ActiveDataFilter extends DataFilter
         }
 
         if (!empty($parts)) {
-            if (count($parts) > 1) {
-                $parts = array_merge(['AND'], $parts);
+            if (\count($parts) > 1) {
+                $parts = \array_merge(['AND'], $parts);
             } else {
-                $parts = array_shift($parts);
+                $parts = \array_shift($parts);
             }
         }
 
@@ -108,16 +113,19 @@ class ActiveDataFilter extends DataFilter
 
     /**
      * Builds conjunction condition, which consists of multiple independent ones.
+     *
      * It covers such operators as `and` and `or`.
      * @param string $operator operator keyword.
      * @param mixed $condition raw condition.
+     *
      * @return array actual condition.
      */
-    protected function buildConjunctionCondition($operator, $condition)
+    protected function buildConjunctionCondition(string $operator, $condition): array
     {
         if (isset($this->queryOperatorMap[$operator])) {
             $operator = $this->queryOperatorMap[$operator];
         }
+
         $result = [$operator];
 
         foreach ($condition as $part) {
@@ -129,12 +137,15 @@ class ActiveDataFilter extends DataFilter
 
     /**
      * Builds block condition, which consists of a single condition.
+     *
      * It covers such operators as `not`.
+     *
      * @param string $operator operator keyword.
      * @param mixed $condition raw condition.
+     *
      * @return array actual condition.
      */
-    protected function buildBlockCondition($operator, $condition)
+    protected function buildBlockCondition(string $operator, $condition): array
     {
         if (isset($this->queryOperatorMap[$operator])) {
             $operator = $this->queryOperatorMap[$operator];
@@ -147,19 +158,21 @@ class ActiveDataFilter extends DataFilter
 
     /**
      * Builds search condition for a particular attribute.
+     *
      * @param string $attribute search attribute name.
      * @param mixed $condition search condition.
+     *
      * @return array actual condition.
      */
-    protected function buildAttributeCondition($attribute, $condition)
+    protected function buildAttributeCondition(string $attribute, $condition): array
     {
-        if (is_array($condition)) {
+        if (\is_array($condition)) {
             $parts = [];
             foreach ($condition as $operator => $value) {
                 if (isset($this->operatorTypes[$operator])) {
                     if (isset($this->conditionBuilders[$operator])) {
                         $method = $this->conditionBuilders[$operator];
-                        if (is_string($method)) {
+                        if (\is_string($method)) {
                             $callback = [$this, $method];
                         } else {
                             $callback = $method;
@@ -172,10 +185,10 @@ class ActiveDataFilter extends DataFilter
             }
 
             if (!empty($parts)) {
-                if (count($parts) > 1) {
-                    return array_merge(['AND'], $parts);
+                if (\count($parts) > 1) {
+                    return \array_merge(['AND'], $parts);
                 }
-                return array_shift($parts);
+                return \array_shift($parts);
             }
         }
 
@@ -184,16 +197,19 @@ class ActiveDataFilter extends DataFilter
 
     /**
      * Builds an operator condition.
+     *
      * @param string $operator operator keyword.
      * @param mixed $condition attribute condition.
      * @param string $attribute attribute name.
+     *
      * @return array actual condition.
      */
-    protected function buildOperatorCondition($operator, $condition, $attribute)
+    protected function buildOperatorCondition(string $operator, $condition, string $attribute): array
     {
         if (isset($this->queryOperatorMap[$operator])) {
             $operator = $this->queryOperatorMap[$operator];
         }
+
         return [$operator, $attribute, $this->filterAttributeValue($attribute, $condition)];
     }
 }

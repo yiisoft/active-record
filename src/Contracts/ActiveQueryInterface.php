@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Contracts;
 
-use Yiisoft\Db\Contracts\ConnectionInterface;
-use Yiisoft\Db\Contracts\QueryInterface;
+use Yiisoft\Db\Drivers\Connection;
+use Yiisoft\Db\Querys\QueryInterface;
 
 /**
  * ActiveQueryInterface defines the common interface to be implemented by active record query classes.
@@ -24,16 +24,14 @@ interface ActiveQueryInterface extends QueryInterface
      * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
      * @return $this the query object itself
      */
-    public function asArray($value = true);
+    public function asArray(bool $value = true): self;
 
     /**
      * Executes query and returns a single row of result.
      *
-     * @param ConnectionInterface $db the DB connection used to create the DB command.
-     * If `null`, the DB connection returned by {@see ActiveQueryTrait::$modelClass|modelClass} will be used.
      * @return ActiveRecordInterface|array|null a single row of query result. Depending on the setting of
-     * {@see asArray}, the query result may be either an array or an ActiveRecord object. `null` will be returned
-     * if the query results in nothing.
+     * {@see asArray}, the query result may be either an array or an ActiveRecord object. `null` will be returned if the
+     * query results in nothing.
      */
     public function one();
 
@@ -41,8 +39,9 @@ interface ActiveQueryInterface extends QueryInterface
      * Sets the {@see indexBy} property.
      *
      * @param string|callable $column the name of the column by which the query results should be indexed by.
-     * This can also be a callable (e.g. anonymous function) that returns the index value based on the given
-     * row or model data. The signature of the callable should be:
+     *
+     * This can also be a callable (e.g. anonymous function) that returns the index value based on the given row or
+     * model data. The signature of the callable should be:
      *
      * ```php
      * // $model is an AR instance when `asArray` is false,
@@ -60,13 +59,14 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Specifies the relations with which this query should be performed.
      *
-     * The parameters to this method can be either one or multiple strings, or a single array
-     * of relation names and the optional callbacks to customize the relations.
+     * The parameters to this method can be either one or multiple strings, or a single array of relation names and the
+     * optional callbacks to customize the relations.
      *
-     * A relation name can refer to a relation defined in {@see ActiveQueryTrait::modelClass|modelClass}
-     * or a sub-relation that stands for a relation of a related record.
-     * For example, `orders.address` means the `address` relation defined
-     * in the model class corresponding to the `orders` relation.
+     * A relation name can refer to a relation defined in {@see ActiveQueryTrait::modelClass|modelClass} or a
+     * sub-relation that stands for a relation of a related record.
+     *
+     * For example, `orders.address` means the `address` relation defined in the model class corresponding to the
+     * `orders` relation.
      *
      * The following are some usage examples:
      *
@@ -77,16 +77,18 @@ interface ActiveQueryInterface extends QueryInterface
      * Customer::find()->with('orders.address')->all();
      * // find customers together with their country and orders of status 1
      * Customer::find()->with([
-     *     'orders' => function (\Yii\Extensions\ActiveRecord\ActiveQuery $query) {
+     *     'orders' => function (ActiveQuery $query) {
      *         $query->andWhere('status = 1');
      *     },
      *     'country',
      * ])->all();
      * ```
      *
+     * @param array|string $with
+     *
      * @return $this the query object itself
      */
-    public function with();
+    public function with(...$with): self;
 
     /**
      * Specifies the relation associated with the junction table for use in relational query.
@@ -95,9 +97,10 @@ interface ActiveQueryInterface extends QueryInterface
      * {@see ActiveRelationTrait::primaryModel|primaryModel} of the relation.
      * @param callable $callable a PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
+     *
      * @return $this the relation object itself.
      */
-    public function via($relationName, callable $callable = null);
+    public function via($relationName, callable $callable = null): self;
 
     /**
      * Finds the related records for the specified primary record.

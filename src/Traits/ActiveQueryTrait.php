@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Traits;
 
+use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
-use Yiisoft\Db\Contracts\ConnectionInterface;
+use Yiisoft\Db\Exceptions\InvalidConfigException;
 
 /**
  * ActiveQueryTrait implements the common methods and properties for active record query classes.
@@ -13,20 +16,20 @@ use Yiisoft\Db\Contracts\ConnectionInterface;
 trait ActiveQueryTrait
 {
     /**
-     * @var ?string the name of the ActiveRecord class.
+     * @var string|null the name of the ActiveRecord class.
      */
-    public $modelClass;
+    public ?string $modelClass;
 
     /**
      * @var array a list of relations that this query should be performed with
      */
-    public $with;
+    public array $with = [];
 
     /**
-     * @var bool whether to return each record as an array. If false (default), an object of {@see modelClass} will be
-     * created to represent each record.
+     * @var bool whether to return each record as an array. If false, an object of {@see modelClass} will be created to
+     * represent each record.
      */
-    public $asArray;
+    public ?bool $asArray = null;
 
     /**
      * Sets the {@see asArray} property.
@@ -35,9 +38,10 @@ trait ActiveQueryTrait
      *
      * @return $this the query object itself
      */
-    public function asArray($value = true)
+    public function asArray(?bool $value = true): self
     {
         $this->asArray = $value;
+
         return $this;
     }
 
@@ -62,7 +66,7 @@ trait ActiveQueryTrait
      * Customer::find()->with('orders.address')->all();
      * // find customers together with their country and orders of status 1
      * Customer::find()->with([
-     *     'orders' => function (\Yiisoft\ActiveRecord\ActiveQuery $query) {
+     *     'orders' => function (ActiveQuery $query) {
      *         $query->andWhere('status = 1');
      *     },
      *     'country',
@@ -76,15 +80,14 @@ trait ActiveQueryTrait
      * Customer::find()->with('orders', 'country')->all();
      * Customer::find()->with('orders')->with('country')->all();
      * ```
+     * @param array|string $with
      *
      * @return $this the query object itself
      */
-    public function with()
+    public function with(...$with): self
     {
-        $with = func_get_args();
-
-        if (isset($with[0]) && is_array($with[0])) {
-            // the parameter is given as an array
+        if (isset($with[0]) && \is_array($with[0])) {
+            /* the parameter is given as an array */
             $with = $with[0];
         }
 
@@ -92,8 +95,8 @@ trait ActiveQueryTrait
             $this->with = $with;
         } elseif (!empty($with)) {
             foreach ($with as $name => $value) {
-                if (is_int($name)) {
-                    // repeating relation is fine as normalizeRelations() handle it well
+                if (\is_int($name)) {
+                    /* repeating relation is fine as normalizeRelations() handle it well */
                     $this->with[] = $value;
                 } else {
                     $this->with[$name] = $value;
@@ -111,7 +114,7 @@ trait ActiveQueryTrait
      *
      * @return array|ActiveRecord[]
      */
-    protected function createModels($rows)
+    protected function createModels($rows): ?array
     {
         if ($this->asArray) {
             return $rows;
@@ -122,8 +125,8 @@ trait ActiveQueryTrait
             $class = $this->modelClass;
 
             foreach ($rows as $row) {
-                $model = $class::instantiate($row, $this->modelClass::getConnection());
-                $modelClass = get_class($model);
+                $model = $class::instantiate($row);
+                $modelClass = \get_class($model);
                 $modelClass::populateRecord($model, $row);
 
                 $models[] = $model;
@@ -139,11 +142,15 @@ trait ActiveQueryTrait
      * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
      * for details about specifying this parameter.
      * @param array|ActiveRecord[] $models the primary models (can be either AR instances or arrays)
+     *
+     * @throws InvalidConfigException
+     *
+     * @return void
      */
-    public function findWith($with, &$models)
+    public function findWith(array $with, array &$models): void
     {
 
-        $primaryModel = reset($models);
+        $primaryModel = \reset($models);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
             /* @var $modelClass ActiveRecordInterface */
@@ -170,22 +177,22 @@ trait ActiveQueryTrait
      *
      * @return ActiveQueryInterface[]
      */
-    private function normalizeRelations($model, $with)
+    private function normalizeRelations(ActiveRecord $model, array $with): array
     {
 
         $relations = [];
 
         foreach ($with as $name => $callback) {
 
-            if (is_int($name)) {
+            if (\is_int($name)) {
                 $name = $callback;
                 $callback = null;
             }
 
-            if (($pos = strpos($name, '.')) !== false) {
+            if (($pos = \strpos($name, '.')) !== false) {
                 // with sub-relations
-                $childName = substr($name, $pos + 1);
-                $name = substr($name, 0, $pos);
+                $childName = \substr($name, $pos + 1);
+                $name = \substr($name, 0, $pos);
             } else {
                 $childName = null;
             }
@@ -201,7 +208,7 @@ trait ActiveQueryTrait
             if (isset($childName)) {
                 $relation->with[$childName] = $callback;
             } elseif ($callback !== null) {
-                \call_user_func($callback, $relation);
+                $callback($relation);
             }
         }
 
