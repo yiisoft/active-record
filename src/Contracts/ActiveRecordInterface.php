@@ -220,9 +220,9 @@ interface ActiveRecordInterface
      *
      * @param mixed $condition primary key value or a set of column values
      *
-     * @return ActiveRecord instance matching the condition, or `null` if nothing matches.
+     * @return ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
      */
-    public static function findOne($condition);
+    public static function findOne($condition): ?self;
 
     /**
      * Returns a list of active record models that match the specified primary key value(s) or a set of column values.
@@ -304,13 +304,14 @@ interface ActiveRecordInterface
      *
      * @param array $attributes attribute values (name-value pairs) to be saved for the record.
      * Unlike {@see update()} these are not going to be validated.
-     * @param array $condition the condition that matches the records that should get updated.
+     * @param array|string $condition the condition that matches the records that should get updated.
      * Please refer to {@see QueryInterface::where()} on how to specify this parameter.
      * An empty condition will match all records.
+     * @param array $params
      *
      * @return int the number of rows updated
      */
-    public static function updateAll($attributes, $condition = null);
+    public static function updateAll(array $attributes, $condition = null, array $params = []): int;
 
     /**
      * Deletes records using the provided conditions.
@@ -365,12 +366,12 @@ interface ActiveRecordInterface
      * $customer->insert();
      * ```
      *
-     * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
+     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`,
      * meaning all attributes that are loaded from DB will be saved.
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
      */
-    public function insert($attributes = null);
+    public function insert(?array $attributes = null);
 
     /**
      * Saves the changes to this active record into the database.

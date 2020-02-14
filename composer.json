@@ -27,13 +27,20 @@
     "require-dev": {
         "hiqdev/composer-config-plugin": "^1.0@dev",
         "phpunit/phpunit": "^8.4",
+        "yiisoft/aliases": "^3.0@dev",
         "yiisoft/db-mysql": "^3.0@dev",
+        "yiisoft/db-sqlite": "^3.0@dev",
         "yiisoft/di": "^3.0@dev",
-        "yiisoft/event-dispatcher": "^3.0@dev"
+        "yiisoft/json": "^3.0@dev",
+        "yiisoft/log-target-file": "^3.0@dev"
     },
     "autoload": {
         "psr-4": {
-            "Yiisoft\\ActiveRecord\\": "src",
+            "Yiisoft\\ActiveRecord\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Yiisoft\\ActiveRecord\\Tests\\": "tests"
         }
     },

@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Psr\EventDispatcher\EventDispatcherInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
-use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\TableSchema;
-use Yiisoft\Db\Connectors\ConnectionPool;
-use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
+use Yiisoft\Db\Exceptions\Exception;
+use Yiisoft\Db\Querys\Query;
+use Yiisoft\Db\Schemas\TableSchema;
+use Yiisoft\Db\Exceptions\InvalidArgumentException;
+use Yiisoft\Db\Exceptions\InvalidConfigException;
+use Yiisoft\Db\Exceptions\StaleObjectException;
 use Yiisoft\Db\Expressions\Expression;
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
 
@@ -35,13 +34,13 @@ use Yiisoft\Strings\StringHelper;
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
- * To declare an ActiveRecord class you need to extend {@see \Yiisoft\ActiveRecord\ActiveRecord} and
+ * To declare an ActiveRecord class you need to extend {@see ActiveRecord} and
  * implement the `tableName` method:
  *
  * ```php
  * <?php
  *
- * class Customer extends \Yiisoft\ActiveRecord\ActiveRecord
+ * class Customer extends ActiveRecord
  * {
  *     public static function tableName()
  *     {
@@ -74,7 +73,8 @@ use Yiisoft\Strings\StringHelper;
  * $orders = $user->orders;
  * ```
  *
- * For more details and usage information on ActiveRecord, see the [guide article on ActiveRecord](guide:db-active-record).
+ * For more details and usage information on ActiveRecord,
+ * see the [guide article on ActiveRecord](guide:db-active-record).
  *
  * @method ActiveQuery hasMany($class, array $link) see {@see BaseActiveRecord::hasMany()} for more info
  * @method ActiveQuery hasOne($class, array $link) see {@see BaseActiveRecord::hasOne()} for more info
@@ -85,26 +85,26 @@ class ActiveRecord extends BaseActiveRecord
      * The insert operation. This is mainly used when overriding {@see transactions()} to specify which operations are
      * transactional.
      */
-    const OP_INSERT = 0x01;
+    public const OP_INSERT = 0x01;
 
     /**
      * The update operation. This is mainly used when overriding {@see transactions()} to specify which operations are
      * transactional.
      */
-    const OP_UPDATE = 0x02;
+    public const OP_UPDATE = 0x02;
 
     /**
      * The delete operation. This is mainly used when overriding {@see transactions()} to specify which operations are
      * transactional.
      */
-    const OP_DELETE = 0x04;
+    public const OP_DELETE = 0x04;
 
     /**
      * All three operations: insert, update, delete.
      *
      * This is a shortcut of the expression: OP_INSERT | OP_UPDATE | OP_DELETE.
      */
-    const OP_ALL = 0x07;
+    public const OP_ALL = 0x07;
 
     /**
      * Loads default values from database table schema.
@@ -112,7 +112,7 @@ class ActiveRecord extends BaseActiveRecord
      * You may call this method to load default values after creating a new instance:
      *
      * ```php
-     * // class Customer extends \Yiisoft\ActiveRecord\ActiveRecord
+     * // class Customer extends ActiveRecord
      * $customer = new Customer();
      * $customer->loadDefaultValues();
      * ```
@@ -120,11 +120,11 @@ class ActiveRecord extends BaseActiveRecord
      * @param bool $skipIfSet whether existing value should be preserved.
      * This will only set defaults for attributes that are `null`.
      *
-     * @return $this the model instance itself.
-     *
      * @throws InvalidConfigException
+     *
+     * @return $this the model instance itself.
      */
-    public function loadDefaultValues($skipIfSet = true)
+    public function loadDefaultValues($skipIfSet = true): self
     {
         foreach (static::getTableSchema()->columns as $column) {
             if ($column->defaultValue !== null && (!$skipIfSet || $this->{$column->name} === null)) {
@@ -150,9 +150,10 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @param string $sql the SQL statement to be executed
      * @param array $params parameters to be bound to the SQL statement during execution.
-     * @return ActiveQuery the newly created {@see ActiveQuery} instance
+     *
+     * @return Query the newly created {@see ActiveQuery} instance
      */
-    public static function findBySql($sql, $params = [])
+    public static function findBySql($sql, $params = []): Query
     {
         $query = static::find();
 
@@ -168,11 +169,12 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter
      *
-     * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface|ActiveQuery} instance.
      * @throws InvalidConfigException if there is no primary key defined.
-     * @internal
+     * @throws InvalidArgumentException
+     *
+     * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface|ActiveQuery} instance.
      */
-    protected static function findByCondition($condition)
+    protected static function findByCondition($condition): ActiveQueryInterface
     {
         $query = static::find();
 
@@ -181,7 +183,6 @@ class ActiveRecord extends BaseActiveRecord
         }
 
         if (!ArrayHelper::isAssociative($condition)) {
-
             // query by primary key
             $primaryKey = static::primaryKey();
 
@@ -196,9 +197,9 @@ class ActiveRecord extends BaseActiveRecord
                  * if condition is scalar, search for a single primary key, if it is array, search for multiple primary
                  * key values
                  */
-                $condition = [$pk => \is_array($condition) ? array_values($condition) : $condition];
+                $condition = [$pk => \is_array($condition) ? \array_values($condition) : $condition];
             } else {
-                throw new InvalidConfigException('"' . get_called_class() . '" must have a primary key.');
+                throw new InvalidConfigException('"' . static::class . '" must have a primary key.');
             }
         } elseif (\is_array($condition)) {
             $aliases = static::filterValidAliases($query);
@@ -211,20 +212,21 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Returns table aliases which are not the same as the name of the tables.
      *
-     * @param Query $query
-     * @return array
+     * @param ActiveQuery $query
      *
      * @throws InvalidConfigException
+     *
+     * @return array
      */
-    protected static function filterValidAliases(ActiveQuery $query)
+    protected static function filterValidAliases(ActiveQuery $query): array
     {
         $tables = $query->getTablesUsedInFrom();
 
-        $aliases = array_diff(array_keys($tables), $tables);
+        $aliases = \array_diff(array_keys($tables), $tables);
 
-        return array_map(function ($alias) {
-            return preg_replace('/{{([\w]+)}}/', '$1', $alias);
-        }, array_values($aliases));
+        return \array_map(static function ($alias) {
+            return \preg_replace('/{{([\w]+)}}/', '$1', $alias);
+        }, \array_values($aliases));
     }
 
     /**
@@ -234,21 +236,26 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @param array $condition condition to filter.
      *
-     * @return array filtered condition.
+     * @param array $aliases
      *
      * @throws InvalidArgumentException in case array contains unsafe values.
+     * @throws InvalidConfigException
+     *
+     * @return array filtered condition.
      */
-    protected static function filterCondition(array $condition, array $aliases = [])
+    protected static function filterCondition(array $condition, array $aliases = []): array
     {
         $result = [];
 
         $columnNames = static::filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array(static::getConnection()->quoteSql($key), $columnNames, true)) {
-                throw new InvalidArgumentException('Key "' . $key . '" is not a column name and can not be used as a filter');
+            if (\is_string($key) && !\in_array(static::getConnection()->quoteSql($key), $columnNames, true)) {
+                throw new InvalidArgumentException(
+                    'Key "' . $key . '" is not a column name and can not be used as a filter'
+                );
             }
-            $result[$key] = is_array($value) ? array_values($value) : $value;
+            $result[$key] = \is_array($value) ? \array_values($value) : $value;
         }
 
         return $result;
@@ -258,11 +265,12 @@ class ActiveRecord extends BaseActiveRecord
      * Valid column names are table column names or column names prefixed with table name or table alias
      *
      * @param array $aliases
-     * @return array
      *
      * @throws InvalidConfigException
+     *
+     * @return array
      */
-    protected static function filterValidColumnNames(array $aliases)
+    protected static function filterValidColumnNames(array $aliases): array
     {
         $columnNames = [];
         $tableName = static::tableName();
@@ -284,7 +292,7 @@ class ActiveRecord extends BaseActiveRecord
         return $columnNames;
     }
 
-    public function refresh()
+    public function refresh(): bool
     {
         $query = $this->find();
 
@@ -330,15 +338,14 @@ class ActiveRecord extends BaseActiveRecord
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table
-     * @param string|array $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
      * @return int the number of rows updated
      *
-     * @throws Exception
      */
-    public static function updateAll($attributes, $condition = '', $params = [])
+    public static function updateAll(array $attributes, $condition = '', array $params = []): int
     {
         $command = static::getConnection()->createCommand();
 
@@ -365,11 +372,10 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $params the parameters (name => value) to be bound to the query.
      *
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
-     * @return int the number of rows updated
      *
-     * @throws Exception
+     * @return int the number of rows updated
      */
-    public static function updateAllCounters($counters, $condition = '', $params = [])
+    public static function updateAllCounters(array $counters, $condition = '', array $params = []): int
     {
         $n = 0;
 
@@ -413,10 +419,8 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $params the parameters (name => value) to be bound to the query.
      *
      * @return int the number of rows deleted
-     *
-     * @throws Exception
      */
-    public static function deleteAll($condition = null, $params = [])
+    public static function deleteAll($condition = null, $params = []): int
     {
         $command = static::getConnection()->createCommand();
         $command->delete(static::tableName(), $condition, $params);
@@ -427,9 +431,9 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * @return ActiveQuery the newly created {@see ActiveQuery} instance.
      */
-    public static function find()
+    public static function find(): ActiveQuery
     {
-        return new ActiveQuery(\get_called_class());
+        return new ActiveQuery(static::class);
     }
 
     /**
@@ -442,20 +446,21 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return string the table name
      */
-    public static function tableName()
+    public static function tableName(): string
     {
         $inflector = new Inflector();
-        return '{{%' . $inflector->camel2id(StringHelper::basename(get_called_class()), '_') . '}}';
+
+        return '{{%' . $inflector->camel2id(StringHelper::basename(static::class), '_') . '}}';
     }
 
     /**
      * Returns the schema information of the DB table associated with this AR class.
      *
-     * @return TableSchema the schema information of the DB table associated with this AR class.
-     *
      * @throws InvalidConfigException if the table for the AR class does not exist.
+     *
+     * @return TableSchema the schema information of the DB table associated with this AR class.
      */
-    public static function getTableSchema()
+    public static function getTableSchema(): TableSchema
     {
         $tableSchema = static::getConnection()
             ->getSchema()
@@ -479,11 +484,11 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Note that an array should be returned even for a table with single primary key.
      *
-     * @return string[] the primary keys of the associated database table.
-     *
      * @throws InvalidConfigException
+     *
+     * @return string[] the primary keys of the associated database table.
      */
-    public static function primaryKey()
+    public static function primaryKey(): array
     {
         return static::getTableSchema()->primaryKey;
     }
@@ -498,7 +503,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function attributes(): array
     {
-        return array_keys(static::getTableSchema()->columns);
+        return \array_keys(static::getTableSchema()->columns);
     }
 
     /**
@@ -523,14 +528,13 @@ class ActiveRecord extends BaseActiveRecord
      * ];
      * ```
      *
-     * The above declaration specifies that in the "admin" scenario, the insert operation ({@see insert()})
-     * should be done in a transaction; and in the "api" scenario, all the operations should be done
-     * in a transaction.
+     * The above declaration specifies that in the "admin" scenario, the insert operation ({@see insert()}) should be
+     * done in a transaction; and in the "api" scenario, all the operations should be done in a transaction.
      *
-     * @return array the declarations of transactional operations. The array keys are scenarios names,
-     * and the array values are the corresponding transaction operations.
+     * @return array the declarations of transactional operations. The array keys are scenarios names, and the array
+     * values are the corresponding transaction operations.
      */
-    public function transactions()
+    public function transactions(): array
     {
         return [];
     }
@@ -538,7 +542,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * {@inheritdoc}
      */
-    public static function populateRecord($record, $row)
+    public static function populateRecord($record, $row): void
     {
         $columns = static::getTableSchema()->columns;
 
@@ -581,17 +585,15 @@ class ActiveRecord extends BaseActiveRecord
      * $customer->insert();
      * ```
      *
-     * @param bool $runValidation whether to perform validation (calling {@see validate()}) before saving the record.
-     * Defaults to `true`. If the validation fails, the record will not be saved to the database and this method will
-     * return `false`.
-     * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
-     * meaning all attributes that are loaded from DB will be saved.
+     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all attributes
+     * that are loaded from DB will be saved.
+     *
+     * @throws InvalidConfigException
+     * @throws \Throwable in case insert failed.
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
-     *
-     * @throws \Throwable in case insert failed.
      */
-    public function insert($attributes = null)
+    public function insert(?array $attributes = null): bool
     {
         if (!$this->isTransactional(self::OP_INSERT)) {
             return $this->insertInternal($attributes);
@@ -620,11 +622,12 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
      * meaning all attributes that are loaded from DB will be saved.
      *
-     * @return bool whether the record is inserted successfully.
-     *
      * @throws InvalidConfigException
+     * @throws InvalidArgumentException
+     *
+     * @return bool whether the record is inserted successfully.
      */
-    protected function insertInternal($attributes = null)
+    protected function insertInternal($attributes = null): bool
     {
         $values = $this->getDirtyAttributes($attributes);
 
@@ -638,7 +641,7 @@ class ActiveRecord extends BaseActiveRecord
             $values[$name] = $id;
         }
 
-        $changedAttributes = array_fill_keys(array_keys($values), null);
+        $changedAttributes = \array_fill_keys(\array_keys($values), null);
 
         $this->setOldAttributes($values);
 
@@ -684,20 +687,16 @@ class ActiveRecord extends BaseActiveRecord
      * }
      * ```
      *
-     * @param bool $runValidation whether to perform validation (calling {@see validate()}) before saving the record.
-     * Defaults to `true`. If the validation fails, the record will not be saved to the database and this method will
-     * return `false`.
-     * @param array $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all
-     * attributes that are loaded from DB will be saved.
-     *
-     * @return int|false the number of rows affected, or false if validation fails
-     * or {@seebeforeSave()} stops the updating process.
+     * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all attributes
+     * that are loaded from DB will be saved.
      *
      * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being updated is
      * outdated.
      * @throws \Throwable in case update failed.
+     *
+     * @return bool|int the number of rows affected, or false if validation fails or {@seebeforeSave()} stops the updating process.
      */
-    public function update($attributeNames = null)
+    public function update(?array $attributeNames = null)
     {
         if (!$this->isTransactional(self::OP_UPDATE)) {
             return $this->updateInternal($attributeNames);
@@ -732,12 +731,12 @@ class ActiveRecord extends BaseActiveRecord
      * In the above step 1 and 3, events named {@see EVENT_BEFORE_DELETE} and {@see EVENT_AFTER_DELETE}
      * will be raised by the corresponding methods.
      *
-     * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
-     * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
-     *
      * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being deleted
      * is outdated.
      * @throws \Throwable in case delete failed.
+     *
+     * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
      */
     public function delete()
     {
@@ -765,11 +764,12 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Deletes an ActiveRecord without considering transaction.
      *
-     * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
-     * @throws StaleObjectException
      *
+     * @throws StaleObjectException
      * @throws Exception
+     *
+     * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      */
     protected function deleteInternal()
     {
@@ -825,13 +825,10 @@ class ActiveRecord extends BaseActiveRecord
      * @param int $operation the operation to check. Possible values are {@see OP_INSERT}, {@see OP_UPDATE} and
      * {@see OP_DELETE}.
      *
-     * @return bool whether the specified operation is transactional in the current {@see scenario}.
+     * @return array|bool whether the specified operation is transactional in the current {@see scenario}.
      */
     public function isTransactional($operation)
     {
-        /*$scenario = $this->getScenario();*/
-        $transactions = $this->transactions();
-
-        return $transactions;
+        return $this->transactions();
     }
 }
