@@ -256,6 +256,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
         $this->assertNull($record->var1);
         $this->assertNull($record->var2);
         $this->assertNull($record->var3);
+
         $this->assertNull($record->stringcol);
 
         $record->var1 = 0;
