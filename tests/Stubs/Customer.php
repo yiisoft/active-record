@@ -90,5 +90,4 @@ class Customer extends ActiveRecord
     {
         return new CustomerQuery(static::class);
     }
-
 }

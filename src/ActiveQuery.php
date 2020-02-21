@@ -523,7 +523,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $relations = [];
 
         foreach ($with as $name => $callback) {
-
             if (\is_int($name)) {
                 $name = $callback;
                 $callback = null;
@@ -534,7 +533,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $prefix = '';
 
             while (($pos = \strpos($name, '.')) !== false) {
-
                 $childName = \substr($name, $pos + 1);
                 $name = \substr($name, 0, $pos);
                 $fullName = $prefix === '' ? $name : "$prefix.$name";
