@@ -18,4 +18,3 @@ final class ActiveRecordTest extends BaseActiveRecordTest
         ActiveRecord::setDriverName($this->driverName);
     }
 }
-

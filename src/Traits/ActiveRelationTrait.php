@@ -318,7 +318,7 @@ trait ActiveRelationTrait
             $deepViaQuery = $viaQuery;
             while ($deepViaQuery->via) {
                 $deepViaQuery = \is_array($deepViaQuery->via) ? $deepViaQuery->via[1] : $deepViaQuery->via;
-            };
+            }
             $link = \array_values($deepViaQuery->link);
         }
         foreach ($primaryModels as $i => $primaryModel) {
@@ -451,7 +451,7 @@ trait ActiveRelationTrait
                 $map = $this->mapVia($map, $viaViaQuery->viaMap);
 
                 $viaVia = $viaViaQuery->via;
-            };
+            }
         }
 
         $buckets = [];

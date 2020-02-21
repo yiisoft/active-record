@@ -105,28 +105,28 @@ class Order extends ActiveRecord
             })->orderBy('name');
     }
 
-    public function getBooks():  ActiveQuery
+    public function getBooks(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItems')
             ->where(['category_id' => 1]);
     }
 
-    public function getBooksWithNullFK():  ActiveQuery
+    public function getBooksWithNullFK(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItemsWithNullFK')
             ->where(['category_id' => 1]);
     }
 
-    public function getBooksViaTable():  ActiveQuery
+    public function getBooksViaTable(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->viaTable('order_item', ['order_id' => 'id'])
             ->where(['category_id' => 1]);
     }
 
-    public function getBooksWithNullFKViaTable():  ActiveQuery
+    public function getBooksWithNullFKViaTable(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->viaTable('order_item_with_null_fk', ['order_id' => 'id'])

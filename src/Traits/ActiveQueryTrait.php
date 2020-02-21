@@ -149,7 +149,6 @@ trait ActiveQueryTrait
      */
     public function findWith(array $with, array &$models): void
     {
-
         $primaryModel = \reset($models);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
@@ -179,11 +178,9 @@ trait ActiveQueryTrait
      */
     private function normalizeRelations(ActiveRecord $model, array $with): array
     {
-
         $relations = [];
 
         foreach ($with as $name => $callback) {
-
             if (\is_int($name)) {
                 $name = $callback;
                 $callback = null;
