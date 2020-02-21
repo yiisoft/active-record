@@ -14,4 +14,4 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/active-record/v/stable.png)](https://packagist.org/packages/yiisoft/active-record)
 [![Total Downloads](https://poser.pugx.org/yiisoft/active-record/downloads.png)](https://packagist.org/packages/yiisoft/active-record)
-[![Build Status](https://travis-ci.com/yiisoft/active-record.svg?branch=master)](https://travis-ci.com/yiisoft/active-record)
+[![Build status](https://github.com/yiisoft/active-record/workflows/phpunit/badge.svg)](https://github.com/yiisoft/active-record/actions)

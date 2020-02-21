@@ -1,27 +1,28 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\ActiveRecord\Data;
 
-use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\Db\Connection;
-use yii\exceptions\InvalidConfigException;
-use yii\base\Model;
-use Yiisoft\Data\BaseDataProvider;
-use Yiisoft\Db\ConnectionInterface;
-use Yiisoft\Db\QueryInterface;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
+use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
+use Yiisoft\Db\Drivers\Connection;
+use Yiisoft\Db\Exceptions\InvalidConfigException;
+use Yiisoft\Db\Querys\QueryInterface;
 
 /**
- * ActiveDataProvider implements a data provider based on [[\Yiisoft\Db\Query]] and [[\Yiisoft\ActiveRecord\ActiveQuery]].
+ * ActiveDataProvider implements a data provider based on {@see \Yiisoft\Db\Querys\Query} and
+ * {@see \Yiisoft\ActiveRecord\ActiveQuery}.
  *
- * ActiveDataProvider provides data by performing DB queries using [[query]].
+ * ActiveDataProvider provides data by performing DB queries using {@see query}.
  *
  * The following is an example of using ActiveDataProvider to provide ActiveRecord instances:
  *
  * ```php
  * $provider = new ActiveDataProvider(
- *      Yii::$app->db,
  *      Post::find()
  * );
+ *
  * $provider->pagination' => [
  *     'pageSize' => 20,
  * ];
@@ -48,44 +49,47 @@ use Yiisoft\Db\QueryInterface;
  * $posts = $provider->getModels();  // or $provider->models
  * ```
  *
- * For more details and usage information on ActiveDataProvider, see the [guide article on data providers](guide:output-data-providers).
- *
- * @author Qiang Xue <qiang.xue@gmail.com>
- * @since 2.0
+ * For more details and usage information on ActiveDataProvider, see the
+ * [guide article on data providers](guide:output-data-providers).
  */
-class ActiveDataProvider extends BaseDataProvider
+class ActiveDataProvider
 {
     /**
-     * @var QueryInterface the query that is used to fetch data models and [[totalCount]]
+     * @var QueryInterface|null the query that is used to fetch data models and {@see totalCount}
+     *
      * if it is not explicitly set.
      */
-    public $query;
+    public ?QueryInterface $query = null;
+
     /**
      * @var string|callable the column that is used as the key of the data models.
+     *
      * This can be either a column name, or a callable that returns the key value of a given data model.
      *
      * If this is not set, the following rules will be used to determine the keys of the data models:
      *
-     * - If [[query]] is an [[\Yiisoft\ActiveRecord\ActiveQuery]] instance, the primary keys of [[\Yiisoft\ActiveRecord\ActiveQuery::modelClass]] will be used.
-     * - Otherwise, the keys of the [[models]] array will be used.
+     * - If {@see query} is an {@see \Yiisoft\ActiveRecord\ActiveQuery} instance, the primary keys of
+     * {@see \Yiisoft\ActiveRecord\ActiveQuery::modelClass} will be used.
+     *
+     * - Otherwise, the keys of the {@see models} array will be used.
      *
      * @see getKeys()
      */
     public $key;
+
     /**
-     * @var Connection|array|string the DB connection object or the application component ID of the DB connection.
-     * If not set, the default DB connection will be used.
-     * Starting from version 2.0.2, this can also be a configuration array for creating the object.
+     * @var Connection|null the DB connection object or the application component ID of the DB connection.
      */
-    public $db;
+    public ?Connection $db = null;
 
 
     /**
      * Create the ActiveDataProvider object.
-     * @param Connection $db database connection (if null, default db connection will be used)
+     *
+     * @param Connection $db database connection.
      * @param QueryInterface $query query to be executed
      */
-    public function __construct(ConnectionInterface $db, QueryInterface $query)
+    public function __construct(Connection $db, QueryInterface $query)
     {
         $this->db = $db;
         $this->query = $query;
@@ -94,7 +98,7 @@ class ActiveDataProvider extends BaseDataProvider
     /**
      * {@inheritdoc}
      */
-    protected function prepareModels()
+    protected function prepareModels(): array
     {
         $query = $this->prepareQuery();
         if ($query->emulateExecution) {
@@ -105,10 +109,12 @@ class ActiveDataProvider extends BaseDataProvider
 
     /**
      * Prepares the sql-query that will get the data for current page.
-     * @return QueryInterface
+     *
      * @throws InvalidConfigException
+     *
+     * @return QueryInterface
      */
-    public function prepareQuery()
+    public function prepareQuery(): QueryInterface
     {
         if (!$this->query instanceof QueryInterface) {
             throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. Yiisoft\Db\Query or its subclasses.');
@@ -131,24 +137,24 @@ class ActiveDataProvider extends BaseDataProvider
     /**
      * {@inheritdoc}
      */
-    protected function prepareKeys($models)
+    protected function prepareKeys($models): array
     {
         $keys = [];
         if ($this->key !== null) {
             foreach ($models as $model) {
-                if (is_string($this->key)) {
+                if (\is_string($this->key)) {
                     $keys[] = $model[$this->key];
                 } else {
-                    $keys[] = call_user_func($this->key, $model);
+                    $keys[] = \call_user_func($this->key, $model);
                 }
             }
 
             return $keys;
         } elseif ($this->query instanceof ActiveQueryInterface) {
-            /* @var $class \Yiisoft\ActiveRecord\ActiveRecordInterface */
+            /* @var $class ActiveRecordInterface */
             $class = $this->query->modelClass;
             $pks = $class::primaryKey();
-            if (count($pks) === 1) {
+            if (\count($pks) === 1) {
                 $pk = $pks[0];
                 foreach ($models as $model) {
                     $keys[] = $model[$pk];
@@ -166,16 +172,19 @@ class ActiveDataProvider extends BaseDataProvider
             return $keys;
         }
 
-        return array_keys($models);
+        return \array_keys($models);
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function prepareTotalCount()
+    protected function prepareTotalCount(): int
     {
         if (!$this->query instanceof QueryInterface) {
-            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. Yiisoft\Db\Query or its subclasses.');
+            throw new InvalidConfigException(
+                'The "query" property must be an instance of a class that implements the QueryInterface e.g. '
+                . 'Yiisoft\Db\Query or its subclasses.'
+            );
         }
         $query = clone $this->query;
         return (int) $query->limit(-1)->offset(-1)->orderBy([])->count('*', $this->db);
@@ -184,9 +193,8 @@ class ActiveDataProvider extends BaseDataProvider
     /**
      * {@inheritdoc}
      */
-    public function setSort($value)
+    public function setSort($value): void
     {
-        parent::setSort($value);
         if (($sort = $this->getSort()) !== false && $this->query instanceof ActiveQueryInterface) {
             /* @var $modelClass Model */
             $modelClass = $this->query->modelClass;
