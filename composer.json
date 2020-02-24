@@ -26,7 +26,7 @@
     },
     "require-dev": {
         "hiqdev/composer-config-plugin": "^1.0@dev",
-        "phpunit/phpunit": "^8.4",
+        "phpunit/phpunit": "^8.4 || ^9.0",
         "yiisoft/aliases": "^3.0@dev",
         "yiisoft/db-mysql": "^3.0@dev",
         "yiisoft/db-pgsql": "^3.0@dev",
