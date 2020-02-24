@@ -1837,7 +1837,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
     public function testValueEscapingInFindByCondition(string $modelClassName, array $filterWithInjection): void
     {
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageRegExp(
+        $this->expectExceptionMessageMatches(
             '/^Key "(.+)?" is not a column name and can not be used as a filter$/'
         );
 
