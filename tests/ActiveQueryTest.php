@@ -11,10 +11,10 @@ use Yiisoft\ActiveRecord\Tests\Stubs\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\Profile;
-use Yiisoft\Db\Commands\Command;
-use Yiisoft\Db\Drivers\Connection;
-use Yiisoft\Db\Querys\Query;
-use Yiisoft\Db\Querys\QueryBuilder;
+use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Query\QueryBuilder;
 use Yiisoft\Db\Tests\DatabaseTestCase;
 
 /**
@@ -159,7 +159,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
     public function testGetQueryTableNameFromSet(): void
     {
         $query = new ActiveQuery(Customer::class);
-        $query->setFrom(['alias' => 'customer']);
+        $query->from(['alias' => 'customer']);
 
         $result = $this->invokeMethod($query, 'getTableNameAndAlias');
 
@@ -176,7 +176,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $result = $query->onCondition($on, $params);
 
         $this->assertEquals($on, $result->on);
-        $this->assertEquals($params, $result->params);
+        $this->assertEquals($params, $result->getParams());
     }
 
     public function testAndOnConditionOnNotSet(): void
@@ -188,7 +188,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $result = $query->andOnCondition($on, $params);
 
         $this->assertEquals($on, $result->on);
-        $this->assertEquals($params, $result->params);
+        $this->assertEquals($params, $result->getParams());
     }
 
     public function testAndOnConditionOnSet(): void
@@ -205,7 +205,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $result = $query->andOnCondition($on, $params);
 
         $this->assertEquals(['and', $onOld, $on], $result->on);
-        $this->assertEquals($params, $result->params);
+        $this->assertEquals($params, $result->getParams());
     }
 
     public function testOrOnConditionOnNotSet(): void
@@ -217,7 +217,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $result = $query->orOnCondition($on, $params);
 
         $this->assertEquals($on, $result->on);
-        $this->assertEquals($params, $result->params);
+        $this->assertEquals($params, $result->getParams());
     }
 
     public function testOrOnConditionOnSet(): void
@@ -234,7 +234,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $result = $query->orOnCondition($on, $params);
 
         $this->assertEquals(['or', $onOld, $on], $result->on);
-        $this->assertEquals($params, $result->params);
+        $this->assertEquals($params, $result->getParams());
     }
 
     /**
@@ -262,7 +262,7 @@ abstract class ActiveQueryTest extends DatabaseTestCase
         $result = $query->alias('alias');
 
         $this->assertInstanceOf(ActiveQuery::class, $result);
-        $this->assertEquals(['alias' => 'customer'], $result->from);
+        $this->assertEquals(['alias' => 'customer'], $result->getFrom());
     }
 
     public function testAliasYetSet(): void
@@ -271,12 +271,12 @@ abstract class ActiveQueryTest extends DatabaseTestCase
 
         $query = new ActiveQuery(Customer::class);
 
-        $query->from = $aliasOld;
+        $query->from($aliasOld);
 
         $result = $query->alias('alias');
 
         $this->assertInstanceOf(ActiveQuery::class, $result);
-        $this->assertEquals(['alias' => 'old'], $result->from);
+        $this->assertEquals(['alias' => 'old'], $result->getFrom());
     }
 
     use GetTablesAliasTestTrait;
@@ -303,11 +303,11 @@ abstract class ActiveQueryTest extends DatabaseTestCase
     {
         $query = new ActiveQuery(Profile::class);
 
-        $this->assertEquals($query->from, null);
+        $this->assertEquals($query->getFrom(), null);
 
         $query->getTablesUsedInFrom();
 
-        $this->assertEquals($query->from, null);
+        $this->assertEquals($query->getFrom(), null);
     }
 
     /**

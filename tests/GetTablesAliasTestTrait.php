@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\Db\Querys\Query;
-use Yiisoft\Db\Exceptions\InvalidArgumentException;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
-use Yiisoft\Db\Expressions\Expression;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Expression\Expression;
 
 trait GetTablesAliasTestTrait
 {
@@ -21,12 +21,12 @@ trait GetTablesAliasTestTrait
     {
         $query = $this->createQuery($this->db);
 
-        $query->from = [
+        $query->from([
             'prf'     => 'profile',
             '{{usr}}' => '{{user}}',
             '{{a b}}' => '{{c d}}',
             'post AS p',
-        ];
+        ]);
 
         $tables = $query->getTablesUsedInFrom();
 
@@ -41,10 +41,10 @@ trait GetTablesAliasTestTrait
     public function testGetTableNamesIsFromArrayWithoutAlias()
     {
         $query = $this->createQuery($this->db);
-        $query->from = [
+        $query->from([
             '{{profile}}',
             'user',
-        ];
+        ]);
 
         $tables = $query->getTablesUsedInFrom();
 
@@ -57,7 +57,7 @@ trait GetTablesAliasTestTrait
     public function testGetTableNamesIsFromString()
     {
         $query = $this->createQuery($this->db);
-        $query->from = 'profile AS \'prf\', user "usr", `order`, "customer", "a b" as "c d"';
+        $query->from('profile AS \'prf\', user "usr", `order`, "customer", "a b" as "c d"');
 
         $tables = $query->getTablesUsedInFrom();
 
@@ -74,7 +74,7 @@ trait GetTablesAliasTestTrait
     {
         $query = $this->createQuery($this->db);
 
-        $query->from = new \stdClass();
+        $query->from(new \stdClass());
 
         $this->expectException(InvalidConfigException::class);
 
@@ -85,7 +85,7 @@ trait GetTablesAliasTestTrait
     {
         $query = $this->createQuery($this->db);
 
-        $query->from = 'profile AS \'prf\', user "usr", service srv, order, [a b] [c d], {{something}} AS myalias';
+        $query->from('profile AS \'prf\', user "usr", service srv, order, [a b] [c d], {{something}} AS myalias');
 
         $tables = $query->getTablesUsedInFrom();
 
@@ -106,7 +106,7 @@ trait GetTablesAliasTestTrait
     {
         $query = $this->createQuery($this->db);
 
-        $query->from = '{{%order_item}}';
+        $query->from('{{%order_item}}');
 
         $tables = $query->getTablesUsedInFrom();
 
@@ -122,7 +122,7 @@ trait GetTablesAliasTestTrait
     {
         $query = $this->createQuery($this->db);
 
-        $query->from = 'tickets.workflows';
+        $query->from('tickets.workflows');
 
         $tables = $query->getTablesUsedInFrom();
 
@@ -137,7 +137,7 @@ trait GetTablesAliasTestTrait
 
         $expression = new Expression('(SELECT id FROM user)');
 
-        $query->from = $expression;
+        $query->from($expression);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('To use Expression in from() method, pass it in array format with alias.');
@@ -150,7 +150,7 @@ trait GetTablesAliasTestTrait
     {
         $query = $this->createQuery($this->db);
 
-        $query->from = ['x' => new Expression('(SELECT id FROM user)')];
+        $query->from(['x' => new Expression('(SELECT id FROM user)')]);
 
         $tables = $query->getTablesUsedInFrom();
 

@@ -8,9 +8,9 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
-use Yiisoft\Db\Expressions\ArrayExpression;
-use Yiisoft\Db\Exceptions\InvalidArgumentException;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
+use Yiisoft\Db\Expression\ArrayExpression;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 
 /**
  * ActiveRelationTrait implements the common methods and properties for active record relational queries.
@@ -298,8 +298,8 @@ trait ActiveRelationTrait
          * https://github.com/yiisoft/yii2/issues/3197
          * delay indexing related models after buckets are built
          */
-        $indexBy = $this->indexBy;
-        $this->indexBy = null;
+        $indexBy = $this->getIndexBy();
+        $this->indexBy(null);
         $models = $this->all();
 
         if (isset($viaModels, $viaQuery)) {
@@ -308,9 +308,9 @@ trait ActiveRelationTrait
             $buckets = $this->buildBuckets($models, $this->link);
         }
 
-        $this->indexBy = $indexBy;
-        if ($this->indexBy !== null && $this->multiple) {
-            $buckets = $this->indexBuckets($buckets, $this->indexBy);
+        $this->indexBy($indexBy);
+        if ($this->getIndexBy() !== null && $this->multiple) {
+            $buckets = $this->indexBuckets($buckets, $this->getIndexBy());
         }
 
         $link = \array_values($this->link);
@@ -327,7 +327,7 @@ trait ActiveRelationTrait
                 foreach ($keys as $key) {
                     $key = $this->normalizeModelKey($key);
                     if (isset($buckets[$key])) {
-                        if ($this->indexBy !== null) {
+                        if ($this->getIndexBy() !== null) {
                             // if indexBy is set, array_merge will cause renumbering of numeric array
                             foreach ($buckets[$key] as $bucketKey => $bucketValue) {
                                 $value[$bucketKey] = $bucketValue;

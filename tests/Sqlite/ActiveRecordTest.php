@@ -7,9 +7,12 @@ namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
 
+/**
+ * @group sqlite
+ */
 class ActiveRecordTest extends BaseActiveRecordTest
 {
-    public ?string $driverName = 'sqlite';
+    protected ?string $driverName = 'sqlite';
 
     public function setUp(): void
     {

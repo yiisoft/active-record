@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\ActiveRecord\Traits\StaticInstanceTrait;
 use Yiisoft\ActiveRecord\Traits\BaseActiveRecordTrait;
 use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\Db\Exceptions\Exception;
-use Yiisoft\Db\Exceptions\InvalidArgumentException;
-use Yiisoft\Db\Exceptions\InvalidCallException;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
-use Yiisoft\Db\Exceptions\InvalidParamException;
-use Yiisoft\Db\Exceptions\NotSupportedException;
-use Yiisoft\Db\Exceptions\StaleObjectException;
-use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\InvalidParamException;
+use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Exception\StaleObjectException;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -1165,11 +1165,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
         if (!$relation->multiple) {
             $this->related[$name] = $model;
         } elseif (isset($this->related[$name])) {
-            if ($relation->indexBy !== null) {
-                if ($relation->indexBy instanceof \Closure) {
-                    $index = \call_user_func($relation->indexBy, $model);
+            if ($relation->getIndexBy() !== null) {
+                if ($relation->getIndexBy() instanceof \Closure) {
+                    $index = \call_user_func($relation->getIndexBy(), $model);
                 } else {
-                    $index = $model->{$relation->indexBy};
+                    $index = $model->{$relation->getIndexBy()};
                 }
                 $this->related[$name][$index] = $model;
             } else {
@@ -1317,7 +1317,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->via;
-                $viaTable = \reset($relation->via->from);
+                $from = $relation->via->getFrom();
+                $viaTable = \reset($from);
             }
 
             $condition = [];
@@ -1327,8 +1328,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
                 $condition[$a] = $this->$b;
             }
 
-            if (!empty($viaRelation->where)) {
-                $condition = ['and', $condition, $viaRelation->where];
+            if (!empty($viaRelation->getWhere())) {
+                $condition = ['and', $condition, $viaRelation->getWhere()];
             }
 
             if (!empty($viaRelation->on)) {
@@ -1369,8 +1370,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
                     $condition[$a] = $this->$b;
                 }
 
-                if (!empty($relation->where)) {
-                    $condition = ['and', $condition, $relation->where];
+                if (!empty($relation->getWhere())) {
+                    $condition = ['and', $condition, $relation->getWhere()];
                 }
 
                 if (!empty($relation->on)) {

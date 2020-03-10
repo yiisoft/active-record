@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveRecord as BaseActiveRecord;
-use Yiisoft\Db\Drivers\Connection;
-use Yiisoft\Db\Drivers\ConnectionPool;
+use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Connection\ConnectionPool;
 
 class ActiveRecord extends BaseActiveRecord
 {

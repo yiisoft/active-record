@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\Animal;
@@ -29,14 +30,13 @@ use Yiisoft\ActiveRecord\Tests\Stubs\OrderItemWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\Type;
-use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Drivers\Connection;
-use Yiisoft\Db\Exceptions\Exception;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
-use Yiisoft\Db\Exceptions\NotSupportedException;
-use Yiisoft\Db\Querys\Query;
-use Yiisoft\Db\Exceptions\InvalidArgumentException;
-use Yiisoft\Db\Exceptions\StaleObjectException;
+use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Tests\DatabaseTestCase;
 
 abstract class ActiveRecordTest extends DatabaseTestCase
@@ -559,7 +559,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
     {
         $this->db = $this->getConnection(true, true, true);
 
-        $this->db->getQueryBuilder()->separator = "\n";
+        $this->db->getQueryBuilder()->setSeparator("\n");
 
         $rows = Order::find()->joinWith('itemsInOrder1')->joinWith([
             'items' => static function ($q) {
@@ -1097,13 +1097,13 @@ abstract class ActiveRecordTest extends DatabaseTestCase
     public function testAlias(): void
     {
         $query = Order::find();
-        $this->assertNull($query->from);
+        $this->assertNull($query->getFrom());
 
         $query = Order::find()->alias('o');
-        $this->assertEquals(['o' => Order::tableName()], $query->from);
+        $this->assertEquals(['o' => Order::tableName()], $query->getFrom());
 
         $query = Order::find()->alias('o')->alias('ord');
-        $this->assertEquals(['ord' => Order::tableName()], $query->from);
+        $this->assertEquals(['ord' => Order::tableName()], $query->getFrom());
 
         $query = Order::find()->from([
             'users',
@@ -1112,7 +1112,7 @@ abstract class ActiveRecordTest extends DatabaseTestCase
         $this->assertEquals([
             'users',
             'ord' => Order::tableName(),
-        ], $query->from);
+        ], $query->getFrom());
     }
 
     public function testInverseOf(): void

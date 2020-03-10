@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\Tests\Stubs\Customer;
-use Yiisoft\Db\Querys\BatchQueryResult;
-use Yiisoft\Db\Querys\Query;
+use Yiisoft\Db\Query\BatchQueryResult;
+use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Tests\DatabaseTestCase;
 
 abstract class BatchQueryResultTest extends DatabaseTestCase

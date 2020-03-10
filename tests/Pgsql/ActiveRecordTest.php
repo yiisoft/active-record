@@ -7,6 +7,9 @@ namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+/**
+ * @group pgsql
+ */
 final class ActiveRecordTest extends BaseActiveRecordTest
 {
     public ?string $driverName = 'pgsql';

@@ -6,6 +6,9 @@ namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
 use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as BaseActiveQueryTest;
 
+/**
+ * @group mysql
+ */
 final class ActiveQueryTest extends BaseActiveQueryTest
 {
     public ?string $driverName = 'mysql';
