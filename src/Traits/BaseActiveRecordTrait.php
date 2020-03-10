@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Traits;
 
 use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\Db\Exceptions\InvalidArgumentException;
-use Yiisoft\Db\Exceptions\UnknownMethodException;
-use Yiisoft\Db\Exceptions\UnknownPropertyException;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\UnknownMethodException;
+use Yiisoft\Db\Exception\UnknownPropertyException;
 
 trait BaseActiveRecordTrait
 {
@@ -92,7 +92,9 @@ trait BaseActiveRecordTrait
         } catch (UnknownMethodException $e) {
             if ($throwException) {
                 throw new InvalidArgumentException(
-                    \get_class($this) . ' has no relation named "' . $name . '".', 0, $e
+                    \get_class($this) . ' has no relation named "' . $name . '".',
+                    0,
+                    $e
                 );
             }
 

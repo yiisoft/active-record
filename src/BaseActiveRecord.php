@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\ActiveRecord\Traits\StaticInstanceTrait;
 use Yiisoft\ActiveRecord\Traits\BaseActiveRecordTrait;
 use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\Db\Exceptions\Exception;
-use Yiisoft\Db\Exceptions\InvalidArgumentException;
-use Yiisoft\Db\Exceptions\InvalidCallException;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
-use Yiisoft\Db\Exceptions\InvalidParamException;
-use Yiisoft\Db\Exceptions\NotSupportedException;
-use Yiisoft\Db\Exceptions\StaleObjectException;
-use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\InvalidParamException;
+use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Exception\StaleObjectException;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -109,7 +109,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
             $primaryKey = static::primaryKey();
 
             if (isset($primaryKey[0])) {
-                // if condition is scalar, search for a single primary key, if it is array, search for multiple primary key values
+                /** if condition is scalar, search for a single primary key, if it is array, search for multiple
+                 *  primary key values
+                 */
                 $condition = [$primaryKey[0] => \is_array($condition) ? \array_values($condition) : $condition];
             } else {
                 throw new InvalidConfigException('"' . static::class . '" must have a primary key.');
@@ -311,8 +313,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
      * @param array|string $class the class name of the related record
-     * @param array $link the primary-foreign key constraint. The keys of the array refer to the attributes of the record
-     * associated with the `$class` model, while the values of the array refer to the corresponding attributes in
+     * @param array $link the primary-foreign key constraint. The keys of the array refer to the attributes of the
+     * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface the relational query object.
@@ -350,7 +352,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
      *
      * Note that this method does not check if the relation exists or not.
      *
-     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method (case-sensitive).
+     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * (case-sensitive).
      * @param ActiveRecordInterface|array|null $records the related records to be populated into the relation.
      *
      * @return void
@@ -369,7 +372,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
     /**
      * Check whether the named relation has been populated with records.
      *
-     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method (case-sensitive).
+     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * (case-sensitive).
      *
      * @return bool whether relation has been populated with records.
      *
@@ -996,7 +1000,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
         if (empty($keys)) {
             throw new Exception(
                 \get_class($this) . ' does not have a primary key. You should either define a primary key for '
-                .'the corresponding table or override the primaryKey() method.'
+                . 'the corresponding table or override the primaryKey() method.'
             );
         }
 
@@ -1080,7 +1084,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
      *
      * Note that this method requires that the primary key value is not null.
      *
-     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via `getOrders()` method.
+     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * `getOrders()` method.
      * @param ActiveRecordInterface $model the model to be linked with the current one.
      * @param array $extraColumns additional column values to be saved into the junction table.
      * This parameter is only meaningful for a relationship involving a junction table
@@ -1096,7 +1101,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
 
         if ($relation->via !== null) {
             if ($this->getIsNewRecord() || $model->getIsNewRecord()) {
-                throw new InvalidCallException('Unable to link models: the models being linked cannot be newly created.');
+                throw new InvalidCallException(
+                    'Unable to link models: the models being linked cannot be newly created.'
+                );
             }
 
             if (\is_array($relation->via)) {
@@ -1157,7 +1164,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
             } elseif ($p2) {
                 $this->bindModels($relation->link, $model, $this);
             } else {
-                throw new InvalidCallException('Unable to link models: the link defining the relation does not involve any primary key.');
+                throw new InvalidCallException(
+                    'Unable to link models: the link defining the relation does not involve any primary key.'
+                );
             }
         }
 
@@ -1165,11 +1174,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
         if (!$relation->multiple) {
             $this->related[$name] = $model;
         } elseif (isset($this->related[$name])) {
-            if ($relation->indexBy !== null) {
-                if ($relation->indexBy instanceof \Closure) {
-                    $index = \call_user_func($relation->indexBy, $model);
+            if ($relation->getIndexBy() !== null) {
+                if ($relation->getIndexBy() instanceof \Closure) {
+                    $index = \call_user_func($relation->getIndexBy(), $model);
                 } else {
-                    $index = $model->{$relation->indexBy};
+                    $index = $model->{$relation->getIndexBy()};
                 }
                 $this->related[$name][$index] = $model;
             } else {
@@ -1184,7 +1193,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
      * The model with the foreign key of the relationship will be deleted if `$delete` is `true`.
      * Otherwise, the foreign key will be set `null` and the model will be saved without validation.
      *
-     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via `getOrders()` method.
+     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * `getOrders()` method.
      * @param ActiveRecordInterface $model the model to be unlinked from the current one.
      * You have to make sure that the model is really related with the current model as this method does not check this.
      * @param bool $delete whether to delete the model that contains the foreign key.
@@ -1317,7 +1327,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->via;
-                $viaTable = \reset($relation->via->from);
+                $from = $relation->via->getFrom();
+                $viaTable = \reset($from);
             }
 
             $condition = [];
@@ -1327,8 +1338,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
                 $condition[$a] = $this->$b;
             }
 
-            if (!empty($viaRelation->where)) {
-                $condition = ['and', $condition, $viaRelation->where];
+            if (!empty($viaRelation->getWhere())) {
+                $condition = ['and', $condition, $viaRelation->getWhere()];
             }
 
             if (!empty($viaRelation->on)) {
@@ -1369,8 +1380,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
                     $condition[$a] = $this->$b;
                 }
 
-                if (!empty($relation->where)) {
-                    $condition = ['and', $condition, $relation->where];
+                if (!empty($relation->getWhere())) {
+                    $condition = ['and', $condition, $relation->getWhere()];
                 }
 
                 if (!empty($relation->on)) {

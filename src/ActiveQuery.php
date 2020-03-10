@@ -8,9 +8,9 @@ use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Traits\ActiveQueryTrait;
 use Yiisoft\ActiveRecord\Traits\ActiveRelationTrait;
 use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\Db\Commands\Command;
-use Yiisoft\Db\Querys\Query;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
+use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Exception\InvalidConfigException;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -116,7 +116,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
-    public function all()
+    public function all(): array
     {
         return parent::all($this->modelClass::getConnection());
     }
@@ -135,14 +135,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->joinWith = [];
         }
 
-        if (empty($this->from)) {
+        if (empty($this->getFrom())) {
             $this->from = [$this->getPrimaryTableName()];
         }
 
-        if (empty($this->select) && !empty($this->join)) {
+        if (empty($this->getSelect()) && !empty($this->getJoin())) {
             [, $alias] = $this->getTableNameAndAlias();
 
-            $this->select = ["$alias.*"];
+            $this->select(["$alias.*"]);
         }
 
         if ($this->primaryModel === null) {
@@ -150,7 +150,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $query = Query::create($this->modelClass::getConnection(), $this);
         } else {
             // lazy loading of a relation
-            $where = $this->where;
+            $where = $this->getWhere();
 
             if ($this->via instanceof self) {
                 // via junction table
@@ -188,7 +188,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
 
             $query = Query::create($this->modelClass::getConnection(), $this);
-            $this->where = $where;
+            $this->where($where);
         }
 
         if (!empty($this->on)) {
@@ -206,7 +206,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $models = $this->createModels($rows);
 
-        if (!empty($this->join) && $this->indexBy === null) {
+        if (!empty($this->join) && $this->getIndexBy() === null) {
             $models = $this->removeDuplicatedModels($models);
         }
 
@@ -675,36 +675,36 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $on = $child->on;
         }
 
-        $this->join($joinType, empty($child->from) ? $childTable : $child->from, $on);
+        $this->join($joinType, empty($child->getFrom()) ? $childTable : $child->getFrom(), $on);
 
-        if (!empty($child->where)) {
-            $this->andWhere($child->where);
+        if (!empty($child->getWhere())) {
+            $this->andWhere($child->getWhere());
         }
 
-        if (!empty($child->having)) {
-            $this->andHaving($child->having);
+        if (!empty($child->getHaving())) {
+            $this->andHaving($child->getHaving());
         }
 
-        if (!empty($child->orderBy)) {
-            $this->addOrderBy($child->orderBy);
+        if (!empty($child->getOrderBy())) {
+            $this->addOrderBy($child->getOrderBy());
         }
 
-        if (!empty($child->groupBy)) {
-            $this->addGroupBy($child->groupBy);
+        if (!empty($child->getGroupBy())) {
+            $this->addGroupBy($child->getGroupBy());
         }
 
-        if (!empty($child->params)) {
-            $this->addParams($child->params);
+        if (!empty($child->getParams())) {
+            $this->addParams($child->getParams());
         }
 
-        if (!empty($child->join)) {
-            foreach ($child->join as $join) {
+        if (!empty($child->getJoin())) {
+            foreach ($child->getJoin() as $join) {
                 $this->join[] = $join;
             }
         }
 
-        if (!empty($child->union)) {
-            foreach ($child->union as $union) {
+        if (!empty($child->getUnion())) {
+            foreach ($child->getUnion() as $union) {
                 $this->union[] = $union;
             }
         }

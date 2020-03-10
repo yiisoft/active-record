@@ -7,6 +7,9 @@ namespace Yiisoft\ActiveRecord\Tests\Mysql;
 use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as BaseBatchQueryResultTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+/**
+ * @group mysql
+ */
 final class BatchQueryResultTest extends BaseBatchQueryResultTest
 {
     public ?string $driverName = 'mysql';

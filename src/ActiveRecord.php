@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\Db\Exceptions\Exception;
-use Yiisoft\Db\Querys\Query;
-use Yiisoft\Db\Schemas\TableSchema;
-use Yiisoft\Db\Exceptions\InvalidArgumentException;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
-use Yiisoft\Db\Exceptions\StaleObjectException;
-use Yiisoft\Db\Expressions\Expression;
 use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Schema\TableSchema;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
 
