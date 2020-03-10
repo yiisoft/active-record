@@ -10,7 +10,7 @@ This package provides [ActiveRecord] library.
 It is used in [Yii Framework] but is supposed to be usable separately.
 
 [ActiveRecord]: https://en.wikipedia.org/wiki/Active_record_pattern
-[Yii Framework]: https://github.com/yiisoft/core
+[Yii Framework]: https://www.yiiframework.com/
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/active-record/v/stable.png)](https://packagist.org/packages/yiisoft/active-record)
 [![Total Downloads](https://poser.pugx.org/yiisoft/active-record/downloads.png)](https://packagist.org/packages/yiisoft/active-record)
