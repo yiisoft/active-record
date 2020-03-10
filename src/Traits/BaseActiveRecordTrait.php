@@ -92,7 +92,9 @@ trait BaseActiveRecordTrait
         } catch (UnknownMethodException $e) {
             if ($throwException) {
                 throw new InvalidArgumentException(
-                    \get_class($this) . ' has no relation named "' . $name . '".', 0, $e
+                    \get_class($this) . ' has no relation named "' . $name . '".',
+                    0,
+                    $e
                 );
             }
 
