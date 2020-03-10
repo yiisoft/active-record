@@ -6,9 +6,9 @@ namespace Yiisoft\ActiveRecord\Data;
 
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\Db\Drivers\Connection;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
-use Yiisoft\Db\Querys\QueryInterface;
+use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Query\QueryInterface;
 
 /**
  * ActiveDataProvider implements a data provider based on {@see \Yiisoft\Db\Querys\Query} and

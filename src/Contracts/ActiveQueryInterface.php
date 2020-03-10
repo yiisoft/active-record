@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Contracts;
 
-use Yiisoft\Db\Drivers\Connection;
-use Yiisoft\Db\Querys\QueryInterface;
+use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Query\QueryInterface;
 
 /**
  * ActiveQueryInterface defines the common interface to be implemented by active record query classes.
@@ -54,7 +55,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return $this the query object itself
      */
-    public function indexBy($column);
+    public function indexBy($column): Query;
 
     /**
      * Specifies the relations with which this query should be performed.

@@ -7,6 +7,9 @@ namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as BaseBatchQueryResultTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+/**
+ * @group pgsql
+ */
 final class BatchQueryResultTest extends BaseBatchQueryResultTest
 {
     public ?string $driverName = 'pgsql';

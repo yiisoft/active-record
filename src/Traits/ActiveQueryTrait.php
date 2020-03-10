@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
-use Yiisoft\Db\Exceptions\InvalidConfigException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 
 /**
  * ActiveQueryTrait implements the common methods and properties for active record query classes.
