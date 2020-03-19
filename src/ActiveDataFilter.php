@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Data;
+namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Data\DataFilter;
 
 /**
- * ActiveDataFilter allows composing a filtering condition in a format suitable for {\Yiisoft\Db\QueryInterface::where()]].
+ * ActiveDataFilter allows composing a filtering condition in a format suitable for
+ * {\Yiisoft\Db\QueryInterface::where()]].
  *
  * @see DataFilter
  */

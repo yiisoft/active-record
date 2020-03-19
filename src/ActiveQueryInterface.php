@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Contracts;
+namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Db\Connection\Connection;
 use Yiisoft\Db\Query\Query;
