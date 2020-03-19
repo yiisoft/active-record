@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\ActiveRecord\Traits\StaticInstanceTrait;
-use Yiisoft\ActiveRecord\Traits\BaseActiveRecordTrait;
-use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
-use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -574,7 +570,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
             }
         } else {
             foreach ($this->attributes as $name => $value) {
-                if (isset($names[$name]) && (!\array_key_exists($name, $this->oldAttributes) || $value !== $this->oldAttributes[$name])) {
+                if (
+                    isset($names[$name])
+                    && (!\array_key_exists($name, $this->oldAttributes) || $value !== $this->oldAttributes[$name])
+                ) {
                     $attributes[$name] = $value;
                 }
             }
@@ -1406,8 +1405,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
      *
      * @throws InvalidCallException
      */
-    private function bindModels(array $link, ActiveRecordInterface $foreignModel, ActiveRecordInterface $primaryModel): void
-    {
+    private function bindModels(
+        array $link,
+        ActiveRecordInterface $foreignModel,
+        ActiveRecordInterface $primaryModel
+    ): void {
         foreach ($link as $fk => $pk) {
             $value = $primaryModel->$pk;
 

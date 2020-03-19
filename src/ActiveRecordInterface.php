@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Contracts;
+namespace Yiisoft\ActiveRecord;
 
 /**
  * ActiveRecordInterface.
@@ -211,10 +211,12 @@ interface ActiveRecordInterface
      *     // ...
      * }
      *
-     * // explicitly specifying the colum to search, passing a scalar or array here will always result in finding a single record
+     * - Explicitly specifying the colum to search, passing a scalar or array here will always result in finding a
+     * single record:
      * $model = Post::findOne(['id' => $id);
      *
-     * // do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column values!
+     * Do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column
+     * values!:
      * $model = Post::findOne($id);
      * ```
      *
@@ -281,10 +283,11 @@ interface ActiveRecordInterface
      *     // ...
      * }
      *
-     * // explicitly specifying the colum to search, passing a scalar or array here will always result in finding a single record
+     * Explicitly specifying the colum to search, passing a scalar or array here will always result in finding a single
+     * record:
      * $model = Post::findOne(['id' => $id]);
      *
-     * // do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column values!
+     * Do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column values!:
      * $model = Post::findOne($id);
      * ```
      *
@@ -427,7 +430,8 @@ interface ActiveRecordInterface
      * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
      * (normally this would be a relational {@see ActiveQuery} object).
      *
-     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method (case-sensitive).
+     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * (case-sensitive).
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
      * @return ActiveQueryInterface the relational query object
@@ -439,7 +443,8 @@ interface ActiveRecordInterface
      *
      * Note that this method does not check if the relation exists or not.
      *
-     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method (case-sensitive).
+     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * (case-sensitive).
      * @param ActiveRecordInterface|array|null $records the related records to be populated into the relation.
      */
     public function populateRelation(string $name, $records): void;
@@ -457,7 +462,8 @@ interface ActiveRecordInterface
      *
      * This method requires that the primary key value is not `null`.
      *
-     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via `getOrders()` method.
+     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * `getOrders()` method.
      * @param static $model the record to be linked with the current one.
      * @param array $extraColumns additional column values to be saved into the junction table.
      * This parameter is only meaningful for a relationship involving a junction table (i.e., a relation set with
@@ -471,7 +477,8 @@ interface ActiveRecordInterface
      * The record with the foreign key of the relationship will be deleted if `$delete` is true.
      * Otherwise, the foreign key will be set `null` and the record will be saved without validation.
      *
-     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via `getOrders()` method.
+     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * `getOrders()` method.
      * @param static $model the model to be unlinked from the current one.
      * @param bool $delete whether to delete the model that contains the foreign key.
      * If false, the model's foreign key will be set `null` and saved.
