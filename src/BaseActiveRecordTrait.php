@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Traits;
+namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\UnknownMethodException;
 use Yiisoft\Db\Exception\UnknownPropertyException;

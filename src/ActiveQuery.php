@@ -4,10 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
-use Yiisoft\ActiveRecord\Traits\ActiveQueryTrait;
-use Yiisoft\ActiveRecord\Traits\ActiveRelationTrait;
-use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
 use Yiisoft\Db\Command\Command;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Exception\InvalidConfigException;

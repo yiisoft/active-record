@@ -2,12 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Traits;
+namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveRecord;
-use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
 /**
