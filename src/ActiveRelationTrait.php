@@ -2,12 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Traits;
+namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveRecord;
-use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\Contracts\ActiveRecordInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -236,7 +232,8 @@ trait ActiveRelationTrait
                     $modelClass = $this->modelClass;
                     $inverseRelation = $modelClass::instance()->getRelation($this->inverseOf);
                 }
-                $result[$i][$this->inverseOf] = $inverseRelation->multiple ? [$this->primaryModel] : $this->primaryModel;
+                $result[$i][$this->inverseOf] = $inverseRelation->multiple
+                    ? [$this->primaryModel] : $this->primaryModel;
             }
         }
     }

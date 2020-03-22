@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Contracts;
+namespace Yiisoft\ActiveRecord;
 
 /**
  * StaticInstanceInterface is the interface for providing static instances to classes, which can be used to obtain class

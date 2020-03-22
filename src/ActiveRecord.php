@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\ActiveRecord\Contracts\ActiveQueryInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\TableSchema;
@@ -126,9 +125,9 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function loadDefaultValues($skipIfSet = true): self
     {
-        foreach (static::getTableSchema()->columns as $column) {
-            if ($column->defaultValue !== null && (!$skipIfSet || $this->{$column->name} === null)) {
-                $this->{$column->name} = $column->defaultValue;
+        foreach (static::getTableSchema()->getColumns() as $column) {
+            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->{$column->getName()} === null)) {
+                $this->{$column->getName()} = $column->getDefaultValue();
             }
         }
 
@@ -490,7 +489,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public static function primaryKey(): array
     {
-        return static::getTableSchema()->primaryKey;
+        return static::getTableSchema()->getPrimaryKey();
     }
 
     /**
@@ -503,7 +502,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function attributes(): array
     {
-        return \array_keys(static::getTableSchema()->columns);
+        return \array_keys(static::getTableSchema()->getColumns());
     }
 
     /**
@@ -544,7 +543,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public static function populateRecord($record, $row): void
     {
-        $columns = static::getTableSchema()->columns;
+        $columns = static::getTableSchema()->getColumns();
 
         foreach ($row as $name => $value) {
             if (isset($columns[$name])) {
@@ -585,8 +584,8 @@ class ActiveRecord extends BaseActiveRecord
      * $customer->insert();
      * ```
      *
-     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all attributes
-     * that are loaded from DB will be saved.
+     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
+     * attributes that are loaded from DB will be saved.
      *
      * @throws InvalidConfigException
      * @throws \Throwable in case insert failed.
@@ -636,7 +635,7 @@ class ActiveRecord extends BaseActiveRecord
         }
 
         foreach ($primaryKeys as $name => $value) {
-            $id = static::getTableSchema()->columns[$name]->phpTypecast($value);
+            $id = static::getTableSchema()->getColumn($name)->phpTypecast($value);
             $this->setAttribute($name, $id);
             $values[$name] = $id;
         }
@@ -687,14 +686,15 @@ class ActiveRecord extends BaseActiveRecord
      * }
      * ```
      *
-     * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all attributes
-     * that are loaded from DB will be saved.
+     * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all
+     * attributes that are loaded from DB will be saved.
      *
      * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being updated is
      * outdated.
      * @throws \Throwable in case update failed.
      *
-     * @return bool|int the number of rows affected, or false if validation fails or {@seebeforeSave()} stops the updating process.
+     * @return bool|int the number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
+     * updating process.
      */
     public function update(?array $attributeNames = null)
     {

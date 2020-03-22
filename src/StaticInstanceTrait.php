@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Traits;
+namespace Yiisoft\ActiveRecord;
 
 /**
  * StaticInstanceTrait provides methods to satisfy [[StaticInstanceInterface]] interface.
