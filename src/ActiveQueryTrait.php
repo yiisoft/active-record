@@ -4,28 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 
-/**
- * ActiveQueryTrait implements the common methods and properties for active record query classes.
- */
 trait ActiveQueryTrait
 {
-    /**
-     * @var string|null the name of the ActiveRecord class.
-     */
-    public ?string $modelClass;
-
-    /**
-     * @var array a list of relations that this query should be performed with
-     */
-    public array $with = [];
-
-    /**
-     * @var bool whether to return each record as an array. If false, an object of {@see modelClass} will be created to
-     * represent each record.
-     */
-    public ?bool $asArray = null;
+    protected array $with = [];
+    protected ?bool $asArray = null;
 
     /**
      * Sets the {@see asArray} property.
@@ -50,8 +37,8 @@ trait ActiveQueryTrait
      * A relation name can refer to a relation defined in {@see modelClass} or a sub-relation that stands for a relation
      * of a related record.
      *
-     * For example, `orders.address` means the `address` relation defined
-     * in the model class corresponding to the `orders` relation.
+     * For example, `orders.address` means the `address` relation defined in the model class corresponding to the
+     * `orders` relation.
      *
      * The following are some usage examples:
      *
@@ -70,6 +57,7 @@ trait ActiveQueryTrait
      * ```
      *
      * You can call `with()` multiple times. Each call will add relations to the existing ones.
+     *
      * For example, the following two statements are equivalent:
      *
      * ```php
@@ -83,7 +71,7 @@ trait ActiveQueryTrait
     public function with(...$with): self
     {
         if (isset($with[0]) && \is_array($with[0])) {
-            /* the parameter is given as an array */
+            /** the parameter is given as an array */
             $with = $with[0];
         }
 
@@ -92,7 +80,7 @@ trait ActiveQueryTrait
         } elseif (!empty($with)) {
             foreach ($with as $name => $value) {
                 if (\is_int($name)) {
-                    /* repeating relation is fine as normalizeRelations() handle it well */
+                    /** repeating relation is fine as normalizeRelations() handle it well */
                     $this->with[] = $value;
                 } else {
                     $this->with[$name] = $value;
@@ -124,7 +112,6 @@ trait ActiveQueryTrait
                 $model = $class::instantiate($row);
                 $modelClass = \get_class($model);
                 $modelClass::populateRecord($model, $row);
-
                 $models[] = $model;
             }
 
@@ -139,16 +126,16 @@ trait ActiveQueryTrait
      * for details about specifying this parameter.
      * @param array|ActiveRecord[] $models the primary models (can be either AR instances or arrays)
      *
+     * @throws InvalidArgumentException
      * @throws InvalidConfigException
-     *
-     * @return void
+     * @throws \ReflectionException
      */
     public function findWith(array $with, array &$models): void
     {
         $primaryModel = \reset($models);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
-            /* @var $modelClass ActiveRecordInterface */
+            /** @var $modelClass ActiveRecordInterface */
             $modelClass = $this->modelClass;
             $primaryModel = $modelClass::instance();
         }
@@ -158,7 +145,7 @@ trait ActiveQueryTrait
 
         foreach ($relations as $name => $relation) {
             if ($relation->asArray === null) {
-                // inherit asArray from primary query
+                /** inherit asArray from primary query */
                 $relation->asArray($this->asArray);
             }
 
@@ -169,6 +156,9 @@ trait ActiveQueryTrait
     /**
      * @param ActiveRecord $model
      * @param array $with
+     *
+     * @throws \ReflectionException
+     * @throws InvalidArgumentException
      *
      * @return ActiveQueryInterface[]
      */
@@ -183,7 +173,7 @@ trait ActiveQueryTrait
             }
 
             if (($pos = \strpos($name, '.')) !== false) {
-                // with sub-relations
+                /** with sub-relations */
                 $childName = \substr($name, $pos + 1);
                 $name = \substr($name, 0, $pos);
             } else {

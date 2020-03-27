@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
+use Yiisoft\ActiveRecord\BaseActiveRecord;
 use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as BaseBatchQueryResultTest;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 /**
  * @group mysql
@@ -18,6 +18,15 @@ final class BatchQueryResultTest extends BaseBatchQueryResultTest
     {
         parent::setUp();
 
-        ActiveRecord::setDriverName($this->driverName);
+        BaseActiveRecord::connectionId($this->driverName);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->mysqlConnection->close();
+
+        unset($this->mysqlConnection);
     }
 }

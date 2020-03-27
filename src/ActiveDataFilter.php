@@ -8,16 +8,17 @@ use Yiisoft\Data\DataFilter;
 
 /**
  * ActiveDataFilter allows composing a filtering condition in a format suitable for
- * {\Yiisoft\Db\QueryInterface::where()]].
+ * {@see \Yiisoft\Db\Query\QueryInterface::where()}
  *
- * @see DataFilter
+ * {@see DataFilter}
  */
 class ActiveDataFilter extends DataFilter
 {
     /**
      * @var array maps filtering condition keywords to build methods.
-     * These methods are used by [[buildCondition()]] to build the actual filtering conditions.
-     * Particular condition builder can be specified using a PHP callback. For example:
+     *
+     * These methods are used by {@see buildCondition()} to build the actual filtering conditions. Particular condition
+     * builder can be specified using a PHP callback. For example:
      *
      * ```php
      * [
@@ -46,14 +47,14 @@ class ActiveDataFilter extends DataFilter
     ];
 
     /**
-     * @var array map filtering operators to operators used in {@see \Yiisoft\Db\QueryInterface::where()}.
+     * @var array map filtering operators to operators used in {@see \Yiisoft\Db\Query\QueryInterface::where()}.
      *
      * The format is: `[filterOperator => queryOperator]`.
      *
      * If particular operator keyword does not appear in the map, it will be used as is.
      *
-     * Usually the map can be left empty as filter operator names are consistent with the ones
-     * used in {@see \Yiisoft\Db\QueryInterface::where()}. However, you may want to adjust it in some special cases.
+     * Usually the map can be left empty as filter operator names are consistent with the ones used in
+     * {@see \Yiisoft\Db\QueryInterface::where()}. However, you may want to adjust it in some special cases.
      *
      * For example, when using PosgreSQL you may want to setup the following map:
      *
@@ -65,11 +66,7 @@ class ActiveDataFilter extends DataFilter
      */
     public array $queryOperatorMap = [];
 
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function buildInternal()
+    protected function buildInternal(): array
     {
         $filter = $this->normalize(false);
         if (empty($filter)) {

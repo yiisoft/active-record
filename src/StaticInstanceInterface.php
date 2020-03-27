@@ -22,7 +22,7 @@ interface StaticInstanceInterface
      *
      * @param bool $refresh whether to re-create static instance even, if it is already cached.
      *
-     * @return static class instance.
+     * @return self class instance.
      */
-    public static function instance($refresh = false);
+    public static function instance($refresh = false): self;
 }
