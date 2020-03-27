@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use phpDocumentor\Reflection\Types\Static_;
+
 /**
  * ActiveRecordInterface.
  */
@@ -419,10 +421,10 @@ interface ActiveRecordInterface
      *
      * Two {@see getIsNewRecord()|new} records are considered to be not equal.
      *
-     * @param static $record record to compare to
+     * @param self $record record to compare to
      * @return bool whether the two active records refer to the same row in the same database table.
      */
-    public function equals($record);
+    public function equals(self $record): bool;
 
     /**
      * Returns the relation object with the specified name.
