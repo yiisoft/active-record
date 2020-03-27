@@ -4,20 +4,29 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
+use Yiisoft\ActiveRecord\BaseActiveRecord;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 /**
  * @group mysql
  */
 final class ActiveRecordTest extends BaseActiveRecordTest
 {
-    public ?string $driverName = 'mysql';
+    protected ?string $driverName = 'mysql';
 
     public function setUp(): void
     {
         parent::setUp();
 
-        ActiveRecord::setDriverName($this->driverName);
+        BaseActiveRecord::connectionId($this->driverName);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->mysqlConnection->close();
+
+        unset($this->mysqlConnection);
     }
 }

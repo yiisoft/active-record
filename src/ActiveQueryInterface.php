@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Db\Connection\Connection;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 
@@ -23,16 +22,17 @@ interface ActiveQueryInterface extends QueryInterface
      * Sets the {@see asArray} property.
      *
      * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
-     * @return $this the query object itself
+     *
+     * @return $this the query object itself.
      */
     public function asArray(bool $value = true): self;
 
     /**
      * Executes query and returns a single row of result.
      *
-     * @return ActiveRecordInterface|array|null a single row of query result. Depending on the setting of
-     * {@see asArray}, the query result may be either an array or an ActiveRecord object. `null` will be returned if the
-     * query results in nothing.
+     * @return ActiveRecordInterface|array|null a single row of query result. Depending on the setting of {@see asArray}
+     * the query result may be either an array or an ActiveRecord object. `null` will be returned if the query results
+     * in nothing.
      */
     public function one();
 
@@ -53,7 +53,7 @@ interface ActiveQueryInterface extends QueryInterface
      * }
      * ```
      *
-     * @return $this the query object itself
+     * @return Query the query object itself
      */
     public function indexBy($column): Query;
 
@@ -101,15 +101,17 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return $this the relation object itself.
      */
-    public function via($relationName, callable $callable = null): self;
+    public function via(string $relationName, callable $callable = null): self;
 
     /**
      * Finds the related records for the specified primary record.
      *
      * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.
-     * @param string $name the relation name
-     * @param ActiveRecordInterface $model the primary model
-     * @return mixed the related record(s)
+     *
+     * @param string $name the relation name.
+     * @param ActiveRecordInterface $model the primary model.
+     *
+     * @return mixed the related record(s).
      */
-    public function findFor($name, $model);
+    public function findFor(string $name, ActiveRecordInterface $model);
 }

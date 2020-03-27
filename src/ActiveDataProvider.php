@@ -9,7 +9,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
 
 /**
- * ActiveDataProvider implements a data provider based on {@see \Yiisoft\Db\Querys\Query} and
+ * ActiveDataProvider implements a data provider based on {@see \Yiisoft\Db\Query\Query} and
  * {@see \Yiisoft\ActiveRecord\ActiveQuery}.
  *
  * ActiveDataProvider provides data by performing DB queries using {@see query}.

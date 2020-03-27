@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+use Yiisoft\ActiveRecord\BaseActiveRecord;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
 
 /**
@@ -18,6 +18,6 @@ class ActiveRecordTest extends BaseActiveRecordTest
     {
         parent::setUp();
 
-        ActiveRecord::setDriverName($this->driverName);
+        BaseActiveRecord::connectionId($this->driverName);
     }
 }

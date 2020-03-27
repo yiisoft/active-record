@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
+use Yiisoft\ActiveRecord\BaseActiveRecord;
 use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as BaseBatchQueryResultTest;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 /**
  * @group sqlite
@@ -18,6 +18,6 @@ final class BatchQueryResultTest extends BaseBatchQueryResultTest
     {
         parent::setUp();
 
-        ActiveRecord::setDriverName($this->driverName);
+        BaseActiveRecord::connectionId($this->driverName);
     }
 }

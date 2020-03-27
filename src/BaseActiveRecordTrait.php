@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Connection\ConnectionPool;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\UnknownMethodException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 
 trait BaseActiveRecordTrait
 {
+    private static ?string $connectionId = null;
+
     /**
      * PHP getter magic method.
      *
@@ -17,6 +22,7 @@ trait BaseActiveRecordTrait
      *
      * @param string $name property name
      *
+     * @throws InvalidCallException
      * @throws UnknownPropertyException
      *
      * @return mixed property value
@@ -153,12 +159,10 @@ trait BaseActiveRecordTrait
      *
      * This method overrides the parent implementation by clearing the specified attribute value.
      *
-     * @param string $name the property name or the event name
+     * @param string $name the property name or the event name.
      *
      * @throws InvalidArgumentException
      * @throws \ReflectionException
-     *
-     * @return void
      */
     public function __unset($name): void
     {
@@ -182,7 +186,7 @@ trait BaseActiveRecordTrait
      * @param string $name property name
      * @param mixed $value property value
      *
-     * @return void
+     * @throws InvalidCallException
      */
     public function __set($name, $value): void
     {
@@ -194,6 +198,10 @@ trait BaseActiveRecordTrait
                 $this->resetDependentRelations($name);
             }
             $this->attributes[$name] = $value;
+        }
+
+        if (method_exists($this, 'get' . $name)) {
+            throw new InvalidCallException('Setting read-only property: ' . get_class($this) . '::' . $name);
         }
     }
 
@@ -250,12 +258,10 @@ trait BaseActiveRecordTrait
      *
      * It is implicitly called when you use something like `$model[$offset] = $item;`.
      *
-     * @param int $offset the offset to set element
+     * @param mixed $offset the offset to set element
      * @param mixed $item the element value
-     *
-     * @return void
      */
-    public function offsetSet($offset, $item)
+    public function offsetSet($offset, $item): void
     {
         $this->$offset = $item;
     }
@@ -275,6 +281,73 @@ trait BaseActiveRecordTrait
             $this->$offset = null;
         } else {
             unset($this->$offset);
+        }
+    }
+
+    /**
+     * Returns a value indicating whether a property is defined for this component.
+     *
+     * A property is defined if:
+     *
+     * - the class has a getter or setter method associated with the specified name (in this case, property name is
+     *   case-insensitive).
+     * - the class has a member variable with the specified name (when `$checkVars` is true).
+     * - an attached behavior has a property of the given name (when `$checkBehaviors` is true).
+     *
+     * @param string $name the property name
+     * @param bool $checkVars whether to treat member variables as properties
+     * @param bool $checkBehaviors whether to treat behaviors' properties as properties of this component
+     *
+     * @return bool whether the property is defined
+     *
+     * {@see canGetProperty()}
+     * {@see canSetProperty()}
+     */
+    public function hasProperty($name, $checkVars = true, $checkBehaviors = true): bool
+    {
+        return $this->canGetProperty($name, $checkVars, $checkBehaviors)
+            || $this->canSetProperty($name, false, $checkBehaviors);
+    }
+
+
+    public static function getConnection(): Connection
+    {
+        return ConnectionPool::getConnectionPool(self::$connectionId);
+    }
+
+    /**
+     * @param string|null $value index value list connections in ConnectionPool.
+     */
+    public static function connectionId(string $value): void
+    {
+        self::$connectionId = $value;
+    }
+
+    public function canGetProperty(string $name, bool $checkVars = true): bool
+    {
+        if (\method_exists($this, 'get' . $name) || ($checkVars && \property_exists($this, $name))) {
+            return true;
+        }
+
+        try {
+            return $this->hasAttribute($name);
+        } catch (\Exception $e) {
+            /* `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
+            return false;
+        }
+    }
+
+    public function canSetProperty(string $name, bool $checkVars = true): bool
+    {
+        if (\method_exists($this, 'set' . $name) || ($checkVars && \property_exists($this, $name))) {
+            return true;
+        }
+
+        try {
+            return $this->hasAttribute($name);
+        } catch (\Exception $e) {
+            /* `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
+            return false;
         }
     }
 }
