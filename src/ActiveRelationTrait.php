@@ -699,9 +699,9 @@ trait ActiveRelationTrait
 
     public function multiple(bool $value): self
     {
-       $this->multiple = $value;
+        $this->multiple = $value;
 
-       return $this;
+        return $this;
     }
 
     public function primaryModel(ActiveRecord $value): self
