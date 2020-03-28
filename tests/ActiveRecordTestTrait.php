@@ -895,4 +895,50 @@ trait ActiveRecordTestTrait
         $this->assertCount(1, $cheapItems);
         $this->assertEquals(3, $cheapItems[0]->id);
     }
+
+    public function testLink()
+    {
+        $this->loadFixture(Customer::getConnection());
+
+        $customer = Customer::findOne(2);
+        $this->assertCount(2, $customer->orders);
+
+        /** has many */
+        $order = new Order();
+        $order->total = 100;
+        $order->created_at = time();
+        $this->assertTrue($order->isNewRecord);
+
+        /** belongs to */
+        $order = new Order();
+        $order->total = 100;
+        $order->created_at = time();
+        $this->assertTrue($order->isNewRecord);
+
+        $customer = Customer::findOne(1);
+        $this->assertNull($order->customer);
+
+        $order->link('customer', $customer);
+        $this->assertFalse($order->isNewRecord);
+        $this->assertEquals(1, $order->customer_id);
+        $this->assertEquals(1, $order->customer->primaryKey);
+
+        /** via model */
+        $order = Order::findOne(1);
+        $this->assertCount(2, $order->items);
+        $this->assertCount(2, $order->orderItems);
+
+        $orderItem = OrderItem::findOne(['order_id' => 1, 'item_id' => 3]);
+        $this->assertNull($orderItem);
+
+        $item = Item::findOne(3);
+        $order->link('items', $item, ['quantity' => 10, 'subtotal' => 100]);
+        $this->assertCount(3, $order->items);
+        $this->assertCount(3, $order->orderItems);
+
+        $orderItem = OrderItem::findOne(['order_id' => 1, 'item_id' => 3]);
+        $this->assertInstanceOf(OrderItem::class, $orderItem);
+        $this->assertEquals(10, $orderItem->quantity);
+        $this->assertEquals(100, $orderItem->subtotal);
+    }
 }
