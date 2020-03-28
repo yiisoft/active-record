@@ -1066,7 +1066,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
                     $record->$column = $value;
                 }
 
-                $record->insert(false);
+                $record->insert();
             } else {
                 /** @var $viaTable string */
                 static::getConnection()->createCommand()->insert($viaTable, $columns)->execute();
