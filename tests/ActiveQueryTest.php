@@ -19,42 +19,32 @@ abstract class ActiveQueryTest extends TestCase
     {
         $this->loadFixture(Customer::getConnection());
 
-        $query = new ActiveQuery(Customer::class);
-        $query->setOn(['a' => 'b']);
-        $query->setJoinWith(['dummy relation']);
+        $query = (new ActiveQuery(Customer::class))->on(['a' => 'b'])->joinWith('profile');
 
         $this->assertEquals($query->getModelClass(), Customer::class);
         $this->assertEquals($query->getOn(), ['a' => 'b']);
-        $this->assertEquals($query->getJoinWith(), ['dummy relation']);
+        $this->assertEquals($query->getJoinWith(), [[['profile'], true, 'LEFT JOIN']]);
     }
 
     public function testPrepare(): void
     {
-        $query = new ActiveQuery(Customer::class);
         $builder = new QueryBuilder(Customer::getConnection());
+        $query = (new ActiveQuery(Customer::class))->prepare($builder);
 
-        $result = $query->prepare($builder);
-
-        $this->assertInstanceOf(Query::class, $result);
+        $this->assertInstanceOf(Query::class, $query);
     }
 
     public function testPopulateEmptyRows(): void
     {
-        $query = new ActiveQuery(Customer::class);
+        $query = (new ActiveQuery(Customer::class))->populate([]);
 
-        $rows = [];
-
-        $result = $query->populate([]);
-
-        $this->assertEquals($rows, $result);
+        $this->assertEquals([], $query);
     }
 
     public function testPopulateFilledRows(): void
     {
         $query = new ActiveQuery(Customer::class);
-
         $rows = $query->all();
-
         $result = $query->populate($rows);
 
         $this->assertEquals($rows, $result);
@@ -62,20 +52,16 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOne(): void
     {
-        $query = new ActiveQuery(Customer::class);
+        $query = (new ActiveQuery(Customer::class))->one();
 
-        $result = $query->one();
-
-        $this->assertInstanceOf(Customer::class, $result);
+        $this->assertInstanceOf(Customer::class, $query);
     }
 
     public function testCreateCommand(): void
     {
-        $query = new ActiveQuery(Customer::class);
+        $query = (new ActiveQuery(Customer::class))->createCommand();
 
-        $result = $query->createCommand();
-
-        $this->assertInstanceOf(Command::class, $result);
+        $this->assertInstanceOf(Command::class, $query);
     }
 
     public function testQueryScalar(): void
@@ -89,20 +75,16 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testJoinWith(): void
     {
-        $query = new ActiveQuery(Customer::class);
+        $query = (new ActiveQuery(Customer::class))->joinWith('profile');
 
-        $result = $query->joinWith('profile');
-
-        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $result->getJoinWith());
+        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
     }
 
     public function testInnerJoinWith(): void
     {
-        $query = new ActiveQuery(Customer::class);
+        $query = (new ActiveQuery(Customer::class))->innerJoinWith('profile');
 
-        $result = $query->innerJoinWith('profile');
-
-        $this->assertEquals([[['profile'], true, 'INNER JOIN']], $result->getJoinWith());
+        $this->assertEquals([[['profile'], true, 'INNER JOIN']], $query->getJoinWith());
     }
 
     public function testGetQueryTableNameFromNotSet(): void
@@ -116,8 +98,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetQueryTableNameFromSet(): void
     {
-        $query = new ActiveQuery(Customer::class);
-        $query->from(['alias' => 'customer']);
+        $query = (new ActiveQuery(Customer::class))->from(['alias' => 'customer']);
 
         $result = $this->invokeMethod($query, 'getTableNameAndAlias');
 
@@ -126,121 +107,96 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOnCondition(): void
     {
-        $query = new ActiveQuery(Customer::class);
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $result = $query->onCondition($on, $params);
+        $query = (new ActiveQuery(Customer::class))->onCondition($on, $params);
 
-        $this->assertEquals($on, $result->getOn());
-        $this->assertEquals($params, $result->getParams());
+        $this->assertEquals($on, $query->getOn());
+        $this->assertEquals($params, $query->getParams());
     }
 
     public function testAndOnConditionOnNotSet(): void
     {
-        $query = new ActiveQuery(Customer::class);
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
-        $result = $query->andOnCondition($on, $params);
 
-        $this->assertEquals($on, $result->getOn());
-        $this->assertEquals($params, $result->getParams());
+        $query = (new ActiveQuery(Customer::class))->andOnCondition($on, $params);
+
+        $this->assertEquals($on, $query->getOn());
+        $this->assertEquals($params, $query->getParams());
     }
 
     public function testAndOnConditionOnSet(): void
     {
         $onOld = ['active' => true];
-
-        $query = new ActiveQuery(Customer::class);
-
-        $query->setOn($onOld);
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $result = $query->andOnCondition($on, $params);
+        $query = (new ActiveQuery(Customer::class))->on($onOld)->andOnCondition($on, $params);
 
-        $this->assertEquals(['and', $onOld, $on], $result->getOn());
-        $this->assertEquals($params, $result->getParams());
+        $this->assertEquals(['and', $onOld, $on], $query->getOn());
+        $this->assertEquals($params, $query->getParams());
     }
 
     public function testOrOnConditionOnNotSet(): void
     {
-        $query = new ActiveQuery(Customer::class);
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
-        $result = $query->orOnCondition($on, $params);
 
-        $this->assertEquals($on, $result->getOn());
-        $this->assertEquals($params, $result->getParams());
+        $query = (new ActiveQuery(Customer::class))->orOnCondition($on, $params);
+
+        $this->assertEquals($on, $query->getOn());
+        $this->assertEquals($params, $query->getParams());
     }
 
     public function testOrOnConditionOnSet(): void
     {
         $onOld = ['active' => true];
-
-        $query = new ActiveQuery(Customer::class);
-
-        $query->setOn($onOld);
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $result = $query->orOnCondition($on, $params);
+        $query = (new ActiveQuery(Customer::class))->on($onOld)->orOnCondition($on, $params);
 
-        $this->assertEquals(['or', $onOld, $on], $result->getOn());
-        $this->assertEquals($params, $result->getParams());
+        $this->assertEquals(['or', $onOld, $on], $query->getOn());
+        $this->assertEquals($params, $query->getParams());
     }
 
     public function testViaTable(): void
     {
-        $query = new ActiveQuery(
-            Customer::class,
-            ['primaryModel' => new Order()]
-        );
+        $query = (new ActiveQuery(Customer::class))
+            ->primaryModel(new Order())
+            ->viaTable(Profile::class, ['id' => 'item_id']);
 
-        $result = $query->viaTable(Profile::class, ['id' => 'item_id']);
-
-        $this->assertInstanceOf(ActiveQuery::class, $result);
-        $this->assertInstanceOf(ActiveQuery::class, $result->getVia());
+        $this->assertInstanceOf(ActiveQuery::class, $query);
+        $this->assertInstanceOf(ActiveQuery::class, $query->getVia());
     }
 
     public function testAliasNotSet(): void
     {
-        $query = new ActiveQuery(Customer::class);
+        $query = (new ActiveQuery(Customer::class))->alias('alias');
 
-        $result = $query->alias('alias');
-
-        $this->assertInstanceOf(ActiveQuery::class, $result);
-        $this->assertEquals(['alias' => 'customer'], $result->getFrom());
+        $this->assertInstanceOf(ActiveQuery::class, $query);
+        $this->assertEquals(['alias' => 'customer'], $query->getFrom());
     }
 
     public function testAliasYetSet(): void
     {
         $aliasOld = ['old'];
 
-        $query = new ActiveQuery(Customer::class);
+        $query = (new ActiveQuery(Customer::class))->from($aliasOld)->alias('alias');
 
-        $query->from($aliasOld);
-
-        $result = $query->alias('alias');
-
-        $this->assertInstanceOf(ActiveQuery::class, $result);
-        $this->assertEquals(['alias' => 'old'], $result->getFrom());
+        $this->assertInstanceOf(ActiveQuery::class, $query);
+        $this->assertEquals(['alias' => 'old'], $query->getFrom());
     }
 
     public function testGetTableNamesNotFilledFrom(): void
     {
-        $query = new ActiveQuery(Profile::class);
-
-        $tables = $query->getTablesUsedInFrom();
+        $query = (new ActiveQuery(Profile::class))->getTablesUsedInFrom();
 
         $this->assertEquals([
             '{{' . Profile::tableName() . '}}' => '{{' . Profile::tableName() . '}}',
-        ], $tables);
+        ], $query);
     }
 
     public function testGetTableNamesWontFillFrom(): void

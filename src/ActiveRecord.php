@@ -157,11 +157,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public static function findBySql($sql, $params = []): Query
     {
-        $query = static::find();
-
-        $query->setSql($sql);
-
-        return $query->params($params);
+        return $query = (static::find())->sql($sql)->params($params);
     }
 
     /**
