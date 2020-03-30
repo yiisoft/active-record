@@ -11,8 +11,8 @@ use Yiisoft\Db\Exception\NotSupportedException;
 
 trait ActiveQueryTrait
 {
-    protected array $with = [];
-    protected ?bool $asArray = null;
+    private array $with = [];
+    private ?bool $asArray = null;
 
     /**
      * Sets the {@see asArray} property.

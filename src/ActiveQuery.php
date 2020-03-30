@@ -78,11 +78,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private $on;
     private array $joinWith = [];
 
-    public function __construct(?string $modelClass, array $config = [])
+    public function __construct(?string $modelClass)
     {
         $this->modelClass = $modelClass;
 
-        parent::__construct($modelClass::getConnection(), $config);
+        parent::__construct($modelClass::getConnection());
     }
 
     /**
@@ -915,18 +915,17 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->modelClass;
     }
 
-    public function setOn($value): void
+    public function on($value): self
     {
         $this->on = $value;
+
+        return $this;
     }
 
-    public function setJoinWith(array $value): void
-    {
-        $this->joinWith = $value;
-    }
-
-    public function setSql(?string $value): void
+    public function sql(?string $value): self
     {
         $this->sql = $value;
+
+        return $this;
     }
 }

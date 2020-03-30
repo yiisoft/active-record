@@ -20,12 +20,12 @@ use Yiisoft\Db\Exception\InvalidConfigException;
  */
 trait ActiveRelationTrait
 {
-    protected bool $multiple = false;
-    protected ?ActiveRecord $primaryModel = null;
-    protected array $link = [];
-    protected $via;
-    protected ?string $inverseOf = null;
-    protected $viaMap;
+    private bool $multiple = false;
+    private ?ActiveRecord $primaryModel = null;
+    private array $link = [];
+    private $via;
+    private ?string $inverseOf = null;
+    private $viaMap;
 
     /**
      * Clones internal objects.
