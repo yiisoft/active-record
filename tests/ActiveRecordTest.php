@@ -36,6 +36,8 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\StaleObjectException;
 
+use function count;
+
 abstract class ActiveRecordTest extends TestCase
 {
     use ActiveRecordTestTrait;
@@ -67,6 +69,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(1, Customer::find()->min('[[id]]'));
         $this->assertEquals(3, Customer::find()->max('[[id]]'));
         $this->assertEquals(3, Customer::find()->select('COUNT(*)')->scalar());
+    }
+
+    public function testFindAll(): void
+    {
+        $this->assertEquals(1, count(Customer::findAll(3)));
+        $this->assertEquals(1, count(Customer::findAll(['id' => 1])));
+        $this->assertEquals(3, count(Customer::findAll(['id' => [1, 2, 3]])));
     }
 
     public function testFindScalar(): void
