@@ -40,12 +40,22 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
     private array $related = [];
     private array $relationsDependencies = [];
 
+    /**
+     * @param mixed $condition primary key value or a set of column values.
+     *
+     * @return static|null ActiveRecord instance matching the condition, or `null` if nothing matches.
+     */
     public static function findOne($condition): ?ActiveRecordInterface
     {
         return static::findByCondition($condition)->one();
     }
 
-    public static function findAll($condition): ActiveRecordInterface
+    /**
+     * @param mixed $condition primary key value or a set of column values.
+     *
+     * @return array of ActiveRecord instance, or an empty array if nothing matches.
+     */
+    public static function findAll($condition): array
     {
         return static::findByCondition($condition)->all();
     }

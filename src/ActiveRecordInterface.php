@@ -293,10 +293,11 @@ interface ActiveRecordInterface
      * $model = Post::findOne($id);
      * ```
      *
-     * @param mixed $condition primary key value or a set of column values
+     * @param mixed $condition primary key value or a set of column values.
+     *
      * @return array an array of ActiveRecord instance, or an empty array if nothing matches.
      */
-    public static function findAll($condition);
+    public static function findAll($condition): array;
 
     /**
      * Updates records using the provided attribute values and conditions.
