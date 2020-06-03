@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
 use Yiisoft\ActiveRecord\BaseActiveRecord;
