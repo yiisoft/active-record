@@ -671,7 +671,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, \IteratorAggre
         $values = $this->getDirtyAttributes($attributes);
 
         if (empty($values)) {
-            $this->afterSave(false, $values);
             return 0;
         }
 
