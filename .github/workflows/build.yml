@@ -81,6 +81,7 @@ jobs:
           extensions: ${{ env.extensions }}
           ini-values: date.timezone='UTC'
           coverage: pcov
+          tools: composer:v2, pecl
 
       - name: Determine composer cache directory on Linux
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"

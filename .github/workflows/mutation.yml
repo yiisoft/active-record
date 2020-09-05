@@ -8,7 +8,7 @@ jobs:
   mutation:
     name: PHP ${{ matrix.php-version }}-${{ matrix.os }}
     env:
-      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, xml, xmlwriter
+      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv, xml, xmlwriter
 
     runs-on: ${{ matrix.os }}
 
@@ -63,7 +63,7 @@ jobs:
           extensions: ${{ env.extensions }}
           ini-values: memory_limit=-1
           coverage: "pcov"
-          tools: composer:v2
+          tools: composer:v2, pecl
 
       - name: Determine composer cache directory
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"
