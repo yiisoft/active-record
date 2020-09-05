@@ -35,7 +35,7 @@ class OrderItemWithConstructor extends ActiveRecord
         return self::instantiate([]);
     }
 
-    public static function instantiate($row): self
+    public static function instantiate($row): ActiveRecord
     {
         return (new \ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }

@@ -268,7 +268,7 @@ class TestCase extends AbstractTestCase
                 ],
                 'username' => 'root',
                 'password' => 'root',
-                'fixture' => __DIR__ . '/Data/postgres.sql',
+                'fixture' => __DIR__ . '/Data/pgsql.sql',
             ],
             'yiisoft/db-sqlite' => [
                 'fixture' => __DIR__ . '/Data/sqlite.sql'
