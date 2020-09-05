@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 class TestTrigger extends ActiveRecord
 {
-    public static function tableName()
+    public static function tableName(): string
     {
         return 'test_trigger';
     }
