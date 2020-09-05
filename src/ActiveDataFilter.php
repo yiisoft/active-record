@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Data\DataFilter;
 
 /**
  * ActiveDataFilter allows composing a filtering condition in a format suitable for
@@ -12,7 +11,7 @@ use Yiisoft\Data\DataFilter;
  *
  * {@see DataFilter}
  */
-class ActiveDataFilter extends DataFilter
+class ActiveDataFilter
 {
     /**
      * @var array maps filtering condition keywords to build methods.
