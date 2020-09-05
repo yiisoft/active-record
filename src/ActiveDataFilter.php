@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-
 /**
  * ActiveDataFilter allows composing a filtering condition in a format suitable for
  * {@see \Yiisoft\Db\Query\QueryInterface::where()}
