@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Data\DataFilter;
-
 /**
  * ActiveDataFilter allows composing a filtering condition in a format suitable for
  * {@see \Yiisoft\Db\Query\QueryInterface::where()}
  *
  * {@see DataFilter}
  */
-class ActiveDataFilter extends DataFilter
+class ActiveDataFilter
 {
     /**
      * @var array maps filtering condition keywords to build methods.

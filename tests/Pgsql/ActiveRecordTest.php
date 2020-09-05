@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
-use Yiisoft\Db\Pgsql\Schema\Schema;
+use Yiisoft\Db\Pgsql\Schema;
 
 /**
  * @group pgsql

@@ -36,7 +36,7 @@ class Animal extends ActiveRecord
      *
      * @return Animal
      */
-    public static function instantiate($row): self
+    public static function instantiate($row): ActiveRecord
     {
         $class = $row['type'];
 
