@@ -27,9 +27,9 @@ final class ActiveRecordTest extends BaseActiveRecordTest
     {
         parent::tearDown();
 
-        $this->mysqlConnection->close();
+        $this->mssqlConnection->close();
 
-        unset($this->mysqlConnection);
+        unset($this->mssqlConnection);
     }
 
     public function testExplicitPkOnAutoIncrement(): void
@@ -39,7 +39,7 @@ final class ActiveRecordTest extends BaseActiveRecordTest
 
     public function testSaveWithTrigger(): void
     {
-        $db = $this->getConnection();
+        $db = $this->mssqlConnection;
 
         /* drop trigger if exist */
         $sql = 'IF (OBJECT_ID(N\'[dbo].[test_alert]\') IS NOT NULL)
