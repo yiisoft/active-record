@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Mysql;
+namespace Yiisoft\ActiveRecord\Tests\Mssql;
 
 use Yiisoft\ActiveRecord\BaseActiveRecord;
 use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as BaseBatchQueryResultTest;
