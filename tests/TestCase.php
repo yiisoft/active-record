@@ -191,7 +191,7 @@ class TestCase extends AbstractTestCase
                 return $db;
             },
 
-            PgsqlConnection::class => static function (ContainerInterface $container) {
+            PgsqlConnection::class => static function (ContainerInterface $container) use ($params) {
                 $aliases = $container->get(Aliases::class);
                 $cache = $container->get(CacheInterface::class);
                 $logger = $container->get(LoggerInterface::class);
