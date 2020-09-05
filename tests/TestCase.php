@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase as AbstractTestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use ReflectionObject;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
@@ -66,9 +67,12 @@ class TestCase extends AbstractTestCase
      */
     protected function invokeMethod($object, $method, $args = [], $revoke = true)
     {
-        $reflection = new \ReflectionObject($object);
+        $reflection = new ReflectionObject($object);
+
         $method = $reflection->getMethod($method);
+
         $method->setAccessible(true);
+
         $result = $method->invokeArgs($object, $args);
 
         if ($revoke) {
