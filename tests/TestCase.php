@@ -16,6 +16,7 @@ use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\ConnectionPool;
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
+use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
 use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
@@ -50,6 +51,7 @@ class TestCase extends AbstractTestCase
     {
         $this->container = new Container($this->config());
 
+        $this->mssqlConnection = $this->container->get(MssqlConnection::class);
         $this->mysqlConnection = $this->container->get(MysqlConnection::class);
         $this->pgsqlConnection = $this->container->get(PgsqlConnection::class);
         $this->sqliteConnection = $this->container->get(SqliteConnection::class);
@@ -85,6 +87,9 @@ class TestCase extends AbstractTestCase
     protected function loadFixture(ConnectionInterface $db): void
     {
         switch ($this->driverName) {
+            case 'mssql':
+                $fixture = $this->params()['yiisoft/db-mssql']['fixture'];
+                break;
             case 'mysql':
                 $fixture = $this->params()['yiisoft/db-mysql']['fixture'];
                 break;
@@ -140,7 +145,7 @@ class TestCase extends AbstractTestCase
             case 'pgsql':
                 // more complex replacement needed to not conflict with postgres array syntax
                 return str_replace(['\\[', '\\]'], ['[', ']'], preg_replace('/(\[\[)|((?<!(\[))\]\])/', '"', $sql));
-            case 'sqlsrv':
+            case 'mssql':
                 return str_replace(['[[', ']]'], ['[', ']'], $sql);
             default:
                 return $sql;
@@ -171,6 +176,29 @@ class TestCase extends AbstractTestCase
                 return new Profiler($container->get(LoggerInterface::class));
             },
 
+            MssqlConnection::class => static function (ContainerInterface $container) use ($params) {
+                $aliases = $container->get(Aliases::class);
+                $cache = $container->get(CacheInterface::class);
+                $logger = $container->get(LoggerInterface::class);
+                $profiler = $container->get(Profiler::class);
+
+                $dsn = new MssqlDsn(
+                    $params['yiisoft/db-mssql']['dsn']['driver'],
+                    $params['yiisoft/db-mssql']['dsn']['server'],
+                    $params['yiisoft/db-mssql']['dsn']['database'],
+                    $params['yiisoft/db-mssql']['dsn']['port'],
+                );
+
+                $db = new MssqlConnection($cache, $logger, $profiler, $dsn->getDsn());
+
+                $db->setUsername($params['yiisoft/db-mssql']['username']);
+                $db->setPassword($params['yiisoft/db-mssql']['password']);
+
+                ConnectionPool::setConnectionsPool('mssql', $db);
+
+                return $db;
+            },
+
             MysqlConnection::class => static function (ContainerInterface $container) use ($params) {
                 $aliases = $container->get(Aliases::class);
                 $cache = $container->get(CacheInterface::class);
@@ -186,8 +214,8 @@ class TestCase extends AbstractTestCase
 
                 $db = new MysqlConnection($cache, $logger, $profiler, $dsn->getDsn());
 
-                $db->setUsername('root');
-                $db->setPassword('root');
+                $db->setUsername($params['yiisoft/db-mysql']['username']);
+                $db->setPassword($params['yiisoft/db-mysql']['password']);
 
                 ConnectionPool::setConnectionsPool('mysql', $db);
 
@@ -209,8 +237,8 @@ class TestCase extends AbstractTestCase
 
                 $db = new PgsqlConnection($cache, $logger, $profiler, $dsn->getDsn());
 
-                $db->setUsername('root');
-                $db->setPassword('root');
+                $db->setUsername($params['yiisoft/db-pgsql']['username']);
+                $db->setPassword($params['yiisoft/db-pgsql']['password']);
 
                 ConnectionPool::setConnectionsPool('pgsql', $db);
 
