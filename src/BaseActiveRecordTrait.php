@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\ConnectionPool;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -87,7 +87,7 @@ trait BaseActiveRecordTrait
      * @return ActiveQueryInterface|ActiveQuery the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
-    public function getRelation(string $name, bool $throwException = true)
+    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface
     {
         $getter = 'get' . $name;
 
@@ -310,7 +310,7 @@ trait BaseActiveRecordTrait
     }
 
 
-    public static function getConnection(): Connection
+    public static function getConnection(): ConnectionInterface
     {
         return ConnectionPool::getConnectionPool(self::$connectionId);
     }

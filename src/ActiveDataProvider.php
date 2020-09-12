@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Data\DataReaderProvider;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
 
@@ -50,7 +51,7 @@ use Yiisoft\Db\Query\QueryInterface;
  * For more details and usage information on ActiveDataProvider, see the
  * [guide article on data providers](guide:output-data-providers).
  */
-class ActiveDataProvider
+class ActiveDataProvider extends DataReaderProvider
 {
     /**
      * @var QueryInterface|null the query that is used to fetch data models and {@see totalCount}
@@ -78,7 +79,7 @@ class ActiveDataProvider
     /**
      * @var Connection|null the DB connection object or the application component ID of the DB connection.
      */
-    public ?Connection $db = null;
+    public ?object $db = null;
 
 
     /**
@@ -87,7 +88,7 @@ class ActiveDataProvider
      * @param Connection $db database connection.
      * @param QueryInterface $query query to be executed
      */
-    public function __construct(Connection $db, QueryInterface $query)
+    public function __construct(ConnectionInterface $db, QueryInterface $query)
     {
         $this->db = $db;
         $this->query = $query;
@@ -99,7 +100,7 @@ class ActiveDataProvider
     protected function prepareModels(): array
     {
         $query = $this->prepareQuery();
-        if ($query->emulateExecution) {
+        if ($query->getEmulateExecution()) {
             return [];
         }
         return $query->all($this->db);
@@ -126,7 +127,7 @@ class ActiveDataProvider
             $query->limit($pagination->getLimit())->offset($pagination->getOffset());
         }
         if (($sort = $this->getSort()) !== false) {
-            $query->addOrderBy($sort->getOrders());
+            //$query->addOrderBy($sort->getOrder());
         }
 
         return $query;
