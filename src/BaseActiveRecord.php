@@ -777,10 +777,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * This method performs the following steps in order:
      *
-     * 1. call {@see beforeDelete()}. If the method returns `false`, it will skip the rest of the steps;
-     * 2. delete the record from the database;
-     * 3. call {@see afterDelete()}.
-     *
      * In the above step 1 and 3, events named {@see EVENT_BEFORE_DELETE} and {@see EVENT_AFTER_DELETE} will be raised
      * by the corresponding methods.
      *
@@ -795,27 +791,24 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $result = false;
 
-        if ($this->beforeDelete()) {
-            /**
-             * we do not check the return value of deleteAll() because it's possible the record is already deleted in
-             * the database and thus the method will return 0
-             */
-            $condition = $this->getOldPrimaryKey(true);
-            $lock = $this->optimisticLock();
+        /**
+         * we do not check the return value of deleteAll() because it's possible the record is already deleted in
+         * the database and thus the method will return 0
+         */
+        $condition = $this->getOldPrimaryKey(true);
+        $lock = $this->optimisticLock();
 
-            if ($lock !== null) {
-                $condition[$lock] = $this->$lock;
-            }
-
-            $result = static::deleteAll($condition);
-
-            if ($lock !== null && !$result) {
-                throw new StaleObjectException('The object being deleted is outdated.');
-            }
-
-            $this->oldAttributes = null;
-            $this->afterDelete();
+        if ($lock !== null) {
+            $condition[$lock] = $this->$lock;
         }
+
+        $result = static::deleteAll($condition);
+
+        if ($lock !== null && !$result) {
+            throw new StaleObjectException('The object being deleted is outdated.');
+        }
+
+        $this->oldAttributes = null;
 
         return $result;
     }

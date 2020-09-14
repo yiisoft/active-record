@@ -134,6 +134,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      * @throws NotSupportedException
+     * @throws ReflectionException
      *
      * @return Query a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
      */
@@ -264,7 +265,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotSupportedException
      *
      * @return array the distinctive models
      */

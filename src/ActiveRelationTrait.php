@@ -39,7 +39,7 @@ use function serialize;
 trait ActiveRelationTrait
 {
     private bool $multiple = false;
-    private ?ActiveRecord $primaryModel = null;
+    private ?ActiveRecordInterface $primaryModel = null;
     private array $link = [];
     private $via;
     private ?string $inverseOf = null;
@@ -680,11 +680,11 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return ActiveRecord the primary model of a relational query.
+     * @return ActiveRecordInterface the primary model of a relational query.
      *
      * This is used only in lazy loading with dynamic query options.
      */
-    public function getPrimaryModel(): ?ActiveRecord
+    public function getPrimaryModel(): ?ActiveRecordInterface
     {
         return $this->primaryModel;
     }
@@ -747,7 +747,7 @@ trait ActiveRelationTrait
         return $this;
     }
 
-    public function primaryModel(ActiveRecord $value): self
+    public function primaryModel(ActiveRecordInterface $value): self
     {
         $this->primaryModel = $value;
 

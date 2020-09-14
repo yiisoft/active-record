@@ -4,12 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use ArrayIterator;
+use Exception;
+use ReflectionException;
+use ReflectionMethod;
+use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\ConnectionPool;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\UnknownMethodException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
+
+use function array_key_exists;
+use function get_class;
+use function lcfirst;
+use function method_exists;
+use function property_exists;
+use function substr;
+use function ucfirst;
 
 trait BaseActiveRecordTrait
 {
@@ -31,7 +44,7 @@ trait BaseActiveRecordTrait
      */
     public function __get(string $name)
     {
-        if (isset($this->attributes[$name]) || \array_key_exists($name, $this->attributes)) {
+        if (isset($this->attributes[$name]) || array_key_exists($name, $this->attributes)) {
             return $this->attributes[$name];
         }
 
@@ -39,7 +52,7 @@ trait BaseActiveRecordTrait
             return null;
         }
 
-        if (isset($this->related[$name]) || \array_key_exists($name, $this->related)) {
+        if (isset($this->related[$name]) || array_key_exists($name, $this->related)) {
             return $this->related[$name];
         }
 
@@ -55,18 +68,18 @@ trait BaseActiveRecordTrait
 
     public function checkRelation(string $name)
     {
-        $getter = 'get' . $name;
+        $getter = 'get' . ucfirst($name);
 
-        if (\method_exists($this, $getter)) {
-            // read property, e.g. getName()
+        if (method_exists($this, $getter)) {
+            /** read property, e.g. getName() */
             return $this->$getter();
         }
 
-        if (\method_exists($this, 'set' . $name)) {
-            throw new InvalidCallException('Getting write-only property: ' . \get_class($this) . '::' . $name);
+        if (method_exists($this, 'set' . ucfirst($name))) {
+            throw new InvalidCallException('Getting write-only property: ' . get_class($this) . '::' . $name);
         }
 
-        throw new UnknownPropertyException('Getting unknown property: ' . \get_class($this) . '::' . $name);
+        throw new UnknownPropertyException('Getting unknown property: ' . get_class($this) . '::' . $name);
     }
 
 
@@ -82,22 +95,22 @@ trait BaseActiveRecordTrait
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
      * @throws InvalidArgumentException if the named relation does not exist.
-     * @throws \ReflectionException
+     * @throws ReflectionException
      *
      * @return ActiveQueryInterface|ActiveQuery the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
     public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface
     {
-        $getter = 'get' . $name;
+        $getter = 'get' . ucfirst($name);
 
         try {
-            // the relation could be defined in a behavior
+            /** the relation could be defined in a behavior */
             $relation = $this->$getter();
         } catch (UnknownMethodException $e) {
             if ($throwException) {
                 throw new InvalidArgumentException(
-                    \get_class($this) . ' has no relation named "' . $name . '".',
+                    get_class($this) . ' has no relation named "' . $name . '".',
                     0,
                     $e
                 );
@@ -108,21 +121,21 @@ trait BaseActiveRecordTrait
 
         if (!$relation instanceof ActiveQueryInterface) {
             if ($throwException) {
-                throw new InvalidArgumentException(\get_class($this) . ' has no relation named "' . $name . '".');
+                throw new InvalidArgumentException(get_class($this) . ' has no relation named "' . $name . '".');
             }
 
             return null;
         }
 
-        if (\method_exists($this, $getter)) {
-            /* relation name is case sensitive, trying to validate it when the relation is defined within this class */
-            $method = new \ReflectionMethod($this, $getter);
-            $realName = \lcfirst(\substr($method->getName(), 3));
+        if (method_exists($this, $getter)) {
+            /** relation name is case sensitive, trying to validate it when the relation is defined within this class */
+            $method = new ReflectionMethod($this, $getter);
+            $realName = lcfirst(substr($method->getName(), 3));
 
             if ($realName !== $name) {
                 if ($throwException) {
                     throw new InvalidArgumentException(
-                        'Relation names are case sensitive. ' . \get_class($this)
+                        'Relation names are case sensitive. ' . get_class($this)
                         . " has a relation named \"$realName\" instead of \"$name\"."
                     );
                 }
@@ -147,9 +160,9 @@ trait BaseActiveRecordTrait
     {
         try {
             return $this->__get($name) !== null;
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             return false;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
@@ -162,7 +175,7 @@ trait BaseActiveRecordTrait
      * @param string $name the property name or the event name.
      *
      * @throws InvalidArgumentException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function __unset($name): void
     {
@@ -171,7 +184,7 @@ trait BaseActiveRecordTrait
             if (!empty($this->relationsDependencies[$name])) {
                 $this->resetDependentRelations($name);
             }
-        } elseif (\array_key_exists($name, $this->related)) {
+        } elseif (array_key_exists($name, $this->related)) {
             unset($this->related[$name]);
         } elseif ($this->getRelation($name, false) === null) {
             parent::__unset($name);
@@ -193,14 +206,14 @@ trait BaseActiveRecordTrait
         if ($this->hasAttribute($name)) {
             if (
                 !empty($this->relationsDependencies[$name])
-                && (!\array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
+                && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
             ) {
                 $this->resetDependentRelations($name);
             }
             $this->attributes[$name] = $value;
         }
 
-        if (method_exists($this, 'get' . $name)) {
+        if (method_exists($this, 'get' . ucfirst($name))) {
             throw new InvalidCallException('Setting read-only property: ' . get_class($this) . '::' . $name);
         }
     }
@@ -210,13 +223,13 @@ trait BaseActiveRecordTrait
      *
      * This method is required by the interface {@see \IteratorAggregate}.
      *
-     * @return \ArrayIterator an iterator for traversing the items in the list.
+     * @return ArrayIterator an iterator for traversing the items in the list.
      */
-    public function getIterator(): \ArrayIterator
+    public function getIterator(): ArrayIterator
     {
         $attributes = $this->getAttributes();
 
-        return new \ArrayIterator($attributes);
+        return new ArrayIterator($attributes);
     }
 
     /**
@@ -277,7 +290,7 @@ trait BaseActiveRecordTrait
      */
     public function offsetUnset($offset): void
     {
-        if (\property_exists($this, $offset)) {
+        if (property_exists($this, $offset)) {
             $this->$offset = null;
         } else {
             unset($this->$offset);
@@ -325,28 +338,28 @@ trait BaseActiveRecordTrait
 
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
-        if (\method_exists($this, 'get' . $name) || ($checkVars && \property_exists($this, $name))) {
+        if (method_exists($this, 'get' . ucfirst($name)) || ($checkVars && property_exists($this, $name))) {
             return true;
         }
 
         try {
             return $this->hasAttribute($name);
-        } catch (\Exception $e) {
-            /* `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
+        } catch (Exception $e) {
+            /** `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
             return false;
         }
     }
 
     public function canSetProperty(string $name, bool $checkVars = true): bool
     {
-        if (\method_exists($this, 'set' . $name) || ($checkVars && \property_exists($this, $name))) {
+        if (method_exists($this, 'set' . ucfirst($name)) || ($checkVars && property_exists($this, $name))) {
             return true;
         }
 
         try {
             return $this->hasAttribute($name);
-        } catch (\Exception $e) {
-            /* `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
+        } catch (Exception $e) {
+            /** `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
             return false;
         }
     }

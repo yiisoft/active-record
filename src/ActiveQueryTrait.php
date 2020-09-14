@@ -172,7 +172,7 @@ trait ActiveQueryTrait
      *
      * @return ActiveQuery[]|array
      */
-    private function normalizeRelations(ActiveRecord $model, array $with): array
+    private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
         $relations = [];
 
