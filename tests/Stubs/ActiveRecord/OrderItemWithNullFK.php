@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $quantity
  * @property string $subtotal
  */
-class OrderItemWithNullFK extends ActiveRecord
+final class OrderItemWithNullFK extends ActiveRecord
 {
     public static function tableName(): string
     {

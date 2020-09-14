@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
@@ -19,7 +20,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property CustomerWithConstructor $customer
  * @property CustomerWithConstructor $customerJoinedWithProfile
  */
-class OrderWithConstructor extends ActiveRecord
+final class OrderWithConstructor extends ActiveRecord
 {
     public static function tableName(): string
     {
@@ -41,7 +42,7 @@ class OrderWithConstructor extends ActiveRecord
 
     public static function instantiate($row): ActiveRecord
     {
-        return (new \ReflectionClass(static::class))->newInstanceWithoutConstructor();
+        return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }
 
     public function getCustomer(): ActiveQuery

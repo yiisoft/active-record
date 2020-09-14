@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $id
  * @property string $string_identifier
  */
-class Alpha extends ActiveRecord
+final class Alpha extends ActiveRecord
 {
     public static function tableName(): string
     {

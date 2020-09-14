@@ -6,6 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-class ArrayAndJsonTypes extends ActiveRecord
+final class ArrayAndJsonTypes extends ActiveRecord
 {
 }

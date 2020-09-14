@@ -19,31 +19,18 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property Department $department
  * @property Dossier $dossier
  */
-class Employee extends ActiveRecord
+final class Employee extends ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName(): string
     {
         return 'employee';
     }
 
-    /**
-     * Returns employee full name.
-     *
-     * @return string
-     */
     public function getFullName(): string
     {
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    /**
-     * Returns employee department.
-     *
-     * @return ActiveQuery
-     */
     public function getDepartment(): ActiveQuery
     {
         return $this
@@ -54,19 +41,14 @@ class Employee extends ActiveRecord
         ;
     }
 
-    /**
-     * Returns employee department.
-     *
-     * @return ActiveQuery
-     */
     public function getDossier(): ActiveQuery
     {
-        return $this
-            ->hasOne(Dossier::class, [
+        return $this->hasOne(
+            Dossier::class,
+            [
                 'department_id' => 'department_id',
                 'employee_id' => 'id',
-            ])
-            ->inverseOf('employee')
-        ;
+            ]
+        )->inverseOf('employee');
     }
 }

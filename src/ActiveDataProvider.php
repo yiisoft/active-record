@@ -77,15 +77,15 @@ class ActiveDataProvider extends DataReaderProvider
     public $key;
 
     /**
-     * @var Connection|null the DB connection object or the application component ID of the DB connection.
+     * @var ConnectionInterface|null the DB connection object or the application component ID of the DB connection.
      */
-    public ?object $db = null;
+    public ?ConnectionInterface $db = null;
 
 
     /**
      * Create the ActiveDataProvider object.
      *
-     * @param Connection $db database connection.
+     * @param ConnectionInterface $db database connection.
      * @param QueryInterface $query query to be executed
      */
     public function __construct(ConnectionInterface $db, QueryInterface $query)

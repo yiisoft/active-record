@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 class Animal extends ActiveRecord
 {
-    public $does;
+    public string $does;
 
     public static function tableName(): string
     {
@@ -26,16 +26,11 @@ class Animal extends ActiveRecord
         $this->type = static::class;
     }
 
-    public function getDoes()
+    public function getDoes(): string
     {
         return $this->does;
     }
 
-    /**
-     * @param array|object $row
-     *
-     * @return Animal
-     */
     public static function instantiate($row): ActiveRecord
     {
         $class = $row['type'];

@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $quantity
  * @property string $subtotal
  */
-class OrderItem extends ActiveRecord
+final class OrderItem extends ActiveRecord
 {
     public static ?string $tableName = null;
 
@@ -34,11 +34,10 @@ class OrderItem extends ActiveRecord
         return $this->hasOne(Item::class, ['id' => 'item_id']);
     }
 
-    /** relations used by ::testFindCompositeWithJoin() */
     public function getOrderItemCompositeWithJoin(): ActiveQuery
     {
-        return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])
-            ->joinWith('item');
+        /** relations used by testFindCompositeWithJoin() */
+        return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
     }
 
     public function getOrderItemCompositeNoJoin(): ActiveQuery

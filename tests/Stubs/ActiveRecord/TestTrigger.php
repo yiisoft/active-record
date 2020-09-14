@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $id
  * @property string $stringcol
  */
-class TestTrigger extends ActiveRecord
+final class TestTrigger extends ActiveRecord
 {
     public static function tableName(): string
     {

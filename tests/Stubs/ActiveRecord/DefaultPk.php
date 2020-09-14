@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-class DefaultPk extends ActiveRecord
+final class DefaultPk extends ActiveRecord
 {
     public static function tableName(): string
     {

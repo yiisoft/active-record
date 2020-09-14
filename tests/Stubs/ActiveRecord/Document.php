@@ -13,7 +13,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $version
  * @property array $properties
  */
-class Document extends ActiveRecord
+final class Document extends ActiveRecord
 {
     public function optimisticLock(): ?string
     {

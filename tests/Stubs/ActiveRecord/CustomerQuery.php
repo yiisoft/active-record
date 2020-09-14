@@ -5,12 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveRecord;
 
-/**
- * CustomerQuery.
- */
-class CustomerQuery extends ActiveQuery
+final class CustomerQuery extends ActiveQuery
 {
     public static bool $joinWithProfile = false;
 

@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $created_at
  * @property string $total
  */
-class OrderWithNullFK extends ActiveRecord
+final class OrderWithNullFK extends ActiveRecord
 {
     public static function tableName(): string
     {

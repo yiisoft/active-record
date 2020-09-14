@@ -186,8 +186,6 @@ trait BaseActiveRecordTrait
             }
         } elseif (array_key_exists($name, $this->related)) {
             unset($this->related[$name]);
-        } elseif ($this->getRelation($name, false) === null) {
-            parent::__unset($name);
         }
     }
 
