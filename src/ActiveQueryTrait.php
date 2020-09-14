@@ -208,7 +208,7 @@ trait ActiveQueryTrait
         return $relations;
     }
 
-    public function isAsArray():? bool
+    public function isAsArray(): ?bool
     {
         return $this->asArray;
     }
