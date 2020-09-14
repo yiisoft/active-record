@@ -23,7 +23,10 @@ final class Customer extends ActiveRecord
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
 
-    public string $status2;
+    /**
+     * @var int|string $status2
+     */
+    public $status2;
     public ?string $sumTotal;
 
     public static function tableName(): string
