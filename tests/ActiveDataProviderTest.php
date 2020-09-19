@@ -5,16 +5,14 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveDataProvider;
-use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UnqueryableQueryMock;
 
 abstract class ActiveDataProviderTest extends TestCase
 {
-    public function testActiveQuery()
+    public function testActiveQuery(): void
     {
         $db = Order::getConnection();
 
@@ -31,7 +29,7 @@ abstract class ActiveDataProviderTest extends TestCase
         $this->assertEquals([1, 2, 3], $provider->getKeys());
     }
 
-    public function testActiveRelation()
+    public function testActiveRelation(): void
     {
         $db = Customer::getConnection();
 
@@ -49,7 +47,7 @@ abstract class ActiveDataProviderTest extends TestCase
         $this->assertEquals([2, 3], $provider->getKeys());
     }
 
-    public function testActiveRelationVia()
+    public function testActiveRelationVia(): void
     {
         $db = Customer::getConnection();
 
@@ -63,12 +61,12 @@ abstract class ActiveDataProviderTest extends TestCase
         $items = $provider->getModels();
         $this->assertCount(3, $items);
         $this->assertInstanceOf(Item::class, $items[0]);
-        $this->assertInstanceOf(item::class, $items[1]);
+        $this->assertInstanceOf(Item::class, $items[1]);
         $this->assertInstanceOf(Item::class, $items[2]);
         $this->assertEquals([3, 4, 5], $provider->getKeys());
     }
 
-    public function testActiveRelationViaTable()
+    public function testActiveRelationViaTable(): void
     {
         $db = Order::getConnection();
 
@@ -85,7 +83,7 @@ abstract class ActiveDataProviderTest extends TestCase
         $this->assertInstanceOf(Item::class, $items[1]);
     }
 
-    public function testQuery()
+    public function testQuery(): void
     {
         $db = Order::getConnection();
 
