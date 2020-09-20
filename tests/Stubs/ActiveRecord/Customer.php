@@ -18,13 +18,16 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  *
  * @method CustomerQuery findBySql($sql, $params = []) static.
  */
-class Customer extends ActiveRecord
+final class Customer extends ActiveRecord
 {
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
 
+    /**
+     * @var int|string $status2
+     */
     public $status2;
-    public $sumTotal;
+    public ?string $sumTotal;
 
     public static function tableName(): string
     {
@@ -58,7 +61,10 @@ class Customer extends ActiveRecord
 
     public function getExpensiveOrdersWithNullFK(): ActiveQuery
     {
-        return $this->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
+        return $this->hasMany(
+            OrderWithNullFK::class,
+            ['customer_id' => 'id']
+        )->andWhere('[[total]] > 50')->orderBy('id');
     }
 
     public function getOrdersWithNullFK(): ActiveQuery
@@ -71,7 +77,7 @@ class Customer extends ActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
     }
 
-    // deeply nested table relation
+    /** deeply nested table relation */
     public function getOrderItems(): ActiveQuery
     {
         /* @var $rel ActiveQuery */
@@ -83,9 +89,6 @@ class Customer extends ActiveRecord
         })->orderBy('id');
     }
 
-    /**
-     * @return CustomerQuery
-     */
     public static function find(): CustomerQuery
     {
         return new CustomerQuery(static::class);

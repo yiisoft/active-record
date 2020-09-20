@@ -22,8 +22,7 @@ class Category extends ActiveRecord
 
     public function getLimitedItems(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['category_id' => 'id'])
-            ->onCondition(['item.id' => [1, 2, 3]]);
+        return $this->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
     }
 
     public function getItems(): ActiveQuery

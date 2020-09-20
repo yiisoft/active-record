@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property string $alpha_string_identifier
  * @property Alpha $alpha
  */
-class Beta extends ActiveRecord
+final class Beta extends ActiveRecord
 {
     public static function tableName(): string
     {

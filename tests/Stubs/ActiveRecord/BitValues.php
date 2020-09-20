@@ -12,6 +12,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $id
  * @property int $val
  */
-class BitValues extends ActiveRecord
+final class BitValues extends ActiveRecord
 {
 }

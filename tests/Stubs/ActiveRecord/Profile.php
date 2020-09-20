@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $id
  * @property string $description
  */
-class Profile extends ActiveRecord
+final class Profile extends ActiveRecord
 {
     public static function tableName(): string
     {

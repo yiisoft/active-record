@@ -23,11 +23,8 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property bool $bool_col
  * @property bool $bool_col2 DEFAULT 1
  */
-class Type extends ActiveRecord
+final class Type extends ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName(): string
     {
         return 'type';

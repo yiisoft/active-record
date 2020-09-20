@@ -10,9 +10,8 @@ use Yiisoft\Db\Query\QueryInterface;
 /**
  * ActiveQueryInterface defines the common interface to be implemented by active record query classes.
  *
- * That are methods for either normal queries that return active records but also relational queries
- * in which the query represents a relation between two active record classes and will return related
- * records only.
+ * That are methods for either normal queries that return active records but also relational queries in which the query
+ * represents a relation between two active record classes and will return related records only.
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  */

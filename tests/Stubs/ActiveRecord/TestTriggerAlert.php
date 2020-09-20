@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $id
  * @property string $stringcol
  */
-class TestTriggerAlert extends ActiveRecord
+final class TestTriggerAlert extends ActiveRecord
 {
     public static function tableName(): string
     {

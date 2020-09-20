@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-class BoolAR extends ActiveRecord
+final class BoolAR extends ActiveRecord
 {
     public static function tableName(): string
     {

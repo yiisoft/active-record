@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
@@ -15,7 +16,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $quantity
  * @property string $subtotal
  */
-class OrderItemWithConstructor extends ActiveRecord
+final class OrderItemWithConstructor extends ActiveRecord
 {
     public static function tableName(): string
     {
@@ -26,8 +27,6 @@ class OrderItemWithConstructor extends ActiveRecord
     {
         $this->item_id = $item_id;
         $this->quantity = $quantity;
-
-        parent::__construct();
     }
 
     public static function instance($refresh = false): self
@@ -37,7 +36,7 @@ class OrderItemWithConstructor extends ActiveRecord
 
     public static function instantiate($row): ActiveRecord
     {
-        return (new \ReflectionClass(static::class))->newInstanceWithoutConstructor();
+        return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }
 
     public function getOrder(): ActiveQuery

@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $var3
  * @property string $stringcol
  */
-class NullValues extends ActiveRecord
+final class NullValues extends ActiveRecord
 {
     public static function tableName(): string
     {

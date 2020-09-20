@@ -17,23 +17,19 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  *
  * @method CustomerQuery findBySql($sql, $params = []) static
  */
-class CustomerWithAlias extends ActiveRecord
+final class CustomerWithAlias extends ActiveRecord
 {
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
 
-    public $status2;
-    public $sumTotal;
+    public int $status2;
+    public float $sumTotal;
 
     public static function tableName(): string
     {
         return 'customer';
     }
 
-    /**
-     * {@inheritdoc}
-     * @return CustomerQuery
-     */
     public static function find(): CustomerQuery
     {
         $activeQuery = new CustomerQuery(static::class);

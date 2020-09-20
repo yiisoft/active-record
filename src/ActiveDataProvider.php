@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Db\Connection\Connection;
+use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Data\DataProvider;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
+
+use function array_keys;
+use function call_user_func;
+use function count;
+use function is_string;
 
 /**
  * ActiveDataProvider implements a data provider based on {@see \Yiisoft\Db\Query\Query} and
@@ -17,47 +23,34 @@ use Yiisoft\Db\Query\QueryInterface;
  * The following is an example of using ActiveDataProvider to provide ActiveRecord instances:
  *
  * ```php
- * $provider = new ActiveDataProvider(
- *      Post::find()
- * );
- *
- * $provider->pagination' => [
- *     'pageSize' => 20,
- * ];
- *
- *
- * // get the posts in the current page
- * $posts = $provider->getModels(); // or $provider->models
+ *    $provider = new ActiveDataProvider(
+ *        $db, // connection db
+ *        Order::find()->orderBy('id')
+ *    );
  * ```
  *
  * And the following example shows how to use ActiveDataProvider without ActiveRecord:
  *
  * ```php
- * $query = new Query();
- * $provider = new ActiveDataProvider(
- *     Yii::get('db'),
- *     $query->from('post')
- * );
- * $provider->pagination' => [
- *     'pageSize' => 20,
- * ];
+ *    $query = new Query($db);
  *
- *
- * // get the posts in the current page
- * $posts = $provider->getModels();  // or $provider->models
+ *    $provider = new ActiveDataProvider(
+ *        $db, // connection db
+ *        $query->from('order')->orderBy('id')
+ *    );
  * ```
  *
  * For more details and usage information on ActiveDataProvider, see the
  * [guide article on data providers](guide:output-data-providers).
  */
-class ActiveDataProvider
+final class ActiveDataProvider extends DataProvider
 {
     /**
      * @var QueryInterface|null the query that is used to fetch data models and {@see totalCount}
      *
      * if it is not explicitly set.
      */
-    public ?QueryInterface $query = null;
+    private ?QueryInterface $query = null;
 
     /**
      * @var string|callable the column that is used as the key of the data models.
@@ -73,35 +66,24 @@ class ActiveDataProvider
      *
      * @see getKeys()
      */
-    public $key;
+    private $key;
 
-    /**
-     * @var Connection|null the DB connection object or the application component ID of the DB connection.
-     */
-    public ?Connection $db = null;
-
-
-    /**
-     * Create the ActiveDataProvider object.
-     *
-     * @param Connection $db database connection.
-     * @param QueryInterface $query query to be executed
-     */
-    public function __construct(Connection $db, QueryInterface $query)
+    public function __construct(ConnectionInterface $db, QueryInterface $query)
     {
         $this->db = $db;
         $this->query = $query;
+
+        parent::__construct();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function prepareModels(): array
+    protected function prepareActiveRecord(): array
     {
         $query = $this->prepareQuery();
-        if ($query->emulateExecution) {
+
+        if ($query->shouldEmulateExecution()) {
             return [];
         }
+
         return $query->all($this->db);
     }
 
@@ -120,12 +102,15 @@ class ActiveDataProvider
         $query = clone $this->query;
         if (($pagination = $this->getPagination()) !== false) {
             $pagination->totalCount = $this->getTotalCount();
+
             if ($pagination->totalCount === 0) {
                 $query->emulateExecution();
             }
+
             $query->limit($pagination->getLimit())->offset($pagination->getOffset());
         }
-        if (($sort = $this->getSort()) !== false) {
+
+        if (($sort = $this->getSort()) !== null) {
             $query->addOrderBy($sort->getOrders());
         }
 
@@ -133,26 +118,35 @@ class ActiveDataProvider
     }
 
     /**
-     * {@inheritdoc}
+     * Prepares the keys associated with the currently available data models.
+     *
+     * @param array $models the available data models.
+     *
+     * @return array the keys.
      */
-    protected function prepareKeys($models): array
+    protected function prepareKeys(array $models = []): array
     {
         $keys = [];
+
         if ($this->key !== null) {
             foreach ($models as $model) {
-                if (\is_string($this->key)) {
+                if (is_string($this->key)) {
                     $keys[] = $model[$this->key];
                 } else {
-                    $keys[] = \call_user_func($this->key, $model);
+                    $keys[] = call_user_func($this->key, $model);
                 }
             }
 
             return $keys;
-        } elseif ($this->query instanceof ActiveQueryInterface) {
+        }
+
+        if ($this->query instanceof ActiveQueryInterface) {
             /* @var $class ActiveRecordInterface */
-            $class = $this->query->modelClass;
+            $class = $this->query->getModelClass();
+
             $pks = $class::primaryKey();
-            if (\count($pks) === 1) {
+
+            if (count($pks) === 1) {
                 $pk = $pks[0];
                 foreach ($models as $model) {
                     $keys[] = $model[$pk];
@@ -170,48 +164,61 @@ class ActiveDataProvider
             return $keys;
         }
 
-        return \array_keys($models);
+        return array_keys($models);
     }
 
     /**
-     * {@inheritdoc}
+     * Prepares the data models that will be made available in the current page.
+     *
+     * @throws InvalidConfigException
+     *
+     * @return array the available data models.
+     */
+    protected function prepareModels(): array
+    {
+        if (!$this->query instanceof QueryInterface) {
+            throw new InvalidConfigException(
+                'The "query" property must be an instance of a class that implements the QueryInterface e.g.'
+                    . '\Yiisoft\Db\Query\Query or its subclasses.'
+            );
+        }
+
+        $query = clone $this->query;
+
+        if (($pagination = $this->getPagination()) !== null) {
+            $pagination->totalCount = $this->getTotalCount();
+            if ($pagination->totalCount === 0) {
+                return [];
+            }
+
+            $query->limit($pagination->getLimit())->offset($pagination->getOffset());
+        }
+
+        if (($sort = $this->getSort()) !== null) {
+            $query->addOrderBy($sort->getOrders());
+        }
+
+        return $query->all();
+    }
+
+    /**
+     * Returns a value indicating the total number of data models in this data provider.
+     *
+     * @throws InvalidConfigException
+     *
+     * @return int total number of data models in this data provider.
      */
     protected function prepareTotalCount(): int
     {
         if (!$this->query instanceof QueryInterface) {
             throw new InvalidConfigException(
                 'The "query" property must be an instance of a class that implements the QueryInterface e.g. '
-                . 'Yiisoft\Db\Query or its subclasses.'
+                . '\Yiisoft\Db\Query\Query or its subclasses.'
             );
         }
-        $query = clone $this->query;
-        return (int) $query->limit(-1)->offset(-1)->orderBy([])->count('*', $this->db);
-    }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setSort($value): void
-    {
-        if (($sort = $this->getSort()) !== false && $this->query instanceof ActiveQueryInterface) {
-            /* @var $modelClass Model */
-            $modelClass = $this->query->modelClass;
-            $model = $modelClass::instance();
-            if (empty($sort->attributes)) {
-                foreach ($model->attributes() as $attribute) {
-                    $sort->attributes[$attribute] = [
-                        'asc' => [$attribute => SORT_ASC],
-                        'desc' => [$attribute => SORT_DESC],
-                        'label' => $model->getAttributeLabel($attribute),
-                    ];
-                }
-            } else {
-                foreach ($sort->attributes as $attribute => $config) {
-                    if (!isset($config['label'])) {
-                        $sort->attributes[$attribute]['label'] = $model->getAttributeLabel($attribute);
-                    }
-                }
-            }
-        }
+        $query = clone $this->query;
+
+        return (int) $query->limit(-1)->offset(-1)->orderBy([])->count('*');
     }
 }
