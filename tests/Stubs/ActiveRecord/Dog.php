@@ -4,17 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
-
 /**
  * Class Dog.
  */
-class Dog extends Animal
+final class Dog extends Animal
 {
-    /**
-     * @param self $record
-     * @param array $row
-     */
     public static function populateRecord($record, $row): void
     {
         parent::populateRecord($record, $row);

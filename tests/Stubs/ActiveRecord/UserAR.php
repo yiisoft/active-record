@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-class UserAR extends ActiveRecord
+final class UserAR extends ActiveRecord
 {
     public const STATUS_DELETED = 0;
     public const STATUS_ACTIVE = 10;

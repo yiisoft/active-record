@@ -4,10 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use ReflectionException;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+
+use function get_class;
+use function is_array;
+use function is_int;
+use function reset;
+use function strpos;
+use function substr;
 
 trait ActiveQueryTrait
 {
@@ -19,7 +27,7 @@ trait ActiveQueryTrait
      *
      * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
      *
-     * @return $this the query object itself
+     * @return $this the query object itself.
      */
     public function asArray(?bool $value = true): self
     {
@@ -70,7 +78,7 @@ trait ActiveQueryTrait
      */
     public function with(...$with): self
     {
-        if (isset($with[0]) && \is_array($with[0])) {
+        if (isset($with[0]) && is_array($with[0])) {
             /** the parameter is given as an array */
             $with = $with[0];
         }
@@ -79,7 +87,7 @@ trait ActiveQueryTrait
             $this->with = $with;
         } elseif (!empty($with)) {
             foreach ($with as $name => $value) {
-                if (\is_int($name)) {
+                if (is_int($name)) {
                     /** repeating relation is fine as normalizeRelations() handle it well */
                     $this->with[] = $value;
                 } else {
@@ -96,9 +104,9 @@ trait ActiveQueryTrait
      *
      * @param array $rows
      *
-     * @return array|ActiveRecord[]
+     * @return ActiveRecord[]|array|null
      */
-    protected function createModels($rows): ?array
+    protected function createModels(array $rows): ?array
     {
         if ($this->asArray) {
             return $rows;
@@ -110,8 +118,11 @@ trait ActiveQueryTrait
 
             foreach ($rows as $row) {
                 $model = $class::instantiate($row);
-                $modelClass = \get_class($model);
+
+                $modelClass = get_class($model);
+
                 $modelClass::populateRecord($model, $row);
+
                 $models[] = $model;
             }
 
@@ -124,24 +135,23 @@ trait ActiveQueryTrait
      *
      * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
      * for details about specifying this parameter.
-     * @param array|ActiveRecord[] $models the primary models (can be either AR instances or arrays)
+     * @param ActiveRecord[]|array $models the primary models (can be either AR instances or arrays)
      *
+     * @throws Exception
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
-     * @throws \ReflectionException
+     * @throws NotSupportedException
+     * @throws ReflectionException
      */
     public function findWith(array $with, array &$models): void
     {
-        $primaryModel = \reset($models);
+        $primaryModel = reset($models);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
-            /** @var $modelClass ActiveRecordInterface */
-            $modelClass = $this->modelClass;
-            $primaryModel = $modelClass::instance();
+            $primaryModel = $this->modelClass::instance();
         }
 
         $relations = $this->normalizeRelations($primaryModel, $with);
-        /* @var $relation ActiveQuery */
 
         foreach ($relations as $name => $relation) {
             if ($relation->asArray === null) {
@@ -157,25 +167,25 @@ trait ActiveQueryTrait
      * @param ActiveRecord $model
      * @param array $with
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      * @throws InvalidArgumentException
      *
-     * @return ActiveQueryInterface[]
+     * @return ActiveQuery[]|array
      */
-    private function normalizeRelations(ActiveRecord $model, array $with): array
+    private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
         $relations = [];
 
         foreach ($with as $name => $callback) {
-            if (\is_int($name)) {
+            if (is_int($name)) {
                 $name = $callback;
                 $callback = null;
             }
 
-            if (($pos = \strpos($name, '.')) !== false) {
+            if (($pos = strpos($name, '.')) !== false) {
                 /** with sub-relations */
-                $childName = \substr($name, $pos + 1);
-                $name = \substr($name, 0, $pos);
+                $childName = substr($name, $pos + 1);
+                $name = substr($name, 0, $pos);
             } else {
                 $childName = null;
             }
@@ -196,5 +206,15 @@ trait ActiveQueryTrait
         }
 
         return $relations;
+    }
+
+    public function isAsArray(): ?bool
+    {
+        return $this->asArray;
+    }
+
+    public function getWith(): array
+    {
+        return $this->with;
     }
 }

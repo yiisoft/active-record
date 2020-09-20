@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
@@ -12,17 +13,16 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $id
  * @property string $description
  */
-class ProfileWithConstructor extends ActiveRecord
+final class ProfileWithConstructor extends ActiveRecord
 {
     public static function tableName(): string
     {
         return 'profile';
     }
 
-    public function __construct($description)
+    public function __construct(string $description)
     {
         $this->description = $description;
-        parent::__construct();
     }
 
     public static function instance($refresh = false): ActiveRecord
@@ -32,6 +32,6 @@ class ProfileWithConstructor extends ActiveRecord
 
     public static function instantiate($row): ActiveRecord
     {
-        return (new \ReflectionClass(static::class))->newInstanceWithoutConstructor();
+        return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }
 }

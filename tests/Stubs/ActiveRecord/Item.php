@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property string $name
  * @property int $category_id
  */
-class Item extends ActiveRecord
+final class Item extends ActiveRecord
 {
     public static function tableName(): string
     {

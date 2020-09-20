@@ -17,29 +17,21 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  *
  * @property Employee $employee
  */
-class Dossier extends ActiveRecord
+final class Dossier extends ActiveRecord
 {
-    /**
-     * {@inheritdoc}
-     */
     public static function tableName(): string
     {
         return 'dossier';
     }
 
-    /**
-     * Returns dossier employee.
-     *
-     * @return ActiveQuery
-     */
     public function getEmployee(): ActiveQuery
     {
-        return $this
-            ->hasOne(Employee::class, [
+        return $this->hasOne(
+            Employee::class,
+            [
                 'department_id' => 'department_id',
                 'id' => 'employee_id',
-            ])
-            ->inverseOf('dossier')
-        ;
+            ]
+        )->inverseOf('dossier');
     }
 }
