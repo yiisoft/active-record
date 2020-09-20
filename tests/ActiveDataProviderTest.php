@@ -14,6 +14,8 @@ abstract class ActiveDataProviderTest extends TestCase
 {
     public function testActiveQuery(): void
     {
+        $this->loadFixture(Order::getConnection());
+
         $db = Order::getConnection();
 
         $provider = new ActiveDataProvider(
