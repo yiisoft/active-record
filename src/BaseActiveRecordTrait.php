@@ -12,6 +12,7 @@ use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\ConnectionPool;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\UnknownMethodException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
@@ -323,6 +324,10 @@ trait BaseActiveRecordTrait
 
     public static function getConnection(): ConnectionInterface
     {
+        if (self::$connectionId === null) {
+            throw new InvalidConfigException('A db connection is required.');
+        }
+
         return ConnectionPool::getConnectionPool(self::$connectionId);
     }
 
