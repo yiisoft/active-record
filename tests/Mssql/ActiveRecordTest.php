@@ -32,11 +32,6 @@ final class ActiveRecordTest extends BaseActiveRecordTest
         unset($this->mssqlConnection);
     }
 
-    public function testExplicitPkOnAutoIncrement(): void
-    {
-        $this->markTestSkipped('MSSQL does not support explicit value for an IDENTITY column.');
-    }
-
     public function testSaveWithTrigger(): void
     {
         $db = $this->mssqlConnection;

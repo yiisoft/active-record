@@ -8,7 +8,6 @@ use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -36,7 +35,7 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\StaleObjectException;
 
-use function count;
+use function ucfirst;
 
 abstract class ActiveRecordTest extends TestCase
 {
@@ -73,9 +72,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testFindAll(): void
     {
-        $this->assertEquals(1, count(Customer::findAll(3)));
-        $this->assertEquals(1, count(Customer::findAll(['id' => 1])));
-        $this->assertEquals(3, count(Customer::findAll(['id' => [1, 2, 3]])));
+        $this->assertCount(1, Customer::findAll(3));
+        $this->assertCount(1, Customer::findAll(['id' => 1]));
+        $this->assertCount(3, Customer::findAll(['id' => [1, 2, 3]]));
     }
 
     public function testFindScalar(): void
@@ -280,7 +279,7 @@ abstract class ActiveRecordTest extends TestCase
     {
         $record = new NullValues();
 
-        /* this is to simulate empty html form submission */
+        /** this is to simulate empty html form submission */
         $record->var1 = '';
         $record->var2 = '';
         $record->var3 = '';
@@ -583,15 +582,10 @@ abstract class ActiveRecordTest extends TestCase
      * @dataProvider aliasMethodProvider
      *
      * @param string $aliasMethod whether alias is specified explicitly or using the query syntax {{@tablename}}
-     *
-     * @throws InvalidConfigException
      */
     public function testJoinWithAlias(string $aliasMethod): void
     {
-        /**
-         * left join and eager loading
-         * @var ActiveQuery $query
-         */
+        /** left join and eager loading */
         $query = Order::find()->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
@@ -676,7 +670,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
 
-        /* joining sub relations */
+        /** joining sub relations */
         $query = Order::find()->innerJoinWith([
             'items i' => static function ($q) use ($aliasMethod) {
                 /** @var $q ActiveQuery */
@@ -1659,7 +1653,6 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testNoTablenameReplacement(): void
     {
-        /** @var Customer $customer */
         $customer = new Customer();
 
         $customer->name = 'Some {{weird}} name';
@@ -1762,7 +1755,6 @@ abstract class ActiveRecordTest extends TestCase
      *
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function testLegalValuesForFindByCondition(string $modelClassName, array $validFilter): void
     {
@@ -1811,11 +1803,10 @@ abstract class ActiveRecordTest extends TestCase
      *
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotSupportedException
      */
     public function testValueEscapingInFindByCondition(string $modelClassName, array $filterWithInjection): void
     {
-        if (version_compare(phpversion(), '8.0', '>=')) {
+        if (PHP_VERSION_ID >= 80000) {
             $this->markTestSkipped('The test should be fixed in PHP 8.0.');
         }
 
@@ -1928,30 +1919,5 @@ abstract class ActiveRecordTest extends TestCase
         $cat = new Cat();
 
         $this->assertFalse(isset($cat->throwable));
-    }
-
-    /**
-     * {@see https://github.com/yiisoft/yii2/issues/15482}
-     */
-    public function testEagerLoadingUsingStringIdentifiers(): void
-    {
-        if (!\in_array($this->driverName, ['mysql', 'pgsql', 'sqlite'])) {
-            $this->markTestSkipped('This test has fixtures only for databases MySQL, PostgreSQL and SQLite.');
-        }
-
-        $betas = Beta::find()->with('alpha')->all();
-
-        $this->assertNotEmpty($betas);
-
-        $alphaIdentifiers = [];
-
-        /** @var Beta[] $betas */
-        foreach ($betas as $beta) {
-            $this->assertNotNull($beta->alpha);
-            $this->assertEquals($beta->alpha_string_identifier, $beta->alpha->string_identifier);
-            $alphaIdentifiers[] = $beta->alpha->string_identifier;
-        }
-
-        $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
     }
 }
