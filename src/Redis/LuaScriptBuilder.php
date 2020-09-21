@@ -372,8 +372,8 @@ EOF;
             } else {
                 throw new Exception('Found unknown operator in query: ' . $operator);
             }
-        /** hash format: 'column1' => 'value1', 'column2' => 'value2', ... */
         } else {
+            /** hash format: 'column1' => 'value1', 'column2' => 'value2', ... */
             return $this->buildHashCondition($condition, $columns);
         }
     }
