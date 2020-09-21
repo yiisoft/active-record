@@ -6,9 +6,11 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use PHPUnit\Framework\TestCase as AbstractTestCase;
 use Psr\Container\ContainerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
 use ReflectionObject;
+use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
@@ -19,20 +21,28 @@ use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
 use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
+use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 use Yiisoft\Di\Container;
 use Yiisoft\Db\Helper\Dsn;
-use Yiisoft\Log\Target\File\FileRotator;
-use Yiisoft\Log\Target\File\FileRotatorInterface;
-use Yiisoft\Log\Target\File\FileTarget;
+use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
+use Yiisoft\EventDispatcher\Provider\Provider;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
+
+use function array_merge;
+use function explode;
+use function file_get_contents;
+use function preg_replace;
+use function str_replace;
+use function trim;
 
 class TestCase extends AbstractTestCase
 {
     protected ?MssqlConnection $mssqlConnection = null;
     protected ?MysqlConnection $mysqlConnection = null;
     protected ?PgsqlConnection $pgsqlConnection = null;
+    protected ?RedisConnection $redisConnection = null;
     protected ?SqliteConnection $sqliteConnection = null;
 
     protected function setUp(): void
@@ -54,7 +64,47 @@ class TestCase extends AbstractTestCase
         $this->mssqlConnection = $this->container->get(MssqlConnection::class);
         $this->mysqlConnection = $this->container->get(MysqlConnection::class);
         $this->pgsqlConnection = $this->container->get(PgsqlConnection::class);
+        $this->redisConnection = $this->container->get(RedisConnection::class);
         $this->sqliteConnection = $this->container->get(SqliteConnection::class);
+    }
+
+    protected function customerData(): void
+    {
+        $customer = new Customer();
+        $customer->setAttributes(
+            [
+                'email' => 'user1@example.com',
+                'name' => 'user1',
+                'address' => 'address1',
+                'status' => 1,
+                'profile_id', 1
+            ]
+        );
+        $customer->save();
+
+        $customer = new Customer();
+        $customer->setAttributes(
+            [
+                'email' => 'user2@example.com',
+                'name' => 'user2',
+                'address' => 'address2',
+                'status' => 1,
+                'profile_id' => null
+            ]
+        );
+        $customer->save();
+
+        $customer = new Customer();
+        $customer->setAttributes(
+            [
+                'email' => 'user3@example.com',
+                'name' => 'user3',
+                'address' => 'address3',
+                'status' => 2,
+                'profile_id' => 2
+            ]
+        );
+        $customer->save();
     }
 
     /**
@@ -99,6 +149,8 @@ class TestCase extends AbstractTestCase
             case 'sqlite':
                 $fixture = $this->params()['yiisoft/db-sqlite']['fixture'];
                 break;
+            case 'redis':
+                return;
         }
 
         if ($db->isActive()) {
@@ -176,6 +228,10 @@ class TestCase extends AbstractTestCase
                 return new Profiler($container->get(LoggerInterface::class));
             },
 
+            ListenerProviderInterface::class => Provider::class,
+
+            EventDispatcherInterface::class => Dispatcher::class,
+
             MssqlConnection::class => static function (ContainerInterface $container) use ($params) {
                 $aliases = $container->get(Aliases::class);
                 $cache = $container->get(CacheInterface::class);
@@ -245,6 +301,19 @@ class TestCase extends AbstractTestCase
                 return $db;
             },
 
+            RedisConnection::class  => static function (ContainerInterface $container) use ($params) {
+                $connection = new RedisConnection(
+                    $container->get(EventDispatcherInterface::class),
+                    $container->get(LoggerInterface::class)
+                );
+
+                $connection->database($params['yiisoft/db-redis']['database']);
+
+                ConnectionPool::setConnectionsPool('redis', $connection);
+
+                return $connection;
+            },
+
             SqliteConnection::class => static function (ContainerInterface $container) use ($params) {
                 $aliases = $container->get(Aliases::class);
                 $cache = $container->get(CacheInterface::class);
@@ -301,6 +370,9 @@ class TestCase extends AbstractTestCase
                 'username' => 'root',
                 'password' => 'root',
                 'fixture' => __DIR__ . '/Data/pgsql.sql',
+            ],
+            'yiisoft/db-redis' => [
+                'database' => 0,
             ],
             'yiisoft/db-sqlite' => [
                 'fixture' => __DIR__ . '/Data/sqlite.sql'
