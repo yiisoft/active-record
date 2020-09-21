@@ -91,7 +91,8 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=n+1 pks[n]=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ")", 'pks'
+            "n=n+1 pks[n]=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ")",
+            'pks'
         );
     }
 
@@ -151,7 +152,8 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=n+1 if v==nil then v=0 end v=v+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ")", 'v/n'
+            "n=n+1 if v==nil then v=0 end v=v+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ")",
+            'v/n'
         );
     }
 
@@ -175,7 +177,8 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ") if v==nil or n<v then v=n end", 'v'
+            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ") if v==nil or n<v then v=n end",
+            'v'
         );
     }
 
@@ -199,7 +202,8 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ") if v==nil or n>v then v=n end", 'v'
+            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ") if v==nil or n>v then v=n end",
+            'v'
         );
     }
 

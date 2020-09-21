@@ -368,12 +368,13 @@ class ActiveQuery extends BaseActiveQuery
 
         /** find by primary key if possible. This is much faster than scanning all records */
         if (
-            is_array($this->getWhere())
-            && (
-                (!isset($this->getWhere()[0]) && $this->modelClass::isPrimaryKey(array_keys($this->getWhere())))
-                || (isset($this->getWhere()[0]) && $this->getWhere()[0] === 'in'
-                && $this->modelClass::isPrimaryKey((array) $this->getWhere()[1])
-               )
+            is_array($this->getWhere()) &&
+            (
+                (!isset($this->getWhere()[0]) && $this->modelClass::isPrimaryKey(array_keys($this->getWhere()))) ||
+                (
+                    isset($this->getWhere()[0]) && $this->getWhere()[0] === 'in' &&
+                    $this->modelClass::isPrimaryKey((array) $this->getWhere()[1])
+                )
             )
         ) {
             return $this->findByPk($type, $columnName);
@@ -459,7 +460,10 @@ class ActiveQuery extends BaseActiveQuery
                 if (!empty($result)) {
                     $data[] = $result;
                     if ($needSort) {
-                        $orderArray[] = $this->modelClass::getConnection()->executeCommand('HGET', [$key, $orderColumn]);
+                        $orderArray[] = $this->modelClass::getConnection()->executeCommand(
+                            'HGET',
+                            [$key, $orderColumn]
+                        );
                     }
                     if ($type === 'One' && $orderBy === null) {
                         break;
