@@ -11,8 +11,11 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
+
+use function ksort;
+use function reset;
+use function time;
 
 trait ActiveRecordTestTrait
 {
@@ -598,22 +601,6 @@ trait ActiveRecordTestTrait
         $customer->save();
 
         $this->assertNotNull($customer->id);
-        $this->assertFalse($customer->isNewRecord);
-    }
-
-    public function testExplicitPkOnAutoIncrement()
-    {
-        /** @var $this TestCase|ActiveRecordTestTrait */
-        $customer = new Customer();
-        $customer->id = 1337;
-        $customer->email = 'user1337@example.com';
-        $customer->name = 'user1337';
-        $customer->address = 'address1337';
-
-        $this->assertTrue($customer->isNewRecord);
-        $customer->save();
-
-        $this->assertEquals(1337, $customer->id);
         $this->assertFalse($customer->isNewRecord);
     }
 
