@@ -16,7 +16,7 @@ class Animal extends ActiveRecord
 {
     public string $does;
 
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'animal';
     }
@@ -31,7 +31,7 @@ class Animal extends ActiveRecord
         return $this->does;
     }
 
-    public static function instantiate($row): ActiveRecord
+    public function instantiate($row): ActiveRecord
     {
         $class = $row['type'];
 

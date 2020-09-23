@@ -18,7 +18,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class OrderItemWithConstructor extends ActiveRecord
 {
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'order_item';
     }

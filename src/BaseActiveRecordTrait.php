@@ -321,24 +321,6 @@ trait BaseActiveRecordTrait
             || $this->canSetProperty($name, false, $checkBehaviors);
     }
 
-
-    public static function getConnection(): ConnectionInterface
-    {
-        if (self::$connectionId === null) {
-            throw new InvalidConfigException('A db connection is required.');
-        }
-
-        return ConnectionPool::getConnectionPool(self::$connectionId);
-    }
-
-    /**
-     * @param string|null $value index value list connections in ConnectionPool.
-     */
-    public static function connectionId(string $value): void
-    {
-        self::$connectionId = $value;
-    }
-
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
         if (method_exists($this, 'get' . ucfirst($name)) || ($checkVars && property_exists($this, $name))) {

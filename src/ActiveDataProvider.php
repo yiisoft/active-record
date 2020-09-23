@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Data\DataProvider;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
@@ -68,9 +67,8 @@ final class ActiveDataProvider extends DataProvider
      */
     private $key;
 
-    public function __construct(ConnectionInterface $db, QueryInterface $query)
+    public function __construct(QueryInterface $query)
     {
-        $this->db = $db;
         $this->query = $query;
 
         parent::__construct();
@@ -84,7 +82,7 @@ final class ActiveDataProvider extends DataProvider
             return [];
         }
 
-        return $query->all($this->db);
+        return $query->all();
     }
 
     /**
@@ -141,10 +139,7 @@ final class ActiveDataProvider extends DataProvider
         }
 
         if ($this->query instanceof ActiveQueryInterface) {
-            /* @var $class ActiveRecordInterface */
-            $class = $this->query->getModelClass();
-
-            $pks = $class::primaryKey();
+            $pks = $this->query->getARInstance()->primaryKey();
 
             if (count($pks) === 1) {
                 $pk = $pks[0];

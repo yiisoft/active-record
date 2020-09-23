@@ -18,7 +18,7 @@ interface ActiveRecordInterface
      *
      * @return array|string[] the primary key name(s) for this AR class.
      */
-    public static function primaryKey(): array;
+    public function primaryKey(): array;
 
     /**
      * Returns the list of all attribute names of the record.
@@ -96,7 +96,7 @@ interface ActiveRecordInterface
      *
      * @return bool whether the given set of attributes represents the primary key for this model
      */
-    public static function isPrimaryKey(array $keys): bool;
+    public function isPrimaryKey(array $keys): bool;
 
     /**
      * Creates an {@see ActiveQueryInterface} instance for query purpose.
@@ -125,7 +125,7 @@ interface ActiveRecordInterface
      * ```php
      * class Customer extends ActiveRecord
      * {
-     *     public static function find()
+     *     public function find()
      *     {
      *         // use CustomerQuery instead of the default ActiveQuery
      *         return new CustomerQuery(get_called_class());
@@ -138,7 +138,7 @@ interface ActiveRecordInterface
      * ```php
      * class Customer extends ActiveRecord
      * {
-     *     public static function find()
+     *     public function find()
      *     {
      *         return parent::find()->where(['deleted' => false]);
      *     }
@@ -154,7 +154,7 @@ interface ActiveRecordInterface
      *
      * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface} instance.
      */
-    public static function find(): ActiveQueryInterface;
+    public function find(): ActiveQueryInterface;
 
     /**
      * Returns a single active record model instance by a primary key or an array of column values.
@@ -222,7 +222,7 @@ interface ActiveRecordInterface
      *
      * @return ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
      */
-    public static function findOne($condition): ?ActiveRecordInterface;
+    public function findOne($condition): ?ActiveRecordInterface;
 
     /**
      * Returns a list of active record models that match the specified primary key value(s) or a set of column values.

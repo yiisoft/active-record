@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\Redis\OrderItem;
 /**
  * @group redis
  */
-final class ActiveDataProviderTest extends TestCase
+final class ActiveDataProviderFactoryTest extends TestCase
 {
     protected ?string $driverName = 'redis';
 
@@ -24,6 +24,8 @@ final class ActiveDataProviderTest extends TestCase
 
         $this->redisConnection->open();
         $this->redisConnection->flushdb();
+
+        $this->arFactory->withConnection($this->redisConnection);
     }
 
     protected function tearDown(): void
@@ -37,7 +39,7 @@ final class ActiveDataProviderTest extends TestCase
 
     public function testActiveQuery(): void
     {
-        $order = new Order($this->redisConnection);
+        $order = $this->arFactory->createAR(Order::class);
 
         $this->orderData();
 
@@ -53,7 +55,7 @@ final class ActiveDataProviderTest extends TestCase
 
     public function testActiveRelation(): void
     {
-        $customer = new Customer($this->redisConnection);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $this->customerData();
         $this->orderData();
@@ -69,7 +71,7 @@ final class ActiveDataProviderTest extends TestCase
 
     public function testActiveRelationVia(): void
     {
-        $order = new Order($this->redisConnection);
+        $order = $this->arFactory->createAR(Order::class);
 
         $this->customerData();
         $this->itemData();
@@ -88,7 +90,7 @@ final class ActiveDataProviderTest extends TestCase
 
     public function testActiveRelationViaTable(): void
     {
-        $order = new Order($this->redisConnection);
+        $order = $this->arFactory->createAR(Order::class);
 
         $this->customerData();
         $this->itemData();
@@ -105,69 +107,69 @@ final class ActiveDataProviderTest extends TestCase
 
     private function itemData(): void
     {
-        $item = new Item($this->redisConnection);
+        $item = $this->arFactory->createAR(Item::class);
         $item->setAttributes(['name' => 'Agile Web Application Development with Yii1.1 and PHP5', 'category_id' => 1]);
         $item->save();
 
-        $item = new Item($this->redisConnection);
+        $item = $this->arFactory->createAR(Item::class);
         $item->setAttributes(['name' => 'Yii 1.1 Application Development Cookbook', 'category_id' => 1]);
         $item->save();
 
-        $item = new Item($this->redisConnection);
+        $item = $this->arFactory->createAR(Item::class);
         $item->setAttributes(['name' => 'Ice Age', 'category_id' => 2]);
         $item->save();
 
-        $item = new Item($this->redisConnection);
+        $item = $this->arFactory->createAR(Item::class);
         $item->setAttributes(['name' => 'Toy Story', 'category_id' => 2]);
         $item->save();
 
-        $item = new Item($this->redisConnection);
+        $item = $this->arFactory->createAR(Item::class);
         $item->setAttributes(['name' => 'Cars', 'category_id' => 2]);
         $item->save();
     }
 
     private function orderData(): void
     {
-        $order = new Order($this->redisConnection);
+        $order = $this->arFactory->createAR(Order::class);
         $order->setAttributes(['customer_id' => 1, 'created_at' => 1325282384, 'total' => 110.0]);
         $order->save();
 
-        $order = new Order($this->redisConnection);
+        $order = $this->arFactory->createAR(Order::class);
         $order->setAttributes(['customer_id' => 2, 'created_at' => 1325334482, 'total' => 33.0]);
         $order->save();
 
-        $order = new Order($this->redisConnection);
+        $order = $this->arFactory->createAR(Order::class);
         $order->setAttributes(['customer_id' => 2, 'created_at' => 1325502201, 'total' => 40.0]);
         $order->save();
     }
 
     private function orderItemData(): void
     {
-        $orderItem = new OrderItem($this->redisConnection);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
         $orderItem->setAttributes(['order_id' => 1, 'item_id' => 1, 'quantity' => 1, 'subtotal' => 30.0]);
         $orderItem->save();
 
-        $orderItem = new OrderItem($this->redisConnection);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
         $orderItem->setAttributes(['order_id' => 1, 'item_id' => 2, 'quantity' => 2, 'subtotal' => 40.0]);
         $orderItem->save();
 
-        $orderItem = new OrderItem($this->redisConnection);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
         $orderItem->setAttributes(['order_id' => 2, 'item_id' => 4, 'quantity' => 1, 'subtotal' => 10.0]);
         $orderItem->save();
 
-        $orderItem = new OrderItem($this->redisConnection);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
         $orderItem->setAttributes(['order_id' => 2, 'item_id' => 5, 'quantity' => 1, 'subtotal' => 15.0]);
         $orderItem->save();
 
-        $orderItem = new OrderItem($this->redisConnection);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
         $orderItem->setAttributes(['order_id' => 2, 'item_id' => 3, 'quantity' => 1, 'subtotal' => 8.0]);
         $orderItem->save();
 
-        $orderItem = new OrderItem($this->redisConnection);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
         $orderItem->setAttributes(['order_id' => 3, 'item_id' => 2, 'quantity' => 1, 'subtotal' => 40.0]);
         $orderItem->save();
 
-        $orderItem = new OrderItem($this->redisConnection);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
         $orderItem->setAttributes(['order_id' => 3, 'item_id' => 'nostr', 'quantity' => 1, 'subtotal' => 40.0]);
         $orderItem->save();
     }

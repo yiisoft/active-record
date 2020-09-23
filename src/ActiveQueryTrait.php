@@ -117,11 +117,11 @@ trait ActiveQueryTrait
             $class = $this->modelClass;
 
             foreach ($rows as $row) {
-                $model = $class::instantiate($row);
+                $model = new $class($this->db);
 
                 $modelClass = get_class($model);
 
-                $modelClass::populateRecord($model, $row);
+                $model->populateRecord($model, $row);
 
                 $models[] = $model;
             }

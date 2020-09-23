@@ -10,15 +10,15 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 
-abstract class ActiveDataProviderTest extends TestCase
+abstract class ActiveDataProviderFactoryTest extends TestCase
 {
     public function testActiveQuery(): void
     {
-        $this->loadFixture($this->db);
+        $this->loadFixture($this->arFactory->getConnection());
 
-        $order = new Order($this->db);
+        $query = $this->arFactory->createQueryTo(Order::class);
 
-        $provider = new ActiveDataProvider($order->find()->orderBy('id'));
+        $provider = new ActiveDataProvider($query->orderBy('id'));
 
         $orders = $provider->getModels();
         $this->assertCount(3, $orders);
@@ -30,9 +30,9 @@ abstract class ActiveDataProviderTest extends TestCase
 
     public function testActiveRelation(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class)->findOne(2);
 
-        $provider = new ActiveDataProvider($customer->findOne(2)->getOrders());
+        $provider = new ActiveDataProvider($customer->getOrders());
 
         $orders = $provider->getModels();
         $this->assertCount(2, $orders);
@@ -43,9 +43,9 @@ abstract class ActiveDataProviderTest extends TestCase
 
     public function testActiveRelationVia(): void
     {
-        $order = new Order($this->db);
+        $order = $this->arFactory->createAR(Order::class)->findOne(2);
 
-        $provider = new ActiveDataProvider($order->findOne(2)->getItems());
+        $provider = new ActiveDataProvider($order->getItems());
 
         $items = $provider->getModels();
         $this->assertCount(3, $items);
@@ -57,9 +57,9 @@ abstract class ActiveDataProviderTest extends TestCase
 
     public function testActiveRelationViaTable(): void
     {
-        $order = new Order($this->db);
+        $order = $this->arFactory->createAR(Order::class)->findOne(1);
 
-        $provider = new ActiveDataProvider($order->findOne(1)->getBooks());
+        $provider = new ActiveDataProvider($order->getBooks());
 
         $items = $provider->getModels();
         $this->assertCount(2, $items);
@@ -69,11 +69,9 @@ abstract class ActiveDataProviderTest extends TestCase
 
     public function testQuery(): void
     {
-        $query = new Query($this->db);
+        $query = new Query($this->arFactory->getConnection());
 
-        $provider = new ActiveDataProvider(
-            $query->from('order')->orderBy('id')
-        );
+        $provider = new ActiveDataProvider($query->from('order')->orderBy('id'));
 
         $orders = $provider->getModels();
         $this->assertCount(3, $orders);

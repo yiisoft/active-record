@@ -48,9 +48,9 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * @return ActiveQuery the newly created {@see ActiveQuery} instance.
      */
-    public static function find(): ActiveQuery
+    public function find(): ActiveQuery
     {
-        return new ActiveQuery(static::class);
+        return new ActiveQuery(static::class, $this->getDb());
     }
 
     /**
@@ -61,7 +61,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return array the primary keys of this record.
      */
-    public static function primaryKey(): array
+    public function primaryKey(): array
     {
         return ['id'];
     }
@@ -117,7 +117,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function insert(?array $attributes = null): bool
     {
-        $db = static::getConnection();
+        $db = $this->getDb();
 
         $values = $this->getDirtyAttributes($attributes);
 

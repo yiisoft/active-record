@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
-use Yiisoft\ActiveRecord\Tests\ActiveDataProviderTest as AbstractActiveDataProviderTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\ActiveDataProviderFactoryTest as AbstractActiveDataProviderFactoryTest;
 
 /**
  * @group mysql
  */
-final class ActiveDataProviderTest extends AbstractActiveDataProviderTest
+final class ActiveDataProviderFactoryTest extends AbstractActiveDataProviderFactoryTest
 {
     protected ?string $driverName = 'mysql';
-    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->mysqlConnection;
+        $this->arFactory->withConnection($this->mysqlConnection);
     }
 
     protected function tearDown(): void

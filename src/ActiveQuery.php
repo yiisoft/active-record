@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -96,12 +97,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private ?string $sql = null;
     private $on;
     private array $joinWith = [];
+    private ?ActiveRecordInterface $arInstance = null;
+    protected ConnectionInterface $db;
 
-    public function __construct(string $modelClass)
+    public function __construct(string $modelClass, ConnectionInterface $db)
     {
         $this->modelClass = $modelClass;
+        $this->db = $db;
 
-        parent::__construct($modelClass::getConnection());
+        parent::__construct($db);
     }
 
     /**
@@ -163,7 +167,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         if ($this->primaryModel === null) {
             /** eager loading */
-            $query = Query::create($this->modelClass::getConnection(), $this);
+            $query = Query::create($this->db, $this);
         } else {
             /** lazy loading of a relation */
             $where = $this->getWhere();
@@ -206,7 +210,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $this->filterByModels([$this->primaryModel]);
             }
 
-            $query = Query::create($this->modelClass::getConnection(), $this);
+            $query = Query::create($this->db, $this);
             $this->where($where);
         }
 
@@ -356,13 +360,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function createCommand(): Command
     {
         if ($this->sql === null) {
-            [$sql, $params] = $this->modelClass::getConnection()->getQueryBuilder()->build($this);
+            [$sql, $params] = $this->db->getQueryBuilder()->build($this);
         } else {
             $sql = $this->sql;
             $params = $this->params;
         }
 
-        $command = $this->modelClass::getConnection()->createCommand($sql, $params);
+        $command = $this->db->createCommand($sql, $params);
 
         $this->setCommandCache($command);
 
@@ -390,7 +394,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return parent::queryScalar($selectExpression);
         }
 
-        $command = (new Query($this->modelClass::getConnection()))->select([$selectExpression])
+        $command = (new Query($this->db))->select([$selectExpression])
             ->from(['c' => "({$this->sql})"])
             ->params($this->params)
             ->createCommand();
@@ -944,7 +948,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     protected function getPrimaryTableName(): string
     {
-        return $this->modelClass::tableName();
+        return $this->getARInstance()->tableName();
     }
 
     /**
@@ -997,5 +1001,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $this->sql = $value;
 
         return $this;
+    }
+
+    public function getARInstance(): ActiveRecordInterface
+    {
+        if ($this->arInstance === null) {
+            $class = $this->modelClass;
+            $this->arInstance = new $class($this->db);
+        }
+
+        return $this->arInstance;
     }
 }

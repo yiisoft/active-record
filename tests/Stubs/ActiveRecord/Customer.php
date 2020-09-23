@@ -29,7 +29,7 @@ final class Customer extends ActiveRecord
     public $status2;
     public ?string $sumTotal;
 
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }
@@ -87,10 +87,5 @@ final class Customer extends ActiveRecord
             /* @var $q ActiveQuery */
             $q->viaTable('order', ['customer_id' => 'id']);
         })->orderBy('id');
-    }
-
-    public static function find(): CustomerQuery
-    {
-        return new CustomerQuery(static::class);
     }
 }

@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class ProfileWithConstructor extends ActiveRecord
 {
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'profile';
     }
@@ -25,13 +25,15 @@ final class ProfileWithConstructor extends ActiveRecord
         $this->description = $description;
     }
 
-    public static function instance($refresh = false): ActiveRecord
+    public function instance($refresh = false): ActiveRecord
     {
         return self::instantiate([]);
     }
 
-    public static function instantiate($row): ActiveRecord
+    public function instantiate($row): ActiveRecord
     {
-        return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
+        $class = new ReflectionClass(static::class);
+
+        return $class->newInstanceWithoutConstructor();
     }
 }

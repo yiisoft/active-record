@@ -10,13 +10,13 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionObject;
+use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
-use Yiisoft\Aliases\Aliases;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Connection\ConnectionPool;
+use Yiisoft\Db\Helper\Dsn;
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
@@ -24,7 +24,7 @@ use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 use Yiisoft\Di\Container;
-use Yiisoft\Db\Helper\Dsn;
+use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\Provider;
 use Yiisoft\Log\Logger;
@@ -44,6 +44,7 @@ class TestCase extends AbstractTestCase
     protected ?PgsqlConnection $pgsqlConnection = null;
     protected ?RedisConnection $redisConnection = null;
     protected ?SqliteConnection $sqliteConnection = null;
+    protected ?ActiveRecordFactory $arFactory = null;
 
     protected function setUp(): void
     {
@@ -66,11 +67,12 @@ class TestCase extends AbstractTestCase
         $this->pgsqlConnection = $this->container->get(PgsqlConnection::class);
         $this->redisConnection = $this->container->get(RedisConnection::class);
         $this->sqliteConnection = $this->container->get(SqliteConnection::class);
+        $this->arFactory = $this->container->get(ActiveRecordFactory::class);
     }
 
     protected function customerData(): void
     {
-        $customer = new Customer();
+        $customer = new Customer($this->redisConnection);
         $customer->setAttributes(
             [
                 'email' => 'user1@example.com',
@@ -82,7 +84,7 @@ class TestCase extends AbstractTestCase
         );
         $customer->save();
 
-        $customer = new Customer();
+        $customer = new Customer($this->redisConnection );
         $customer->setAttributes(
             [
                 'email' => 'user2@example.com',
@@ -94,7 +96,7 @@ class TestCase extends AbstractTestCase
         );
         $customer->save();
 
-        $customer = new Customer();
+        $customer = new Customer($this->redisConnection );
         $customer->setAttributes(
             [
                 'email' => 'user3@example.com',
@@ -209,129 +211,95 @@ class TestCase extends AbstractTestCase
         $params = $this->params();
 
         return [
-            Aliases::class => [
-                '@root' => dirname(__DIR__, 1),
-                '@runtime' => '@root/tests/Data/Runtime',
+            CacheInterface::class => [
+                '__class' => Cache::class,
+                '__construct()' => [
+                    Reference::to(ArrayCache::class)
+                ]
             ],
 
-            CacheInterface::class => static function (ContainerInterface $container) {
-                return new Cache(new ArrayCache());
-            },
-
-            FileRotatorInterface::class => static function () {
-                return new FileRotator(10);
-            },
+            FileRotatorInterface::class => [
+                '__class' => FileRotatorInterface::class,
+                '__construct()' => [
+                    10
+                ]
+            ],
 
             LoggerInterface::class => Logger::class,
 
-            Profiler::class => static function (ContainerInterface $container) {
-                return new Profiler($container->get(LoggerInterface::class));
-            },
+            Profiler::class => [
+                '__class' => Profiler::class,
+                '__construct()' => [
+                    Reference::to(LoggerInterface::class)
+                ]
+            ],
 
             ListenerProviderInterface::class => Provider::class,
 
             EventDispatcherInterface::class => Dispatcher::class,
 
-            MssqlConnection::class => static function (ContainerInterface $container) use ($params) {
-                $aliases = $container->get(Aliases::class);
-                $cache = $container->get(CacheInterface::class);
-                $logger = $container->get(LoggerInterface::class);
-                $profiler = $container->get(Profiler::class);
+            MssqlConnection::class => [
+                '__class' => MssqlConnection::class,
+                '__construct()' => [
+                    Reference::to(CacheInterface::class),
+                    Reference::to(LoggerInterface::class),
+                    Reference::to(Profiler::class),
+                    $params['yiisoft/db-mssql']['dsn']
+                ],
+                'setUsername()' => [$params['yiisoft/db-mssql']['username']],
+                'setPassword()' => [$params['yiisoft/db-mssql']['password']]
+            ],
 
-                $dsn = new MssqlDsn(
-                    $params['yiisoft/db-mssql']['dsn']['driver'],
-                    $params['yiisoft/db-mssql']['dsn']['server'],
-                    $params['yiisoft/db-mssql']['dsn']['database'],
-                    $params['yiisoft/db-mssql']['dsn']['port'],
-                );
+            MysqlConnection::class => [
+                '__class' => MysqlConnection::class,
+                '__construct()' => [
+                    Reference::to(CacheInterface::class),
+                    Reference::to(LoggerInterface::class),
+                    Reference::to(Profiler::class),
+                    $params['yiisoft/db-mysql']['dsn']
+                ],
+                'setUsername()' => [$params['yiisoft/db-mysql']['username']],
+                'setPassword()' => [$params['yiisoft/db-mysql']['password']]
+            ],
 
-                $db = new MssqlConnection($cache, $logger, $profiler, $dsn->getDsn());
+            PgsqlConnection::class => [
+                '__class' => PgsqlConnection::class,
+                '__construct()' => [
+                    Reference::to(CacheInterface::class),
+                    Reference::to(LoggerInterface::class),
+                    Reference::to(Profiler::class),
+                    $params['yiisoft/db-pgsql']['dsn']
+                ],
+                'setUsername()' => [$params['yiisoft/db-pgsql']['username']],
+                'setPassword()' => [$params['yiisoft/db-pgsql']['password']]
+            ],
 
-                $db->setUsername($params['yiisoft/db-mssql']['username']);
-                $db->setPassword($params['yiisoft/db-mssql']['password']);
+            RedisConnection::class => [
+                '__class' => RedisConnection::class,
+                '__construct()' => [
+                    Reference::to(EventDispatcherInterface::class),
+                    Reference::to(LoggerInterface::class),
+                ],
+                'database()' => [$params['yiisoft/db-redis']['database']]
+            ],
 
-                ConnectionPool::setConnectionsPool('mssql', $db);
+            SqliteConnection::class => [
+                '__class' => SqliteConnection::class,
+                '__construct()' => [
+                    Reference::to(CacheInterface::class),
+                    Reference::to(LoggerInterface::class),
+                    Reference::to(Profiler::class),
+                    $params['yiisoft/db-sqlite']['dsn']
+                ]
+            ],
 
-                return $db;
-            },
-
-            MysqlConnection::class => static function (ContainerInterface $container) use ($params) {
-                $aliases = $container->get(Aliases::class);
-                $cache = $container->get(CacheInterface::class);
-                $logger = $container->get(LoggerInterface::class);
-                $profiler = $container->get(Profiler::class);
-
-                $dsn = new Dsn(
-                    $params['yiisoft/db-mysql']['dsn']['driver'],
-                    $params['yiisoft/db-mysql']['dsn']['host'],
-                    $params['yiisoft/db-mysql']['dsn']['dbname'],
-                    $params['yiisoft/db-mysql']['dsn']['port'],
-                );
-
-                $db = new MysqlConnection($cache, $logger, $profiler, $dsn->getDsn());
-
-                $db->setUsername($params['yiisoft/db-mysql']['username']);
-                $db->setPassword($params['yiisoft/db-mysql']['password']);
-
-                ConnectionPool::setConnectionsPool('mysql', $db);
-
-                return $db;
-            },
-
-            PgsqlConnection::class => static function (ContainerInterface $container) use ($params) {
-                $aliases = $container->get(Aliases::class);
-                $cache = $container->get(CacheInterface::class);
-                $logger = $container->get(LoggerInterface::class);
-                $profiler = $container->get(Profiler::class);
-
-                $dsn = new Dsn(
-                    $params['yiisoft/db-pgsql']['dsn']['driver'],
-                    $params['yiisoft/db-pgsql']['dsn']['host'],
-                    $params['yiisoft/db-pgsql']['dsn']['dbname'],
-                    $params['yiisoft/db-pgsql']['dsn']['port'],
-                );
-
-                $db = new PgsqlConnection($cache, $logger, $profiler, $dsn->getDsn());
-
-                $db->setUsername($params['yiisoft/db-pgsql']['username']);
-                $db->setPassword($params['yiisoft/db-pgsql']['password']);
-
-                ConnectionPool::setConnectionsPool('pgsql', $db);
-
-                return $db;
-            },
-
-            RedisConnection::class  => static function (ContainerInterface $container) use ($params) {
-                $connection = new RedisConnection(
-                    $container->get(EventDispatcherInterface::class),
-                    $container->get(LoggerInterface::class)
-                );
-
-                $connection->database($params['yiisoft/db-redis']['database']);
-
-                ConnectionPool::setConnectionsPool('redis', $connection);
-
-                return $connection;
-            },
-
-            SqliteConnection::class => static function (ContainerInterface $container) use ($params) {
-                $aliases = $container->get(Aliases::class);
-                $cache = $container->get(CacheInterface::class);
-                $logger = $container->get(LoggerInterface::class);
-                $profiler = $container->get(Profiler::class);
-
-
-                $db = new SqliteConnection(
-                    $cache,
-                    $logger,
-                    $profiler,
-                    'sqlite:' . $aliases->get('@runtime/yiitest.sq3')
-                );
-
-                ConnectionPool::setConnectionsPool('sqlite', $db);
-
-                return $db;
-            },
+            ActiveRecordFactory::class => [
+                '__class' => ActiveRecordFactory::class,
+                '__construct()' => [
+                    null,
+                    [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
+                ],
+            ],
         ];
     }
 
@@ -339,34 +307,19 @@ class TestCase extends AbstractTestCase
     {
         return [
             'yiisoft/db-mssql' => [
-                'dsn' => [
-                    'driver' => 'sqlsrv',
-                    'server' => '127.0.0.1',
-                    'database' => 'yiitest',
-                    'port' => '1433'
-                ],
+                'dsn' => (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->getDsn(),
                 'username' => 'SA',
                 'password' => 'YourStrong!Passw0rd',
                 'fixture' => __DIR__ . '/Data/mssql.sql',
             ],
             'yiisoft/db-mysql' => [
-                'dsn' => [
-                    'driver' => 'mysql',
-                    'host' => '127.0.0.1',
-                    'dbname' => 'yiitest',
-                    'port' => '3306'
-                ],
+                'dsn' => (new Dsn('mysql', '127.0.0.1', 'yiitest', '3306'))->getDsn(),
                 'username' => 'root',
                 'password' => 'root',
                 'fixture' => __DIR__ . '/Data/mysql.sql',
             ],
             'yiisoft/db-pgsql' => [
-                'dsn' => [
-                    'driver' => 'pgsql',
-                    'host' => '127.0.0.1',
-                    'dbname' => 'yiitest',
-                    'port' => '5432'
-                ],
+                'dsn' => (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->getDsn(),
                 'username' => 'root',
                 'password' => 'root',
                 'fixture' => __DIR__ . '/Data/pgsql.sql',
@@ -375,6 +328,7 @@ class TestCase extends AbstractTestCase
                 'database' => 0,
             ],
             'yiisoft/db-sqlite' => [
+                'dsn' => 'sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3',
                 'fixture' => __DIR__ . '/Data/sqlite.sql'
             ]
         ];

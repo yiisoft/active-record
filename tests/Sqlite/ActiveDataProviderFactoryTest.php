@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
-use Yiisoft\ActiveRecord\Tests\ActiveDataProviderTest as AbstractActiveDataProviderTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\ActiveDataProviderFactoryTest as AbstractActiveDataProviderFactoryTest;
 
 /**
  * @group sqlite
  */
-final class ActiveDataProviderTest extends AbstractActiveDataProviderTest
+final class ActiveDataProviderFactoryTest extends AbstractActiveDataProviderFactoryTest
 {
     protected ?string $driverName = 'sqlite';
-    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->sqliteConnection;
+        $this->arFactory->withConnection($this->sqliteConnection);
     }
 
     protected function tearDown(): void

@@ -88,11 +88,8 @@ final class Customer extends ActiveRecord
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orders');
     }
 
-    /**
-     * @return CustomerQuery
-     */
-    public static function find(): CustomerQuery
+    public function find(): CustomerQuery
     {
-        return new CustomerQuery(static::class);
+        return new CustomerQuery(static::class, $this->getDb());
     }
 }

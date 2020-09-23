@@ -10,6 +10,7 @@ use IteratorAggregate;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -61,6 +62,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private ?array $oldAttributes = null;
     private array $related = [];
     private array $relationsDependencies = [];
+    private ?ActiveRecordInterface $instantiate = null;
+    private ConnectionInterface $db;
+
+    public function __construct(ConnectionInterface $db)
+    {
+        $this->db = $db;
+    }
 
     /**
      * @param mixed $condition primary key value or a set of column values.
@@ -69,9 +77,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return static|null ActiveRecord instance matching the condition, or `null` if nothing matches.
      */
-    public static function findOne($condition): ?ActiveRecordInterface
+    public function findOne($condition): ?ActiveRecordInterface
     {
-        return static::findByCondition($condition)->one();
+        return $this->instantiate()->findByCondition($condition)->one();
     }
 
     /**
@@ -97,9 +105,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface|ActiveQuery} instance.
      */
-    protected static function findByCondition($condition): ActiveQueryInterface
+    protected function findByCondition($condition): ActiveQueryInterface
     {
-        $query = static::find();
+        $query = $this->instantiate()->find();
 
         if (!is_array($condition)) {
             $condition = [$condition];
@@ -292,7 +300,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param array|string $class the class name of the related record.
+     * @param string $class the class name of the related record.
      * @param array $link the primary-foreign key constraint.
      * @param bool $multiple whether this query represents a relation to more than one record.
      *
@@ -301,10 +309,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * {@see hasOne()}
      * {@see hasMany()}
      */
-    protected function createRelationQuery($class, array $link, bool $multiple): ActiveQueryInterface
+    protected function createRelationQuery(string $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
-        /** @var $query ActiveQuery */
-        $query = ($class::find())->primaryModel($this)->link($link)->multiple($multiple);
+        $arInstance = new $arClass($this->db);
+
+        $query = $arInstance->find()->primaryModel($this)->link($link)->multiple($multiple);
 
         return $query;
     }
@@ -983,7 +992,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * by {@see instantiate()} beforehand.
      * @param array|object $row attribute values (name => value).
      */
-    public static function populateRecord($record, $row): void
+    public function populateRecord($record, $row): void
     {
         $columns = array_flip($record->attributes());
 
@@ -1015,9 +1024,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return ActiveRecordInterface the newly created active record
      */
-    public static function instantiate($row): ActiveRecordInterface
+    public function instantiate(): ActiveRecordInterface
     {
-        return new static();
+        if ($this->instantiate === null) {
+            $this->instantiate = new static($this->db);
+        }
+
+        return $this->instantiate;
     }
 
     /**
@@ -1385,9 +1398,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return bool whether the given set of attributes represents the primary key for this model.
      */
-    public static function isPrimaryKey(array $keys): bool
+    public function isPrimaryKey(array $keys): bool
     {
-        $pks = static::primaryKey();
+        $pks = $this->instantiate()->primaryKey();
 
         if (count($keys) === count($pks)) {
             return count(array_intersect($keys, $pks)) === count($pks);
@@ -1597,5 +1610,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $this->$name = $value;
             }
         }
+    }
+
+    public function getDb(): ConnectionInterface
+    {
+        return $this->db;
     }
 }

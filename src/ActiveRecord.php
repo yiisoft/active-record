@@ -185,9 +185,9 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface|ActiveQuery} instance.
      */
-    protected static function findByCondition($condition): ActiveQueryInterface
+    protected function findByCondition($condition): ActiveQueryInterface
     {
-        $query = static::find();
+        $query = $this->instantiate()->find();
 
         if (!is_array($condition)) {
             $condition = [$condition];
@@ -460,9 +460,9 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * @return ActiveQuery the newly created {@see ActiveQuery} instance.
      */
-    public static function find(): ActiveQuery
+    public function find(): ActiveQuery
     {
-        return new ActiveQuery(static::class);
+        return new ActiveQuery(static::class, $this->db);
     }
 
     /**
@@ -475,9 +475,11 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return string the table name.
      */
-    public static function tableName(): string
+    public function tableName(): string
     {
-        return '{{%' . (new Inflector())->pascalCaseToId(StringHelper::baseName(static::class), '_') . '}}';
+        $inflector = new Inflector();
+
+        return '{{%' . $inflector->pascalCaseToId(StringHelper::baseName(static::class), '_') . '}}';
     }
 
     /**
@@ -488,11 +490,9 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return TableSchema the schema information of the DB table associated with this AR class.
      */
-    public static function getTableSchema(): TableSchema
+    public function getTableSchema(): TableSchema
     {
-        $tableSchema = static::getConnection()
-            ->getSchema()
-            ->getTableSchema(static::tableName());
+        $tableSchema = $this->getDb()->getSchema()->getTableSchema(static::tableName());
 
         if ($tableSchema === null) {
             throw new InvalidConfigException('The table does not exist: ' . static::tableName());
@@ -517,7 +517,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return string[] the primary keys of the associated database table.
      */
-    public static function primaryKey(): array
+    public function primaryKey(): array
     {
         return static::getTableSchema()->getPrimaryKey();
     }
@@ -586,7 +586,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws Exception
      * @throws InvalidConfigException
      */
-    public static function populateRecord($record, $row): void
+    public function populateRecord($record, $row): void
     {
         $columns = static::getTableSchema()->getColumns();
 

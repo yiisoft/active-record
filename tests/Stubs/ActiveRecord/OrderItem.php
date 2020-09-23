@@ -19,7 +19,7 @@ final class OrderItem extends ActiveRecord
 {
     public static ?string $tableName = null;
 
-    public static function tableName(): string
+    public function tableName(): string
     {
         return static::$tableName ?: 'order_item';
     }

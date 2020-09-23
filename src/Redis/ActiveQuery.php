@@ -187,11 +187,9 @@ class ActiveQuery extends BaseActiveQuery
             /** @var $class ActiveRecord */
             $class = $this->modelClass;
 
-            $model = $class::instantiate($row);
+            $model = new $class($this->db);
 
-            $class = get_class($model);
-
-            $class::populateRecord($model, $row);
+            $model->populateRecord($model, $row);
         }
 
         if (!empty($this->getWith())) {
@@ -225,7 +223,7 @@ class ActiveQuery extends BaseActiveQuery
             /* @var $modelClass ActiveRecord */
             $modelClass = $this->modelClass;
 
-            return (int) $this->modelClass::getConnection()->executeCommand('LLEN', [$modelClass::keyPrefix()]);
+            return (int) $this->db->executeCommand('LLEN', [$modelClass::keyPrefix()]);
         }
 
         return (int) $this->executeScript('Count');
@@ -370,10 +368,10 @@ class ActiveQuery extends BaseActiveQuery
         if (
             is_array($this->getWhere()) &&
             (
-                (!isset($this->getWhere()[0]) && $this->modelClass::isPrimaryKey(array_keys($this->getWhere()))) ||
+                (!isset($this->getWhere()[0]) && $this->getARInstance()->isPrimaryKey(array_keys($this->getWhere()))) ||
                 (
                     isset($this->getWhere()[0]) && $this->getWhere()[0] === 'in' &&
-                    $this->modelClass::isPrimaryKey((array) $this->getWhere()[1])
+                    $this->getARInstance()->isPrimaryKey((array) $this->getWhere()[1])
                 )
             )
         ) {
@@ -384,7 +382,7 @@ class ActiveQuery extends BaseActiveQuery
 
         $script = $this->getLuaScriptBuilder()->$method($this, $columnName);
 
-        return $this->modelClass::getConnection()->executeCommand('EVAL', [$script, 0]);
+        return $this->db->executeCommand('EVAL', [$script, 0]);
     }
 
     /**
@@ -456,11 +454,11 @@ class ActiveQuery extends BaseActiveQuery
         foreach ($pks as $pk) {
             if (++$i > $start && ($limit === null || $i <= $start + $limit)) {
                 $key = $modelClass::keyPrefix() . ':a:' . $modelClass::buildKey($pk);
-                $result = $this->modelClass::getConnection()->executeCommand('HGETALL', [$key]);
+                $result = $this->db->executeCommand('HGETALL', [$key]);
                 if (!empty($result)) {
                     $data[] = $result;
                     if ($needSort) {
-                        $orderArray[] = $this->modelClass::getConnection()->executeCommand(
+                        $orderArray[] = $this->db->executeCommand(
                             'HGET',
                             [$key, $orderColumn]
                         );

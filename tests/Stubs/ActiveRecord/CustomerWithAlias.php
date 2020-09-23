@@ -25,12 +25,12 @@ final class CustomerWithAlias extends ActiveRecord
     public int $status2;
     public float $sumTotal;
 
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }
 
-    public static function find(): CustomerQuery
+    public function find(): CustomerQuery
     {
         $activeQuery = new CustomerQuery(static::class);
 

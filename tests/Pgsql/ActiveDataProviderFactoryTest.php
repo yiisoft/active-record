@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 
-use Yiisoft\ActiveRecord\Tests\ActiveDataProviderTest as AbstractActiveDataProviderTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\ActiveDataProviderFactoryTest as AbstractActiveDataProviderFactoryTest;
 
 /**
  * @group pgsql
  */
-final class ActiveDataProviderTest extends AbstractActiveDataProviderTest
+final class ActiveDataProviderFactoryTest extends AbstractActiveDataProviderFactoryTest
 {
     protected ?string $driverName = 'pgsql';
-    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->pgsqlConnection;
+        $this->arFactory->withConnection($this->pgsqlConnection);
     }
 
     protected function tearDown(): void
