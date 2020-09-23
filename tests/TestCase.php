@@ -84,7 +84,7 @@ class TestCase extends AbstractTestCase
         );
         $customer->save();
 
-        $customer = new Customer($this->redisConnection );
+        $customer = new Customer($this->redisConnection);
         $customer->setAttributes(
             [
                 'email' => 'user2@example.com',
@@ -96,7 +96,7 @@ class TestCase extends AbstractTestCase
         );
         $customer->save();
 
-        $customer = new Customer($this->redisConnection );
+        $customer = new Customer($this->redisConnection);
         $customer->setAttributes(
             [
                 'email' => 'user3@example.com',
