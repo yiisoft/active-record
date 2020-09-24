@@ -30,7 +30,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\StaleObjectException;
@@ -43,83 +42,97 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCustomColumns(): void
     {
-        $this->loadFixture(Customer::getConnection());
+        $customer = new Customer($this->db);
 
         /** find custom column */
         if ($this->driverName === 'oci') {
-            $customer = Customer::find()->select(['{{customer}}.*', '([[status]]*2) AS [[status2]]'])
+            $customers = $customer->find()->select(['{{customer}}.*', '([[status]]*2) AS [[status2]]'])
                 ->where(['name' => 'user3'])->one();
         } else {
-            $customer = Customer::find()->select(['*', '([[status]]*2) AS [[status2]]'])
+            $customers = $customer->find()->select(['*', '([[status]]*2) AS [[status2]]'])
                 ->where(['name' => 'user3'])->one();
         }
 
-        $this->assertEquals(3, $customer->id);
-        $this->assertEquals(4, $customer->status2);
+        $this->assertEquals(3, $customers->id);
+        $this->assertEquals(4, $customers->status2);
     }
 
     public function testCallFind(): void
     {
+        $this->loadFixture($this->db);
+
+        $customer = new Customer($this->db);
+
         /** find count, sum, average, min, max, scalar */
-        $this->assertEquals(3, Customer::find()->count());
-        $this->assertEquals(2, Customer::find()->where('[[id]]=1 OR [[id]]=2')->count());
-        $this->assertEquals(6, Customer::find()->sum('[[id]]'));
-        $this->assertEquals(2, Customer::find()->average('[[id]]'));
-        $this->assertEquals(1, Customer::find()->min('[[id]]'));
-        $this->assertEquals(3, Customer::find()->max('[[id]]'));
-        $this->assertEquals(3, Customer::find()->select('COUNT(*)')->scalar());
+        $this->assertEquals(3, $customer->find()->count());
+        $this->assertEquals(2, $customer->find()->where('[[id]]=1 OR [[id]]=2')->count());
+        $this->assertEquals(6, $customer->find()->sum('[[id]]'));
+        $this->assertEquals(2, $customer->find()->average('[[id]]'));
+        $this->assertEquals(1, $customer->find()->min('[[id]]'));
+        $this->assertEquals(3, $customer->find()->max('[[id]]'));
+        $this->assertEquals(3, $customer->find()->select('COUNT(*)')->scalar());
     }
 
     public function testFindAll(): void
     {
-        $this->assertCount(1, Customer::findAll(3));
-        $this->assertCount(1, Customer::findAll(['id' => 1]));
-        $this->assertCount(3, Customer::findAll(['id' => [1, 2, 3]]));
+        $customer = new Customer($this->db);
+
+        $this->assertCount(1, $customer->findAll(3));
+        $this->assertCount(1, $customer->findAll(['id' => 1]));
+        $this->assertCount(3, $customer->findAll(['id' => [1, 2, 3]]));
     }
 
     public function testFindScalar(): void
     {
+        $customer = new Customer($this->db);
+
         /** query scalar */
-        $customerName = Customer::find()->where(['[[id]]' => 2])->select('[[name]]')->scalar();
+        $customerName = $customer->find()->where(['[[id]]' => 2])->select('[[name]]')->scalar();
 
         $this->assertEquals('user2', $customerName);
     }
 
     public function testFindExists(): void
     {
-        $this->assertTrue(Customer::find()->where(['[[id]]' => 2])->exists());
-        $this->assertTrue(Customer::find()->where(['[[id]]' => 2])->select('[[name]]')->exists());
+        $customer = new Customer($this->db);
 
-        $this->assertFalse(Customer::find()->where(['[[id]]' => 42])->exists());
-        $this->assertFalse(Customer::find()->where(['[[id]]' => 42])->select('[[name]]')->exists());
+        $this->assertTrue($customer->find()->where(['[[id]]' => 2])->exists());
+        $this->assertTrue($customer->find()->where(['[[id]]' => 2])->select('[[name]]')->exists());
+
+        $this->assertFalse($customer->find()->where(['[[id]]' => 42])->exists());
+        $this->assertFalse($customer->find()->where(['[[id]]' => 42])->select('[[name]]')->exists());
     }
 
     public function testFindColumn(): void
     {
+        $customer = new Customer($this->db);
+
         $this->assertEquals(
             ['user1', 'user2', 'user3'],
-            Customer::find()->select('[[name]]')->column()
+            $customer->find()->select('[[name]]')->column()
         );
 
         $this->assertEquals(
             ['user3', 'user2', 'user1'],
-            Customer::find()->orderBy(['[[name]]' => SORT_DESC])->select('[[name]]')->column()
+            $customer->find()->orderBy(['[[name]]' => SORT_DESC])->select('[[name]]')->column()
         );
     }
 
     public function testFindBySql(): void
     {
+        $customer = new Customer($this->db);
+
         /** find one */
-        $customer = Customer::findBySql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC')->one();
+        $customer = $customer->findBySql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC')->one();
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user3', $customer->name);
 
         /** find all */
-        $customers = Customer::findBySql('SELECT * FROM {{customer}}')->all();
+        $customers = $customer->findBySql('SELECT * FROM {{customer}}')->all();
         $this->assertCount(3, $customers);
 
         /** find with parameter binding */
-        $customer = Customer::findBySql('SELECT * FROM {{customer}} WHERE [[id]]=:id', [':id' => 2])->one();
+        $customer = $customer->findBySql('SELECT * FROM {{customer}} WHERE [[id]]=:id', [':id' => 2])->one();
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->name);
     }
@@ -129,27 +142,33 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testCountWithFindBySql(): void
     {
-        $query = Customer::findBySql('SELECT * FROM {{customer}}');
+        $customer = new Customer($this->db);
+
+        $query = $customer->findBySql('SELECT * FROM {{customer}}');
         $this->assertEquals(3, $query->count());
 
-        $query = Customer::findBySql('SELECT * FROM {{customer}} WHERE  [[id]]=:id', [':id' => 2]);
+        $query = $customer->findBySql('SELECT * FROM {{customer}} WHERE  [[id]]=:id', [':id' => 2]);
         $this->assertEquals(1, $query->count());
     }
 
     public function testFindLazyViaTable(): void
     {
-        $order = Order::findOne(2);
+        $order = new Order($this->db);
+
+        $order = $order->findOne(2);
 
         $this->assertCount(0, $order->books);
         $this->assertEquals(2, $order->id);
 
-        $order = Order::find()->where(['id' => 1])->asArray()->one();
+        $order = $order->find()->where(['id' => 1])->asArray()->one();
         $this->assertIsArray($order);
     }
 
     public function testFindEagerViaTable(): void
     {
-        $orders = Order::find()->with('books')->orderBy('id')->all();
+        $order = new Order($this->db);
+
+        $orders = $order->find()->with('books')->orderBy('id')->all();
         $this->assertCount(3, $orders);
 
         $order = $orders[0];
@@ -168,7 +187,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(2, $order->books[0]->id);
 
         /** https://github.com/yiisoft/yii2/issues/1402 */
-        $orders = Order::find()->with('books')->orderBy('id')->asArray()->all();
+        $orders = $order->find()->with('books')->orderBy('id')->asArray()->all();
         $this->assertCount(3, $orders);
         $this->assertIsArray($orders[0]['orderItems'][0]);
 
@@ -182,11 +201,12 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testDeeplyNestedTableRelation(): void
     {
-        /** @var $customer Customer */
-        $customer = Customer::findOne(1);
+        $customer = new Customer($this->db);
+
+        $customers = $customer->findOne(1);
         $this->assertNotNull($customer);
 
-        $items = $customer->orderItems;
+        $items = $customers->orderItems;
 
         $this->assertCount(2, $items);
         $this->assertEquals(1, $items[0]->id);
@@ -203,11 +223,12 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testDeeplyNestedTableRelation2(): void
     {
-        /** @var $category Category */
-        $category = Category::findOne(1);
-        $this->assertNotNull($category);
+        $category = new Category($this->db);
 
-        $orders = $category->orders;
+        $categories = $category->findOne(1);
+        $this->assertNotNull($categories);
+
+        $orders = $categories->orders;
         $this->assertCount(2, $orders);
         $this->assertInstanceOf(Order::class, $orders[0]);
         $this->assertInstanceOf(Order::class, $orders[1]);
@@ -216,10 +237,10 @@ abstract class ActiveRecordTest extends TestCase
         sort($ids);
         $this->assertEquals([1, 3], $ids);
 
-        $category = Category::findOne(2);
-        $this->assertNotNull($category);
+        $categories = $category->findOne(2);
+        $this->assertNotNull($categories);
 
-        $orders = $category->orders;
+        $orders = $categories->orders;
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertInstanceOf(Order::class, $orders[0]);
@@ -227,7 +248,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testStoreNull(): void
     {
-        $record = new NullValues();
+        $record = new NullValues($this->db);
 
         $this->assertNull($record->var1);
         $this->assertNull($record->var2);
@@ -238,10 +259,9 @@ abstract class ActiveRecordTest extends TestCase
         $record->var2 = 456;
         $record->var3 = 789;
         $record->stringcol = 'hello!';
-
         $record->save();
-        $this->assertTrue($record->refresh());
 
+        $this->assertTrue($record->refresh());
         $this->assertEquals(123, $record->var1);
         $this->assertEquals(456, $record->var2);
         $this->assertEquals(789, $record->var3);
@@ -251,10 +271,9 @@ abstract class ActiveRecordTest extends TestCase
         $record->var2 = null;
         $record->var3 = null;
         $record->stringcol = null;
-
         $record->save();
-        $this->assertTrue($record->refresh());
 
+        $this->assertTrue($record->refresh());
         $this->assertNull($record->var1);
         $this->assertNull($record->var2);
         $this->assertNull($record->var3);
@@ -265,10 +284,9 @@ abstract class ActiveRecordTest extends TestCase
         $record->var2 = 0;
         $record->var3 = 0;
         $record->stringcol = '';
-
         $record->save();
-        $this->assertTrue($record->refresh());
 
+        $this->assertTrue($record->refresh());
         $this->assertEquals(0, $record->var1);
         $this->assertEquals(0, $record->var2);
         $this->assertEquals(0, $record->var3);
@@ -277,7 +295,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testStoreEmpty(): void
     {
-        $record = new NullValues();
+        $record = new NullValues($this->db);
 
         /** this is to simulate empty html form submission */
         $record->var1 = '';
@@ -295,25 +313,30 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsPrimaryKey(): void
     {
-        $this->assertTrue(Customer::isPrimaryKey(['id']));
-        $this->assertFalse(Customer::isPrimaryKey([]));
-        $this->assertFalse(Customer::isPrimaryKey(['id', 'name']));
-        $this->assertFalse(Customer::isPrimaryKey(['name']));
-        $this->assertFalse(Customer::isPrimaryKey(['name', 'email']));
+        $customer = new Customer($this->db);
+        $orderItem = new OrderItem($this->db);
 
-        $this->assertTrue(OrderItem::isPrimaryKey(['order_id', 'item_id']));
-        $this->assertFalse(OrderItem::isPrimaryKey([]));
-        $this->assertFalse(OrderItem::isPrimaryKey(['order_id']));
-        $this->assertFalse(OrderItem::isPrimaryKey(['item_id']));
-        $this->assertFalse(OrderItem::isPrimaryKey(['quantity']));
-        $this->assertFalse(OrderItem::isPrimaryKey(['quantity', 'subtotal']));
-        $this->assertFalse(OrderItem::isPrimaryKey(['order_id', 'item_id', 'quantity']));
+        $this->assertTrue($customer->isPrimaryKey(['id']));
+        $this->assertFalse($customer->isPrimaryKey([]));
+        $this->assertFalse($customer->isPrimaryKey(['id', 'name']));
+        $this->assertFalse($customer->isPrimaryKey(['name']));
+        $this->assertFalse($customer->isPrimaryKey(['name', 'email']));
+
+        $this->assertTrue($orderItem->isPrimaryKey(['order_id', 'item_id']));
+        $this->assertFalse($orderItem->isPrimaryKey([]));
+        $this->assertFalse($orderItem->isPrimaryKey(['order_id']));
+        $this->assertFalse($orderItem->isPrimaryKey(['item_id']));
+        $this->assertFalse($orderItem->isPrimaryKey(['quantity']));
+        $this->assertFalse($orderItem->isPrimaryKey(['quantity', 'subtotal']));
+        $this->assertFalse($orderItem->isPrimaryKey(['order_id', 'item_id', 'quantity']));
     }
 
     public function testJoinWith(): void
     {
+        $order = new Order($this->db);
+
         /** left join and eager loading */
-        $orders = Order::find()->joinWith('customer')->orderBy('customer.id DESC, order.id')->all();
+        $orders = $order->find()->joinWith('customer')->orderBy('customer.id DESC, order.id')->all();
         $this->assertCount(3, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -323,11 +346,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** inner join filtering and eager loading */
-        $orders = Order::find()->innerJoinWith([
-            'customer' => function ($query) {
-                $query->where('{{customer}}.[[id]]=2');
-            },
-        ])->orderBy('order.id')->all();
+        $orders = $order->find()->innerJoinWith(
+            [
+                'customer' => function ($query) {
+                    $query->where('{{customer}}.[[id]]=2');
+                }
+            ]
+        )->orderBy('order.id')->all();
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -335,21 +360,26 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering, eager loading, conditions on both primary and relation */
-        $orders = Order::find()->innerJoinWith([
-            'customer' => function ($query) {
-                $query->where(['customer.id' => 2]);
-            },
-        ])->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
+        $orders = $order->find()->innerJoinWith(
+            [
+                'customer' => function ($query) {
+                    $query->where(['customer.id' => 2]);
+                }
+            ]
+        )->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
-        $orders = Order::find()->innerJoinWith([
-            'customer' => static function ($query) {
-                $query->where('{{customer}}.[[id]]=2');
-            },
-        ], false)->orderBy('order.id')->all();
+        $orders = $order->find()->innerJoinWith(
+            [
+                'customer' => static function ($query) {
+                    $query->where('{{customer}}.[[id]]=2');
+                },
+            ],
+            false
+        )->orderBy('order.id')->all();
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -357,17 +387,20 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading, conditions on both primary and relation */
-        $orders = Order::find()->innerJoinWith([
-            'customer' => static function ($query) {
-                $query->where(['customer.id' => 2]);
-            },
-        ], false)->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
+        $orders = $order->find()->innerJoinWith(
+            [
+                'customer' => static function ($query) {
+                    $query->where(['customer.id' => 2]);
+                },
+            ],
+            false
+        )->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertFalse($orders[0]->isRelationPopulated('customer'));
 
         /** join with via-relation */
-        $orders = Order::find()->innerJoinWith('books')->orderBy('order.id')->all();
+        $orders = $order->find()->innerJoinWith('books')->orderBy('order.id')->all();
         $this->assertCount(2, $orders);
         $this->assertCount(2, $orders[0]->books);
         $this->assertCount(1, $orders[1]->books);
@@ -377,14 +410,16 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
         /** join with sub-relation */
-        $orders = Order::find()->innerJoinWith([
-            'items' => function ($q) {
-                $q->orderBy('item.id');
-            },
-            'items.category' => function ($q) {
-                $q->where('{{category}}.[[id]] = 2');
-            },
-        ])->orderBy('order.id')->all();
+        $orders = $order->find()->innerJoinWith(
+            [
+                'items' => function ($q) {
+                    $q->orderBy('item.id');
+                },
+                'items.category' => function ($q) {
+                    $q->where('{{category}}.[[id]] = 2');
+                }
+            ]
+        )->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->items);
         $this->assertEquals(2, $orders[0]->id);
@@ -393,11 +428,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[0]->items[0]->isRelationPopulated('category'));
 
         /** join with table alias */
-        $orders = Order::find()->joinWith([
-            'customer' => function ($q) {
-                $q->from('customer c');
-            },
-        ])->orderBy('c.id DESC, order.id')->all();
+        $orders = $order->find()->joinWith(
+            [
+                'customer' => function ($q) {
+                    $q->from('customer c');
+                },
+            ]
+        )->orderBy('c.id DESC, order.id')->all();
         $this->assertCount(3, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -407,7 +444,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** join with table alias */
-        $orders = Order::find()->joinWith('customer as c')->orderBy('c.id DESC, order.id')->all();
+        $orders = $order->find()->joinWith('customer as c')->orderBy('c.id DESC, order.id')->all();
         $this->assertCount(3, $orders);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertEquals(3, $orders[1]->id);
@@ -417,15 +454,16 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** join with table alias sub-relation */
-        $orders = Order::find()->innerJoinWith([
-            'items as t' => function ($q) {
-                $q->orderBy('t.id');
-            },
-            'items.category as c' => function ($q) {
-                $q->where('{{c}}.[[id]] = 2');
-            },
-        ])->orderBy('order.id')->all();
-
+        $orders = $order->find()->innerJoinWith(
+            [
+                'items as t' => function ($q) {
+                    $q->orderBy('t.id');
+                },
+                'items.category as c' => function ($q) {
+                    $q->where('{{c}}.[[id]] = 2');
+                },
+            ]
+        )->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->items);
         $this->assertEquals(2, $orders[0]->id);
@@ -435,7 +473,7 @@ abstract class ActiveRecordTest extends TestCase
 
 
         /** join with ON condition */
-        $orders = Order::find()->joinWith('books2')->orderBy('order.id')->all();
+        $orders = $order->find()->joinWith('books2')->orderBy('order.id')->all();
         $this->assertCount(3, $orders);
         $this->assertCount(2, $orders[0]->books2);
         $this->assertCount(0, $orders[1]->books2);
@@ -448,17 +486,17 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('books2'));
 
         /** lazy loading with ON condition */
-        $order = Order::findOne(1);
+        $order = $order->findOne(1);
         $this->assertCount(2, $order->books2);
 
-        $order = Order::findOne(2);
+        $order = $order->findOne(2);
         $this->assertCount(0, $order->books2);
 
-        $order = Order::findOne(3);
+        $order = $order->findOne(3);
         $this->assertCount(1, $order->books2);
 
         /** eager loading with ON condition */
-        $orders = Order::find()->with('books2')->all();
+        $orders = $order->find()->with('books2')->all();
         $this->assertCount(3, $orders);
         $this->assertCount(2, $orders[0]->books2);
         $this->assertCount(0, $orders[1]->books2);
@@ -471,8 +509,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('books2'));
 
         /** join with count and query */
-        $query = Order::find()->joinWith('customer');
-
+        $query = $order->find()->joinWith('customer');
         $count = $query->count();
         $this->assertEquals(3, $count);
 
@@ -480,27 +517,27 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(3, $orders);
 
         /** {@see https://github.com/yiisoft/yii2/issues/2880} */
-        $query = Order::findOne(1);
-
-        $customer = $query->getCustomer()
-            ->joinWith([
+        $query = $order->findOne(1);
+        $customer = $query->getCustomer()->joinWith(
+            [
                 'orders' => static function ($q) {
                     $q->orderBy([]);
                 },
-            ])
-            ->one();
+            ]
+        )->one();
         $this->assertEquals(1, $customer->id);
 
-        $order = Order::find()->joinWith([
-            'items' => static function ($q) {
-                $q->from(['items' => 'item'])
-                    ->orderBy('items.id');
-            },
-        ])->orderBy('order.id')->one();
+        $order = $order->find()->joinWith(
+            [
+                'items' => static function ($q) {
+                    $q->from(['items' => 'item'])->orderBy('items.id');
+                },
+            ]
+        )->orderBy('order.id')->one();
 
         /** join with sub-relation called inside Closure */
-        $orders = Order::find()
-            ->joinWith([
+        $orders = $order->find()->joinWith(
+            [
                 'items' => static function ($q) {
                     $q->orderBy('item.id');
                     $q->joinWith([
@@ -509,9 +546,8 @@ abstract class ActiveRecordTest extends TestCase
                         },
                     ]);
                 },
-            ])
-            ->orderBy('order.id')
-            ->all();
+            ]
+        )->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->items);
         $this->assertEquals(2, $orders[0]->id);
@@ -522,15 +558,16 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testJoinWithAndScope(): void
     {
+        $customer = new Customer($this->db);
+
         /**  hasOne inner join */
-        $customers = Customer::find()->active()->innerJoinWith('profile')->orderBy('customer.id')->all();
+        $customers = $customer->find()->active()->innerJoinWith('profile')->orderBy('customer.id')->all();
         $this->assertCount(1, $customers);
         $this->assertEquals(1, $customers[0]->id);
         $this->assertTrue($customers[0]->isRelationPopulated('profile'));
 
         /** hasOne outer join */
-        $customers = Customer::find()->active()->joinWith('profile')->orderBy('customer.id')->all();
-
+        $customers = $customer->find()->active()->joinWith('profile')->orderBy('customer.id')->all();
         $this->assertCount(2, $customers);
         $this->assertEquals(1, $customers[0]->id);
         $this->assertEquals(2, $customers[1]->id);
@@ -540,11 +577,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customers[1]->isRelationPopulated('profile'));
 
         /** hasMany */
-        $customers = Customer::find()->active()->joinWith([
-            'orders' => static function ($q) {
-                $q->orderBy('order.id');
-            },
-        ])->orderBy('customer.id DESC, order.id')->all();
+        $customers = $customer->find()->active()->joinWith(
+            [
+                'orders' => static function ($q) {
+                    $q->orderBy('order.id');
+                },
+            ]
+        )->orderBy('customer.id DESC, order.id')->all();
         $this->assertCount(2, $customers);
         $this->assertEquals(2, $customers[0]->id);
         $this->assertEquals(1, $customers[1]->id);
@@ -559,13 +598,17 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testJoinWithVia(): void
     {
-        Order::getConnection()->getQueryBuilder()->setSeparator("\n");
+        $order = new Order($this->db);
 
-        $rows = Order::find()->joinWith('itemsInOrder1')->joinWith([
-            'items' => static function ($q) {
-                $q->orderBy('item.id');
-            },
-        ])->all();
+        $this->db->getQueryBuilder()->setSeparator("\n");
+
+        $rows = $order->find()->joinWith('itemsInOrder1')->joinWith(
+            [
+                'items' => static function ($q) {
+                    $q->orderBy('item.id');
+                },
+            ]
+        )->all();
         $this->assertNotEmpty($rows);
     }
 
@@ -585,8 +628,10 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testJoinWithAlias(string $aliasMethod): void
     {
+        $order = new Order($this->db);
+
         /** left join and eager loading */
-        $query = Order::find()->joinWith(['customer c']);
+        $query = $order->find()->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->orderBy('c.id DESC, order.id')->all();
@@ -607,7 +652,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** inner join filtering and eager loading */
-        $query = Order::find()->innerJoinWith(['customer c']);
+        $query = $order->find()->innerJoinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
@@ -626,7 +671,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
-        $query = Order::find()->innerJoinWith(['customer c'], false);
+        $query = $order->find()->innerJoinWith(['customer c'], false);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
@@ -645,7 +690,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($orders[1]->isRelationPopulated('customer'));
 
         /** join with via-relation */
-        $query = Order::find()->innerJoinWith(['books b']);
+        $query = $order->find()->innerJoinWith(['books b']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where(
@@ -671,28 +716,30 @@ abstract class ActiveRecordTest extends TestCase
 
 
         /** joining sub relations */
-        $query = Order::find()->innerJoinWith([
-            'items i' => static function ($q) use ($aliasMethod) {
-                /** @var $q ActiveQuery */
-                if ($aliasMethod === 'explicit') {
-                    $q->orderBy('{{i}}.id');
-                } elseif ($aliasMethod === 'querysyntax') {
-                    $q->orderBy('{{@item}}.id');
-                } elseif ($aliasMethod === 'applyAlias') {
-                    $q->orderBy($q->applyAlias('item', 'id'));
+        $query = $order->find()->innerJoinWith(
+            [
+                'items i' => static function ($q) use ($aliasMethod) {
+                    /** @var $q ActiveQuery */
+                    if ($aliasMethod === 'explicit') {
+                        $q->orderBy('{{i}}.id');
+                    } elseif ($aliasMethod === 'querysyntax') {
+                        $q->orderBy('{{@item}}.id');
+                    } elseif ($aliasMethod === 'applyAlias') {
+                        $q->orderBy($q->applyAlias('item', 'id'));
+                    }
+                },
+                'items.category c' => static function ($q) use ($aliasMethod) {
+                    /**  @var $q ActiveQuery */
+                    if ($aliasMethod === 'explicit') {
+                        $q->where('{{c}}.[[id]] = 2');
+                    } elseif ($aliasMethod === 'querysyntax') {
+                        $q->where('{{@category}}.[[id]] = 2');
+                    } elseif ($aliasMethod === 'applyAlias') {
+                        $q->where([$q->applyAlias('category', 'id') => 2]);
+                    }
                 }
-            },
-            'items.category c' => static function ($q) use ($aliasMethod) {
-                /**  @var $q ActiveQuery */
-                if ($aliasMethod === 'explicit') {
-                    $q->where('{{c}}.[[id]] = 2');
-                } elseif ($aliasMethod === 'querysyntax') {
-                    $q->where('{{@category}}.[[id]] = 2');
-                } elseif ($aliasMethod === 'applyAlias') {
-                    $q->where([$q->applyAlias('category', 'id') => 2]);
-                }
-            },
-        ]);
+            ]
+        );
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->orderBy('{{i}}.id')->all();
@@ -713,7 +760,7 @@ abstract class ActiveRecordTest extends TestCase
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod);
 
-            $orders = Order::find()->joinWith(["$relationName b"])->orderBy('order.id')->all();
+            $orders = $order->find()->joinWith(["$relationName b"])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->$relationName);
@@ -731,7 +778,7 @@ abstract class ActiveRecordTest extends TestCase
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
-            $orders = Order::find()->joinWith([(string)$relationName])->orderBy('order.id')->all();
+            $orders = $order->find()->joinWith([(string)$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->$relationName);
@@ -745,12 +792,8 @@ abstract class ActiveRecordTest extends TestCase
             $this->assertTrue($orders[2]->isRelationPopulated($relationName));
         }
 
-        /**
-         * join with count and query
-         *
-         * @var $query ActiveQuery
-         */
-        $query = Order::find()->joinWith(['customer c']);
+        /** join with count and query */
+        $query = $order->find()->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $count = $query->count('c.id');
@@ -765,12 +808,8 @@ abstract class ActiveRecordTest extends TestCase
         $orders = $query->all();
         $this->assertCount(3, $orders);
 
-        /**
-         * relational query
-         *
-         * @var $order Order
-         */
-        $order = Order::findOne(1);
+        /** relational query */
+        $order = $order->findOne(1);
 
         $customerQuery = $order->getCustomer()->innerJoinWith(['orders o'], false);
 
@@ -786,21 +825,23 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNotNull($customer);
 
         /** join with sub-relation called inside Closure */
-        $orders = Order::find()->joinWith([
-            'items' => static function ($q) use ($aliasMethod) {
-                /* @var $q ActiveQuery */
-                $q->orderBy('item.id');
-                $q->joinWith(['category c']);
+        $orders = $order->find()->joinWith(
+            [
+                'items' => static function ($q) use ($aliasMethod) {
+                    /** @var $q ActiveQuery */
+                    $q->orderBy('item.id');
+                    $q->joinWith(['category c']);
 
-                if ($aliasMethod === 'explicit') {
-                    $q->where('{{c}}.[[id]] = 2');
-                } elseif ($aliasMethod === 'querysyntax') {
-                    $q->where('{{@category}}.[[id]] = 2');
-                } elseif ($aliasMethod === 'applyAlias') {
-                    $q->where([$q->applyAlias('category', 'id') => 2]);
+                    if ($aliasMethod === 'explicit') {
+                        $q->where('{{c}}.[[id]] = 2');
+                    } elseif ($aliasMethod === 'querysyntax') {
+                        $q->where('{{@category}}.[[id]] = 2');
+                    } elseif ($aliasMethod === 'applyAlias') {
+                        $q->where([$q->applyAlias('category', 'id') => 2]);
+                    }
                 }
-            },
-        ])->orderBy('order.id')->all();
+            ]
+        )->orderBy('order.id')->all();
 
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->items);
@@ -812,11 +853,13 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testJoinWithSameTable(): void
     {
+        $order = new Order($this->db);
+
         /**
          * join with the same table but different aliases alias is defined in the relation definition without eager
          * loading
          */
-        $query = Order::find()
+        $query = $order->find()
             ->joinWith('bookItems', false)
             ->joinWith('movieItems', false)
             ->where(['movies.name' => 'Toy Story']);
@@ -833,7 +876,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($orders[0]->isRelationPopulated('movieItems'));
 
         /** with eager loading */
-        $query = Order::find()
+        $query = $order->find()
             ->joinWith('bookItems', true)
             ->joinWith('movieItems', true)
             ->where(['movies.name' => 'Toy Story']);
@@ -856,18 +899,22 @@ abstract class ActiveRecordTest extends TestCase
          * join with the same table but different aliases alias is defined in the call to joinWith() without eager
          * loading
          */
-        $query = Order::find()
-            ->joinWith([
-                'itemsIndexed books' => static function ($q) {
-                    $q->onCondition('books.category_id = 1');
-                },
-            ], false)
-            ->joinWith([
-                'itemsIndexed movies' => static function ($q) {
-                    $q->onCondition('movies.category_id = 2');
-                },
-            ], false)
-            ->where(['movies.name' => 'Toy Story']);
+        $query = $order->find()
+            ->joinWith(
+                [
+                    'itemsIndexed books' => static function ($q) {
+                        $q->onCondition('books.category_id = 1');
+                    },
+                ],
+                false
+            )->joinWith(
+                [
+                    'itemsIndexed movies' => static function ($q) {
+                        $q->onCondition('movies.category_id = 2');
+                    },
+                ],
+                false
+            )->where(['movies.name' => 'Toy Story']);
 
         $orders = $query->all();
         $this->assertCount(
@@ -879,18 +926,23 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, only for one relation as it would be overwritten otherwise. */
-        $query = Order::find()
-            ->joinWith([
-                'itemsIndexed books' => static function ($q) {
-                    $q->onCondition('books.category_id = 1');
-                },
-            ], false)
-            ->joinWith([
-                'itemsIndexed movies' => static function ($q) {
-                    $q->onCondition('movies.category_id = 2');
-                },
-            ], true)
-            ->where(['movies.name' => 'Toy Story']);
+        $query = $order->find()
+            ->joinWith(
+                [
+                    'itemsIndexed books' => static function ($q) {
+                        $q->onCondition('books.category_id = 1');
+                    },
+                ],
+                false
+            )
+            ->joinWith(
+                [
+                    'itemsIndexed movies' => static function ($q) {
+                        $q->onCondition('movies.category_id = 2');
+                    },
+                ],
+                true
+            )->where(['movies.name' => 'Toy Story']);
 
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
@@ -899,17 +951,23 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, and the other relation */
-        $query = Order::find()
-            ->joinWith([
-                'itemsIndexed books' => static function ($q) {
-                    $q->onCondition('books.category_id = 1');
-                },
-            ], true)
-            ->joinWith([
-                'itemsIndexed movies' => static function ($q) {
-                    $q->onCondition('movies.category_id = 2');
-                },
-            ], false)
+        $query = $order->find()
+            ->joinWith(
+                [
+                    'itemsIndexed books' => static function ($q) {
+                        $q->onCondition('books.category_id = 1');
+                    },
+                ],
+                true
+            )
+            ->joinWith(
+                [
+                    'itemsIndexed movies' => static function ($q) {
+                        $q->onCondition('movies.category_id = 2');
+                    },
+                ],
+                false
+            )
             ->where(['movies.name' => 'Toy Story']);
 
         $orders = $query->all();
@@ -925,29 +983,31 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testFindCompositeRelationWithJoin(): void
     {
-        /** @var $orderItem OrderItem */
-        $orderItem = OrderItem::findOne([1, 1]);
+        $orderItem = new OrderItem($this->db);
 
-        $orderItemNoJoin = $orderItem->orderItemCompositeNoJoin;
+        /** @var $orderItems OrderItem */
+        $orderItems = $orderItem->findOne([1, 1]);
 
+        $orderItemNoJoin = $orderItems->orderItemCompositeNoJoin;
         $this->assertInstanceOf(OrderItem::class, $orderItemNoJoin);
 
-        $orderItemWithJoin = $orderItem->orderItemCompositeWithJoin;
+        $orderItemWithJoin = $orderItems->orderItemCompositeWithJoin;
         $this->assertInstanceOf(OrderItem::class, $orderItemWithJoin);
     }
 
     public function testFindSimpleRelationWithJoin(): void
     {
-        /** @var $order Order */
-        $order = Order::findOne(1);
+        $order = new Order($this->db);
 
-        $customerNoJoin = $order->customer;
+        $orders = $order->findOne(1);
+
+        $customerNoJoin = $orders->customer;
         $this->assertInstanceOf(Customer::class, $customerNoJoin);
 
-        $customerWithJoin = $order->customerJoinedWithProfile;
+        $customerWithJoin = $orders->customerJoinedWithProfile;
         $this->assertInstanceOf(Customer::class, $customerWithJoin);
 
-        $customerWithJoinIndexOrdered = $order->customerJoinedWithProfileIndexOrdered;
+        $customerWithJoinIndexOrdered = $orders->customerJoinedWithProfileIndexOrdered;
         $this->assertArrayHasKey('user1', $customerWithJoinIndexOrdered);
         $this->assertInstanceOf(Customer::class, $customerWithJoinIndexOrdered['user1']);
         $this->assertIsArray($customerWithJoinIndexOrdered);
@@ -973,30 +1033,35 @@ abstract class ActiveRecordTest extends TestCase
      * @param string $orderTableName
      * @param string $orderItemTableName
      *
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException
      */
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
     {
-        /** @var $order Order */
-        $order = Order::findOne(1);
+        $order = new Order($this->db);
+        $orderItem = new OrderItem($this->db);
+
+        $order->setTableName($orderTableName);
+        $orderItem->setTableName($orderItemTableName);
+
+        $order = $order->findOne(1);
         $itemsSQL = $order->getOrderitems()->createCommand()->getRawSql();
         $expectedSQL = $this->replaceQuotes('SELECT * FROM [[order_item]] WHERE [[order_id]]=1');
         $this->assertEquals($expectedSQL, $itemsSQL);
 
-        $order = Order::findOne(1);
+        $order = $order->findOne(1);
         $itemsSQL = $order->getOrderItems()->joinWith('item')->createCommand()->getRawSql();
         $expectedSQL = $this->replaceQuotes(
             'SELECT [[order_item]].* FROM [[order_item]] LEFT JOIN [[item]] ON [[order_item]].[[item_id]] = [[item]].[[id]] WHERE [[order_item]].[[order_id]]=1'
         );
         $this->assertEquals($expectedSQL, $itemsSQL);
 
-        Order::$tableName = null;
-        OrderItem::$tableName = null;
+        $order->setTableName(null);
+        $orderItem->setTableName(null);
     }
 
     public function testOutdatedRelationsAreResetForNewRecords(): void
     {
-        $orderItem = new OrderItem();
+        $orderItem = new OrderItem($this->db);
 
         $orderItem->order_id = 1;
         $orderItem->item_id = 3;
@@ -1018,45 +1083,42 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testOutdatedRelationsAreResetForExistingRecords(): void
     {
-        $orderItem = OrderItem::findOne(1);
+        $orderItem = new OrderItem($this->db);
 
-        $this->assertEquals(1, $orderItem->order->id);
-        $this->assertEquals(1, $orderItem->item->id);
+        $orderItems = $orderItem->findOne(1);
+        $this->assertEquals(1, $orderItems->order->id);
+        $this->assertEquals(1, $orderItems->item->id);
 
         /** test `__set()`. */
         $orderItem->order_id = 2;
         $orderItem->item_id = 1;
-
         $this->assertEquals(2, $orderItem->order->id);
         $this->assertEquals(1, $orderItem->item->id);
 
         /** Test `setAttribute()`. */
         $orderItem->setAttribute('order_id', 3);
         $orderItem->setAttribute('item_id', 1);
-
         $this->assertEquals(3, $orderItem->order->id);
         $this->assertEquals(1, $orderItem->item->id);
     }
 
     public function testOutdatedCompositeKeyRelationsAreReset(): void
     {
-        $dossier = Dossier::findOne([
-            'department_id' => 1,
-            'employee_id' => 1,
-        ]);
+        $dossier = new Dossier($this->db);
 
-        $this->assertEquals('John Doe', $dossier->employee->fullName);
+        $dossiers = $dossier->findOne(['department_id' => 1, 'employee_id' => 1]);
+        $this->assertEquals('John Doe', $dossiers->employee->fullName);
 
-        $dossier->department_id = 2;
-        $this->assertEquals('Ann Smith', $dossier->employee->fullName);
+        $dossiers->department_id = 2;
+        $this->assertEquals('Ann Smith', $dossiers->employee->fullName);
 
-        $dossier->employee_id = 2;
-        $this->assertEquals('Will Smith', $dossier->employee->fullName);
+        $dossiers->employee_id = 2;
+        $this->assertEquals('Will Smith', $dossiers->employee->fullName);
 
-        unset($dossier->employee_id);
-        $this->assertNull($dossier->employee);
+        unset($dossiers->employee_id);
+        $this->assertNull($dossiers->employee);
 
-        $dossier = new Dossier();
+        $dossier = new Dossier($this->db);
         $this->assertNull($dossier->employee);
 
         $dossier->employee_id = 1;
@@ -1069,20 +1131,22 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testOutdatedViaTableRelationsAreReset(): void
     {
-        $order = Order::findOne(1);
-        $orderItemIds = ArrayHelper::getColumn($order->items, 'id');
+        $order = new Order($this->db);
+
+        $orders = $order->findOne(1);
+        $orderItemIds = ArrayHelper::getColumn($orders->items, 'id');
         sort($orderItemIds);
         $this->assertSame([1, 2], $orderItemIds);
 
-        $order->id = 2;
+        $orders->id = 2;
         sort($orderItemIds);
-        $orderItemIds = ArrayHelper::getColumn($order->items, 'id');
+        $orderItemIds = ArrayHelper::getColumn($orders->items, 'id');
         $this->assertSame([3, 4, 5], $orderItemIds);
 
-        unset($order->id);
-        $this->assertSame([], $order->items);
+        unset($orders->id);
+        $this->assertSame([], $orders->items);
 
-        $order = new Order();
+        $order = new Order($this->db);
         $this->assertSame([], $order->items);
 
         $order->id = 3;
@@ -1092,44 +1156,43 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testAlias(): void
     {
-        $query = Order::find();
+        $order = new Order($this->db);
+
+        $query = $order->find();
         $this->assertNull($query->getFrom());
 
-        $query = Order::find()->alias('o');
-        $this->assertEquals(['o' => Order::tableName()], $query->getFrom());
+        $query = $order->find()->alias('o');
+        $this->assertEquals(['o' => $order->tableName()], $query->getFrom());
 
-        $query = Order::find()->alias('o')->alias('ord');
-        $this->assertEquals(['ord' => Order::tableName()], $query->getFrom());
+        $query = $order->find()->alias('o')->alias('ord');
+        $this->assertEquals(['ord' => $order->tableName()], $query->getFrom());
 
-        $query = Order::find()->from([
-            'users',
-            'o' => Order::tableName(),
-        ])->alias('ord');
-        $this->assertEquals([
-            'users',
-            'ord' => Order::tableName(),
-        ], $query->getFrom());
+        $query = $order->find()->from(['users', 'o' => $order->tableName()])->alias('ord');
+        $this->assertEquals(['users', 'ord' => $order->tableName()], $query->getFrom());
     }
 
     public function testInverseOf(): void
     {
+        $customerInstance = new Customer($this->db);
+        $orderInstance = new Order($this->db);
+
         /** eager loading: find one and all */
-        $customer = Customer::find()->with('orders2')->where(['id' => 1])->one();
+        $customer = $customerInstance->find()->with('orders2')->where(['id' => 1])->one();
         $this->assertSame($customer->orders2[0]->customer2, $customer);
 
-        $customers = Customer::find()->with('orders2')->where(['id' => [1, 3]])->all();
+        $customers = $customerInstance->find()->with('orders2')->where(['id' => [1, 3]])->all();
         $this->assertEmpty($customers[1]->orders2);
         $this->assertSame($customers[0]->orders2[0]->customer2, $customers[0]);
 
         /** lazy loading */
-        $customer = Customer::findOne(2);
+        $customer = $customerInstance->findOne(2);
         $orders = $customer->orders2;
         $this->assertCount(2, $orders);
         $this->assertSame($customer->orders2[0]->customer2, $customer);
         $this->assertSame($customer->orders2[1]->customer2, $customer);
 
         /** ad-hoc lazy loading */
-        $customer = Customer::findOne(2);
+        $customer = $customerInstance->findOne(2);
         $orders = $customer->getOrders2()->all();
         $this->assertCount(2, $orders);
         $this->assertSame($orders[0]->customer2, $customer);
@@ -1144,34 +1207,34 @@ abstract class ActiveRecordTest extends TestCase
         );
 
         /** the other way around */
-        $customer = Customer::find()->with('orders2')->where(['id' => 1])->asArray()->one();
+        $customer = $customerInstance->find()->with('orders2')->where(['id' => 1])->asArray()->one();
         $this->assertSame($customer['orders2'][0]['customer2']['id'], $customer['id']);
 
-        $customers = Customer::find()->with('orders2')->where(['id' => [1, 3]])->asArray()->all();
+        $customers = $customerInstance->find()->with('orders2')->where(['id' => [1, 3]])->asArray()->all();
         $this->assertSame($customer['orders2'][0]['customer2']['id'], $customers[0]['id']);
         $this->assertEmpty($customers[1]['orders2']);
 
-        $orders = Order::find()->with('customer2')->where(['id' => 1])->all();
+        $orders = $orderInstance->find()->with('customer2')->where(['id' => 1])->all();
         $this->assertSame($orders[0]->customer2->orders2, [$orders[0]]);
 
-        $order = Order::find()->with('customer2')->where(['id' => 1])->one();
+        $order = $orderInstance->find()->with('customer2')->where(['id' => 1])->one();
         $this->assertSame($order->customer2->orders2, [$order]);
 
-        $orders = Order::find()->with('customer2')->where(['id' => 1])->asArray()->all();
+        $orders = $orderInstance->find()->with('customer2')->where(['id' => 1])->asArray()->all();
         $this->assertSame($orders[0]['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
-        $order = Order::find()->with('customer2')->where(['id' => 1])->asArray()->one();
+        $order = $orderInstance->find()->with('customer2')->where(['id' => 1])->asArray()->one();
         $this->assertSame($order['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
-        $orders = Order::find()->with('customer2')->where(['id' => [1, 3]])->all();
+        $orders = $orderInstance->find()->with('customer2')->where(['id' => [1, 3]])->all();
         $this->assertSame($orders[0]->customer2->orders2, [$orders[0]]);
         $this->assertSame($orders[1]->customer2->orders2, [$orders[1]]);
 
-        $orders = Order::find()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->all();
+        $orders = $orderInstance->find()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->all();
         $this->assertSame($orders[0]->customer2->orders2, $orders);
         $this->assertSame($orders[1]->customer2->orders2, $orders);
 
-        $orders = Order::find()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->asArray()->all();
+        $orders = $orderInstance->find()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->asArray()->all();
         $this->assertSame($orders[0]['customer2']['orders2'][0]['id'], $orders[0]['id']);
         $this->assertSame($orders[0]['customer2']['orders2'][1]['id'], $orders[1]['id']);
         $this->assertSame($orders[1]['customer2']['orders2'][0]['id'], $orders[0]['id']);
@@ -1180,7 +1243,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testInverseOfDynamic(): void
     {
-        $customer = Customer::findOne(1);
+        $customerInstance = new Customer($this->db);
+
+        $customer = $customerInstance->findOne(1);
 
         /** request the inverseOf relation without explicitly (eagerly) loading it */
         $orders2 = $customer->getOrders2()->all();
@@ -1209,104 +1274,115 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testDefaultValues(): void
     {
-        $model = new Type();
+        $arClass = new Type($this->db);
 
-        $model->loadDefaultValues();
+        $arClass->loadDefaultValues();
 
-        $this->assertEquals(1, $model->int_col2);
-        $this->assertEquals('something', $model->char_col2);
-        $this->assertEquals(1.23, $model->float_col2);
-        $this->assertEquals(33.22, $model->numeric_col);
-        $this->assertEquals(true, $model->bool_col2);
-        $this->assertEquals('2002-01-01 00:00:00', $model->time);
+        $this->assertEquals(1, $arClass->int_col2);
+        $this->assertEquals('something', $arClass->char_col2);
+        $this->assertEquals(1.23, $arClass->float_col2);
+        $this->assertEquals(33.22, $arClass->numeric_col);
+        $this->assertEquals(true, $arClass->bool_col2);
+        $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
-        $model = new Type();
-        $model->char_col2 = 'not something';
+        $arClass = new Type($this->db);
+        $arClass->char_col2 = 'not something';
 
-        $model->loadDefaultValues();
-        $this->assertEquals('not something', $model->char_col2);
+        $arClass->loadDefaultValues();
+        $this->assertEquals('not something', $arClass->char_col2);
 
-        $model = new Type();
-        $model->char_col2 = 'not something';
+        $arClass = new Type($this->db);
+        $arClass->char_col2 = 'not something';
 
-        $model->loadDefaultValues(false);
-        $this->assertEquals('something', $model->char_col2);
+        $arClass->loadDefaultValues(false);
+        $this->assertEquals('something', $arClass->char_col2);
     }
 
     public function testUnlinkAllViaTable(): void
     {
-        /** @var $orderClass ActiveRecordInterface */
-        $orderClass = Order::class;
+        $this->loadFixture($this->db);
 
-        /** @var $orderItemClass ActiveRecordInterface */
-        $orderItemClass = OrderItem::class;
+        /** @var $order ActiveRecordInterface */
+        $orderInstance = new Order($this->db);
 
-        /** @var $itemClass ActiveRecordInterface */
-        $itemClass = Item::class;
+        /** @var $orderItem ActiveRecordInterface */
+        $orderItemInstance = new OrderItem($this->db);
 
-        /** @var $orderItemsWithNullFKClass ActiveRecordInterface */
-        $orderItemsWithNullFKClass = OrderItemWithNullFK::class;
+        /** @var $item ActiveRecordInterface */
+        $itemInstance = new Item($this->db);
+
+        /** @var $orderItemsWithNullFK ActiveRecordInterface */
+        $orderItemsWithNullFKInstance = new OrderItemWithNullFK($this->db);
 
         /**
          * via table with delete.
          *
          * @var $order  Order
          */
-        $order = $orderClass::findOne(1);
+        $order = $orderInstance->findOne(1);
         $this->assertCount(2, $order->booksViaTable);
-        $orderItemCount = $orderItemClass::find()->count();
-        $this->assertEquals(5, $itemClass::find()->count());
+
+        $orderItemCount = $orderItemInstance->find()->count();
+        $this->assertEquals(5, $itemInstance->find()->count());
+
         $order->unlinkAll('booksViaTable', true);
-        $this->assertEquals(5, $itemClass::find()->count());
-        $this->assertEquals($orderItemCount - 2, $orderItemClass::find()->count());
+        $this->assertEquals(5, $itemInstance->find()->count());
+        $this->assertEquals($orderItemCount - 2, $orderItemInstance->find()->count());
         $this->assertCount(0, $order->booksViaTable);
 
         /** via table without delete */
         $this->assertCount(2, $order->booksWithNullFKViaTable);
-        $orderItemCount = $orderItemsWithNullFKClass::find()->count();
-        $this->assertEquals(5, $itemClass::find()->count());
+
+        $orderItemCount = $orderItemsWithNullFKInstance->find()->count();
+        $this->assertEquals(5, $itemInstance->find()->count());
+
         $order->unlinkAll('booksWithNullFKViaTable', false);
         $this->assertCount(0, $order->booksWithNullFKViaTable);
-        $this->assertEquals(2, $orderItemsWithNullFKClass::find()->where(
+        $this->assertEquals(2, $orderItemsWithNullFKInstance->find()->where(
             ['AND', ['item_id' => [1, 2]], ['order_id' => null]]
         )->count());
-        $this->assertEquals($orderItemCount, $orderItemsWithNullFKClass::find()->count());
-        $this->assertEquals(5, $itemClass::find()->count());
+        $this->assertEquals($orderItemCount, $orderItemsWithNullFKInstance->find()->count());
+        $this->assertEquals(5, $itemInstance->find()->count());
     }
 
     public function testCastValues(): void
     {
-        $model = new Type();
+        $arClass = new Type($this->db);
 
-        $model->int_col = 123;
-        $model->int_col2 = 456;
-        $model->smallint_col = 42;
-        $model->char_col = '1337';
-        $model->char_col2 = 'test';
-        $model->char_col3 = 'test123';
-        $model->float_col = 3.742;
-        $model->float_col2 = 42.1337;
-        $model->bool_col = true;
-        $model->bool_col2 = false;
-        $model->save();
+        $arClass->int_col = 123;
+        $arClass->int_col2 = 456;
+        $arClass->smallint_col = 42;
+        $arClass->char_col = '1337';
+        $arClass->char_col2 = 'test';
+        $arClass->char_col3 = 'test123';
+        $arClass->float_col = 3.742;
+        $arClass->float_col2 = 42.1337;
+        $arClass->bool_col = true;
+        $arClass->bool_col2 = false;
+
+        $arClass->save();
 
         /** @var $model Type */
-        $model = Type::find()->one();
+        $arClass =  new Type($this->db);
+        $query = $arClass->find()->one();
 
-        $this->assertSame(123, $model->int_col);
-        $this->assertSame(456, $model->int_col2);
-        $this->assertSame(42, $model->smallint_col);
-        $this->assertSame('1337', trim($model->char_col));
-        $this->assertSame('test', $model->char_col2);
-        $this->assertSame('test123', $model->char_col3);
+        $this->assertSame(123, $query->int_col);
+        $this->assertSame(456, $query->int_col2);
+        $this->assertSame(42, $query->smallint_col);
+        $this->assertSame('1337', trim($query->char_col));
+        $this->assertSame('test', $query->char_col2);
+        $this->assertSame('test123', $query->char_col3);
     }
 
     public function testIssues(): void
     {
-        $this->loadFixture(Category::getConnection());
+        $this->loadFixture($this->db);
+
+        $category = new Category($this->db);
+        $order = new Order($this->db);
 
         /** {@see https://github.com/yiisoft/yii2/issues/4938} */
-        $category = Category::findOne(2);
+        $category = $category->findOne(2);
 
         $this->assertInstanceOf(Category::class, $category);
         $this->assertEquals(3, $category->getItems()->count());
@@ -1314,21 +1390,20 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(1, $category->getLimitedItems()->distinct(true)->count());
 
         /** {@see https://github.com/yiisoft/yii2/issues/3197} */
-        $orders = Order::find()->with('orderItems')->orderBy('id')->all();
+        $orders = $order->find()->with('orderItems')->orderBy('id')->all();
 
         $this->assertCount(3, $orders);
         $this->assertCount(2, $orders[0]->orderItems);
         $this->assertCount(3, $orders[1]->orderItems);
         $this->assertCount(1, $orders[2]->orderItems);
 
-        $orders = Order::find()
-            ->with([
+        $orders = $order->find()->with(
+            [
                 'orderItems' => static function ($q) {
                     $q->indexBy('item_id');
                 },
-            ])
-            ->orderBy('id')
-            ->all();
+            ]
+        )->orderBy('id')->all();
 
         $this->assertCount(3, $orders);
         $this->assertCount(2, $orders[0]->orderItems);
@@ -1336,30 +1411,36 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(1, $orders[2]->orderItems);
 
         /** {@see https://github.com/yiisoft/yii2/issues/8149} */
-        $model = new Customer();
+        $arClass = new Customer($this->db);
 
-        $model->name = 'test';
-        $model->email = 'test';
-        $model->save();
-        $model->updateCounters(['status' => 1]);
-        $this->assertEquals(1, $model->status);
+        $arClass->name = 'test';
+        $arClass->email = 'test';
+        $arClass->save();
+
+        $arClass->updateCounters(['status' => 1]);
+        $this->assertEquals(1, $arClass->status);
     }
 
     public function testPopulateRecordCallWhenQueryingOnParentClass(): void
     {
-        (new Cat())->save();
-        (new Dog())->save();
+        $cat = new Cat($this->db);
+        $cat->save();
 
-        $animal = Animal::find()->where(['type' => Dog::class])->one();
-        $this->assertEquals('bark', $animal->getDoes());
+        $dog = new Dog($this->db);
+        $dog->save();
 
-        $animal = Animal::find()->where(['type' => Cat::class])->one();
-        $this->assertEquals('meow', $animal->getDoes());
+        $animal = new Animal($this->db);
+
+        $animals = $animal->find()->where(['type' => Dog::class])->one();
+        $this->assertEquals('bark', $animals->getDoes());
+
+        $animals = $animal->find()->where(['type' => Cat::class])->one();
+        $this->assertEquals('meow', $animals->getDoes());
     }
 
     public function testSaveEmpty(): void
     {
-        $record = new NullValues();
+        $record = new NullValues($this->db);
 
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
@@ -1367,14 +1448,16 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testOptimisticLock(): void
     {
+        $document = new Document($this->db);
+
         /** @var $record Document */
-        $record = Document::findOne(1);
+        $record = $document->findOne(1);
 
         $record->content = 'New Content';
         $record->save();
         $this->assertEquals(1, $record->version);
 
-        $record = Document::findOne(1);
+        $record = $document->findOne(1);
 
         $record->content = 'Rewrite attempt content';
         $record->version = 0;
@@ -1384,8 +1467,11 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testPopulateWithoutPk(): void
     {
+        $customer = new Customer($this->db);
+        $orderItem = new OrderItem($this->db);
+
         /** tests with single pk asArray */
-        $aggregation = Customer::find()
+        $aggregation = $customer->find()
             ->select(['{{customer}}.[[status]]', 'SUM({{order}}.[[total]]) AS [[sumtotal]]'])
             ->joinWith('ordersPlain', false)
             ->groupBy('{{customer}}.[[status]]')
@@ -1403,10 +1489,11 @@ abstract class ActiveRecordTest extends TestCase
                 'sumtotal' => 0,
             ],
         ];
+
         $this->assertEquals($expected, $aggregation);
 
         /** tests with single pk with Models */
-        $aggregation = Customer::find()
+        $aggregation = $customer->find()
             ->select(['{{customer}}.[[status]]', 'SUM({{order}}.[[total]]) AS [[sumTotal]]'])
             ->joinWith('ordersPlain', false)
             ->groupBy('{{customer}}.[[status]]')
@@ -1425,7 +1512,7 @@ abstract class ActiveRecordTest extends TestCase
         }
 
         /** tests with composite pk asArray */
-        $aggregation = OrderItem::find()
+        $aggregation = $orderItem->find()
             ->select(['[[order_id]]', 'SUM([[subtotal]]) AS [[subtotal]]'])
             ->joinWith('order', false)
             ->groupBy('[[order_id]]')
@@ -1450,7 +1537,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals($expected, $aggregation);
 
         /** tests with composite pk with Models */
-        $aggregation = OrderItem::find()
+        $aggregation = $orderItem->find()
             ->select(['[[order_id]]', 'SUM([[subtotal]]) AS [[subtotal]]'])
             ->joinWith('order', false)
             ->groupBy('[[order_id]]')
@@ -1476,18 +1563,21 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testBit(): void
     {
-        $falseBit = BitValues::findOne(1);
+        $bitValue = new BitValues($this->db);
+
+        $falseBit = $bitValue->findOne(1);
         $this->assertEquals(false, $falseBit->val);
 
-        $trueBit = BitValues::findOne(2);
+        $trueBit = $bitValue->findOne(2);
         $this->assertEquals(true, $trueBit->val);
     }
 
     public function testLinkWhenRelationIsIndexed2(): void
     {
-        $order = Order::find()->with('orderItems2')->where(['id' => 1])->one();
+        $orderInstance = new Order($this->db);
+        $order = $orderInstance->find()->with('orderItems2')->where(['id' => 1])->one();
 
-        $orderItem = new OrderItem();
+        $orderItem = new OrderItem($this->db);
 
         $orderItem->order_id = $order->id;
         $orderItem->item_id = 3;
@@ -1500,20 +1590,22 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testUpdateAttributes(): void
     {
-        $this->loadFixture(Customer::getConnection());
+        $this->loadFixture($this->db);
 
-        $order = Order::findOne(1);
+        $orderInstance = new Order($this->db);
+
+        $order = $orderInstance->findOne(1);
 
         $newTotal = 978;
         $this->assertSame(1, $order->updateAttributes(['total' => $newTotal]));
         $this->assertEquals($newTotal, $order->total);
 
-        $order = Order::findOne(1);
+        $order = $orderInstance->findOne(1);
 
         $this->assertEquals($newTotal, $order->total);
 
         /** @see https://github.com/yiisoft/yii2/issues/12143 */
-        $newOrder = new Order();
+        $newOrder = new Order($this->db);
 
         $this->assertTrue($newOrder->getIsNewRecord());
 
@@ -1525,36 +1617,38 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testEmulateExecution(): void
     {
-        $this->assertGreaterThan(0, Customer::find()->count());
+        $customer = new Customer($this->db);
 
-        $rows = Customer::find()->emulateExecution()->all();
+        $this->assertGreaterThan(0, $customer->find()->count());
+
+        $rows = $customer->find()->emulateExecution()->all();
         $this->assertSame([], $rows);
 
-        $row = Customer::find()->emulateExecution()->one();
+        $row = $customer->find()->emulateExecution()->one();
         $this->assertNull($row);
 
-        $exists = Customer::find()->emulateExecution()->exists();
+        $exists = $customer->find()->emulateExecution()->exists();
         $this->assertFalse($exists);
 
-        $count = Customer::find()->emulateExecution()->count();
+        $count = $customer->find()->emulateExecution()->count();
         $this->assertSame(0, $count);
 
-        $sum = Customer::find()->emulateExecution()->sum('id');
+        $sum = $customer->find()->emulateExecution()->sum('id');
         $this->assertSame(0, $sum);
 
-        $sum = Customer::find()->emulateExecution()->average('id');
+        $sum = $customer->find()->emulateExecution()->average('id');
         $this->assertSame(0, $sum);
 
-        $max = Customer::find()->emulateExecution()->max('id');
+        $max = $customer->find()->emulateExecution()->max('id');
         $this->assertNull($max);
 
-        $min = Customer::find()->emulateExecution()->min('id');
+        $min = $customer->find()->emulateExecution()->min('id');
         $this->assertNull($min);
 
-        $scalar = Customer::find()->select(['id'])->emulateExecution()->scalar();
+        $scalar = $customer->find()->select(['id'])->emulateExecution()->scalar();
         $this->assertNull($scalar);
 
-        $column = Customer::find()->select(['id'])->emulateExecution()->column();
+        $column = $customer->find()->select(['id'])->emulateExecution()->column();
         $this->assertSame([], $column);
     }
 
@@ -1564,16 +1658,16 @@ abstract class ActiveRecordTest extends TestCase
     public function testUnlinkAllOnCondition(): void
     {
         /** @var Category $categoryClass */
-        $categoryClass = Category::class;
+        $categoryClass = new Category($this->db);
 
         /** @var Item $itemClass */
-        $itemClass = Item::class;
+        $itemClass = new Item($this->db);
 
         /** Ensure there are three items with category_id = 2 in the Items table */
-        $itemsCount = $itemClass::find()->where(['category_id' => 2])->count();
+        $itemsCount = $itemClass->find()->where(['category_id' => 2])->count();
         $this->assertEquals(3, $itemsCount);
 
-        $categoryQuery = $categoryClass::find()->with('limitedItems')->where(['id' => 2]);
+        $categoryQuery = $categoryClass->find()->with('limitedItems')->where(['id' => 2]);
 
         /**
          * Ensure that limitedItems relation returns only one item (category_id = 2 and id in (1,2,3))
@@ -1585,7 +1679,7 @@ abstract class ActiveRecordTest extends TestCase
         $category->unlinkAll('limitedItems', true);
 
         /** Make sure that only one item was unlinked */
-        $itemsCount = $itemClass::find()->where(['category_id' => 2])->count();
+        $itemsCount = $itemClass->find()->where(['category_id' => 2])->count();
         $this->assertEquals(2, $itemsCount);
 
         /** Call $categoryQuery again to ensure no items were found */
@@ -1597,19 +1691,19 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testUnlinkAllOnConditionViaTable(): void
     {
-        $this->loadFixture(Order::getConnection());
+        $this->loadFixture($this->db);
 
         /** @var Order $orderClass */
-        $orderClass = Order::class;
+        $orderClass = new Order($this->db);
 
         /** @var Item $itemClass */
-        $itemClass = Item::class;
+        $itemClass = new Item($this->db);
 
         /** Ensure there are three items with category_id = 2 in the Items table */
-        $itemsCount = $itemClass::find()->where(['category_id' => 2])->count();
+        $itemsCount = $itemClass->find()->where(['category_id' => 2])->count();
         $this->assertEquals(3, $itemsCount);
 
-        $orderQuery = $orderClass::find()->with('limitedItems')->where(['id' => 2]);
+        $orderQuery = $orderClass->find()->with('limitedItems')->where(['id' => 2]);
 
         /**
          * Ensure that limitedItems relation returns only one item (category_id = 2 and id in (4, 5)).
@@ -1624,7 +1718,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(0, $orderQuery->one()->limitedItems);
 
         /** Make sure that only links were removed, the items were not removed */
-        $this->assertEquals(3, $itemClass::find()->where(['category_id' => 2])->count());
+        $this->assertEquals(3, $itemClass->find()->where(['category_id' => 2])->count());
     }
 
     /**
@@ -1632,16 +1726,16 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testIndexByAfterLoadingRelations(): void
     {
-        $orderClass = Order::class;
+        $orderClass = new Order($this->db);
 
-        $orderClass::find()->with('customer')->indexBy(function (Order $order) {
+        $orderClass->find()->with('customer')->indexBy(function (Order $order) {
             $this->assertTrue($order->isRelationPopulated('customer'));
             $this->assertNotEmpty($order->customer->id);
 
             return $order->customer->id;
         })->all();
 
-        $orders = $orderClass::find()->with('customer')->indexBy('customer.id')->all();
+        $orders = $orderClass->find()->with('customer')->indexBy('customer.id')->all();
 
         foreach ($orders as $customer_id => $order) {
             $this->assertEquals($customer_id, $order->customer_id);
@@ -1653,7 +1747,7 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testNoTablenameReplacement(): void
     {
-        $customer = new Customer();
+        $customer = new Customer($this->db);
 
         $customer->name = 'Some {{weird}} name';
         $customer->email = 'test@example.com';
@@ -1679,27 +1773,33 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testAmbiguousColumnFindOne(): void
     {
-        CustomerQuery::$joinWithProfile = true;
+        $customerQuery = new CustomerQuery(Customer::class, $this->db);
 
-        $model = Customer::findOne(1);
+        $customerQuery->joinWithProfile = true;
 
-        $this->assertTrue($model->refresh());
+        $customer = new Customer($this->db);
 
-        CustomerQuery::$joinWithProfile = false;
+        $arClass = $customer->findOne(1);
+
+        $this->assertTrue($arClass->refresh());
+
+        $customerQuery->joinWithProfile = false;
     }
 
     public function testFindOneByColumnName(): void
     {
-        $model = Customer::findOne(['id' => 1]);
-        $this->assertEquals(1, $model->id);
+        $customer = new Customer($this->db);
+        $customerQuery = new CustomerQuery(Customer::class, $this->db);
 
-        CustomerQuery::$joinWithProfile = true;
+        $arClass = $customer->findOne(['id' => 1]);
+        $this->assertEquals(1, $arClass->id);
 
-        $model = Customer::findOne(['customer.id' => 1]);
+        $customerQuery->joinWithProfile = true;
 
-        $this->assertEquals(1, $model->id);
+        $arClass = $customer->findOne(['customer.id' => 1]);
+        $this->assertEquals(1, $arClass->id);
 
-        CustomerQuery::$joinWithProfile = false;
+        $customerQuery->joinWithProfile = false;
     }
 
     public function filterTableNamesFromAliasesProvider(): array
@@ -1722,9 +1822,11 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testFilterTableNamesFromAliases($fromParams, array $expectedAliases): void
     {
-        $query = Customer::find()->from($fromParams);
+        $customer = new Customer($this->db);
 
-        $aliases = $this->invokeMethod(new Customer(), 'filterValidAliases', [$query]);
+        $query = $customer->find()->from($fromParams);
+
+        $aliases = $this->invokeMethod(new Customer($this->db), 'filterValidAliases', [$query]);
 
         $this->assertEquals($expectedAliases, $aliases);
     }
@@ -1759,9 +1861,9 @@ abstract class ActiveRecordTest extends TestCase
     public function testLegalValuesForFindByCondition(string $modelClassName, array $validFilter): void
     {
         /** @var Query $query */
-        $query = $this->invokeMethod(new $modelClassName(), 'findByCondition', [$validFilter]);
+        $query = $this->invokeMethod(new $modelClassName($this->db), 'findByCondition', [$validFilter]);
 
-        Customer::getConnection()->getQueryBuilder()->build($query);
+        $this->db->getQueryBuilder()->build($query);
 
         $this->assertTrue(true);
     }
@@ -1800,9 +1902,6 @@ abstract class ActiveRecordTest extends TestCase
      *
      * @param string $modelClassName
      * @param array $filterWithInjection
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public function testValueEscapingInFindByCondition(string $modelClassName, array $filterWithInjection): void
     {
@@ -1816,20 +1915,19 @@ abstract class ActiveRecordTest extends TestCase
         );
 
         /** @var Query $query */
-        $query = $this->invokeMethod(new $modelClassName(), 'findByCondition', $filterWithInjection);
+        $query = $this->invokeMethod(new $modelClassName($this->db), 'findByCondition', $filterWithInjection);
 
-        Customer::getConnection()->getQueryBuilder()->build($query);
+        $this->db->getQueryBuilder()->build($query);
     }
 
     /**
      * {@see https://github.com/yiisoft/yii2/issues/5786}
-     *
-     * @depends testJoinWith
      */
     public function testFindWithConstructors(): void
     {
-        /** @var OrderWithConstructor[] $orders */
-        $orders = OrderWithConstructor::find()->with(['customer.profile', 'orderItems'])->orderBy('id')->all();
+        $orderWithConstructor = new ActiveQuery(OrderWithConstructor::class, $this->db);
+
+        $orders = $orderWithConstructor->with(['customer.profile', 'orderItems'])->orderBy('id')->all();
 
         $this->assertCount(3, $orders);
         $order = $orders[0];
@@ -1860,7 +1958,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(1, $item->item_id);
 
         /** {@see https://github.com/yiisoft/yii2/issues/15540} */
-        $orders = OrderWithConstructor::find()
+        $orders = $orderWithConstructor->find()
             ->with(['customer.profile', 'orderItems'])
             ->orderBy('id')
             ->asArray(true)
@@ -1870,9 +1968,11 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCustomARRelation(): void
     {
-        $this->loadFixture(Customer::getConnection());
+        $this->loadFixture($this->db);
 
-        $orderItem = OrderItem::findOne(1);
+        $orderItem = new OrderItem($this->db);
+
+        $orderItem = $orderItem->findOne(1);
 
         $this->assertInstanceOf(Order::class, $orderItem->custom);
     }
@@ -1880,7 +1980,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRefreshQuerySetAliasFindRecord(): void
     {
-        $customer = new CustomerWithAlias();
+        $customer = new CustomerWithAlias($this->db);
 
         $customer->id = 1;
         $customer->refresh();
@@ -1890,13 +1990,13 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testResetNotSavedRelation(): void
     {
-        $order = new Order();
+        $order = new Order($this->db);
 
         $order->customer_id = 1;
         $order->created_at = 1325502201;
         $order->total = 0;
 
-        $orderItem = new OrderItem();
+        $orderItem = new OrderItem($this->db);
 
         $order->orderItems;
 
@@ -1909,14 +2009,14 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIssetException(): void
     {
-        $cat = new Cat();
+        $cat = new Cat($this->db);
 
         $this->assertFalse(isset($cat->exception));
     }
 
     public function testIssetThrowable(): void
     {
-        $cat = new Cat();
+        $cat = new Cat($this->db);
 
         $this->assertFalse(isset($cat->throwable));
     }

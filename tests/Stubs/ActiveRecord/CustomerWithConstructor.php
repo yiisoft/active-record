@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * CustomerWithConstructor.
@@ -26,14 +27,16 @@ final class CustomerWithConstructor extends ActiveRecord
         return 'customer';
     }
 
-    public function __construct($name, $email, $address, $config = [])
+    public function __construct(ConnectionInterface $db, string $name, string $email, string $address)
     {
         $this->name = $name;
         $this->email = $email;
         $this->address = $address;
+
+        parent::__construct($db);
     }
 
-    public static function instance($refresh = false): ActiveRecord
+    public function instance($refresh = false): ActiveRecord
     {
         return self::instantiate([]);
     }

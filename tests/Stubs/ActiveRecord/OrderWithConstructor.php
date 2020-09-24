@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * OrderWithConstructor.
@@ -22,25 +23,27 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class OrderWithConstructor extends ActiveRecord
 {
+    private ConnectionInterface $db;
+
     public function tableName(): string
     {
         return 'order';
     }
 
-    public function __construct($id)
+    public function __construct(ConnectionInterface $db, int $id)
     {
         $this->id = $id;
         $this->created_at = time();
-
-        parent::__construct();
+        $this->db = $db;
+        parent::__construct($db);
     }
 
-    public static function instance($refresh = false): self
+    public function instance($refresh = false): self
     {
-        return self::instantiate([]);
+        return $this->instantiate();
     }
 
-    public static function instantiate($row): ActiveRecord
+    public function instantiate(): ActiveRecord
     {
         return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }

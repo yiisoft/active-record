@@ -212,7 +212,7 @@ trait ActiveRelationTrait
                 );
             } else {
                 if (!isset($inverseRelation)) {
-                    $inverseRelation = $this->modelClass::instance()->getRelation($this->inverseOf);
+                    $inverseRelation = $this->getARInstance()->getRelation($this->inverseOf);
                 }
 
                 $result[$i][$this->inverseOf] = $inverseRelation->multiple
@@ -367,9 +367,7 @@ trait ActiveRelationTrait
         if ($model instanceof ActiveRecordInterface) {
             $relation = $model->getRelation($name);
         } else {
-            /** @var $modelClass ActiveRecordInterface */
-            $modelClass = $this->modelClass;
-            $relation = $modelClass::instance()->getRelation($name);
+            $relation = $this->getARInstance()->getRelation($name);
         }
 
         if ($relation->multiple) {
@@ -515,9 +513,7 @@ trait ActiveRelationTrait
     {
         if ($this instanceof ActiveQuery && (!empty($this->join) || !empty($this->joinWith))) {
             if (empty($this->from)) {
-                /** @var $modelClass ActiveRecord */
-                $modelClass = $this->modelClass;
-                $alias = $modelClass::tableName();
+                $alias = $this->getARInstance()->tableName();
             } else {
                 foreach ($this->from as $alias => $table) {
                     if (!is_string($alias)) {

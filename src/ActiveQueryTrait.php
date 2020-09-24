@@ -19,7 +19,7 @@ use function substr;
 trait ActiveQueryTrait
 {
     private array $with = [];
-    private bool $asArray = false;
+    private ?bool $asArray = null;
 
     /**
      * Sets the {@see asArray} property.
@@ -28,7 +28,7 @@ trait ActiveQueryTrait
      *
      * @return ActiveQueryInterface the query object itself.
      */
-    public function asArray(bool $value = true): ActiveQueryInterface
+    public function asArray(?bool $value = true): ActiveQueryInterface
     {
         $this->asArray = $value;
 
@@ -142,7 +142,7 @@ trait ActiveQueryTrait
         $primaryModel = reset($models);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
-            $primaryModel = $this->modelClass::instance();
+            $primaryModel = $this->getARInstance();
         }
 
         $relations = $this->normalizeRelations($primaryModel, $with);

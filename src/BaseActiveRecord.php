@@ -55,14 +55,12 @@ use function strpos;
  */
 abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess
 {
-    use StaticInstanceTrait;
     use BaseActiveRecordTrait;
 
     private array $attributes = [];
     private ?array $oldAttributes = null;
     private array $related = [];
     private array $relationsDependencies = [];
-    private ?ActiveRecordInterface $instantiate = null;
     private ConnectionInterface $db;
 
     public function __construct(ConnectionInterface $db)
@@ -89,9 +87,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return array of ActiveRecord instance, or an empty array if nothing matches.
      */
-    public static function findAll($condition): array
+    public function findAll($condition): array
     {
-        return static::findByCondition($condition)->all();
+        return $this->findByCondition($condition)->all();
     }
 
     /**
@@ -136,19 +134,20 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
      * ```php
-     * Customer::updateAll(['status' => 1], 'status = 2');
+     * $customer = new Customer($db);
+     * $customer->updateAll(['status' => 1], 'status = 2');
      * ```
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
-     * to {@see Query::where()} on how to specify this parameter.
+     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params
      *
      * @throws NotSupportedException if not overridden.
      *
      * @return int the number of rows updated.
      */
-    public static function updateAll(array $attributes, $condition = '', array $params = []): int
+    public function updateAll(array $attributes, $condition = '', array $params = []): int
     {
         throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }
@@ -171,7 +170,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return int the number of rows updated.
      */
-    public static function updateAllCounters(array $counters, $condition = ''): int
+    public function updateAllCounters(array $counters, $condition = ''): int
     {
         throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }
@@ -184,7 +183,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * Customer::deleteAll('status = 3');
+     * $customer = new Customer($this->db);
+     * $customer::deleteAll('status = 3');
      * ```
      *
      * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL. Please refer
@@ -194,7 +194,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @throws NotSupportedException if not overridden.
      */
-    public static function deleteAll(?array $condition = null): int
+    public function deleteAll(?array $condition = null): int
     {
         throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }
@@ -1026,11 +1026,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function instantiate(): ActiveRecordInterface
     {
-        if ($this->instantiate === null) {
-            $this->instantiate = new static($this->db);
-        }
-
-        return $this->instantiate;
+        return new static($this->db);
     }
 
     /**
@@ -1075,8 +1071,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             if (is_array($relation->getVia())) {
                 /** @var $viaRelation ActiveQuery */
                 [$viaName, $viaRelation] = $relation->getVia();
-                $viaClass = $viaRelation->getModelClass();
-                /* unset $viaName so that it can be reloaded to reflect the change */
+                $viaClass = $viaRelation->getARInstance();
+                /** unset $viaName so that it can be reloaded to reflect the change */
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->getVia();
@@ -1099,22 +1095,19 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             if (is_array($relation->getVia())) {
-                /** @var $viaClass ActiveRecordInterface */
-                /** @var $record ActiveRecordInterface */
-                $record = new $viaClass();
 
                 foreach ($columns as $column => $value) {
-                    $record->$column = $value;
+                    $viaClass->$column = $value;
                 }
 
-                $record->insert();
+                $viaClass->insert();
             } else {
                 /** @var $viaTable string */
-                static::getConnection()->createCommand()->insert($viaTable, $columns)->execute();
+                $this->db->createCommand()->insert($viaTable, $columns)->execute();
             }
         } else {
             $p1 = $model->isPrimaryKey(array_keys($relation->getLink()));
-            $p2 = static::isPrimaryKey(array_values($relation->getLink()));
+            $p2 = $this->instantiate()->isPrimaryKey(array_values($relation->getLink()));
 
             if ($p1 && $p2) {
                 if ($this->getIsNewRecord() && $model->getIsNewRecord()) {
@@ -1137,7 +1130,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
         }
 
-        // update lazily loaded related objects
+        /** update lazily loaded related objects */
         if (!$relation->getMultiple()) {
             $this->related[$name] = $model;
         } elseif (isset($this->related[$name])) {
@@ -1178,9 +1171,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         if ($relation->getVia() !== null) {
             if (is_array($relation->getVia())) {
-                /* @var $viaRelation ActiveQuery */
+                /** @var $viaRelation ActiveQuery */
                 [$viaName, $viaRelation] = $relation->getVia();
-                $viaClass = $viaRelation->getModelClass();
+                $viaClass = $viaRelation->getArInstance();
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->getVia();
@@ -1203,16 +1196,16 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             if (is_array($relation->getVia())) {
-                /* @var $viaClass ActiveRecordInterface */
+                /** @var $viaClass ActiveRecordInterface */
                 if ($delete) {
-                    $viaClass::deleteAll($columns);
+                    $viaClass->deleteAll($columns);
                 } else {
-                    $viaClass::updateAll($nulls, $columns);
+                    $viaClass->updateAll($nulls, $columns);
                 }
             } else {
-                /* @var $viaTable string */
-                /* @var $command Command */
-                $command = static::getConnection()->createCommand();
+                /** @var $viaTable string */
+                /** @var $command Command */
+                $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $columns)->execute();
                 } else {
@@ -1233,7 +1226,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
             } elseif ($p1) {
                 foreach ($relation->getLink() as $a => $b) {
-                    if (is_array($this->$b)) { // relation via array valued attribute
+                    /** relation via array valued attribute */
+                    if (is_array($this->$b)) {
                         if (($key = array_search($model->$a, $this->$b, false)) !== false) {
                             $values = $this->$b;
                             unset($values[$key]);
@@ -1252,7 +1246,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         if (!$relation->getMultiple()) {
             unset($this->related[$name]);
         } elseif (isset($this->related[$name])) {
-            /* @var $b ActiveRecordInterface */
+            /** @var $b ActiveRecordInterface */
             foreach ($this->related[$name] as $a => $b) {
                 if ($model->getPrimaryKey() === $b->getPrimaryKey()) {
                     unset($this->related[$name][$a]);
@@ -1288,7 +1282,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             if (is_array($relation->getVia())) {
                 /* @var $viaRelation ActiveQuery */
                 [$viaName, $viaRelation] = $relation->getVia();
-                $viaClass = $viaRelation->getModelClass();
+                $viaClass = $viaRelation->getARInstance();
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->getVia();
@@ -1315,14 +1309,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             if (is_array($relation->getVia())) {
                 /** @var $viaClass ActiveRecordInterface */
                 if ($delete) {
-                    $viaClass::deleteAll($condition);
+                    $viaClass->deleteAll($condition);
                 } else {
-                    $viaClass::updateAll($nulls, $condition);
+                    $viaClass->updateAll($nulls, $condition);
                 }
             } else {
                 /** @var $viaTable string */
                 /** @var $command Command */
-                $command = static::getConnection()->createCommand();
+                $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $condition)->execute();
                 } else {
@@ -1330,8 +1324,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
             }
         } else {
-            /* @var $relatedModel ActiveRecordInterface */
-            $relatedModel = $relation->getModelClass();
+            $relatedModel = $relation->getARInstance();
 
             $link = $relation->getLink();
             if (!$delete && count($link) === 1 && is_array($this->{$b = reset($link)})) {
@@ -1356,9 +1349,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
 
                 if ($delete) {
-                    $relatedModel::deleteAll($condition);
+                    $relatedModel->deleteAll($condition);
                 } else {
-                    $relatedModel::updateAll($nulls, $condition);
+                    $relatedModel->updateAll($nulls, $condition);
                 }
             }
         }

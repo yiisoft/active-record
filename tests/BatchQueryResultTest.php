@@ -14,14 +14,11 @@ abstract class BatchQueryResultTest extends TestCase
 
     public function testQuery(): void
     {
-        $db = Customer::getConnection();
+        $this->loadFixture($this->db);
 
-        $this->loadFixture($db);
+        $customer = new Customer($this->db);
 
-        /** initialize property test */
-        $query = new Query($db);
-
-        $query->from('customer')->orderBy('id');
+        $query = $customer->find()->orderBy('id');
 
         $result = $query->batch(2);
 
@@ -30,9 +27,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertSame($result->getQuery(), $query);
 
         /** normal query */
-        $query = new Query($db);
-
-        $query->from('customer')->orderBy('id');
+        $query = $customer->find()->orderBy('id');
 
         $allRows = [];
 
@@ -60,9 +55,7 @@ abstract class BatchQueryResultTest extends TestCase
         $batch->reset();
 
         /** empty query */
-        $query = new Query($db);
-
-        $query->from('customer')->where(['id' => 100]);
+        $query = $customer->find()->where(['id' => 100]);
 
         $allRows = [];
 
@@ -75,9 +68,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertCount(0, $allRows);
 
         /** query with index */
-        $query = new Query($db);
-
-        $query->from('customer')->indexBy('name');
+        $query = $customer->find()->indexBy('name');
 
         $allRows = [];
 
@@ -91,9 +82,8 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertEquals('address3', $allRows['user3']['address']);
 
         /** each */
-        $query = new Query($db);
+        $query = $customer->find()->orderBy('id');
 
-        $query->from('customer')->orderBy('id');
         $allRows = [];
 
         foreach ($query->each(2) as $index => $row) {
@@ -105,9 +95,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertEquals('user3', $allRows[2]['name']);
 
         /** each with key */
-        $query = new Query($db);
-
-        $query->from('customer')->orderBy('id')->indexBy('name');
+        $query = $customer->find()->orderBy('id')->indexBy('name');
 
         $allRows = [];
 
@@ -123,10 +111,10 @@ abstract class BatchQueryResultTest extends TestCase
 
     public function testActiveQuery(): void
     {
-        $db = Customer::getConnection();
-
         /** batch with eager loading */
-        $query = (new Customer($db))->find()->with('orders')->orderBy('id');
+        $customer = new Customer($this->db);
+
+        $query = $customer->find()->with('orders')->orderBy('id');
 
         $customers = $this->getAllRowsFromBatch($query->batch(2));
 
@@ -142,11 +130,11 @@ abstract class BatchQueryResultTest extends TestCase
 
     public function testBatchWithIndexBy(): void
     {
-        $db = Customer::getConnection();
+        $customer = new Customer($this->db);
 
-        $query = (new Customer($db))->find()->orderBy('id')->limit(3)->indexBy('id');
+        $query = $customer->find()->orderBy('id')->limit(3)->indexBy('id');
 
-        $customers = $this->getAllRowsFromBatch($query->batch(2), $db);
+        $customers = $this->getAllRowsFromBatch($query->batch(2), $this->db);
 
         $this->assertCount(3, $customers);
         $this->assertEquals('user1', $customers[0]->name);

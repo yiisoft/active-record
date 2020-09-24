@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
-use Yiisoft\ActiveRecord\BaseActiveRecord;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group mysql
  */
-final class ActiveRecordTest extends BaseActiveRecordTest
+final class ActiveRecordTest extends AbstractActiveRecordTest
 {
     protected ?string $driverName = 'mysql';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        BaseActiveRecord::connectionId($this->driverName);
+        $this->db = $this->mysqlConnection;
     }
 
     protected function tearDown(): void
@@ -35,13 +36,15 @@ final class ActiveRecordTest extends BaseActiveRecordTest
     public function testExplicitPkOnAutoIncrement()
     {
         /** @var $this TestCase|ActiveRecordTestTrait */
-        $customer = new Customer();
+        $customer = new Customer($this->db);
+
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
         $customer->name = 'user1337';
         $customer->address = 'address1337';
 
         $this->assertTrue($customer->isNewRecord);
+
         $customer->save();
 
         $this->assertEquals(1337, $customer->id);
@@ -53,7 +56,9 @@ final class ActiveRecordTest extends BaseActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betas = Beta::find()->with('alpha')->all();
+        $beta = new Beta($this->db);
+
+        $betas = $beta->find()->with('alpha')->all();
 
         $this->assertNotEmpty($betas);
 

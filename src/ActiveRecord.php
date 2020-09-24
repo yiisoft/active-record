@@ -158,7 +158,8 @@ class ActiveRecord extends BaseActiveRecord
      * Below is an example:
      *
      * ```php
-     * $customers = Customer::findBySql('SELECT * FROM customer')->all();
+     * $customer = new Customer($db);
+     * $customers = $customer->findBySql('SELECT * FROM customer')->all();
      * ```
      *
      * @param string $sql the SQL statement to be executed
@@ -166,9 +167,9 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return Query the newly created {@see ActiveQuery} instance
      */
-    public static function findBySql(string $sql, array $params = []): Query
+    public function findBySql(string $sql, array $params = []): Query
     {
-        return (static::find())->sql($sql)->params($params);
+        return $this->find()->sql($sql)->params($params);
     }
 
     /**
@@ -249,21 +250,18 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $condition condition to filter.
      * @param array $aliases
      *
-     * @throws Exception
-     * @throws InvalidArgumentException in case array contains unsafe values.
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidArgumentException in case array contains unsafe values.
      *
      * @return array filtered condition.
      */
-    protected static function filterCondition(array $condition, array $aliases = []): array
+    protected function filterCondition(array $condition, array $aliases = []): array
     {
         $result = [];
 
-        $columnNames = static::filterValidColumnNames($aliases);
+        $columnNames = $this->filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array(static::getConnection()->quoteSql($key), $columnNames, true)) {
+            if (is_string($key) && !in_array($this->db->quoteSql($key), $columnNames, true)) {
                 throw new InvalidArgumentException(
                     'Key "' . $key . '" is not a column name and can not be used as a filter'
                 );
@@ -279,28 +277,26 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @param array $aliases
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException
      *
      * @return array
      */
-    protected static function filterValidColumnNames(array $aliases): array
+    protected function filterValidColumnNames(array $aliases): array
     {
         $columnNames = [];
-        $tableName = static::tableName();
-        $quotedTableName = static::getConnection()->quoteTableName($tableName);
+        $tableName = $this->instantiate()->tableName();
+        $quotedTableName = $this->db->quoteTableName($tableName);
 
-        foreach (static::getTableSchema()->getColumnNames() as $columnName) {
+        foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
-            $columnNames[] = static::getConnection()->quoteColumnName($columnName);
+            $columnNames[] = $this->db->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = static::getConnection()->quoteSql("$quotedTableName.[[$columnName]]");
+            $columnNames[] = $this->db->quoteSql("$quotedTableName.[[$columnName]]");
 
             foreach ($aliases as $tableAlias) {
                 $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = static::getConnection()->quoteTableName($tableAlias);
-                $columnNames[] = static::getConnection()->quoteSql("$quotedTableAlias.[[$columnName]]");
+                $quotedTableAlias = $this->db->quoteTableName($tableAlias);
+                $columnNames[] = $this->db->quoteSql("$quotedTableAlias.[[$columnName]]");
             }
         }
 
@@ -333,7 +329,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
      * ```php
-     * Customer::updateAll(['status' => 1], 'status = 2');
+     * $customer = new Customer($db);
+     * $customer->updateAll(['status' => 1], 'status = 2');
      * ```
      *
      * > Warning: If you do not specify any condition, this method will update **all** rows in the table.
@@ -343,10 +340,11 @@ class ActiveRecord extends BaseActiveRecord
      * {@see update()} on each of them. For example an equivalent of the example above would be:
      *
      * ```php
-     * $models = Customer::find()->where('status = 2')->all();
-     * foreach ($models as $model) {
-     *     $model->status = 1;
-     *     $model->update(false); // skipping validation as no user input is involved
+     * $customer = new Customer($db);
+     * $arClasses = $customer->find()->where('status = 2')->all();
+     * foreach ($arClasses as $arClass) {
+     *     $arClass->status = 1;
+     *     $arClass->update();
      * }
      * ```
      *
@@ -357,18 +355,15 @@ class ActiveRecord extends BaseActiveRecord
      * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return int the number of rows updated.
      */
-    public static function updateAll(array $attributes, $condition = '', array $params = []): int
+    public function updateAll(array $attributes, $condition = '', array $params = []): int
     {
-        $command = static::getConnection()->createCommand();
+        $command = $this->db->createCommand();
 
-        $command->update(static::tableName(), $attributes, $condition, $params);
+        $command->update($this->instantiate()->tableName(), $attributes, $condition, $params);
 
         return $command->execute();
     }
@@ -392,14 +387,11 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return int the number of rows updated.
      */
-    public static function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
     {
         $n = 0;
 
@@ -408,8 +400,8 @@ class ActiveRecord extends BaseActiveRecord
             $n++;
         }
 
-        $command = static::getConnection()->createCommand();
-        $command->update(static::tableName(), $counters, $condition, $params);
+        $command = $this->db->createCommand();
+        $command->update($this->instantiate()->tableName(), $counters, $condition, $params);
 
         return $command->execute();
     }
@@ -420,7 +412,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * Customer::deleteAll('status = 3');
+     * $customer = new Customer($this->db);
+     * $customer->deleteAll('status = 3');
      * ```
      *
      * > Warning: If you do not specify any condition, this method will delete **all** rows in the table.
@@ -430,9 +423,10 @@ class ActiveRecord extends BaseActiveRecord
      * call {@see delete()} on each of them. For example an equivalent of the example above would be:
      *
      * ```php
-     * $models = Customer::find()->where('status = 3')->all();
-     * foreach ($models as $model) {
-     *     $model->delete();
+     * $customer = new Customer($this->db);
+     * $arClasses = $customer->find()->where('status = 3')->all();
+     * foreach ($arClasses as $arClass) {
+     *     $arClass->delete();
      * }
      * ```
      *
@@ -442,16 +436,13 @@ class ActiveRecord extends BaseActiveRecord
      * to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
+     * @throws Exception|InvalidConfigException|NotSupportedException|Throwable
      *
      * @return int the number of rows deleted.*
      */
-    public static function deleteAll(?array $condition = null, array $params = []): int
+    public function deleteAll(?array $condition = null, array $params = []): int
     {
-        $command = static::getConnection()->createCommand();
+        $command = $this->db->createCommand();
         $command->delete(static::tableName(), $condition, $params);
 
         return $command->execute();
@@ -492,10 +483,10 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function getTableSchema(): TableSchema
     {
-        $tableSchema = $this->getDb()->getSchema()->getTableSchema(static::tableName());
+        $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->instantiate()->tableName());
 
         if ($tableSchema === null) {
-            throw new InvalidConfigException('The table does not exist: ' . static::tableName());
+            throw new InvalidConfigException('The table does not exist: ' . $this->instantiate()->tableName());
         }
 
         return $tableSchema;
@@ -643,7 +634,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->insertInternal($attributes);
         }
 
-        $transaction = static::getConnection()->beginTransaction();
+        $transaction = $this->db->beginTransaction();
 
         try {
             $result = $this->insertInternal($attributes);
@@ -676,7 +667,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = static::getConnection()->getSchema()->insert(static::tableName(), $values)) === false) {
+        if (($primaryKeys = $this->db->getSchema()->insert(static::tableName(), $values)) === false) {
             return false;
         }
 
@@ -747,7 +738,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->updateInternal($attributeNames);
         }
 
-        $transaction = static::getConnection()->beginTransaction();
+        $transaction = $this->db->beginTransaction();
 
         try {
             $result = $this->updateInternal($attributeNames);
@@ -790,7 +781,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->deleteInternal();
         }
 
-        $transaction = static::getConnection()->beginTransaction();
+        $transaction = $this->db->beginTransaction();
 
         try {
             $result = $this->deleteInternal();

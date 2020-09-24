@@ -88,4 +88,9 @@ final class Customer extends ActiveRecord
             $q->viaTable('order', ['customer_id' => 'id']);
         })->orderBy('id');
     }
+
+    public function find(): CustomerQuery
+    {
+        return new CustomerQuery(static::class, $this->db);
+    }
 }

@@ -486,13 +486,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $this->join = [];
 
-        /** @var $modelClass ActiveRecordInterface */
-        $modelClass = $this->arClass;
-
-        $model = $modelClass::instance();
+        $arClass = $this->getARInstance();
 
         foreach ($this->joinWith as [$with, $eagerLoading, $joinType]) {
-            $this->joinWithRelations($model, $with, $joinType);
+            $this->joinWithRelations($arClass, $with, $joinType);
 
             if (is_array($eagerLoading)) {
                 foreach ($with as $name => $callback) {
@@ -556,14 +553,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Modifies the current query by adding join fragments based on the given relations.
      *
-     * @param ActiveRecord $model the primary model.
+     * @param ActiveRecord $arClass the primary model.
      * @param array $with the relations to be joined.
      * @param string|array $joinType the join type.
      *
-     * @throws InvalidArgumentException
-     * @throws ReflectionException
+     * @throws InvalidArgumentException|ReflectionException
      */
-    private function joinWithRelations(ActiveRecord $model, array $with, $joinType): void
+    private function joinWithRelations(ActiveRecord $arClass, array $with, $joinType): void
     {
         $relations = [];
 
@@ -573,7 +569,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $callback = null;
             }
 
-            $primaryModel = $model;
+            $primaryModel = $arClass;
             $parent = $this;
             $prefix = '';
 
@@ -592,7 +588,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 /** @var $relationModelClass ActiveRecordInterface */
                 $relationModelClass = $relation->arClass;
 
-                $primaryModel = new $relationModelClass();
+                $primaryModel = new $relationModelClass($this->db);
 
                 $parent = $relation;
                 $prefix = $fullName;

@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Mssql;
 use Yiisoft\ActiveRecord\Tests\ActiveDataProviderFactoryTest as AbstractActiveDataProviderFactoryTest;
 
 /**
- * @group mysql
+ * @group mssql
  */
 final class ActiveDataProviderFactoryTest extends AbstractActiveDataProviderFactoryTest
 {

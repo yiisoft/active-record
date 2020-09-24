@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 
-use Yiisoft\ActiveRecord\BaseActiveRecord;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
+use ArrayAccess;
+use Traversable;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BoolAR;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
@@ -20,15 +22,16 @@ use Yiisoft\Db\Pgsql\Schema;
 /**
  * @group pgsql
  */
-final class ActiveRecordTest extends BaseActiveRecordTest
+final class ActiveRecordTest extends AbstractActiveRecordTest
 {
-    public ?string $driverName = 'pgsql';
+    protected ?string $driverName = 'pgsql';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        BaseActiveRecord::connectionId($this->driverName);
+        $this->db = $this->pgsqlConnection;
     }
 
     protected function tearDown(): void
@@ -43,13 +46,15 @@ final class ActiveRecordTest extends BaseActiveRecordTest
     public function testExplicitPkOnAutoIncrement()
     {
         /** @var $this TestCase|ActiveRecordTestTrait */
-        $customer = new Customer();
+        $customer = new Customer($this->db);
+
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
         $customer->name = 'user1337';
         $customer->address = 'address1337';
 
         $this->assertTrue($customer->isNewRecord);
+
         $customer->save();
 
         $this->assertEquals(1337, $customer->id);
@@ -61,7 +66,9 @@ final class ActiveRecordTest extends BaseActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betas = Beta::find()->with('alpha')->all();
+        $beta = new Beta($this->db);
+
+        $betas = $beta->find()->with('alpha')->all();
 
         $this->assertNotEmpty($betas);
 
@@ -79,15 +86,16 @@ final class ActiveRecordTest extends BaseActiveRecordTest
 
     public function testBooleanAttribute(): void
     {
-        $this->loadFixture(Customer::getConnection());
+        $this->loadFixture($this->db);
 
         /** @var $this TestCase|ActiveRecordTestTrait */
-        $customer = new Customer();
+        $customer = new Customer($this->db);
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
         $customer->bool_status = false;
 
         $customer->save();
+
         $customer->refresh();
         $this->assertFalse($customer->bool_status);
 
@@ -97,19 +105,21 @@ final class ActiveRecordTest extends BaseActiveRecordTest
         $customer->refresh();
         $this->assertTrue($customer->bool_status);
 
-        $customers = Customer::find()->where(['bool_status' => true])->all();
+        $customers = $customer->find()->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
-        $customers = Customer::find()->where(['bool_status' => false])->all();
+        $customers = $customer->find()->where(['bool_status' => false])->all();
         $this->assertCount(1, $customers);
     }
 
     public function testFindAsArray(): void
     {
-        $this->loadFixture(Customer::getConnection());
+        $this->loadFixture($this->db);
+
+        $customerInstance = new Customer($this->db);
 
         /** asArray */
-        $customer = Customer::find()->where(['id' => 2])->asArray()->one();
+        $customer = $customerInstance->find()->where(['id' => 2])->asArray()->one();
         $this->assertEquals([
             'id' => 2,
             'email' => 'user2@example.com',
@@ -121,7 +131,7 @@ final class ActiveRecordTest extends BaseActiveRecordTest
         ], $customer);
 
         /** find all asArray */
-        $customers = Customer::find()->asArray()->all();
+        $customers = $customerInstance->find()->asArray()->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers[0]);
         $this->assertArrayHasKey('name', $customers[0]);
@@ -145,23 +155,24 @@ final class ActiveRecordTest extends BaseActiveRecordTest
 
     public function testBooleanValues(): void
     {
-        $db = BoolAR::getConnection();
-        $command = $db->createCommand();
+        $command = $this->db->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
 
-        $this->assertEquals(1, BoolAR::find()->where('bool_col = TRUE')->count('*', $db));
-        $this->assertEquals(1, BoolAR::find()->where('bool_col = FALSE')->count('*', $db));
-        $this->assertEquals(2, BoolAR::find()->where('bool_col IN (TRUE, FALSE)')->count('*', $db));
+        $boolAR = new BoolAR($this->db);
 
-        $this->assertEquals(1, BoolAR::find()->where(['bool_col' => true])->count('*', $db));
-        $this->assertEquals(1, BoolAR::find()->where(['bool_col' => false])->count('*', $db));
-        $this->assertEquals(2, BoolAR::find()->where(['bool_col' => [true, false]])->count('*', $db));
+        $this->assertEquals(1, $boolAR->find()->where('bool_col = TRUE')->count('*'));
+        $this->assertEquals(1, $boolAR->find()->where('bool_col = FALSE')->count('*'));
+        $this->assertEquals(2, $boolAR->find()->where('bool_col IN (TRUE, FALSE)')->count('*'));
 
-        $this->assertEquals(1, BoolAR::find()->where('bool_col = :bool_col', ['bool_col' => true])->count('*', $db));
-        $this->assertEquals(1, BoolAR::find()->where('bool_col = :bool_col', ['bool_col' => false])->count('*', $db));
+        $this->assertEquals(1, $boolAR->find()->where(['bool_col' => true])->count('*'));
+        $this->assertEquals(1, $boolAR->find()->where(['bool_col' => false])->count('*'));
+        $this->assertEquals(2, $boolAR->find()->where(['bool_col' => [true, false]])->count('*'));
 
-        $this->assertTrue(BoolAR::find()->where(['bool_col' => true])->one($db)->bool_col);
-        $this->assertFalse(BoolAR::find()->where(['bool_col' => false])->one($db)->bool_col);
+        $this->assertEquals(1, $boolAR->find()->where('bool_col = :bool_col', ['bool_col' => true])->count('*'));
+        $this->assertEquals(1, $boolAR->find()->where('bool_col = :bool_col', ['bool_col' => false])->count('*'));
+
+        $this->assertTrue($boolAR->find()->where(['bool_col' => true])->one()->bool_col);
+        $this->assertFalse($boolAR->find()->where(['bool_col' => false])->one()->bool_col);
     }
 
     /**
@@ -169,11 +180,11 @@ final class ActiveRecordTest extends BaseActiveRecordTest
      */
     public function testBooleanValues2(): void
     {
-        $db = UserAR::getConnection();
+        $this->db->setCharset('utf8');
 
-        $db->setCharset('utf8');
-        $db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
-        $db->createCommand()->createTable('bool_user', [
+        $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
+
+        $this->db->createCommand()->createTable('bool_user', [
             'id' => Schema::TYPE_PK,
             'username' => Schema::TYPE_STRING . ' NOT NULL',
             'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL',
@@ -185,10 +196,14 @@ final class ActiveRecordTest extends BaseActiveRecordTest
             'created_at' => Schema::TYPE_INTEGER . ' NOT NULL',
             'updated_at' => Schema::TYPE_INTEGER . ' NOT NULL',
         ])->execute();
-        $db->createCommand()->addColumn('bool_user', 'is_deleted', Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE')
-            ->execute();
 
-        $user = new UserAR();
+        $this->db->createCommand()->addColumn(
+            'bool_user',
+            'is_deleted',
+            Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
+        )->execute();
+
+        $user = new UserAR($this->db);
         $user->username = 'test';
         $user->auth_key = 'test';
         $user->password_hash = 'test';
@@ -198,76 +213,34 @@ final class ActiveRecordTest extends BaseActiveRecordTest
 
         $user->save();
 
-        $this->assertCount(1, UserAR::find()->where(['is_deleted' => false])->all($db));
-        $this->assertCount(0, UserAR::find()->where(['is_deleted' => true])->all($db));
-        $this->assertCount(1, UserAR::find()->where(['is_deleted' => [true, false]])->all($db));
+        $this->assertCount(1, $user->find()->where(['is_deleted' => false])->all());
+        $this->assertCount(0, $user->find()->where(['is_deleted' => true])->all());
+        $this->assertCount(1, $user->find()->where(['is_deleted' => [true, false]])->all());
     }
 
     public function testBooleanDefaultValues(): void
     {
-        $model = new BoolAR();
-        $this->assertNull($model->bool_col);
-        $this->assertNull($model->default_true);
-        $this->assertNull($model->default_false);
+        $arClass = new BoolAR($this->db);
+        $this->assertNull($arClass->bool_col);
+        $this->assertNull($arClass->default_true);
+        $this->assertNull($arClass->default_false);
 
-        $model->loadDefaultValues();
-        $this->assertNull($model->bool_col);
-        $this->assertTrue($model->default_true);
-        $this->assertFalse($model->default_false);
-        $this->assertTrue($model->save());
+        $arClass->loadDefaultValues();
+        $this->assertNull($arClass->bool_col);
+        $this->assertTrue($arClass->default_true);
+        $this->assertFalse($arClass->default_false);
+        $this->assertTrue($arClass->save());
     }
 
     public function testPrimaryKeyAfterSave(): void
     {
-        $record = new DefaultPk();
+        $record = new DefaultPk($this->db);
 
         $record->type = 'type';
+
         $record->save();
+
         $this->assertEquals(5, $record->primaryKey);
-    }
-
-    /**
-     * @dataProvider arrayValuesProvider $attributes
-     */
-    public function testArrayValues($attributes): void
-    {
-        $this->loadFixture(ArrayAndJsonTypes::getConnection());
-
-        $type = new ArrayAndJsonTypes();
-
-        foreach ($attributes as $attribute => $expected) {
-            $type->$attribute = $expected[0];
-        }
-
-        $type->save();
-
-        $type = ArrayAndJsonTypes::find()->one();
-
-        foreach ($attributes as $attribute => $expected) {
-            $expected = isset($expected[1]) ? $expected[1] : $expected[0];
-            $value = $type->$attribute;
-
-            if ($expected instanceof ArrayExpression) {
-                $expected = $expected->getValue();
-            }
-
-            $this->assertEquals($expected, $value, 'In column ' . $attribute);
-
-            if ($value instanceof ArrayExpression) {
-                $this->assertInstanceOf('\ArrayAccess', $value);
-                $this->assertInstanceOf('\Traversable', $value);
-                foreach ($type->$attribute as $key => $v) { // testing arrayaccess
-                    $this->assertSame($expected[$key], $value[$key]);
-                }
-            }
-        }
-
-        /** Testing UPDATE */
-        foreach ($attributes as $attribute => $expected) {
-            $type->markAttributeDirty($attribute);
-        }
-
-        $this->assertSame(1, $type->update(), 'The record got updated');
     }
 
     public function arrayValuesProvider(): array
@@ -360,5 +333,50 @@ final class ActiveRecordTest extends BaseActiveRecordTest
                 ],
             ]],
         ];
+    }
+
+    /**
+     * @dataProvider arrayValuesProvider $attributes
+     */
+    public function testArrayValues($attributes): void
+    {
+        $this->loadFixture($this->db);
+
+        $type = new ArrayAndJsonTypes($this->db);
+
+        foreach ($attributes as $attribute => $expected) {
+            $type->$attribute = $expected[0];
+        }
+
+        $type->save();
+
+        $type = $type->find()->one();
+
+        foreach ($attributes as $attribute => $expected) {
+            $expected = isset($expected[1]) ? $expected[1] : $expected[0];
+            $value = $type->$attribute;
+
+            if ($expected instanceof ArrayExpression) {
+                $expected = $expected->getValue();
+            }
+
+            $this->assertEquals($expected, $value, 'In column ' . $attribute);
+
+            if ($value instanceof ArrayExpression) {
+                $this->assertInstanceOf(ArrayAccess::class, $value);
+                $this->assertInstanceOf(Traversable::class, $value);
+                /** testing arrayaccess */
+                foreach ($type->$attribute as $key => $v) {
+                    $this->assertSame($expected[$key], $value[$key]);
+                }
+            }
+        }
+
+        /** Testing update */
+        foreach ($attributes as $attribute => $expected) {
+            $type->markAttributeDirty($attribute);
+        }
+
+        $this->assertSame(1, $type->update(), 'The record got updated');
     }
 }

@@ -4,23 +4,24 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mssql;
 
-use Yiisoft\ActiveRecord\BaseActiveRecord;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTrigger;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTriggerAlert;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group mssql
  */
-final class ActiveRecordTest extends BaseActiveRecordTest
+final class ActiveRecordTest extends AbstractActiveRecordTest
 {
     protected ?string $driverName = 'mssql';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        BaseActiveRecord::connectionId($this->driverName);
+        $this->db = $this->mssqlConnection;
     }
 
     protected function tearDown(): void
@@ -54,15 +55,15 @@ BEGIN
 END';
         $db->createCommand($sql)->execute();
 
-        $record = new TestTrigger();
+        $record = new TestTrigger($db);
 
         $record->stringcol = 'test';
 
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
 
-        $testRecord = TestTriggerAlert::findOne(1);
+        $testRecord = new TestTriggerAlert($db);
 
-        $this->assertEquals('test', $testRecord->stringcol);
+        $this->assertEquals('test', $testRecord->findOne(1)->stringcol);
     }
 }

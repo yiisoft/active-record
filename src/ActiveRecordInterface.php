@@ -262,49 +262,57 @@ interface ActiveRecordInterface
      * See the following code for usage examples:
      *
      * ```php
-     * // find the customers whose primary key value is 10
-     * $customers = Customer::findAll(10);
+     * // find the customers whose primary key value is 10.
+     * $customer = new Customer($db);
+     * $customers = $customer->findAll(10);
      *
-     * // the above code is equivalent to:
-     * $customers = Customer::find()->where(['id' => 10])->all();
+     * // the above code is equivalent to.
+     * $customer = new Customer($db);
+     * $customers = $customer->find()->where(['id' => 10])->all();
      *
      * // find the customers whose primary key value is 10, 11 or 12.
-     * $customers = Customer::findAll([10, 11, 12]);
+     * $customer = new Customer($db);
+     * $customers = $customer->findAll([10, 11, 12]);
      *
-     * // the above code is equivalent to:
-     * $customers = Customer::find()->where(['id' => [10, 11, 12]])->all();
+     * // the above code is equivalent to,
+     * $customer = new Customer($db);
+     * $customers = $customer->find()->where(['id' => [10, 11, 12]])->all();
      *
-     * // find customers whose age is 30 and whose status is 1
-     * $customers = Customer::findAll(['age' => 30, 'status' => 1]);
+     * // find customers whose age is 30 and whose status is 1.
+     * $customer = new Customer($db);
+     * $customers = $customer->findAll(['age' => 30, 'status' => 1]);
      *
-     * // the above code is equivalent to:
-     * $customers = Customer::find()->where(['age' => 30, 'status' => 1])->all();
+     * // the above code is equivalent to.
+     * $customer = new Customer($db);
+     * $customers = $customer->find()->where(['age' => 30, 'status' => 1])->all();
      * ```
      *
      * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
      * make sure the array structure can not be changed from the outside:
      *
      * ```php
-     * // \Yiisoft\Yii\Web\Controller ensures that $id is scalar
      * public function actionView($id)
      * {
-     *     $model = Post::findOne($id);
+     *     $arClass = new Post($db);
+     *     $arClass = $arClass->findOne($id);
      *     // ...
      * }
      *
      * Explicitly specifying the colum to search, passing a scalar or array here will always result in finding a single
      * record:
-     * $model = Post::findOne(['id' => $id]);
+     * $arClass = new Post($db);
+     * $arCLass = $arClass->findOne(['id' => $id]);
      *
      * Do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column values!:
-     * $model = Post::findOne($id);
+     * $arClass = new Post($db);
+     * $arClass = $arClass->findOne($id);
      * ```
      *
      * @param mixed $condition primary key value or a set of column values.
      *
      * @return array an array of ActiveRecord instance, or an empty array if nothing matches.
      */
-    public static function findAll($condition): array;
+    public function findAll($condition): array;
 
     /**
      * Updates records using the provided attribute values and conditions.
@@ -312,19 +320,20 @@ interface ActiveRecordInterface
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
      * ```php
-     * Customer::updateAll(['status' => 1], ['status' => '2']);
+     * $customer = new Customer($db);
+     * $customer->updateAll(['status' => 1], ['status' => '2']);
      * ```
      *
-     * @param array $attributes attribute values (name-value pairs) to be saved for the record.
-     * Unlike {@see update()} these are not going to be validated.
+     * @param array $attributes attribute values (name-value pairs) to be saved for the record. Unlike {@see update()}
+     * these are not going to be validated.
      * @param array|string|null $condition the condition that matches the records that should get updated.
-     * Please refer to {@see QueryInterface::where()} on how to specify this parameter.
-     * An empty condition will match all records.
+     * Please refer to {@see QueryInterface::where()} on how to specify this parameter. An empty condition will match
+     * all records.
      * @param array $params
      *
      * @return int the number of rows updated.
      */
-    public static function updateAll(array $attributes, $condition = null, array $params = []): int;
+    public function updateAll(array $attributes, $condition = null, array $params = []): int;
 
     /**
      * Deletes records using the provided conditions.
@@ -334,7 +343,8 @@ interface ActiveRecordInterface
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * Customer::deleteAll([status = 3]);
+     * $customer = new Customer($this->db);
+     * $customer->deleteAll([status = 3]);
      * ```
      *
      * @param array|null $condition the condition that matches the records that should get deleted.
@@ -343,7 +353,7 @@ interface ActiveRecordInterface
      *
      * @return int the number of rows deleted.
      */
-    public static function deleteAll(?array $condition = null): int;
+    public function deleteAll(?array $condition = null): int;
 
     /**
      * Saves the current record.

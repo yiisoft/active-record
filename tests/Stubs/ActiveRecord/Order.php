@@ -17,11 +17,11 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Order extends ActiveRecord
 {
-    public static ?string $tableName = null;
+    private ?string $tableName = null;
 
     public function tableName(): string
     {
-        return static::$tableName ?: 'order';
+        return $this->tableName ?: 'order';
     }
 
     public function getCustomer(): ActiveQuery
@@ -207,5 +207,10 @@ final class Order extends ActiveRecord
         return [
             0 => 'customer_id',
         ];
+    }
+
+    public function setTableName(?string $value): void
+    {
+        $this->tableName = $value;
     }
 }
