@@ -185,7 +185,7 @@ class ActiveQuery extends BaseActiveQuery
             $model = $row;
         } else {
             /** @var $class ActiveRecord */
-            $class = $this->modelClass;
+            $class = $this->arClass;
 
             $model = new $class($this->db);
 
@@ -221,7 +221,7 @@ class ActiveQuery extends BaseActiveQuery
 
         if ($this->getWhere() === null) {
             /* @var $modelClass ActiveRecord */
-            $modelClass = $this->modelClass;
+            $modelClass = $this->arClass;
 
             return (int) $this->db->executeCommand('LLEN', [$modelClass::keyPrefix()]);
         }
@@ -437,7 +437,7 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         /** @var $modelClass ActiveRecord */
-        $modelClass = $this->modelClass;
+        $modelClass = $this->arClass;
 
         if ($type === 'Count') {
             $start = 0;

@@ -13,7 +13,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Order;
 /**
  * @group redis
  */
-final class ActiveQueryTest extends TestCase
+final class ActiveQueryFactoryTest extends TestCase
 {
     protected ?string $driverName = 'redis';
 
@@ -23,6 +23,8 @@ final class ActiveQueryTest extends TestCase
 
         $this->redisConnection->open();
         $this->redisConnection->flushdb();
+
+        $this->arFactory->withConnection($this->redisConnection);
     }
 
     protected function tearDown(): void
@@ -31,12 +33,12 @@ final class ActiveQueryTest extends TestCase
 
         $this->redisConnection->close();
 
-        unset($this->redisConnection);
+        unset($this->arFactory, $this->redisConnection);
     }
 
     public function testOptions(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->on(['a' => 'b'])->joinWith('profile');
 
@@ -47,7 +49,7 @@ final class ActiveQueryTest extends TestCase
 
     public function testPopulateEmptyRows(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->populate([]);
 
@@ -58,7 +60,7 @@ final class ActiveQueryTest extends TestCase
     {
         $this->customerData();
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $rows = $query->all();
 
@@ -71,7 +73,7 @@ final class ActiveQueryTest extends TestCase
     {
         $this->customerData();
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->one();
 
@@ -80,7 +82,7 @@ final class ActiveQueryTest extends TestCase
 
     public function testJoinWith(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->joinWith('profile');
 
@@ -89,7 +91,7 @@ final class ActiveQueryTest extends TestCase
 
     public function testInnerJoinWith(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->innerJoinWith('profile');
 
@@ -101,7 +103,7 @@ final class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->onCondition($on, $params);
 
@@ -114,7 +116,7 @@ final class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->andOnCondition($on, $params);
 
@@ -128,7 +130,7 @@ final class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->on($onOld)->andOnCondition($on, $params);
 
@@ -141,7 +143,7 @@ final class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->orOnCondition($on, $params);
 
@@ -155,7 +157,7 @@ final class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->on($onOld)->orOnCondition($on, $params);
 
@@ -167,7 +169,7 @@ final class ActiveQueryTest extends TestCase
     {
         $aliasOld = ['old'];
 
-        $query = new ActiveQuery(Customer::class, $this->redisConnection);
+        $query = $this->arFactory->createRedisQueryTo(Customer::class);
 
         $query = $query->from($aliasOld)->alias('alias');
 

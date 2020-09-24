@@ -34,7 +34,7 @@ final class ActiveDataProviderFactoryTest extends TestCase
 
         $this->redisConnection->close();
 
-        unset($this->redisConnection);
+        unset($this->arFactory, $this->redisConnection);
     }
 
     public function testActiveQuery(): void

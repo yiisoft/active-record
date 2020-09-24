@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
-use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as BaseActiveQueryTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\ActiveQueryFactoryTest as AbstractActiveQueryFactoryTest;
 
 /**
  * @group sqlite
  */
-final class ActiveQueryTest extends BaseActiveQueryTest
+final class ActiveQueryFactoryTest extends AbstractActiveQueryFactoryTest
 {
     protected ?string $driverName = 'sqlite';
-    protected ?ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->sqliteConnection;
+        $this->arFactory->withConnection($this->sqliteConnection);
     }
 
     protected function tearDown(): void
@@ -28,6 +26,6 @@ final class ActiveQueryTest extends BaseActiveQueryTest
 
         $this->sqliteConnection->close();
 
-        unset($this->sqliteConnection);
+        unset($this->arFactory, $this->sqliteConnection);
     }
 }

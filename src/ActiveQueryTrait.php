@@ -10,7 +10,6 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 
-use function get_class;
 use function is_array;
 use function is_int;
 use function reset;
@@ -20,16 +19,16 @@ use function substr;
 trait ActiveQueryTrait
 {
     private array $with = [];
-    private ?bool $asArray = null;
+    private bool $asArray = false;
 
     /**
      * Sets the {@see asArray} property.
      *
      * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
      *
-     * @return $this the query object itself.
+     * @return ActiveQueryInterface the query object itself.
      */
-    public function asArray(?bool $value = true): self
+    public function asArray(bool $value = true): ActiveQueryInterface
     {
         $this->asArray = $value;
 
@@ -111,22 +110,17 @@ trait ActiveQueryTrait
         if ($this->asArray) {
             return $rows;
         } else {
-            $models = [];
-
-            /* @var $class ActiveRecord */
-            $class = $this->modelClass;
+            $arClassInstance = [];
 
             foreach ($rows as $row) {
-                $model = new $class($this->db);
+                $arClass = $this->getARInstance();
 
-                $modelClass = get_class($model);
+                $arClass->populateRecord($arClass, $row);
 
-                $model->populateRecord($model, $row);
-
-                $models[] = $model;
+                $arClassInstance[] = $arClass;
             }
 
-            return $models;
+            return $arClassInstance;
         }
     }
 

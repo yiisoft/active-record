@@ -13,15 +13,11 @@ use Yiisoft\Db\Command\Command;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
 
-abstract class ActiveQueryTest extends TestCase
+abstract class ActiveQueryFactoryTest extends TestCase
 {
     public function testOptions(): void
     {
-        $this->loadFixture($this->db);
-
-        $customer = new Customer($this->db);
-
-        $query = $customer->find()->on(['a' => 'b'])->joinWith('profile');
+        $query = $this->arFactory->createQueryTo(Customer::class)->on(['a' => 'b'])->joinWith('profile');
 
         $this->assertEquals($query->getARClass(), Customer::class);
         $this->assertEquals($query->getOn(), ['a' => 'b']);
@@ -30,23 +26,25 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPrepare(): void
     {
-        $builder = new QueryBuilder($this->db);
+        $db = $this->arFactory->getConnection();
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $builder = new QueryBuilder($db);
+
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $this->assertInstanceOf(Query::class, $query->prepare($builder));
     }
 
     public function testPopulateEmptyRows(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query =  $this->arFactory->createQueryTo(Customer::class);
 
         $this->assertEquals([], $query->populate([]));
     }
 
     public function testPopulateFilledRows(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $rows = $query->all();
 
@@ -57,28 +55,28 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOne(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $this->assertInstanceOf(Customer::class, $query->one());
     }
 
     public function testCreateCommand(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $this->assertInstanceOf(Command::class, $query->createCommand());
     }
 
     public function testQueryScalar(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $this->assertEquals('user1', $this->invokeMethod($query, 'queryScalar', ['name']));
     }
 
     public function testJoinWith(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->joinWith('profile');
 
@@ -87,7 +85,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testInnerJoinWith(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->innerJoinWith('profile');
 
@@ -96,14 +94,14 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetQueryTableNameFromNotSet(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $this->assertEquals(['customer', 'customer'], $this->invokeMethod($query, 'getTableNameAndAlias'));
     }
 
     public function testGetQueryTableNameFromSet(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->from(['alias' => 'customer']);
 
@@ -115,7 +113,7 @@ abstract class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->onCondition($on, $params);
 
@@ -128,7 +126,7 @@ abstract class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->andOnCondition($on, $params);
 
@@ -142,7 +140,7 @@ abstract class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->on($onOld)->andOnCondition($on, $params);
 
@@ -155,7 +153,7 @@ abstract class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->orOnCondition($on, $params);
 
@@ -169,7 +167,7 @@ abstract class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->on($onOld)->orOnCondition($on, $params);
 
@@ -179,9 +177,9 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testViaTable(): void
     {
-        $order = new Order($this->db);
+        $order = $this->arFactory->createAR(Order::class);
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->primaryModel($order)->viaTable(Profile::class, ['id' => 'item_id']);
 
@@ -191,7 +189,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testAliasNotSet(): void
     {
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->alias('alias');
 
@@ -203,7 +201,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $aliasOld = ['old'];
 
-        $query = new ActiveQuery(Customer::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Customer::class);
 
         $query->from($aliasOld)->alias('alias');
 
@@ -213,7 +211,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetTableNamesNotFilledFrom(): void
     {
-        $query = new ActiveQuery(Profile::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Profile::class);
 
         $tableName = $query->getARInstance()->tableName();
 
@@ -227,7 +225,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetTableNamesWontFillFrom(): void
     {
-        $query = new ActiveQuery(Profile::class, $this->db);
+        $query = $this->arFactory->createQueryTo(Profile::class);
 
         $this->assertEquals($query->getFrom(), null);
 
@@ -245,7 +243,7 @@ abstract class ActiveQueryTest extends TestCase
     public function testDeeplyNestedTableRelationWith(): void
     {
         /** @var $category Category */
-        $categories = new Category($this->db);
+        $categories = $this->arFactory->createAR(Category::class);
 
         $categories = $categories->find()->with('orders')->indexBy('id')->all();
 

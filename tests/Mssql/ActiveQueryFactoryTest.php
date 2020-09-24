@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mssql;
 
-use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as BaseActiveQueryTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\ActiveQueryFactoryTest as AbstractActiveQueryFactoryTest;
 
 /**
  * @group mssql
  */
-final class ActiveQueryTest extends BaseActiveQueryTest
+final class ActiveQueryFactoryTest extends AbstractActiveQueryFactoryTest
 {
     protected ?string $driverName = 'mssql';
-    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->mssqlConnection;
+        $this->arFactory->withConnection($this->mssqlConnection);
     }
 
     protected function tearDown(): void
@@ -28,6 +26,6 @@ final class ActiveQueryTest extends BaseActiveQueryTest
 
         $this->mssqlConnection->close();
 
-        unset($this->mssqlConnection);
+        unset($this->arFactory, $this->mssqlConnection);
     }
 }

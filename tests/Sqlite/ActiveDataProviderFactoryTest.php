@@ -26,6 +26,6 @@ final class ActiveDataProviderFactoryTest extends AbstractActiveDataProviderFact
 
         $this->sqliteConnection->close();
 
-        unset($this->sqliteConnection);
+        unset($this->arFactory, $this->sqliteConnection);
     }
 }

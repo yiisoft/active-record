@@ -4,22 +4,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
-use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as BaseActiveQueryTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\ActiveQueryFactoryTest as AbstractActiveQueryFactoryTest;
 
 /**
  * @group mysql
  */
-final class ActiveQueryTest extends BaseActiveQueryTest
+final class ActiveQueryFactoryTest extends AbstractActiveQueryFactoryTest
 {
     protected ?string $driverName = 'mysql';
-    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->mysqlConnection;
+        $this->arFactory->withConnection($this->mysqlConnection);
     }
 
     protected function tearDown(): void
@@ -28,6 +26,6 @@ final class ActiveQueryTest extends BaseActiveQueryTest
 
         $this->mysqlConnection->close();
 
-        unset($this->mysqlConnection);
+        unset($this->arFactory, $this->mysqlConnection);
     }
 }

@@ -41,7 +41,7 @@ final class LuaScriptBuilder
     public function buildAll(ActiveQuery $query): string
     {
         /** @var $modelClass ActiveRecord */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix() . ':a:');
 
@@ -61,7 +61,7 @@ final class LuaScriptBuilder
     public function buildOne(ActiveQuery $query): string
     {
         /** @var $modelClass ActiveRecord */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix() . ':a:');
 
@@ -85,7 +85,7 @@ final class LuaScriptBuilder
          * TODO add support for indexBy.
          * @var $modelClass ActiveRecord
          */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix() . ':a:');
 
@@ -125,7 +125,7 @@ final class LuaScriptBuilder
     public function buildSum(ActiveQuery $query, string $column): string
     {
         /** @var $modelClass ActiveRecord */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix() . ':a:');
 
@@ -146,7 +146,7 @@ final class LuaScriptBuilder
     public function buildAverage(ActiveQuery $query, string $column): string
     {
         /** @var $modelClass ActiveRecord */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix() . ':a:');
 
@@ -171,7 +171,7 @@ final class LuaScriptBuilder
     public function buildMin(ActiveQuery $query, string $column): string
     {
         /* @var $modelClass ActiveRecord */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix() . ':a:');
 
@@ -196,7 +196,7 @@ final class LuaScriptBuilder
     public function buildMax(ActiveQuery $query, string $column): string
     {
         /** @var $modelClass ActiveRecord */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix() . ':a:');
 
@@ -233,7 +233,7 @@ final class LuaScriptBuilder
         );
 
         /** @var $modelClass ActiveRecord */
-        $modelClass = $query->getModelClass();
+        $modelClass = $query->getARClass();
 
         $key = $this->quoteValue($modelClass::keyPrefix());
 
