@@ -12,7 +12,7 @@ final class Cat extends Animal
     {
         parent::populateRecord($record, $row);
 
-        $record->does = 'meow';
+        $record->setDoes('meow');
     }
 
     public function getException(): void

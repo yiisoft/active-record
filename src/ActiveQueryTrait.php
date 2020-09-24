@@ -113,7 +113,7 @@ trait ActiveQueryTrait
             $arClassInstance = [];
 
             foreach ($rows as $row) {
-                $arClass = $this->getARInstance();
+                $arClass = $this->getARInstance()->instantiate($row);
 
                 $arClass->populateRecord($arClass, $row);
 

@@ -13,6 +13,6 @@ final class Dog extends Animal
     {
         parent::populateRecord($record, $row);
 
-        $record->does = 'bark';
+        $record->setDoes('bark');
     }
 }

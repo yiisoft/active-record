@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
@@ -30,12 +31,11 @@ final class OrderWithConstructor extends ActiveRecord
         return 'order';
     }
 
-    public function __construct(ConnectionInterface $db, int $id)
+    public function __construct(int $id)
     {
         $this->id = $id;
         $this->created_at = time();
         $this->db = $db;
-        parent::__construct($db);
     }
 
     public function instance($refresh = false): self
@@ -43,7 +43,7 @@ final class OrderWithConstructor extends ActiveRecord
         return $this->instantiate();
     }
 
-    public function instantiate(): ActiveRecord
+    public function instantiate($row): ActiveRecordInterface
     {
         return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }

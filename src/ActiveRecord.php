@@ -667,12 +667,12 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = $this->db->getSchema()->insert(static::tableName(), $values)) === false) {
+        if (($primaryKeys = $this->db->getSchema()->insert($this->tableName(), $values)) === false) {
             return false;
         }
 
         foreach ($primaryKeys as $name => $value) {
-            $id = static::getTableSchema()->getColumn($name)->phpTypecast($value);
+            $id = $this->getTableSchema()->getColumn($name)->phpTypecast($value);
             $this->setAttribute($name, $id);
             $values[$name] = $id;
         }

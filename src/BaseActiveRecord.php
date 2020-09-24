@@ -1024,7 +1024,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return ActiveRecordInterface the newly created active record
      */
-    public function instantiate(): ActiveRecordInterface
+    public function instantiate($row): ActiveRecordInterface
     {
         return new static($this->db);
     }

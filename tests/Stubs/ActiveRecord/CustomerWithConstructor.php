@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
@@ -41,7 +42,7 @@ final class CustomerWithConstructor extends ActiveRecord
         return self::instantiate([]);
     }
 
-    public static function instantiate($row): ActiveRecord
+    public static function instantiate($row): ActiveRecordInterface
     {
         return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }

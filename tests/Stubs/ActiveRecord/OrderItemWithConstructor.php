@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
  * OrderItemWithConstructor.
@@ -34,9 +35,9 @@ final class OrderItemWithConstructor extends ActiveRecord
         return self::instantiate([]);
     }
 
-    public function instantiate(): ActiveRecord
+    public function instantiate($row): ActiveRecordInterface
     {
-        return (new ReflectionClass(static::class, $this->db))->newInstanceWithoutConstructor();
+        return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
     }
 
     public function getOrder(): ActiveQuery

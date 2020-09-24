@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
@@ -15,7 +16,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 class Animal extends ActiveRecord
 {
-    public string $does;
+    private string $does;
 
     public function tableName(): string
     {
@@ -25,10 +26,24 @@ class Animal extends ActiveRecord
     public function __construct(ConnectionInterface $db)
     {
         parent::__construct($db);
+
+        $this->type = static::class;
     }
 
-    public function getDoes(): string
+    public function getDoes()
     {
         return $this->does;
+    }
+
+    public function instantiate($row): ActiveRecordInterface
+    {
+        $class = $row['type'];
+
+        return new $class($this->db);
+    }
+
+    public function setDoes(string $value): void
+    {
+        $this->does = $value;
     }
 }
