@@ -188,7 +188,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     protected function findByCondition($condition): ActiveQueryInterface
     {
-        $query = $this->instantiate()->find();
+        $query = $this->find();
 
         if (!is_array($condition)) {
             $condition = [$condition];
@@ -284,7 +284,7 @@ class ActiveRecord extends BaseActiveRecord
     protected function filterValidColumnNames(array $aliases): array
     {
         $columnNames = [];
-        $tableName = $this->instantiate()->tableName();
+        $tableName = $this->tableName();
         $quotedTableName = $this->db->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
@@ -363,7 +363,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $command = $this->db->createCommand();
 
-        $command->update($this->instantiate()->tableName(), $attributes, $condition, $params);
+        $command->update($this->tableName(), $attributes, $condition, $params);
 
         return $command->execute();
     }
@@ -401,7 +401,7 @@ class ActiveRecord extends BaseActiveRecord
         }
 
         $command = $this->db->createCommand();
-        $command->update($this->instantiate()->tableName(), $counters, $condition, $params);
+        $command->update($this->tableName(), $counters, $condition, $params);
 
         return $command->execute();
     }
@@ -483,10 +483,10 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function getTableSchema(): TableSchema
     {
-        $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->instantiate()->tableName());
+        $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->tableName());
 
         if ($tableSchema === null) {
-            throw new InvalidConfigException('The table does not exist: ' . $this->instantiate()->tableName());
+            throw new InvalidConfigException('The table does not exist: ' . $this->tableName());
         }
 
         return $tableSchema;

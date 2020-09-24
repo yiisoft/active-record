@@ -77,7 +77,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function findOne($condition): ?ActiveRecordInterface
     {
-        return $this->instantiate()->findByCondition($condition)->one();
+        return $this->findByCondition($condition)->one();
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     protected function findByCondition($condition): ActiveQueryInterface
     {
-        $query = $this->instantiate()->find();
+        $query = $this->find();
 
         if (!is_array($condition)) {
             $condition = [$condition];
@@ -1107,7 +1107,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
         } else {
             $p1 = $model->isPrimaryKey(array_keys($relation->getLink()));
-            $p2 = $this->instantiate()->isPrimaryKey(array_values($relation->getLink()));
+            $p2 = $this->isPrimaryKey(array_values($relation->getLink()));
 
             if ($p1 && $p2) {
                 if ($this->getIsNewRecord() && $model->getIsNewRecord()) {
@@ -1393,7 +1393,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function isPrimaryKey(array $keys): bool
     {
-        $pks = $this->instantiate()->primaryKey();
+        $pks = $this->primaryKey();
 
         if (count($keys) === count($pks)) {
             return count(array_intersect($keys, $pks)) === count($pks);
