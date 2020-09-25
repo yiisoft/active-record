@@ -16,6 +16,7 @@ use function ctype_alnum;
 use function end;
 use function implode;
 use function is_array;
+use function is_bool;
 use function is_numeric;
 use function is_string;
 use function json_encode;
@@ -54,7 +55,7 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Returns the primary key name(s) for this AR class.
+     * Returns the primary key name(s) for this active record class.
      *
      * This method should be overridden by child classes to define the primary key. Note that an array should be
      * returned even when it is a single primary key.
@@ -86,12 +87,12 @@ class ActiveRecord extends BaseActiveRecord
      * Declares prefix of the key that represents the keys that store this records in redis.
      *
      * By default this method returns the class name as the table name by calling {@see Inflector->pascalCaseToId()}.
-     * For example, 'Customer' becomes 'customer', and 'OrderItem' becomes 'order_item'. You may override this method
-     * if you want different key naming.
+     * For example, 'Customer' becomes 'customer', and 'OrderItem' becomes 'order_item'. You may override this method if
+     * you want different key naming.
      *
      * @return string the prefix to apply to all AR keys.
      */
-    public static function keyPrefix(): string
+    public function keyPrefix(): string
     {
         $inflector = new Inflector();
 
@@ -131,26 +132,26 @@ class ActiveRecord extends BaseActiveRecord
                 /** use auto increment if pk is null */
                 $pk[$key] = $values[$key] = $db->executeCommand(
                     'INCR',
-                    [static::keyPrefix() . ':s:' . $key]
+                    [$this->keyPrefix() . ':s:' . $key]
                 );
 
                 $this->setAttribute($key, $values[$key]);
             } elseif (is_numeric($pk[$key])) {
                 /** if pk is numeric update auto increment value */
-                $currentPk = $db->executeCommand('GET', [static::keyPrefix() . ':s:' . $key]);
+                $currentPk = $db->executeCommand('GET', [$this->keyPrefix() . ':s:' . $key]);
 
                 if ($pk[$key] > $currentPk) {
-                    $db->executeCommand('SET', [static::keyPrefix() . ':s:' . $key, $pk[$key]]);
+                    $db->executeCommand('SET', [$this->keyPrefix() . ':s:' . $key, $pk[$key]]);
                 }
             }
         }
 
         /** save pk in a `findAll()` pool */
-        $pk = static::buildKey($pk);
+        $pk = $this->buildKey($pk);
 
-        $db->executeCommand('RPUSH', [static::keyPrefix(), $pk]);
+        $db->executeCommand('RPUSH', [$this->keyPrefix(), $pk]);
 
-        $key = static::keyPrefix() . ':a:' . $pk;
+        $key = $this->keyPrefix() . ':a:' . $pk;
 
         /** save attributes */
         $setArgs = [$key];
@@ -204,10 +205,10 @@ class ActiveRecord extends BaseActiveRecord
 
         $n = 0;
 
-        foreach (self::fetchPks($condition) as $pk) {
+        foreach ($this->fetchPks($condition) as $pk) {
             $newPk = $pk;
-            $pk = static::buildKey($pk);
-            $key = static::keyPrefix() . ':a:' . $pk;
+            $pk = $this->buildKey($pk);
+            $key = $this->keyPrefix() . ':a:' . $pk;
 
             /** save attributes */
             $delArgs = [$key];
@@ -229,8 +230,8 @@ class ActiveRecord extends BaseActiveRecord
                 }
             }
 
-            $newPk = static::buildKey($newPk);
-            $newKey = static::keyPrefix() . ':a:' . $newPk;
+            $newPk = $this->buildKey($newPk);
+            $newKey = $this->keyPrefix() . ':a:' . $newPk;
 
             /** rename index if pk changed */
             if ($newPk !== $pk) {
@@ -244,8 +245,8 @@ class ActiveRecord extends BaseActiveRecord
                     $db->executeCommand('HDEL', $delArgs);
                 }
 
-                $db->executeCommand('LINSERT', [static::keyPrefix(), 'AFTER', $pk, $newPk]);
-                $db->executeCommand('LREM', [static::keyPrefix(), 0, $pk]);
+                $db->executeCommand('LINSERT', [$this->keyPrefix(), 'AFTER', $pk, $newPk]);
+                $db->executeCommand('LREM', [$this->keyPrefix(), 0, $pk]);
                 $db->executeCommand('RENAME', [$key, $newKey]);
                 $db->executeCommand('EXEC');
             } else {
@@ -293,8 +294,8 @@ class ActiveRecord extends BaseActiveRecord
 
         $n = 0;
 
-        foreach (self::fetchPks($condition) as $pk) {
-            $key = static::keyPrefix() . ':a:' . static::buildKey($pk);
+        foreach ($this->fetchPks($condition) as $pk) {
+            $key = $this->keyPrefix() . ':a:' . $this->buildKey($pk);
             foreach ($counters as $attribute => $value) {
                 $this->getDb()->executeCommand('HINCRBY', [$key, $attribute, $value]);
             }
@@ -341,8 +342,8 @@ class ActiveRecord extends BaseActiveRecord
 
         foreach ($pks as $pk) {
             $pk = $this->buildKey($pk);
-            $db->executeCommand('LREM', [static::keyPrefix(), 0, $pk]);
-            $attributeKeys[] = static::keyPrefix() . ':a:' . $pk;
+            $db->executeCommand('LREM', [$this->keyPrefix(), 0, $pk]);
+            $attributeKeys[] = $this->keyPrefix() . ':a:' . $pk;
         }
 
         $db->executeCommand('DEL', $attributeKeys);
@@ -387,7 +388,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return string|int the generated key.
      */
-    public static function buildKey($key)
+    public function buildKey($key)
     {
         if (is_numeric($key)) {
             return $key;
@@ -399,7 +400,7 @@ class ActiveRecord extends BaseActiveRecord
 
         if (is_array($key)) {
             if (count($key) === 1) {
-                return self::buildKey(reset($key));
+                return $this->buildKey(reset($key));
             }
 
             /** ensure order is always the same */

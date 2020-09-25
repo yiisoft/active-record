@@ -555,8 +555,8 @@ class ActiveRecord extends BaseActiveRecord
      * This is an internal method meant to be called to create active record objects after fetching data from the
      * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
      *
-     * @param BaseActiveRecord|array $record the record to be populated. In most cases this will be an instance created
-     * by {@see instantiate()} beforehand.
+     * @param ActiveRecordInterface|array $record the record to be populated. In most cases this will be an instance
+     * created by {@see instantiate()} beforehand.
      * @param array|object $row attribute values (name => value).
      *
      * @throws Exception|InvalidConfigException

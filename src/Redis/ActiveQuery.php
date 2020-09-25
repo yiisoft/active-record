@@ -182,25 +182,21 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         if ($this->isAsArray()) {
-            $model = $row;
+            $arClass = $row;
         } else {
-            /** @var $class ActiveRecord */
-            $class = $this->arClass;
-
-            $model = new $class($this->db);
-
-            $model->populateRecord($model, $row);
+            $arClass = $this->getARInstance();
+            $arClass->populateRecord($arClass, $row);
         }
 
         if (!empty($this->getWith())) {
-            $models = [$model];
+            $arClasses = [$arClass];
 
-            $this->findWith($this->getWith(), $models);
+            $this->findWith($this->getWith(), $arClasses);
 
-            $model = $models[0];
+            $arClass = $arClasses[0];
         }
 
-        return $model;
+        return $arClass;
     }
 
     /**
@@ -220,10 +216,7 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         if ($this->getWhere() === null) {
-            /* @var $modelClass ActiveRecord */
-            $modelClass = $this->arClass;
-
-            return (int) $this->db->executeCommand('LLEN', [$modelClass::keyPrefix()]);
+            return (int) $this->db->executeCommand('LLEN', [$this->getARInstance()->keyPrefix()]);
         }
 
         return (int) $this->executeScript('Count');
@@ -436,9 +429,6 @@ class ActiveQuery extends BaseActiveQuery
             $pks = [$where];
         }
 
-        /** @var $modelClass ActiveRecord */
-        $modelClass = $this->arClass;
-
         if ($type === 'Count') {
             $start = 0;
             $limit = null;
@@ -453,7 +443,7 @@ class ActiveQuery extends BaseActiveQuery
 
         foreach ($pks as $pk) {
             if (++$i > $start && ($limit === null || $i <= $start + $limit)) {
-                $key = $modelClass::keyPrefix() . ':a:' . $modelClass::buildKey($pk);
+                $key = $this->getARInstance()->keyPrefix() . ':a:' . $this->getARInstance()->buildKey($pk);
                 $result = $this->db->executeCommand('HGETALL', [$key]);
                 if (!empty($result)) {
                     $data[] = $result;
