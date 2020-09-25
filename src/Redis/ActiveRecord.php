@@ -93,7 +93,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public static function keyPrefix(): string
     {
-        $inflector = New Inflector();
+        $inflector = new Inflector();
 
         return $inflector->pascalCaseToId(StringHelper::basename(static::class), '_');
     }

@@ -1068,7 +1068,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             if (is_array($relation->getVia())) {
-
                 foreach ($columns as $column => $value) {
                     $viaClass->$column = $value;
                 }
