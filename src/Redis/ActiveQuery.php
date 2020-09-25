@@ -16,7 +16,6 @@ use function array_keys;
 use function arsort;
 use function asort;
 use function count;
-use function get_class;
 use function in_array;
 use function is_array;
 use function is_numeric;
@@ -60,7 +59,8 @@ use function reset;
  * These options can be configured using methods of the same name. For example:
  *
  * ```php
- * $customers = Customer::find()->with('orders')->asArray()->all();
+ * $customer = new Customer($db);
+ * $customers = $customer->find()->with('orders')->asArray()->all();
  * ```
  *
  * Relational query
@@ -69,16 +69,16 @@ use function reset;
  * In relational context ActiveQuery represents a relation between two Active Record classes.
  *
  * Relational ActiveQuery instances are usually created by calling {@see ActiveRecord::hasOne()} and
- * {@see ActiveRecord::hasMany()}. An Active Record class declares a relation by defining
- * a getter method which calls one of the above methods and returns the created ActiveQuery object.
+ * {@see ActiveRecord::hasMany()}. An Active Record class declares a relation by defining a getter method which calls
+ * one of the above methods and returns the created ActiveQuery object.
  *
  * A relation is specified by {@see link} which represents the association between columns of different tables; and the
  * multiplicity of the relation is indicated by {@see multiple}.
  *
  * If a relation involves a junction table, it may be specified by {@see via()}.
  *
- * This methods may only be called in a relational context. Same is true for {@see inverseOf()}, which
- * marks a relation as inverse of another relation.
+ * This methods may only be called in a relational context. Same is true for {@see inverseOf()}, which marks a relation
+ * as inverse of another relation.
  */
 class ActiveQuery extends BaseActiveQuery
 {
@@ -424,7 +424,7 @@ class ActiveQuery extends BaseActiveQuery
 
         if (isset($where[0]) && $where[0] === 'in') {
             $pks = (array) $where[2];
-        } elseif (count($where) == 1) {
+        } elseif (count($where) === 1) {
             $pks = (array) reset($where);
         } else {
             foreach ($where as $values) {
@@ -510,7 +510,7 @@ class ActiveQuery extends BaseActiveQuery
                 foreach ($data as $dataRow) {
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName) {
+                        if ($dataRow[$i++] === $columnName) {
                             $sum += $dataRow[$i];
                             break;
                         }
@@ -525,7 +525,7 @@ class ActiveQuery extends BaseActiveQuery
                     $count++;
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName) {
+                        if ($dataRow[$i++] === $columnName) {
                             $sum += $dataRow[$i];
                             break;
                         }
@@ -538,7 +538,7 @@ class ActiveQuery extends BaseActiveQuery
                 foreach ($data as $dataRow) {
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName && ($min == null || $dataRow[$i] < $min)) {
+                        if ($dataRow[$i++] === $columnName && ($min === null || $dataRow[$i] < $min)) {
                             $min = $dataRow[$i];
                             break;
                         }
@@ -551,7 +551,7 @@ class ActiveQuery extends BaseActiveQuery
                 foreach ($data as $dataRow) {
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName && ($max == null || $dataRow[$i] > $max)) {
+                        if ($dataRow[$i++] === $columnName && ($max === null || $dataRow[$i] > $max)) {
                             $max = $dataRow[$i];
                             break;
                         }
@@ -568,6 +568,7 @@ class ActiveQuery extends BaseActiveQuery
      * Executes the query and returns the first column of the result.
      *
      * @throws Exception|InvalidConfigException|InvalidParamException|ReflectionException|NotSupportedException
+     * @throws JsonException
      *
      * @return array the first column of the query result. An empty array is returned if the query results in nothing.
      */
@@ -587,6 +588,7 @@ class ActiveQuery extends BaseActiveQuery
      * The value returned will be the specified attribute in the first record of the query results.
      *
      * @throws Exception|InvalidConfigException|InvalidParamException|ReflectionException|NotSupportedException
+     * @throws JsonException
      *
      * @return string|null the value of the specified attribute in the first record of the query result. Null is
      * returned if the query result is empty.

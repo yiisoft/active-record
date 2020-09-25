@@ -89,11 +89,13 @@ class ActiveRecord extends BaseActiveRecord
      * For example, 'Customer' becomes 'customer', and 'OrderItem' becomes 'order_item'. You may override this method
      * if you want different key naming.
      *
-     * @return string the prefix to apply to all AR keys
+     * @return string the prefix to apply to all AR keys.
      */
     public static function keyPrefix(): string
     {
-        return (new Inflector())->pascalCaseToId(StringHelper::basename(static::class), '_');
+        $inflector = New Inflector();
+
+        return $inflector->pascalCaseToId(StringHelper::basename(static::class), '_');
     }
 
     /**
@@ -102,14 +104,14 @@ class ActiveRecord extends BaseActiveRecord
      * Usage example:
      *
      * ```php
-     * $customer = new Customer();
+     * $customer = new Customer($db);
      * $customer->setAttribute('name', $name);
      * $customer->setAttribute('email', $email);
      * $customer->insert();
      * ```
      *
-     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all attributes
-     * that are loaded from DB will be saved.
+     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
+     * attributes that are loaded from DB will be saved.
      *
      * @throws JsonException|InvalidArgumentException
      *
@@ -179,7 +181,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
      * ```php
-     * Customer::updateAll(['status' => 1], ['id' => 2]);
+     * $customer = new Customer($db);
+     * $customer->updateAll(['status' => 1], ['id' => 2]);
      * ```
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
@@ -191,9 +194,9 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows updated.
      */
-    public static function updateAll(array $attributes, $condition = [], array $params = []): int
+    public function updateAll(array $attributes, $condition = [], array $params = []): int
     {
-        $db = static::getConnection();
+        $db = $this->getDb();
 
         if (empty($attributes)) {
             return 0;
@@ -267,7 +270,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to increment all customers' age by 1,
      *
      * ```php
-     * Customer::updateAllCounters(['age' => 1]);
+     * $customer = new Customer($db);
+     * $customer->updateAllCounters(['age' => 1]);
      * ```
      *
      * @param array $counters the counters to be updated (attribute name => increment value). Use negative values if you
@@ -281,7 +285,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public static function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
     {
         if (empty($counters)) {
             return 0;
@@ -292,7 +296,7 @@ class ActiveRecord extends BaseActiveRecord
         foreach (self::fetchPks($condition) as $pk) {
             $key = static::keyPrefix() . ':a:' . static::buildKey($pk);
             foreach ($counters as $attribute => $value) {
-                static::getConnection()->executeCommand('HINCRBY', [$key, $attribute, $value]);
+                $this->getDb()->executeCommand('HINCRBY', [$key, $attribute, $value]);
             }
             $n++;
         }
@@ -308,7 +312,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * Customer::deleteAll(['status' => 3]);
+     * $customer = new Customer($db);
+     * $customer->deleteAll(['status' => 3]);
      * ```
      *
      * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
@@ -320,11 +325,11 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public static function deleteAll(?array $condition = null, array $params = []): int
+    public function deleteAll(?array $condition = null, array $params = []): int
     {
-        $db = static::getConnection();
+        $db = $this->getDb();
 
-        $pks = self::fetchPks($condition);
+        $pks = $this->fetchPks($condition);
 
         if (empty($pks)) {
             return 0;
@@ -335,7 +340,7 @@ class ActiveRecord extends BaseActiveRecord
         $db->executeCommand('MULTI');
 
         foreach ($pks as $pk) {
-            $pk = static::buildKey($pk);
+            $pk = $this->buildKey($pk);
             $db->executeCommand('LREM', [static::keyPrefix(), 0, $pk]);
             $attributeKeys[] = static::keyPrefix() . ':a:' . $pk;
         }
@@ -347,16 +352,16 @@ class ActiveRecord extends BaseActiveRecord
         return (int) end($result);
     }
 
-    private static function fetchPks(?array $condition = []): array
+    private function fetchPks(?array $condition = []): array
     {
-        $query = static::find();
+        $query = $this->find();
 
         $query->where($condition);
 
         /** limit fetched columns to pk */
         $records = $query->asArray()->all();
 
-        $primaryKey = static::primaryKey();
+        $primaryKey = $this->primaryKey();
 
         $pks = [];
 

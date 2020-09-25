@@ -18,6 +18,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\InvalidParamException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function array_combine;
 use function array_flip;
@@ -101,9 +102,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @throws InvalidConfigException if there is no primary key defined.
      *
-     * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface|ActiveQuery} instance.
+     * @return QueryInterface the newly created {@see QueryInterface} instance.
      */
-    protected function findByCondition($condition): ActiveQueryInterface
+    protected function findByCondition($condition): QueryInterface
     {
         $query = $this->find();
 
@@ -161,8 +162,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * Customer::updateAllCounters(['age' => 1]);
      * ```
      *
-     * @param array $counters the counters to be updated (attribute name => increment value).
-     * Use negative values if you want to decrement the counters.
+     * @param array $counters the counters to be updated (attribute name => increment value). Use negative values if you
+     * want to decrement the counters.
      * @param string|array $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
      *
@@ -187,8 +188,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * $customer::deleteAll('status = 3');
      * ```
      *
-     * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL. Please refer
-     * to {@see Query::where()} on how to specify this parameter.
+     * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL. Please refer to
+     * {@see Query::where()} on how to specify this parameter.
      *
      * @return int the number of rows deleted.
      *
@@ -217,8 +218,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * 3. In the controller action that does the data updating, try to catch the {@see StaleObjectException} and
      *    implement necessary business logic (e.g. merging the changes, prompting stated data) to resolve the conflict.
      *
-     * @return string|null the column name that stores the lock version of a table row. If `null` is returned
-     * (default implemented), optimistic locking will not be supported.
+     * @return string|null the column name that stores the lock version of a table row. If `null` is returned (default
+     * implemented), optimistic locking will not be supported.
      */
     public function optimisticLock(): ?string
     {
@@ -270,8 +271,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * A `has-many` relation means that there are multiple related records matching the criteria set by this relation,
      * e.g., a customer has many orders.
      *
-     * For example, to declare the `orders` relation for `Customer` class, we can write
-     * the following code in the `Customer` class:
+     * For example, to declare the `orders` relation for `Customer` class, we can write the following code in the
+     * `Customer` class:
      *
      * ```php
      * public function getOrders()
@@ -300,7 +301,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param string $class the class name of the related record.
+     * @param string $arClass the class name of the related record.
      * @param array $link the primary-foreign key constraint.
      * @param bool $multiple whether this query represents a relation to more than one record.
      *
@@ -313,9 +314,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $arInstance = new $arClass($this->db);
 
-        $query = $arInstance->find()->primaryModel($this)->link($link)->multiple($multiple);
-
-        return $query;
+        return $arInstance->find()->primaryModel($this)->link($link)->multiple($multiple);
     }
 
     /**
@@ -563,7 +562,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * For example, to save a customer record:
      *
      * ```php
-     * $customer = new Customer; // or $customer = Customer::findOne($id);
+     * $customer = new Customer($db);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->save();
@@ -589,33 +588,19 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Saves the changes to this active record into the associated database table.
      *
-     * This method performs the following steps in order:
-     *
-     * 1. call {@see beforeValidate()} when `$runValidation` is `true`. If {@see beforeValidate()} returns `false`, the
-     *    rest of the steps will be skipped;
-     * 2. call {@see afterValidate()} when `$runValidation` is `true`. If validation failed, the rest of the steps will
-     *    be skipped;
-     * 3. call {@see beforeSave()}. If {@see beforeSave()} returns `false`, the rest of the steps will be skipped;
-     * 4. save the record into database. If this fails, it will skip the rest of the steps;
-     * 5. call {@see afterSave()};
-     *
-     * In the above step 1, 2, 3 and 5, events {@see EVENT_BEFORE_VALIDATE}, {@see EVENT_AFTER_VALIDATE},
-     * {@see EVENT_BEFORE_UPDATE}, and {@see EVENT_AFTER_UPDATE} will be raised by the corresponding methods.
-     *
      * Only the {@see dirtyAttributes|changed attribute values} will be saved into database.
      *
      * For example, to update a customer record:
      *
      * ```php
-     * $customer = Customer::findOne($id);
+     * $customer = new Customer($db);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
      * ```
      *
-     * Note that it is possible the update does not affect any row in the table.
-     * In this case, this method will return 0. For this reason, you should use the following code to check if update()
-     * is successful or not:
+     * Note that it is possible the update does not affect any row in the table. In this case, this method will return
+     * 0. For this reason, you should use the following code to check if update() is successful or not:
      *
      * ```php
      * if ($customer->update() !== false) {
@@ -625,17 +610,17 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * }
      * ```
      *
-     * @param array $attributeNames list of attribute names that need to be saved. Defaults to null, meaning all
+     * @param array|null $attributeNames list of attribute names that need to be saved. Defaults to null, meaning all
      * attributes that are loaded from DB will be saved.
-     *
-     * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being updated is
-     * outdated.
-     * @throws Exception in case update failed.
      *
      * @return int|false the number of rows affected, or `false` if validation fails or {@see beforeSave()} stops the
      * updating process.
+     * @throws Exception in case update failed.
+     * @throws NotSupportedException
+     * @throws StaleObjectException if {@see href='psi_element://optimisticLock'>|optimistic locking} is enabled and the
+     * data being updated is outdated.
      */
-    public function update(array $attributeNames = null)
+    public function update(?array $attributeNames = null)
     {
         return $this->updateInternal($attributeNames);
     }
@@ -679,7 +664,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return 0;
         }
 
-        $rows = static::updateAll($values, $this->getOldPrimaryKey(true));
+        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true));
 
         foreach ($values as $name => $value) {
             $this->oldAttributes[$name] = $this->attributes[$name];
@@ -691,13 +676,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * {@see update()}
      *
-     * @param array $attributes attributes to update.
+     * @param array|null $attributes attributes to update.
      *
+     * @return int|false the number of rows affected, or false if {@see beforeSave()} stops the updating process.
      * @throws Exception
      * @throws NotSupportedException
      * @throws StaleObjectException
-     *
-     * @return int|false the number of rows affected, or false if {@see beforeSave()} stops the updating process.
      */
     protected function updateInternal(?array $attributes = null)
     {
@@ -719,7 +703,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
          * We do not check the return value of updateAll() because it's possible that the UPDATE statement doesn't
          * change anything and thus returns 0.
          */
-        $rows = static::updateAll($values, $condition);
+        $rows = $this->updateAll($values, $condition);
 
         if ($lock !== null && !$rows) {
             throw new StaleObjectException('The object being updated is outdated.');
@@ -748,7 +732,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * An example usage is as follows:
      *
      * ```php
-     * $post = Post::findOne($id);
+     * $post = new Post($db);
      * $post->updateCounters(['view_count' => 1]);
      * ```
      *
@@ -764,7 +748,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function updateCounters(array $counters): bool
     {
-        if (static::updateAllCounters($counters, $this->getOldPrimaryKey(true)) > 0) {
+        if ($this->updateAllCounters($counters, $this->getOldPrimaryKey(true)) > 0) {
             foreach ($counters as $name => $value) {
                 if (!isset($this->attributes[$name])) {
                     $this->attributes[$name] = $value;
@@ -786,11 +770,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * This method performs the following steps in order:
      *
-     * In the above step 1 and 3, events named {@see EVENT_BEFORE_DELETE} and {@see EVENT_AFTER_DELETE} will be raised
-     * by the corresponding methods.
-     *
-     * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
-     * being deleted is outdated.
+     * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being deleted is
+     * outdated.
      * @throws Exception in case delete failed.
      *
      * @return bool|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
@@ -798,8 +779,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function delete()
     {
-        $result = false;
-
         /**
          * we do not check the return value of deleteAll() because it's possible the record is already deleted in
          * the database and thus the method will return 0
@@ -811,7 +790,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             $condition[$lock] = $this->$lock;
         }
 
-        $result = static::deleteAll($condition);
+        $result = $this->deleteAll($condition);
 
         if ($lock !== null && !$result) {
             throw new StaleObjectException('The object being deleted is outdated.');
@@ -839,7 +818,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @see getIsNewRecord()
      */
-    public function setIsNewRecord($value)
+    public function setIsNewRecord(bool $value): void
     {
         $this->oldAttributes = $value ? null : $this->attributes;
     }
@@ -847,7 +826,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Repopulates this active record with the latest data.
      *
-     * If the refresh is successful, an {@see EVENT_AFTER_REFRESH} event will be triggered.
+     * @throws InvalidConfigException
      *
      * @return bool whether the row still exists in the database. If `true`, the latest data will be populated to this
      * active record. Otherwise, this record will remain unchanged.
@@ -855,7 +834,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function refresh(): bool
     {
         /* @var $record BaseActiveRecord */
-        $record = static::findOne($this->getPrimaryKey(true));
+        $record = $this->findOne($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
     }
@@ -863,13 +842,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Repopulates this active record with the latest data from a newly fetched instance.
      *
-     * @param BaseActiveRecord $record the record to take attributes from.
+     * @param BaseActiveRecord|null $record the record to take attributes from.
      *
      * @return bool whether refresh was successful.
      *
      * {@see refresh()}
      */
-    protected function refreshInternal($record): bool
+    protected function refreshInternal(?BaseActiveRecord $record): bool
     {
         if ($record === null) {
             return false;
@@ -889,8 +868,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Returns a value indicating whether the given active record is the same as the current one.
      *
-     * The comparison is made by comparing the table names and the primary key values of the two active records.
-     * If one of the records {@see isNewRecord|is new} they are also considered not equal.
+     * The comparison is made by comparing the table names and the primary key values of the two active records. If one
+     * of the records {@see isNewRecord|is new} they are also considered not equal.
      *
      * @param ActiveRecordInterface $record record to compare to.
      *
@@ -985,9 +964,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * This is an internal method meant to be called to create active record objects after fetching data from the
      * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
      *
-     * When calling this method manually you should call {@see afterFind()} on the created record to trigger the
-     * {@see EVENT_AFTER_FIND|afterFind Event}.
-     *
      * @param BaseActiveRecord|array $record the record to be populated. In most cases this will be an instance created
      * by {@see instantiate()} beforehand.
      * @param array|object $row attribute values (name => value).
@@ -1015,6 +991,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * This method is called together with {@see populateRecord()} by {@see ActiveQuery}.
      *
      * It is not meant to be used for creating new records directly.
+     *
+     * @param ActiveRecordInterface|array $row the row data to be populated.
      *
      * You may override this method if the instance being created depends on the row data to be populated into the
      * record.
@@ -1044,25 +1022,20 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
-     * @param ActiveRecordInterface $model the model to be linked with the current one.
+     * @param ActiveRecordInterface $arClass the model to be linked with the current one.
      * @param array $extraColumns additional column values to be saved into the junction table. This parameter is only
      * meaningful for a relationship involving a junction table (i.e., a relation set with
      * {@see ActiveRelationTrait::via()} or {@see ActiveQuery::viaTable()}).
      *
-     * @throws ReflectionException
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidCallException if the method is unable to link two models.
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
+     * @throws Exception|InvalidArgumentException|InvalidCallException if the method is unable to link two models.
+     * @throws InvalidConfigException|ReflectionException|Throwable
      */
-    public function link(string $name, ActiveRecordInterface $model, array $extraColumns = []): void
+    public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void
     {
         $relation = $this->getRelation($name);
 
         if ($relation->getVia() !== null) {
-            if ($this->getIsNewRecord() || $model->getIsNewRecord()) {
+            if ($this->getIsNewRecord() || $arClass->getIsNewRecord()) {
                 throw new InvalidCallException(
                     'Unable to link models: the models being linked cannot be newly created.'
                 );
@@ -1087,7 +1060,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             foreach ($relation->getLink() as $a => $b) {
-                $columns[$b] = $model->$a;
+                $columns[$b] = $arClass->$a;
             }
 
             foreach ($extraColumns as $k => $v) {
@@ -1106,23 +1079,23 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $this->db->createCommand()->insert($viaTable, $columns)->execute();
             }
         } else {
-            $p1 = $model->isPrimaryKey(array_keys($relation->getLink()));
+            $p1 = $arClass->isPrimaryKey(array_keys($relation->getLink()));
             $p2 = $this->isPrimaryKey(array_values($relation->getLink()));
 
             if ($p1 && $p2) {
-                if ($this->getIsNewRecord() && $model->getIsNewRecord()) {
+                if ($this->getIsNewRecord() && $arClass->getIsNewRecord()) {
                     throw new InvalidCallException('Unable to link models: at most one model can be newly created.');
                 }
 
                 if ($this->getIsNewRecord()) {
-                    $this->bindModels(array_flip($relation->getLink()), $this, $model);
+                    $this->bindModels(array_flip($relation->getLink()), $this, $arClass);
                 } else {
-                    $this->bindModels($relation->getLink(), $model, $this);
+                    $this->bindModels($relation->getLink(), $arClass, $this);
                 }
             } elseif ($p1) {
-                $this->bindModels(array_flip($relation->getLink()), $this, $model);
+                $this->bindModels(array_flip($relation->getLink()), $this, $arClass);
             } elseif ($p2) {
-                $this->bindModels($relation->getLink(), $model, $this);
+                $this->bindModels($relation->getLink(), $arClass, $this);
             } else {
                 throw new InvalidCallException(
                     'Unable to link models: the link defining the relation does not involve any primary key.'
@@ -1132,17 +1105,17 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         /** update lazily loaded related objects */
         if (!$relation->getMultiple()) {
-            $this->related[$name] = $model;
+            $this->related[$name] = $arClass;
         } elseif (isset($this->related[$name])) {
             if ($relation->getIndexBy() !== null) {
                 if ($relation->getIndexBy() instanceof Closure) {
-                    $index = $relation->indexBy($model);
+                    $index = $relation->indexBy($arClass);
                 } else {
-                    $index = $model->{$relation->getIndexBy()};
+                    $index = $arClass->{$relation->getIndexBy()};
                 }
-                $this->related[$name][$index] = $model;
+                $this->related[$name][$index] = $arClass;
             } else {
-                $this->related[$name][] = $model;
+                $this->related[$name][] = $arClass;
             }
         }
     }
@@ -1155,17 +1128,15 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
-     * @param ActiveRecordInterface $model the model to be unlinked from the current one.
-     * You have to make sure that the model is really related with the current model as this method does not check this.
-     * @param bool $delete whether to delete the model that contains the foreign key. If `false`, the model's foreign
-     * key will be set `null` and saved. If `true`, the model containing the foreign key will be deleted.
+     * @param ActiveRecordInterface $arClass the model to be unlinked from the current one. You have to make sure that
+     * the active record is really related with the current model as this method does not check this.
+     * @param bool $delete whether to delete the model that contains the foreign key. If `false`, the active records
+     * foreign key will be set `null` and saved. If `true`, the model containing the foreign key will be deleted.
      *
-     * @throws ReflectionException
-     * @throws Exception
+     * @throws Exception|ReflectionException|StaleObjectException
      * @throws InvalidCallException if the models cannot be unlinked.
-     * @throws StaleObjectException
      */
-    public function unlink(string $name, ActiveRecordInterface $model, bool $delete = false): void
+    public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void
     {
         $relation = $this->getRelation($name);
 
@@ -1187,7 +1158,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             foreach ($relation->getLink() as $a => $b) {
-                $columns[$b] = $model->$a;
+                $columns[$b] = $arClass->$a;
             }
             $nulls = [];
 
@@ -1213,22 +1184,22 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
             }
         } else {
-            $p1 = $model->isPrimaryKey(array_keys($relation->getLink()));
-            $p2 = static::isPrimaryKey(array_values($relation->getLink()));
+            $p1 = $arClass->isPrimaryKey(array_keys($relation->getLink()));
+            $p2 = $this->isPrimaryKey(array_values($relation->getLink()));
             if ($p2) {
                 if ($delete) {
-                    $model->delete();
+                    $arClass->delete();
                 } else {
                     foreach ($relation->getLink() as $a => $b) {
-                        $model->$a = null;
+                        $arClass->$a = null;
                     }
-                    $model->save();
+                    $arClass->save();
                 }
             } elseif ($p1) {
                 foreach ($relation->getLink() as $a => $b) {
                     /** relation via array valued attribute */
                     if (is_array($this->$b)) {
-                        if (($key = array_search($model->$a, $this->$b, false)) !== false) {
+                        if (($key = array_search($arClass->$a, $this->$b, false)) !== false) {
                             $values = $this->$b;
                             unset($values[$key]);
                             $this->$b = array_values($values);
@@ -1248,7 +1219,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         } elseif (isset($this->related[$name])) {
             /** @var $b ActiveRecordInterface */
             foreach ($this->related[$name] as $a => $b) {
-                if ($model->getPrimaryKey() === $b->getPrimaryKey()) {
+                if ($arClass->getPrimaryKey() === $b->getPrimaryKey()) {
                     unset($this->related[$name][$a]);
                 }
             }
@@ -1258,8 +1229,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Destroys the relationship in current model.
      *
-     * The model with the foreign key of the relationship will be deleted if `$delete` is `true`.
-     * Otherwise, the foreign key will be set `null` and the model will be saved without validation.
+     * The model with the foreign key of the relationship will be deleted if `$delete` is `true`. Otherwise, the foreign
+     * key will be set `null` and the model will be saved without validation.
      *
      * Note that to destroy the relationship without removing records make sure your keys can be set to null.
      *
@@ -1267,13 +1238,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * `getOrders()` method.
      * @param bool $delete whether to delete the model that contains the foreign key.
      *
-     * Note that the deletion will be performed using {@see deleteAll()}, which will not trigger any events on the
-     * related models. If you need {@see EVENT_BEFORE_DELETE} or {@see EVENT_AFTER_DELETE} to be triggered, you need to
-     * {@see find()|find} the models first and then call {@see delete()} on each of them.
      *
-     * @throws ReflectionException
-     * @throws Exception
-     * @throws StaleObjectException */
+     * @throws Exception|ReflectionException|StaleObjectException
+     */
     public function unlinkAll(string $name, bool $delete = false): void
     {
         $relation = $this->getRelation($name);
@@ -1369,7 +1336,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
             if ($value === null) {
                 throw new InvalidCallException(
-                    'Unable to link models: the primary key of ' . get_class($primaryModel) . ' is null.'
+                    'Unable to link active record: the primary key of ' . get_class($primaryModel) . ' is null.'
                 );
             }
 
@@ -1440,8 +1407,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                         return $this->generateAttributeLabel($attribute);
                     }
                     /* @var $modelClass ActiveRecordInterface */
-                    $modelClass = $relation->getModelClass();
-                    $relatedModel = $modelClass::instance();
+                    $relatedModel = $relation->getARInstance();
                 }
             }
 
@@ -1460,12 +1426,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * If the attribute looks like `relatedModel.attribute`, then the attribute will be received from the related model.
      *
-     * @param string $attribute the attribute name
+     * @param string $attribute the attribute name.
      *
      * @throws ReflectionException
      * @throws InvalidArgumentException
      *
-     * @return string the attribute hint
+     * @return string the attribute hint.
      *
      * {@see attributeHints()}
      */
@@ -1490,8 +1456,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                         return '';
                     }
                     /* @var $modelClass ActiveRecordInterface */
-                    $modelClass = $relation->getModelClass();
-                    $relatedModel = $modelClass::instance();
+                    $relatedModel = $relation->getARInstance();
                 }
             }
 
@@ -1537,12 +1502,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * Sets relation dependencies for a property.
      *
      * @param string $name property name.
-     * @param ActiveQueryInterface $relation relation instance.
+     * @param ActiveQuery $relation relation instance.
      * @param string|null $viaRelationName intermediate relation.
      */
     private function setRelationDependencies(
         string $name,
-        ActiveQueryInterface $relation,
+        ActiveQuery $relation,
         ?string $viaRelationName = null
     ): void {
         if (empty($relation->getVia()) && $relation->getLink()) {

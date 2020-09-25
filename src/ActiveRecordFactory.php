@@ -6,22 +6,23 @@ namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Factory;
 
 final class ActiveRecordFactory extends Factory
 {
-    private ConnectionInterface $connection;
-
     /**
      * Allows you to create an active record instance through the factory.
      *
      * @param string $class active record class.
      *
+     * @throws InvalidConfigException
+     *
      * @return ActiveRecordInterface
      */
     public function createAR(string $class): ActiveRecordInterface
     {
-        return parent::create(
+        return $this->create(
             [
                 '__class' => $class
             ]
@@ -33,11 +34,13 @@ final class ActiveRecordFactory extends Factory
      *
      * @param string $class active query class.
      *
+     * @throws InvalidConfigException
+     *
      * @return ActiveQueryInterface
      */
     public function createQueryTo(string $class): ActiveQueryInterface
     {
-        return parent::create(
+        return $this->create(
             [
                 '__class' => ActiveQuery::class,
                 '__construct()' => [
@@ -52,11 +55,13 @@ final class ActiveRecordFactory extends Factory
      *
      * @param string $class active query class.
      *
+     * @throws InvalidConfigException
+     *
      * @return ActiveQueryInterface
      */
     public function createRedisQueryTo(string $class): ActiveQueryInterface
     {
-        return parent::create(
+        return $this->create(
             [
                 '__class' => RedisActiveQuery::class,
                 '__construct()' => [
@@ -69,6 +74,8 @@ final class ActiveRecordFactory extends Factory
     /**
      * Allows you to configure the connection that will be used in the factory, through
      * {@see ConnectionInterface::class}.
+     *
+     * @throws InvalidConfigException
      *
      * @param ConnectionInterface $connection connection defined in container-di.
      */

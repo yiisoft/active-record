@@ -109,19 +109,19 @@ trait ActiveQueryTrait
     {
         if ($this->asArray) {
             return $rows;
-        } else {
-            $arClassInstance = [];
-
-            foreach ($rows as $row) {
-                $arClass = $this->getARInstance()->instantiate($row);
-
-                $arClass->populateRecord($arClass, $row);
-
-                $arClassInstance[] = $arClass;
-            }
-
-            return $arClassInstance;
         }
+
+        $arClassInstance = [];
+
+        foreach ($rows as $row) {
+            $arClass = $this->getARInstance()->instantiate($row);
+
+            $arClass->populateRecord($arClass, $row);
+
+            $arClassInstance[] = $arClass;
+        }
+
+        return $arClassInstance;
     }
 
     /**

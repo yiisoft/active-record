@@ -9,7 +9,6 @@ use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\Query;
@@ -41,8 +40,9 @@ use function preg_replace;
  * As an example, say that the `Customer` ActiveRecord class is associated with the `customer` table.
  *
  * This would mean that the class's `name` attribute is automatically mapped to the `name` column in `customer` table.
- * Thanks to Active Record, assuming the variable `$customer` is an object of type `Customer`, to get the value of
- * the `name` column for the table row, you can use the expression `$customer->name`.
+ * Thanks to Active Record, assuming the variable `$customer` is an object of type `Customer`, to get the value of the
+ * `name` column for the table row, you can use the expression `$customer->name`.
+ *
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
@@ -73,22 +73,23 @@ use function preg_replace;
  * Below is an example showing some typical usage of ActiveRecord:
  *
  * ```php
- * $user = new User();
+ * $user = new User($db);
  * $user->name = 'Qiang';
  * $user->save();  // a new row is inserted into user table
  *
  * // the following will retrieve the user 'CeBe' from the database
- * $user = User::find()->where(['name' => 'CeBe'])->one();
+ * $user = ActiveQuery(User::class, $db);
+ * $user = User->where(['name' => 'CeBe'])->one();
  *
  * // this will get related records from orders table when relation is defined
  * $orders = $user->orders;
  * ```
  *
  * For more details and usage information on ActiveRecord,
- * see the [guide article on ActiveRecord](guide:db-active-record).
+ * {@see the [guide article on ActiveRecord](guide:db-active-record)}
  *
- * @method ActiveQuery hasMany($class, array $link) see {@see BaseActiveRecord::hasMany()} for more info
- * @method ActiveQuery hasOne($class, array $link) see {@see BaseActiveRecord::hasOne()} for more info
+ * @method ActiveQuery hasMany($class, array $link) {@see BaseActiveRecord::hasMany()} for more info.
+ * @method ActiveQuery hasOne($class, array $link) {@see BaseActiveRecord::hasOne()} for more info.
  */
 class ActiveRecord extends BaseActiveRecord
 {
@@ -124,22 +125,20 @@ class ActiveRecord extends BaseActiveRecord
      *
      * ```php
      * // class Customer extends ActiveRecord
-     * $customer = new Customer();
+     * $customer = new Customer($db);
      * $customer->loadDefaultValues();
      * ```
      *
      * @param bool $skipIfSet whether existing value should be preserved. This will only set defaults for attributes
      * that are `null`.
      *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException
      *
      * @return $this the model instance itself.
      */
     public function loadDefaultValues(bool $skipIfSet = true): self
     {
-        foreach (static::getTableSchema()->getColumns() as $column) {
+        foreach ($this->getTableSchema()->getColumns() as $column) {
             if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->{$column->getName()} === null)) {
                 $this->{$column->getName()} = $column->getDefaultValue();
             }
@@ -151,9 +150,9 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Creates an {@see ActiveQuery} instance with a given SQL statement.
      *
-     * Note that because the SQL statement is already specified, calling additional query modification methods
-     * (such as `where()`, `order()`) on the created {@see ActiveQuery} instance will have no effect. However, calling
-     * `with()`, `asArray()` or `indexBy()` is still fine.
+     * Note that because the SQL statement is already specified, calling additional query modification methods (such as
+     * `where()`, `order()`) on the created {@see ActiveQuery} instance will have no effect. However, calling `with()`,
+     * `asArray()` or `indexBy()` is still fine.
      *
      * Below is an example:
      *
@@ -162,7 +161,7 @@ class ActiveRecord extends BaseActiveRecord
      * $customers = $customer->findBySql('SELECT * FROM customer')->all();
      * ```
      *
-     * @param string $sql the SQL statement to be executed
+     * @param string $sql the SQL statement to be executed.
      * @param array $params parameters to be bound to the SQL statement during execution.
      *
      * @return Query the newly created {@see ActiveQuery} instance
@@ -179,10 +178,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException if there is no primary key defined.
-     * @throws NotSupportedException
+     * @throws Exception|InvalidArgumentException|InvalidConfigException if there is no primary key defined.
      *
      * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface|ActiveQuery} instance.
      */
@@ -196,13 +192,13 @@ class ActiveRecord extends BaseActiveRecord
 
         if (!ArrayHelper::isAssociative($condition)) {
             /** query by primary key */
-            $primaryKey = static::primaryKey();
+            $primaryKey = $this->primaryKey();
 
             if (isset($primaryKey[0])) {
                 $pk = $primaryKey[0];
 
                 if (!empty($query->getJoin()) || !empty($query->getJoinWith())) {
-                    $pk = static::tableName() . '.' . $pk;
+                    $pk = $this->tableName() . '.' . $pk;
                 }
 
                 /**
@@ -214,8 +210,8 @@ class ActiveRecord extends BaseActiveRecord
                 throw new InvalidConfigException('"' . static::class . '" must have a primary key.');
             }
         } elseif (is_array($condition)) {
-            $aliases = static::filterValidAliases($query);
-            $condition = static::filterCondition($condition, $aliases);
+            $aliases = $this->filterValidAliases($query);
+            $condition = $this->filterCondition($condition, $aliases);
         }
 
         return $query->andWhere($condition);
@@ -226,12 +222,11 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @param ActiveQuery $query
      *
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws InvalidArgumentException|InvalidConfigException
      *
      * @return array
      */
-    protected static function filterValidAliases(ActiveQuery $query): array
+    protected function filterValidAliases(ActiveQuery $query): array
     {
         $tables = $query->getTablesUsedInFrom();
 
@@ -261,7 +256,7 @@ class ActiveRecord extends BaseActiveRecord
         $columnNames = $this->filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array($this->db->quoteSql($key), $columnNames, true)) {
+            if (is_string($key) && !in_array($this->getDb()->quoteSql($key), $columnNames, true)) {
                 throw new InvalidArgumentException(
                     'Key "' . $key . '" is not a column name and can not be used as a filter'
                 );
@@ -285,18 +280,18 @@ class ActiveRecord extends BaseActiveRecord
     {
         $columnNames = [];
         $tableName = $this->tableName();
-        $quotedTableName = $this->db->quoteTableName($tableName);
+        $quotedTableName = $this->getDb()->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
-            $columnNames[] = $this->db->quoteColumnName($columnName);
+            $columnNames[] = $this->getDb()->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $this->db->quoteSql("$quotedTableName.[[$columnName]]");
+            $columnNames[] = $this->getDb()->quoteSql("$quotedTableName.[[$columnName]]");
 
             foreach ($aliases as $tableAlias) {
                 $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $this->db->quoteTableName($tableAlias);
-                $columnNames[] = $this->db->quoteSql("$quotedTableAlias.[[$columnName]]");
+                $quotedTableAlias = $this->getDb()->quoteTableName($tableAlias);
+                $columnNames[] = $this->getDb()->quoteSql("$quotedTableAlias.[[$columnName]]");
             }
         }
 
@@ -305,7 +300,7 @@ class ActiveRecord extends BaseActiveRecord
 
     public function refresh(): bool
     {
-        $query = self::find();
+        $query = $this->find();
 
         $tableName = key($query->getTablesUsedInFrom());
         $pk = [];
@@ -335,10 +330,6 @@ class ActiveRecord extends BaseActiveRecord
      *
      * > Warning: If you do not specify any condition, this method will update **all** rows in the table.
      *
-     * Note that this method will not trigger any events. If you need {@see EVENT_BEFORE_UPDATE} or
-     * {@see EVENT_AFTER_UPDATE} to be triggered, you need to {@see find()|find} the models first and then call
-     * {@see update()} on each of them. For example an equivalent of the example above would be:
-     *
      * ```php
      * $customer = new Customer($db);
      * $arClasses = $customer->find()->where('status = 2')->all();
@@ -351,8 +342,8 @@ class ActiveRecord extends BaseActiveRecord
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
-     * Please refer to {@see Query::where()} on how to specify this parameter.
+     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
+     * to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
      * @throws Exception|InvalidConfigException|Throwable
@@ -361,7 +352,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function updateAll(array $attributes, $condition = '', array $params = []): int
     {
-        $command = $this->db->createCommand();
+        $command = $this->getDb()->createCommand();
 
         $command->update($this->tableName(), $attributes, $condition, $params);
 
@@ -374,15 +365,16 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to increment all customers' age by 1,
      *
      * ```php
-     * Customer::updateAllCounters(['age' => 1]);
+     * $customer = new Customer($db);
+     * $customer->updateAllCounters(['age' => 1]);
      * ```
      *
      * Note that this method will not trigger any events.
      *
      * @param array $counters the counters to be updated (attribute name => increment value).
      * Use negative values if you want to decrement the counters.
-     * @param string|array $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
-     * Please refer to {@see Query::where()} on how to specify this parameter.
+     * @param string|array $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
+     * to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
@@ -400,7 +392,7 @@ class ActiveRecord extends BaseActiveRecord
             $n++;
         }
 
-        $command = $this->db->createCommand();
+        $command = $this->getDb()->createCommand();
         $command->update($this->tableName(), $counters, $condition, $params);
 
         return $command->execute();
@@ -418,10 +410,6 @@ class ActiveRecord extends BaseActiveRecord
      *
      * > Warning: If you do not specify any condition, this method will delete **all** rows in the table.
      *
-     * Note that this method will not trigger any events. If you need {@see EVENT_BEFORE_DELETE} or
-     * {@see EVENT_AFTER_DELETE} to be triggered, you need to {@see find()|find} the models first and then
-     * call {@see delete()} on each of them. For example an equivalent of the example above would be:
-     *
      * ```php
      * $customer = new Customer($this->db);
      * $arClasses = $customer->find()->where('status = 3')->all();
@@ -436,14 +424,14 @@ class ActiveRecord extends BaseActiveRecord
      * to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
-     * @throws Exception|InvalidConfigException|NotSupportedException|Throwable
+     * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return int the number of rows deleted.*
+     * @return int the number of rows deleted.
      */
     public function deleteAll(?array $condition = null, array $params = []): int
     {
-        $command = $this->db->createCommand();
-        $command->delete(static::tableName(), $condition, $params);
+        $command = $this->getDb()->createCommand();
+        $command->delete($this->tableName(), $condition, $params);
 
         return $command->execute();
     }
@@ -453,7 +441,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function find(): ActiveQuery
     {
-        return new ActiveQuery(static::class, $this->db);
+        return new ActiveQuery(static::class, $this->getDb());
     }
 
     /**
@@ -510,7 +498,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function primaryKey(): array
     {
-        return static::getTableSchema()->getPrimaryKey();
+        return $this->getTableSchema()->getPrimaryKey();
     }
 
     /**
@@ -526,7 +514,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function attributes(): array
     {
-        return array_keys(static::getTableSchema()->getColumns());
+        return array_keys($this->getTableSchema()->getColumns());
     }
 
     /**
@@ -567,19 +555,15 @@ class ActiveRecord extends BaseActiveRecord
      * This is an internal method meant to be called to create active record objects after fetching data from the
      * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
      *
-     * When calling this method manually you should call {@see afterFind()} on the created record to trigger the
-     * {@see EVENT_AFTER_FIND|afterFind Event}.
-     *
-     * @param BaseActiveRecord|array $record the record to be populated. In most cases this will be an instance created by
-     * {@see instantiate()} beforehand.
+     * @param BaseActiveRecord|array $record the record to be populated. In most cases this will be an instance created
+     * by {@see instantiate()} beforehand.
      * @param array|object $row attribute values (name => value).
      *
-     * @throws Exception
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidConfigException
      */
     public function populateRecord($record, $row): void
     {
-        $columns = static::getTableSchema()->getColumns();
+        $columns = $this->getTableSchema()->getColumns();
 
         foreach ($row as $name => $value) {
             if (isset($columns[$name])) {
@@ -593,19 +577,6 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Inserts a row into the associated database table using the attribute values of this record.
      *
-     * This method performs the following steps in order:
-     *
-     * 1. call {@see beforeValidate()} when `$runValidation` is `true`. If {@see beforeValidate()} returns `false`, the
-     * rest of the steps will be skipped.
-     * 2. call {@see afterValidate()} when `$runValidation` is `true`. If validation failed, the rest of the steps will
-     * be skipped.
-     * 3. call {@see beforeSave()}. If {@see beforeSave()} returns `false`, the rest of the steps will be skipped.
-     * 4. insert the record into database. If this fails, it will skip the rest of the steps.
-     * 5. call {@see afterSave()}.
-     *
-     * In the above step 1, 2, 3 and 5, events {@see EVENT_BEFORE_VALIDATE}, {@see EVENT_AFTER_VALIDATE},
-     * {@see EVENT_BEFORE_INSERT}, and {@see EVENT_AFTER_INSERT} will be raised by the corresponding methods.
-     *
      * Only the {@see dirtyAttributes|changed attribute values} will be inserted into database.
      *
      * If the table's primary key is auto-incremental and is `null` during insertion, it will be populated with the
@@ -614,7 +585,7 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to insert a customer record:
      *
      * ```php
-     * $customer = new Customer;
+     * $customer = new Customer($db);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->insert();
@@ -623,8 +594,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @throws InvalidConfigException
-     * @throws Throwable in case insert failed.
+     * @throws InvalidConfigException|Throwable in case insert failed.
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
      */
@@ -634,7 +604,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->insertInternal($attributes);
         }
 
-        $transaction = $this->db->beginTransaction();
+        $transaction = $this->getDb()->beginTransaction();
 
         try {
             $result = $this->insertInternal($attributes);
@@ -657,9 +627,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws Exception|InvalidArgumentException|InvalidConfigException
      *
      * @return bool whether the record is inserted successfully.
      */
@@ -667,7 +635,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = $this->db->getSchema()->insert($this->tableName(), $values)) === false) {
+        if (($primaryKeys = $this->getDb()->getSchema()->insert($this->tableName(), $values)) === false) {
             return false;
         }
 
@@ -687,25 +655,12 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Saves the changes to this active record into the associated database table.
      *
-     * This method performs the following steps in order:
-     *
-     * 1. call {@see beforeValidate()} when `$runValidation` is `true`. If {@see beforeValidate()} returns `false`, the
-     * rest of the steps will be skipped.
-     * 2. call {@see afterValidate()} when `$runValidation` is `true`. If validation failed, the rest of the steps will
-     * be skipped.
-     * 3. call {@see beforeSave()}. If {@see beforeSave()} returns `false`, the rest of the steps will be skipped.
-     * 4. save the record into database. If this fails, it will skip the rest of the steps.
-     * 5. call {@see afterSave()}.
-     *
-     * In the above step 1, 2, 3 and 5, events {@see EVENT_BEFORE_VALIDATE}, {@see EVENT_AFTER_VALIDATE},
-     * {@see EVENT_BEFORE_UPDATE}, and {@see EVENT_AFTER_UPDATE} will be raised by the corresponding methods.
-     *
      * Only the {@see dirtyAttributes|changed attribute values} will be saved into database.
      *
      * For example, to update a customer record:
      *
      * ```php
-     * $customer = Customer::findOne($id);
+     * $customer = new Customer($db);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
@@ -738,7 +693,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->updateInternal($attributeNames);
         }
 
-        $transaction = $this->db->beginTransaction();
+        $transaction = $this->getDb()->beginTransaction();
 
         try {
             $result = $this->updateInternal($attributeNames);
@@ -758,15 +713,6 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Deletes the table row corresponding to this active record.
      *
-     * This method performs the following steps in order:
-     *
-     * 1. call {@see beforeDelete()}. If the method returns `false`, it will skip the rest of the steps;
-     * 2. delete the record from the database.
-     * 3. call {@see afterDelete()}.
-     *
-     * In the above step 1 and 3, events named {@see EVENT_BEFORE_DELETE} and {@see EVENT_AFTER_DELETE} will be raised
-     * by the corresponding methods.
-     *
      * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being deleted
      * is outdated.
      * @throws Throwable in case delete failed.
@@ -781,7 +727,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->deleteInternal();
         }
 
-        $transaction = $this->db->beginTransaction();
+        $transaction = $this->getDb()->beginTransaction();
 
         try {
             $result = $this->deleteInternal();
@@ -803,16 +749,12 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
      *
-     * @throws Exception
-     * @throws Throwable
-     * @throws StaleObjectException
+     * @throws Exception|StaleObjectException|Throwable
      *
      * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      */
     protected function deleteInternal()
     {
-        /** add event before delete */
-
         /**
          * we do not check the return value of deleteAll() because it's possible the record is already deleted in the
          * database and thus the method will return 0.
@@ -825,15 +767,13 @@ class ActiveRecord extends BaseActiveRecord
             $condition[$lock] = $this->$lock;
         }
 
-        $result = static::deleteAll($condition);
+        $result = $this->deleteAll($condition);
 
         if ($lock !== null && !$result) {
             throw new StaleObjectException('The object being deleted is outdated.');
         }
 
         $this->setOldAttributes(null);
-
-        /** add event after delete */
 
         return $result;
     }
@@ -854,7 +794,7 @@ class ActiveRecord extends BaseActiveRecord
             return false;
         }
 
-        return static::tableName() === $record->tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return $this->tableName() === $record->tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**

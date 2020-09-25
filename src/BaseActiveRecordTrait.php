@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use ArrayAccess;
 use ArrayIterator;
 use Exception;
+use IteratorAggregate;
 use ReflectionException;
 use ReflectionMethod;
 use Throwable;
-use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Connection\ConnectionPool;
 use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\UnknownMethodException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
@@ -34,12 +33,11 @@ trait BaseActiveRecordTrait
      *
      * This method is overridden so that attributes and related objects can be accessed like properties.
      *
-     * @param string $name property name
+     * @param string $name property name.
      *
-     * @throws InvalidCallException
-     * @throws UnknownPropertyException
+     * @throws InvalidCallException|UnknownPropertyException
      *
-     * @return mixed property value
+     * @return mixed property value.
      *
      * {@see getAttribute()}
      */
@@ -59,7 +57,7 @@ trait BaseActiveRecordTrait
 
         $value = $this->checkRelation($name);
 
-        if ($value instanceof ActiveQueryInterface) {
+        if ($value instanceof ActiveQuery) {
             $this->setRelationDependencies($name, $value);
             return $this->related[$name] = $value->findFor($name, $this);
         }
@@ -95,13 +93,12 @@ trait BaseActiveRecordTrait
      * (case-sensitive).
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
-     * @throws InvalidArgumentException if the named relation does not exist.
-     * @throws ReflectionException
+     * @throws ReflectionException|InvalidArgumentException if the named relation does not exist.
      *
-     * @return ActiveQueryInterface|ActiveQuery the relational query object. If the relation does not exist and
+     * @return ActiveQueryInterface|null the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
-    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface
+    public function getRelation(string $name, bool $throwException = true): ?ActiveQuery
     {
         $getter = 'get' . ucfirst($name);
 
@@ -112,7 +109,7 @@ trait BaseActiveRecordTrait
             if ($throwException) {
                 throw new InvalidArgumentException(
                     get_class($this) . ' has no relation named "' . $name . '".',
-                    0,
+                    [],
                     $e
                 );
             }
@@ -153,17 +150,15 @@ trait BaseActiveRecordTrait
      *
      * This method overrides the parent implementation by checking if the named attribute is `null` or not.
      *
-     * @param string $name the property name or the event name
+     * @param string $name the property name or the event name.
      *
-     * @return bool whether the property value is null
+     * @return bool whether the property value is null.
      */
     public function __isset(string $name): bool
     {
         try {
             return $this->__get($name) !== null;
         } catch (Throwable $t) {
-            return false;
-        } catch (Exception $e) {
             return false;
         }
     }
@@ -174,11 +169,8 @@ trait BaseActiveRecordTrait
      * This method overrides the parent implementation by clearing the specified attribute value.
      *
      * @param string $name the property name or the event name.
-     *
-     * @throws InvalidArgumentException
-     * @throws ReflectionException
      */
-    public function __unset($name): void
+    public function __unset(string $name): void
     {
         if ($this->hasAttribute($name)) {
             unset($this->attributes[$name]);
@@ -195,12 +187,12 @@ trait BaseActiveRecordTrait
      *
      * This method is overridden so that AR attributes can be accessed like properties.
      *
-     * @param string $name property name
-     * @param mixed $value property value
+     * @param string $name property name.
+     * @param mixed $value property value.
      *
      * @throws InvalidCallException
      */
-    public function __set($name, $value): void
+    public function __set(string $name, $value): void
     {
         if ($this->hasAttribute($name)) {
             if (
@@ -220,7 +212,7 @@ trait BaseActiveRecordTrait
     /**
      * Returns an iterator for traversing the attributes in the ActiveRecord.
      *
-     * This method is required by the interface {@see \IteratorAggregate}.
+     * This method is required by the interface {@see IteratorAggregate}.
      *
      * @return ArrayIterator an iterator for traversing the items in the list.
      */
@@ -234,7 +226,7 @@ trait BaseActiveRecordTrait
     /**
      * Returns whether there is an element at the specified offset.
      *
-     * This method is required by the SPL interface {@see \ArrayAccess}.
+     * This method is required by the SPL interface {@see ArrayAccess}.
      *
      * It is implicitly called when you use something like `isset($model[$offset])`.
      *
@@ -250,7 +242,7 @@ trait BaseActiveRecordTrait
     /**
      * Returns the element at the specified offset.
      *
-     * This method is required by the SPL interface {@see \ArrayAccess}.
+     * This method is required by the SPL interface {@see ArrayAccess}.
      *
      * It is implicitly called when you use something like `$value = $model[$offset];`.
      *
@@ -266,12 +258,12 @@ trait BaseActiveRecordTrait
     /**
      * Sets the element at the specified offset.
      *
-     * This method is required by the SPL interface {@see \ArrayAccess}.
+     * This method is required by the SPL interface {@see ArrayAccess}.
      *
      * It is implicitly called when you use something like `$model[$offset] = $item;`.
      *
-     * @param mixed $offset the offset to set element
-     * @param mixed $item the element value
+     * @param mixed $offset the offset to set element.
+     * @param mixed $item the element value.
      */
     public function offsetSet($offset, $item): void
     {
@@ -281,7 +273,7 @@ trait BaseActiveRecordTrait
     /**
      * Sets the element value at the specified offset to null.
      *
-     * This method is required by the SPL interface {@see \ArrayAccess}.
+     * This method is required by the SPL interface {@see ArrayAccess}.
      *
      * It is implicitly called when you use something like `unset($model[$offset])`.
      *
@@ -306,19 +298,18 @@ trait BaseActiveRecordTrait
      * - the class has a member variable with the specified name (when `$checkVars` is true).
      * - an attached behavior has a property of the given name (when `$checkBehaviors` is true).
      *
-     * @param string $name the property name
-     * @param bool $checkVars whether to treat member variables as properties
-     * @param bool $checkBehaviors whether to treat behaviors' properties as properties of this component
+     * @param string $name the property name.
+     * @param bool $checkVars whether to treat member variables as properties.
      *
-     * @return bool whether the property is defined
+     * @return bool whether the property is defined.
      *
      * {@see canGetProperty()}
      * {@see canSetProperty()}
      */
-    public function hasProperty($name, $checkVars = true, $checkBehaviors = true): bool
+    public function hasProperty(string $name, bool $checkVars = true): bool
     {
-        return $this->canGetProperty($name, $checkVars, $checkBehaviors)
-            || $this->canSetProperty($name, false, $checkBehaviors);
+        return $this->canGetProperty($name, $checkVars)
+            || $this->canSetProperty($name, false);
     }
 
     public function canGetProperty(string $name, bool $checkVars = true): bool

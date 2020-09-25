@@ -22,9 +22,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param bool|null $value whether to return the query results in terms of arrays instead of Active Records.
      *
-     * @return $this the query object itself.
+     * @return ActiveQueryInterface the query object itself.
      */
-    public function asArray(?bool $value = true): self;
+    public function asArray(?bool $value = true): ActiveQueryInterface;
 
     /**
      * Executes query and returns a single row of result.

@@ -10,11 +10,11 @@ use Yiisoft\Db\Command\Command;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
-use Yiisoft\Db\Exception\InvalidConfigException;
 
 use function array_merge;
 use function array_values;

@@ -32,7 +32,7 @@ interface ActiveRecordInterface
      *
      * If this record is the result of a query and the attribute is not loaded, `null` will be returned.
      *
-     * @param string $name the attribute name
+     * @param string $name the attribute name.
      *
      * @return mixed the attribute value. `null` if the attribute is not set or does not exist.
      *
@@ -456,9 +456,9 @@ interface ActiveRecordInterface
      * (case-sensitive).
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
-     * @return ActiveQueryInterface the relational query object.
+     * @return ActiveQueryInterface|null the relational query object.
      */
-    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface;
+    public function getRelation(string $name, bool $throwException = true): ?ActiveQueryInterface;
 
     /**
      * Populates the named relation with the related records.
@@ -487,8 +487,8 @@ interface ActiveRecordInterface
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
      * @param ActiveRecordInterface $model the record to be linked with the current one.
-     * @param array $extraColumns additional column values to be saved into the junction table.
-     * This parameter is only meaningful for a relationship involving a junction table (i.e., a relation set with
+     * @param array $extraColumns additional column values to be saved into the junction table. This parameter is only
+     * meaningful for a relationship involving a junction table (i.e., a relation set with
      * {@see ActiveQueryInterface::via()}).
      */
     public function link(string $name, ActiveRecordInterface $model, array $extraColumns = []): void;
