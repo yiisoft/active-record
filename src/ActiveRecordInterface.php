@@ -90,11 +90,11 @@ interface ActiveRecordInterface
     public function getOldPrimaryKey(bool $asArray = false);
 
     /**
-     * Returns a value indicating whether the given set of attributes represents the primary key for this model.
+     * Returns a value indicating whether the given set of attributes represents the primary key for this active record.
      *
      * @param array $keys the set of attributes to check.
      *
-     * @return bool whether the given set of attributes represents the primary key for this model.
+     * @return bool whether the given set of attributes represents the primary key for this active record.
      */
     public function isPrimaryKey(array $keys): bool;
 
@@ -158,7 +158,7 @@ interface ActiveRecordInterface
     public function find(): ActiveQueryInterface;
 
     /**
-     * Returns a single active record model instance by a primary key or an array of column values.
+     * Returns a single active record active record instance by a primary key or an array of column values.
      *
      * The method accepts:
      *
@@ -236,7 +236,7 @@ interface ActiveRecordInterface
     public function findOne($condition): ?ActiveRecordInterface;
 
     /**
-     * Returns a list of active record models that match the specified primary key value(s) or a set of column values.
+     * Returns a list of active record that match the specified primary key value(s) or a set of column values.
      *
      * The method accepts:
      *
@@ -486,12 +486,12 @@ interface ActiveRecordInterface
      *
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
-     * @param ActiveRecordInterface $model the record to be linked with the current one.
+     * @param ActiveRecordInterface $arClass the record to be linked with the current one.
      * @param array $extraColumns additional column values to be saved into the junction table. This parameter is only
      * meaningful for a relationship involving a junction table (i.e., a relation set with
      * {@see ActiveQueryInterface::via()}).
      */
-    public function link(string $name, ActiveRecordInterface $model, array $extraColumns = []): void;
+    public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void;
 
     /**
      * Destroys the relationship between two records.
@@ -502,10 +502,10 @@ interface ActiveRecordInterface
      *
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
-     * @param ActiveRecordInterface $model the model to be unlinked from the current one.
-     * @param bool $delete whether to delete the model that contains the foreign key.
-     * If false, the model's foreign key will be set `null` and saved.
-     * If true, the model containing the foreign key will be deleted.
+     * @param ActiveRecordInterface $arClass the active record to be unlinked from the current one.
+     * @param bool $delete whether to delete the active record that contains the foreign key.
+     * If false, the active record's foreign key will be set `null` and saved.
+     * If true, the active record containing the foreign key will be deleted.
      */
-    public function unlink(string $name, ActiveRecordInterface $model, bool $delete = false): void;
+    public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void;
 }

@@ -338,7 +338,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Creates a DB command that can be used to execute this query.
      *
-     * @throws Exception|InvalidConfigExeception
+     * @throws Exception|InvalidConfigException
      *
      * @return Command the created DB command instance.
      */
@@ -365,8 +365,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param string|ExpressionInterface $selectExpression
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable|
-     * @throws \Psr\SimpleCache\InvalidArgumentException
+     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable
      *
      * @return bool|string
      */
