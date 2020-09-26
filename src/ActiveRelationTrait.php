@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
 use ReflectionMethod;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ArrayExpression;
@@ -41,9 +42,9 @@ trait ActiveRelationTrait
     private bool $multiple = false;
     private ?ActiveRecordInterface $primaryModel = null;
     private array $link = [];
-    private $via;
     private ?string $inverseOf = null;
-    private $viaMap;
+    /** @var array|object the query associated with the junction table. */
+    private $via;
 
     /**
      * Clones internal objects.
@@ -161,11 +162,8 @@ trait ActiveRelationTrait
      * @param string $name the relation name.
      * @param ActiveRecordInterface $model the primary model.
      *
-     * @throws ReflectionException
-     * @throws Exception
-     * @throws InvalidArgumentException if the relation is invalid.
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|Throwable|ReflectionException|InvalidArgumentException if the relation
+     * is invalid.
      *
      * @return mixed the related record(s).
      */
@@ -225,12 +223,12 @@ trait ActiveRelationTrait
      * @param string $name the relation name
      * @param array $primaryModels primary models
      *
-     * @throws Exception
+     * @return array the related models
      * @throws InvalidArgumentException
      * @throws InvalidConfigException if {@see link()} is invalid
-     * @throws NotSupportedException
+     * @throws NotSupportedException|Throwable
      *
-     * @return array the related models
+     * @throws Exception
      */
     public function populateRelation(string $name, array &$primaryModels): array
     {
@@ -470,11 +468,13 @@ trait ActiveRelationTrait
     private function mapVia(array $map, array $viaMap): array
     {
         $resultMap = [];
+
         foreach ($map as $key => $linkKeys) {
             foreach (array_keys($linkKeys) as $linkKey) {
                 $resultMap[$key] = $viaMap[$linkKey];
             }
         }
+
         return $resultMap;
     }
 
@@ -726,11 +726,6 @@ trait ActiveRelationTrait
     public function getInverseOf(): string
     {
         return $this->inverseOf;
-    }
-
-    public function getViaMap()
-    {
-        return $this->viaMap;
     }
 
     public function multiple(bool $value): self

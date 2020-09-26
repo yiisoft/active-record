@@ -51,7 +51,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function find(): ActiveQuery
     {
-        return new ActiveQuery(static::class, $this->getDb());
+        return new ActiveQuery(static::class, $this->db);
     }
 
     /**
@@ -120,7 +120,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function insert(?array $attributes = null): bool
     {
-        $db = $this->getDb();
+        $db = $this->db;
 
         $values = $this->getDirtyAttributes($attributes);
 
@@ -197,7 +197,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function updateAll(array $attributes, $condition = [], array $params = []): int
     {
-        $db = $this->getDb();
+        $db = $this->db;
 
         if (empty($attributes)) {
             return 0;
@@ -297,7 +297,7 @@ class ActiveRecord extends BaseActiveRecord
         foreach ($this->fetchPks($condition) as $pk) {
             $key = $this->keyPrefix() . ':a:' . $this->buildKey($pk);
             foreach ($counters as $attribute => $value) {
-                $this->getDb()->executeCommand('HINCRBY', [$key, $attribute, $value]);
+                $this->db->executeCommand('HINCRBY', [$key, $attribute, $value]);
             }
             $n++;
         }
@@ -328,7 +328,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function deleteAll(?array $condition = null, array $params = []): int
     {
-        $db = $this->getDb();
+        $db = $this->db;
 
         $pks = $this->fetchPks($condition);
 

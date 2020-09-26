@@ -256,7 +256,7 @@ class ActiveRecord extends BaseActiveRecord
         $columnNames = $this->filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array($this->getDb()->quoteSql($key), $columnNames, true)) {
+            if (is_string($key) && !in_array($this->db->quoteSql($key), $columnNames, true)) {
                 throw new InvalidArgumentException(
                     'Key "' . $key . '" is not a column name and can not be used as a filter'
                 );
@@ -280,18 +280,18 @@ class ActiveRecord extends BaseActiveRecord
     {
         $columnNames = [];
         $tableName = $this->tableName();
-        $quotedTableName = $this->getDb()->quoteTableName($tableName);
+        $quotedTableName = $this->db->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
-            $columnNames[] = $this->getDb()->quoteColumnName($columnName);
+            $columnNames[] = $this->db->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $this->getDb()->quoteSql("$quotedTableName.[[$columnName]]");
+            $columnNames[] = $this->db->quoteSql("$quotedTableName.[[$columnName]]");
 
             foreach ($aliases as $tableAlias) {
                 $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $this->getDb()->quoteTableName($tableAlias);
-                $columnNames[] = $this->getDb()->quoteSql("$quotedTableAlias.[[$columnName]]");
+                $quotedTableAlias = $this->db->quoteTableName($tableAlias);
+                $columnNames[] = $this->db->quoteSql("$quotedTableAlias.[[$columnName]]");
             }
         }
 
@@ -352,7 +352,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function updateAll(array $attributes, $condition = '', array $params = []): int
     {
-        $command = $this->getDb()->createCommand();
+        $command = $this->db->createCommand();
 
         $command->update($this->tableName(), $attributes, $condition, $params);
 
@@ -392,7 +392,7 @@ class ActiveRecord extends BaseActiveRecord
             $n++;
         }
 
-        $command = $this->getDb()->createCommand();
+        $command = $this->db->createCommand();
         $command->update($this->tableName(), $counters, $condition, $params);
 
         return $command->execute();
@@ -430,7 +430,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function deleteAll(?array $condition = null, array $params = []): int
     {
-        $command = $this->getDb()->createCommand();
+        $command = $this->db->createCommand();
         $command->delete($this->tableName(), $condition, $params);
 
         return $command->execute();
@@ -441,7 +441,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function find(): ActiveQuery
     {
-        return new ActiveQuery(static::class, $this->getDb());
+        return new ActiveQuery(static::class, $this->db);
     }
 
     /**
@@ -471,7 +471,7 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function getTableSchema(): TableSchema
     {
-        $tableSchema = $this->getDb()->getSchema()->getTableSchema($this->tableName());
+        $tableSchema = $this->db->getSchema()->getTableSchema($this->tableName());
 
         if ($tableSchema === null) {
             throw new InvalidConfigException('The table does not exist: ' . $this->tableName());
@@ -604,7 +604,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->insertInternal($attributes);
         }
 
-        $transaction = $this->getDb()->beginTransaction();
+        $transaction = $this->db->beginTransaction();
 
         try {
             $result = $this->insertInternal($attributes);
@@ -635,7 +635,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = $this->getDb()->getSchema()->insert($this->tableName(), $values)) === false) {
+        if (($primaryKeys = $this->db->getSchema()->insert($this->tableName(), $values)) === false) {
             return false;
         }
 
@@ -693,7 +693,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->updateInternal($attributeNames);
         }
 
-        $transaction = $this->getDb()->beginTransaction();
+        $transaction = $this->db->beginTransaction();
 
         try {
             $result = $this->updateInternal($attributeNames);
@@ -727,7 +727,7 @@ class ActiveRecord extends BaseActiveRecord
             return $this->deleteInternal();
         }
 
-        $transaction = $this->getDb()->beginTransaction();
+        $transaction = $this->db->beginTransaction();
 
         try {
             $result = $this->deleteInternal();

@@ -13,6 +13,7 @@ use ReflectionMethod;
 use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownMethodException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 
@@ -35,7 +36,8 @@ trait BaseActiveRecordTrait
      *
      * @param string $name property name.
      *
-     * @throws InvalidCallException|UnknownPropertyException
+     * @throws InvalidArgumentException|InvalidCallException|ReflectionException|Throwable|UnknownPropertyException
+     * @throws \Yiisoft\Db\Exception\Exception|InvalidConfigException
      *
      * @return mixed property value.
      *

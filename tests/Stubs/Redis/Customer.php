@@ -90,6 +90,6 @@ final class Customer extends ActiveRecord
 
     public function find(): CustomerQuery
     {
-        return new CustomerQuery(static::class, $this->getDb());
+        return new CustomerQuery(static::class, $this->db);
     }
 }

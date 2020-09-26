@@ -9,13 +9,13 @@ use Closure;
 use IteratorAggregate;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\InvalidParamException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Query\QueryInterface;
@@ -25,17 +25,14 @@ use function array_flip;
 use function array_intersect;
 use function array_key_exists;
 use function array_keys;
-use function array_pop;
 use function array_search;
 use function array_values;
 use function count;
-use function explode;
 use function get_class;
 use function in_array;
 use function is_array;
 use function is_int;
 use function reset;
-use function strpos;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -62,7 +59,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private ?array $oldAttributes = null;
     private array $related = [];
     private array $relationsDependencies = [];
-    private ConnectionInterface $db;
+    protected ConnectionInterface $db;
 
     public function __construct(ConnectionInterface $db)
     {
@@ -312,9 +309,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     protected function createRelationQuery(string $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
-        $arInstance = new $arClass($this->db);
+        if ($this->db->getDriverName() === 'redis') {
+            $aqClassInstance = new RedisActiveQuery($arClass, $this->db);
+        } else {
+            $aqClassInstance = new ActiveQuery($arClass, $this->db);
+        }
 
-        return $arInstance->find()->primaryModel($this)->link($link)->multiple($multiple);
+        return $aqClassInstance->primaryModel($this)->link($link)->multiple($multiple);
     }
 
     /**
@@ -439,7 +440,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param array|null $values old attribute values to be set. If set to `null` this record is considered to be
      * {@see isNewRecord|new}.
      */
-    public function setOldAttributes($values): void
+    public function setOldAttributes(?array $values): void
     {
         $this->oldAttributes = $values;
     }
@@ -1132,8 +1133,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param bool $delete whether to delete the model that contains the foreign key. If `false`, the active records
      * foreign key will be set `null` and saved. If `true`, the model containing the foreign key will be deleted.
      *
-     * @throws Exception|ReflectionException|StaleObjectException
-     * @throws InvalidCallException if the models cannot be unlinked.
+     * @throws Exception|ReflectionException|StaleObjectException|Throwable|InvalidCallException if the models cannot be
+     * unlinked.
      */
     public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void
     {
@@ -1174,7 +1175,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
             } else {
                 /** @var $viaTable string */
-                /** @var $command Command */
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $columns)->execute();
@@ -1238,7 +1238,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param bool $delete whether to delete the model that contains the foreign key.
      *
      *
-     * @throws Exception|ReflectionException|StaleObjectException
+     * @throws Exception|ReflectionException|StaleObjectException|Throwable
      */
     public function unlinkAll(string $name, bool $delete = false): void
     {
@@ -1281,7 +1281,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
             } else {
                 /** @var $viaTable string */
-                /** @var $command Command */
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $condition)->execute();
@@ -1366,107 +1365,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return false;
-    }
-
-    /**
-     * Returns the text label for the specified attribute.
-     *
-     * If the attribute looks like `relatedModel.attribute`, then the attribute will be received from the related model.
-     *
-     * @param string $attribute the attribute name.
-     *
-     * @throws ReflectionException
-     * @throws InvalidArgumentException
-     *
-     * @return string the attribute label.
-     *
-     * {@see generateAttributeLabel()}
-     * {@see attributeLabels()}
-     */
-    public function getAttributeLabel(string $attribute): string
-    {
-        $labels = $this->attributeLabels();
-
-        if (isset($labels[$attribute])) {
-            return $labels[$attribute];
-        }
-
-        if (strpos($attribute, '.')) {
-            $attributeParts = explode('.', $attribute);
-            $neededAttribute = array_pop($attributeParts);
-
-            $relatedModel = $this;
-            foreach ($attributeParts as $relationName) {
-                if ($relatedModel->isRelationPopulated($relationName) && $relatedModel->$relationName instanceof self) {
-                    $relatedModel = $relatedModel->$relationName;
-                } else {
-                    try {
-                        $relation = $relatedModel->getRelation($relationName);
-                    } catch (InvalidParamException $e) {
-                        return $this->generateAttributeLabel($attribute);
-                    }
-                    /* @var $modelClass ActiveRecordInterface */
-                    $relatedModel = $relation->getARInstance();
-                }
-            }
-
-            $labels = $relatedModel->attributeLabels();
-
-            if (isset($labels[$neededAttribute])) {
-                return $labels[$neededAttribute];
-            }
-        }
-
-        return $this->generateAttributeLabel($attribute);
-    }
-
-    /**
-     * Returns the text hint for the specified attribute.
-     *
-     * If the attribute looks like `relatedModel.attribute`, then the attribute will be received from the related model.
-     *
-     * @param string $attribute the attribute name.
-     *
-     * @throws ReflectionException
-     * @throws InvalidArgumentException
-     *
-     * @return string the attribute hint.
-     *
-     * {@see attributeHints()}
-     */
-    public function getAttributeHint(string $attribute): string
-    {
-        $hints = $this->attributeHints();
-
-        if (isset($hints[$attribute])) {
-            return $hints[$attribute];
-        } elseif (strpos($attribute, '.')) {
-            $attributeParts = explode('.', $attribute);
-            $neededAttribute = array_pop($attributeParts);
-            $relatedModel = $this;
-
-            foreach ($attributeParts as $relationName) {
-                if ($relatedModel->isRelationPopulated($relationName) && $relatedModel->$relationName instanceof self) {
-                    $relatedModel = $relatedModel->$relationName;
-                } else {
-                    try {
-                        $relation = $relatedModel->getRelation($relationName);
-                    } catch (InvalidParamException $e) {
-                        return '';
-                    }
-                    /* @var $modelClass ActiveRecordInterface */
-                    $relatedModel = $relation->getARInstance();
-                }
-            }
-
-            $hints = $relatedModel->attributeHints();
-
-            if (isset($hints[$neededAttribute])) {
-                return $hints[$neededAttribute];
-            }
-        }
-
-        return '';
     }
 
     public function fields(): array
@@ -1567,10 +1465,5 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $this->$name = $value;
             }
         }
-    }
-
-    public function getDb(): ConnectionInterface
-    {
-        return $this->db;
     }
 }

@@ -87,10 +87,12 @@ final class ActiveRecordFactory extends Factory
     /**
      * Returns the active connection at the factory.
      *
+     * @throws InvalidConfigException
+     *
      * @return ConnectionInterface
      */
     public function getConnection(): ConnectionInterface
     {
-        return $this->get(ConnectionInterface::class);
+        return $this->create(ConnectionInterface::class);
     }
 }

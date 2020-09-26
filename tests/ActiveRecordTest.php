@@ -14,7 +14,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
@@ -23,9 +22,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ProfileWithConstructor;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithConstructor;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\Db\Exception\Exception;
@@ -1920,54 +1916,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->db->getQueryBuilder()->build($query);
     }
 
-    /**
-     * {@see https://github.com/yiisoft/yii2/issues/5786}
-     */
-    public function testFindWithConstructors(): void
-    {
-        $this->markTestSkipped('The test should be fixed.');
-
-        $orderWithConstructor = new ActiveQuery(OrderWithConstructor::class, $this->db);
-
-        $orders = $orderWithConstructor->with(['customer.profile', 'orderItems'])->orderBy('id')->all();
-
-        $this->assertCount(3, $orders);
-        $order = $orders[0];
-        $this->assertEquals(1, $order->id);
-
-        $this->assertNotNull($order->customer);
-        $this->assertInstanceOf(CustomerWithConstructor::class, $order->customer);
-        $this->assertEquals(1, $order->customer->id);
-
-        $this->assertNotNull($order->customer->profile);
-        $this->assertInstanceOf(ProfileWithConstructor::class, $order->customer->profile);
-        $this->assertEquals(1, $order->customer->profile->id);
-
-        $this->assertNotNull($order->customerJoinedWithProfile);
-        $customerWithProfile = $order->customerJoinedWithProfile;
-        $this->assertInstanceOf(CustomerWithConstructor::class, $customerWithProfile);
-        $this->assertEquals(1, $customerWithProfile->id);
-
-        $this->assertNotNull($customerProfile = $customerWithProfile->profile);
-        $this->assertInstanceOf(ProfileWithConstructor::class, $customerProfile);
-        $this->assertEquals(1, $customerProfile->id);
-
-        $this->assertCount(2, $order->orderItems);
-
-        $item = $order->orderItems[0];
-        $this->assertInstanceOf(OrderItemWithConstructor::class, $item);
-
-        $this->assertEquals(1, $item->item_id);
-
-        /** {@see https://github.com/yiisoft/yii2/issues/15540} */
-        $orders = $orderWithConstructor->find()
-            ->with(['customer.profile', 'orderItems'])
-            ->orderBy('id')
-            ->asArray(true)
-            ->all();
-        $this->assertCount(3, $orders);
-    }
-
     public function testCustomARRelation(): void
     {
         $this->loadFixture($this->db);
@@ -1978,7 +1926,6 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertInstanceOf(Order::class, $orderItem->custom);
     }
-
 
     public function testRefreshQuerySetAliasFindRecord(): void
     {
