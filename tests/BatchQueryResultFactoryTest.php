@@ -8,15 +8,14 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Query\BatchQueryResult;
 use Yiisoft\Db\Query\Query;
 
-abstract class BatchQueryResultTest extends TestCase
+abstract class BatchQueryResultFactoryTest extends TestCase
 {
     public function testQuery(): void
     {
-        $this->loadFixture($this->db);
+        $this->loadFixture($this->arFactory->getConnection());
 
-        $customer = new Customer($this->db);
-
-        $query = $customer->find()->orderBy('id');
+        $customer = $this->arFactory->createQueryTo(Customer::class);
+        $query = $customer->orderBy('id');
 
         $result = $query->batch(2);
 
@@ -25,7 +24,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertSame($result->getQuery(), $query);
 
         /** normal query */
-        $query = $customer->find()->orderBy('id');
+        $query = $this->arFactory->createQueryTo(Customer::class)->orderBy('id');
 
         $allRows = [];
 
@@ -53,7 +52,7 @@ abstract class BatchQueryResultTest extends TestCase
         $batch->reset();
 
         /** empty query */
-        $query = $customer->find()->where(['id' => 100]);
+        $query = $customer->where(['id' => 100]);
 
         $allRows = [];
 
@@ -66,7 +65,8 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertCount(0, $allRows);
 
         /** query with index */
-        $query = $customer->find()->indexBy('name');
+        $customer = $this->arFactory->createQueryTo(Customer::class);
+        $query = $customer->indexBy('name');
 
         $allRows = [];
 
@@ -80,7 +80,8 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertEquals('address3', $allRows['user3']['address']);
 
         /** each */
-        $query = $customer->find()->orderBy('id');
+        $customer = $this->arFactory->createQueryTo(Customer::class);
+        $query = $customer->orderBy('id');
 
         $allRows = [];
 
@@ -93,7 +94,8 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertEquals('user3', $allRows[2]['name']);
 
         /** each with key */
-        $query = $customer->find()->orderBy('id')->indexBy('name');
+        $customer = $this->arFactory->createQueryTo(Customer::class);
+        $query = $customer->orderBy('id')->indexBy('name');
 
         $allRows = [];
 
@@ -110,9 +112,9 @@ abstract class BatchQueryResultTest extends TestCase
     public function testActiveQuery(): void
     {
         /** batch with eager loading */
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createQueryTo(Customer::class);
 
-        $query = $customer->find()->with('orders')->orderBy('id');
+        $query = $customer->with('orders')->orderBy('id');
 
         $customers = $this->getAllRowsFromBatch($query->batch(2));
 
@@ -128,11 +130,11 @@ abstract class BatchQueryResultTest extends TestCase
 
     public function testBatchWithIndexBy(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createQueryTo(Customer::class);
 
-        $query = $customer->find()->orderBy('id')->limit(3)->indexBy('id');
+        $query = $customer->orderBy('id')->limit(3)->indexBy('id');
 
-        $customers = $this->getAllRowsFromBatch($query->batch(2), $this->db);
+        $customers = $this->getAllRowsFromBatch($query->batch(2), $this->arFactory->getConnection());
 
         $this->assertCount(3, $customers);
         $this->assertEquals('user1', $customers[0]->name);
