@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\Tests\ActiveDataProviderFactoryTest as AbstractActiveDa
  */
 final class ActiveDataProviderFactoryTest extends AbstractActiveDataProviderFactoryTest
 {
-    protected ?string $driverName = 'sqlite';
+    protected string $driverName = 'sqlite';
 
     public function setUp(): void
     {

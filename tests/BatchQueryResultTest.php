@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Query\BatchQueryResult;
-use Yiisoft\Db\Query\Query;
 
 abstract class BatchQueryResultTest extends TestCase
 {
@@ -132,7 +131,7 @@ abstract class BatchQueryResultTest extends TestCase
 
         $query = $customer->find()->orderBy('id')->limit(3)->indexBy('id');
 
-        $customers = $this->getAllRowsFromBatch($query->batch(2), $this->db);
+        $customers = $this->getAllRowsFromBatch($query->batch(2));
 
         $this->assertCount(3, $customers);
         $this->assertEquals('user1', $customers[0]->name);

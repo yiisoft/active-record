@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use Exception;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -21,6 +22,8 @@ trait ActiveRecordTestTrait
 {
     public function testFind(): void
     {
+        $this->loadFixture($this->db);
+
         $customerInstance = new Customer($this->db);
 
         /** find one */
@@ -684,7 +687,7 @@ trait ActiveRecordTestTrait
         $this->assertFalse($customer->isNewRecord);
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->loadFixture($this->db);
 
@@ -692,28 +695,33 @@ trait ActiveRecordTestTrait
 
         $customer = $customerInstance->findOne(2);
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->name);
-        $this->assertFalse($customer->isNewRecord);
-        $this->assertEmpty($customer->dirtyAttributes);
+        $this->assertEquals('user2', $customer->getAttribute('name'));
+        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertEmpty($customer->getDirtyAttributes());
 
-        $customer->name = 'user2x';
+        $customer->setAttribute('name', 'user2x');
         $customer->save();
-
-        $this->assertEquals('user2x', $customer->name);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertEquals('user2x', $customer->getAttribute('name'));
+        $this->assertFalse($customer->getIsNewRecord());
 
         $customer2 = $customerInstance->findOne(2);
-        $this->assertEquals('user2x', $customer2->name);
+        $this->assertEquals('user2x', $customer2->getAttribute('name'));
+
+        /** no update */
+        $customer = $customerInstance->findOne(1);
+
+        $customer->setAttribute('name', 'user1');
+        $this->assertEquals(0, $customer->update());
 
         /** updateAll */
         $customer = $customerInstance->findOne(3);
-        $this->assertEquals('user3', $customer->name);
+        $this->assertEquals('user3', $customer->getAttribute('name'));
 
         $ret = $customerInstance->updateAll(['name' => 'temp'], ['id' => 3]);
         $this->assertEquals(1, $ret);
 
         $customer = $customerInstance->findOne(3);
-        $this->assertEquals('temp', $customer->name);
+        $this->assertEquals('temp', $customer->getAttribute('name'));
 
         $ret = $customerInstance->updateAll(['name' => 'tempX']);
         $this->assertEquals(3, $ret);
@@ -768,7 +776,7 @@ trait ActiveRecordTestTrait
         $this->assertEquals(1, $orderItem->quantity);
 
         $ret = $orderItem->updateCounters(['quantity' => -1]);
-        $this->assertEquals(1, $ret);
+        $this->assertTrue($ret);
         $this->assertEquals(0, $orderItem->quantity);
 
         $orderItem = $orderItemInstance->findOne($pk);
@@ -938,7 +946,7 @@ trait ActiveRecordTestTrait
             /** @var $itemClass ActiveRecordInterface */
             $customer->orderItems = [new Item($this->db)];
             $this->fail('setter call above MUST throw Exception');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             /** catch exception "Setting read-only property" */
             $this->assertInstanceOf(InvalidCallException::class, $e);
         }
@@ -970,7 +978,7 @@ trait ActiveRecordTestTrait
         $this->assertEquals(3, $cheapItems[0]->id);
     }
 
-    public function testLink()
+    public function testLink(): void
     {
         $this->loadFixture($this->db);
 

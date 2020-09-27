@@ -12,8 +12,8 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ActiveQueryTest extends BaseActiveQueryTest
 {
-    protected ?string $driverName = 'sqlite';
-    protected ?ConnectionInterface $db;
+    protected string $driverName = 'sqlite';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {

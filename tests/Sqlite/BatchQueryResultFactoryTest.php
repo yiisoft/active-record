@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\Tests\BatchQueryResultFactoryTest as AbstractBatchQuery
  */
 final class BatchQueryResultFactoryTest extends AbstractBatchQueryResultFactoryTest
 {
-    protected ?string $driverName = 'sqlite';
+    protected string $driverName = 'sqlite';
 
     public function setUp(): void
     {

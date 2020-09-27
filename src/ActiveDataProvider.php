@@ -49,7 +49,7 @@ final class ActiveDataProvider extends DataProvider
      *
      * if it is not explicitly set.
      */
-    private ?QueryInterface $query = null;
+    private ?QueryInterface $query;
 
     /**
      * @var string|callable the column that is used as the key of the data models.
@@ -63,7 +63,7 @@ final class ActiveDataProvider extends DataProvider
      *
      * - Otherwise, the keys of the {@see models} array will be used.
      *
-     * @see getKeys()
+     * {@see getKeys()}
      */
     private $key;
 
@@ -72,47 +72,6 @@ final class ActiveDataProvider extends DataProvider
         $this->query = $query;
 
         parent::__construct();
-    }
-
-    protected function prepareActiveRecord(): array
-    {
-        $query = $this->prepareQuery();
-
-        if ($query->shouldEmulateExecution()) {
-            return [];
-        }
-
-        return $query->all();
-    }
-
-    /**
-     * Prepares the sql-query that will get the data for current page.
-     *
-     * @throws InvalidConfigException
-     *
-     * @return QueryInterface
-     */
-    public function prepareQuery(): QueryInterface
-    {
-        if (!$this->query instanceof QueryInterface) {
-            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. Yiisoft\Db\Query or its subclasses.');
-        }
-        $query = clone $this->query;
-        if (($pagination = $this->getPagination()) !== false) {
-            $pagination->totalCount = $this->getTotalCount();
-
-            if ($pagination->totalCount === 0) {
-                $query->emulateExecution();
-            }
-
-            $query->limit($pagination->getLimit())->offset($pagination->getOffset());
-        }
-
-        if (($sort = $this->getSort()) !== null) {
-            $query->addOrderBy($sort->getOrders());
-        }
-
-        return $query;
     }
 
     /**

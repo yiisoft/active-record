@@ -7,15 +7,13 @@ namespace Yiisoft\ActiveRecord\Tests\Redis;
 use Yiisoft\ActiveRecord\Redis\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\TestCase;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Category;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Order;
 
 /**
  * @group redis
  */
 final class ActiveQueryFactoryTest extends TestCase
 {
-    protected ?string $driverName = 'redis';
+    protected string $driverName = 'redis';
 
     public function setUp(): void
     {

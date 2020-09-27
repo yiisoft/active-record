@@ -12,7 +12,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ActiveDataProviderTest extends AbstractActiveDataProviderTest
 {
-    protected ?string $driverName = 'pgsql';
+    protected string $driverName = 'pgsql';
     protected ConnectionInterface $db;
 
     public function setUp(): void

@@ -14,7 +14,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ActiveRecordTest extends AbstractActiveRecordTest
 {
-    protected ?string $driverName = 'mssql';
+    protected string $driverName = 'mssql';
     protected ConnectionInterface $db;
 
     public function setUp(): void

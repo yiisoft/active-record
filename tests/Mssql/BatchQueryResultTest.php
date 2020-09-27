@@ -12,7 +12,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class BatchQueryResultTest extends AbstractBatchQueryResultTest
 {
-    protected ?string $driverName = 'mssql';
+    protected string $driverName = 'mssql';
     protected ConnectionInterface $db;
 
     public function setUp(): void

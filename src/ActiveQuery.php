@@ -115,7 +115,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * If null, the DB connection returned by {@see arClass} will be used.
      *
-     * @throws Exception|InvalidConfigException|InvalidArgumentException|NotSupportedException
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
      */
@@ -134,6 +134,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param QueryBuilder $builder
      *
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
+     * @throws Throwable
      *
      * @return Query a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
      */
@@ -317,6 +318,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * Executes query and returns a single row of result.
      *
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
+     * @throws Throwable
      *
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting of {@see asArray}, the
      * query result may be either an array or an ActiveRecord object. `null` will be returned if the query results in
@@ -365,7 +367,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param string|ExpressionInterface $selectExpression
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable
+     * @throws Exception|InvalidConfigException|Throwable
      *
      * @return bool|string
      */
@@ -508,7 +510,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         /**
-         * remove duplicated joins added by joinWithRelations that may be added e.g. when joining a relation and a via
+         * Remove duplicated joins added by joinWithRelations that may be added e.g. when joining a relation and a via
          * relation at the same time.
          */
         $uniqueJoins = [];
@@ -516,15 +518,22 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         foreach ($this->join as $j) {
             $uniqueJoins[serialize($j)] = $j;
         }
-
         $this->join = array_values($uniqueJoins);
 
+        /** {@see https://github.com/yiisoft/yii2/issues/16092 } */
+        $uniqueJoinsByTableName = [];
+
+        foreach ($this->join as $config) {
+            $tableName = serialize($config[1]);
+            if (!array_key_exists($tableName, $uniqueJoinsByTableName)) {
+                $uniqueJoinsByTableName[$tableName] = $config;
+            }
+        }
+
+        $this->join = array_values($uniqueJoinsByTableName);
+
         if (!empty($join)) {
-            /**
-             * append explicit join to joinWith()
-             *
-             * {@see https://github.com/yiisoft/yii2/issues/2880}
-             */
+            /** Append explicit join to joinWith() {@see https://github.com/yiisoft/yii2/issues/2880} */
             $this->join = empty($this->join) ? $join : array_merge($this->join, $join);
         }
     }
@@ -552,13 +561,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Modifies the current query by adding join fragments based on the given relations.
      *
-     * @param ActiveRecord $arClass the primary model.
+     * @param ActiveRecordInterface $arClass the primary model.
      * @param array $with the relations to be joined.
      * @param string|array $joinType the join type.
-     *
-     * @throws InvalidArgumentException|ReflectionException
      */
-    private function joinWithRelations(ActiveRecord $arClass, array $with, $joinType): void
+    private function joinWithRelations(ActiveRecordInterface $arClass, array $with, $joinType): void
     {
         $relations = [];
 
@@ -914,8 +921,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * Both aliases and names are enclosed into {{ and }}.
      *
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
+     * @throws InvalidArgumentException|InvalidConfigException
      *
      * @return array table names indexed by aliases.
      */

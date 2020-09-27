@@ -12,7 +12,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ActiveDataProviderTest extends AbstractActiveDataProviderTest
 {
-    protected ?string $driverName = 'sqlite';
+    protected string $driverName = 'sqlite';
     protected ConnectionInterface $db;
 
     public function setUp(): void

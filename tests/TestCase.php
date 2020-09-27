@@ -9,6 +9,7 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
+use ReflectionException;
 use ReflectionObject;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
@@ -39,23 +40,19 @@ use function trim;
 
 class TestCase extends AbstractTestCase
 {
-    protected ?MssqlConnection $mssqlConnection = null;
-    protected ?MysqlConnection $mysqlConnection = null;
-    protected ?PgsqlConnection $pgsqlConnection = null;
-    protected ?RedisConnection $redisConnection = null;
-    protected ?SqliteConnection $sqliteConnection = null;
-    protected ?ActiveRecordFactory $arFactory = null;
+    protected ContainerInterface $container;
+    protected MssqlConnection $mssqlConnection;
+    protected MysqlConnection $mysqlConnection;
+    protected PgsqlConnection $pgsqlConnection;
+    protected RedisConnection $redisConnection;
+    protected SqliteConnection $sqliteConnection;
+    protected ActiveRecordFactory $arFactory;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->configContainer();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
     }
 
     protected function configContainer(): void
@@ -116,6 +113,8 @@ class TestCase extends AbstractTestCase
      * @param $method
      * @param array $args
      * @param bool $revoke whether to make method inaccessible after execution
+     *
+     * @throws ReflectionException
      *
      * @return mixed
      */
@@ -198,7 +197,7 @@ class TestCase extends AbstractTestCase
                 return str_replace(['[[', ']]'], '"', $sql);
             case 'pgsql':
                 // more complex replacement needed to not conflict with postgres array syntax
-                return str_replace(['\\[', '\\]'], ['[', ']'], preg_replace('/(\[\[)|((?<!(\[))\]\])/', '"', $sql));
+                return str_replace(['\\[', '\\]'], ['[', ']'], preg_replace('/(\[\[)|((?<!(\[))]])/', '"', $sql));
             case 'mssql':
                 return str_replace(['[[', ']]'], ['[', ']'], $sql);
             default:
@@ -215,13 +214,6 @@ class TestCase extends AbstractTestCase
                 '__class' => Cache::class,
                 '__construct()' => [
                     Reference::to(ArrayCache::class)
-                ]
-            ],
-
-            FileRotatorInterface::class => [
-                '__class' => FileRotatorInterface::class,
-                '__construct()' => [
-                    10
                 ]
             ],
 

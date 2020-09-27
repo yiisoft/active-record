@@ -12,8 +12,8 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class BatchQueryResultTest extends AbstractBatchQueryResultTest
 {
-    protected ?string $driverName = 'sqlite';
-    protected ?ConnectionInterface $db;
+    protected string $driverName = 'sqlite';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {

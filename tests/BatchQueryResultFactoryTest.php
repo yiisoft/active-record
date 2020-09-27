@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Query\BatchQueryResult;
-use Yiisoft\Db\Query\Query;
 
 abstract class BatchQueryResultFactoryTest extends TestCase
 {

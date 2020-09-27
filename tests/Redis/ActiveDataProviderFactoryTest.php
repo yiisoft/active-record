@@ -16,7 +16,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\Redis\OrderItem;
  */
 final class ActiveDataProviderFactoryTest extends TestCase
 {
-    protected ?string $driverName = 'redis';
+    protected string $driverName = 'redis';
 
     public function setUp(): void
     {

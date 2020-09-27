@@ -6,4 +6,8 @@ use Yiisoft\ActiveRecord\Redis\ActiveRecord;
 
 final class Dummy extends ActiveRecord
 {
+    public function primaryKey(): array
+    {
+        return [];
+    }
 }

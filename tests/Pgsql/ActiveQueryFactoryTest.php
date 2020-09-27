@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\Tests\ActiveQueryFactoryTest as AbstractActiveQueryFact
  */
 final class ActiveQueryFactoryTest extends AbstractActiveQueryFactoryTest
 {
-    protected ?string $driverName = 'pgsql';
+    protected string $driverName = 'pgsql';
 
     public function setUp(): void
     {

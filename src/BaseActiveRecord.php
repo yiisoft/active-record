@@ -71,7 +71,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @throws InvalidConfigException
      *
-     * @return static|null ActiveRecord instance matching the condition, or `null` if nothing matches.
+     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
      */
     public function findOne($condition): ?ActiveRecordInterface
     {
@@ -111,7 +111,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         if (!ArrayHelper::isAssociative($condition)) {
             /** query by primary key */
-            $primaryKey = static::primaryKey();
+            $primaryKey = $this->primaryKey();
 
             if (isset($primaryKey[0])) {
                 /** if condition is scalar, search for a single primary key, if it is array, search for multiple
@@ -572,8 +572,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param array|null $attributeNames list of attribute names that need to be saved. Defaults to null, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @throws Exception
-     * @throws StaleObjectException
+     * @throws Exception|StaleObjectException
      *
      * @return bool whether the saving succeeded (i.e. no validation errors occurred).
      */
@@ -616,8 +615,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return int|false the number of rows affected, or `false` if validation fails or {@see beforeSave()} stops the
      * updating process.
-     * @throws Exception in case update failed.
-     * @throws NotSupportedException
+     * @throws NotSupportedException|Exception in case update failed.
      * @throws StaleObjectException if {@see href='psi_element://optimisticLock'>|optimistic locking} is enabled and the
      * data being updated is outdated.
      */
@@ -641,8 +639,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @param array $attributes the attributes (names or name-value pairs) to be updated.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return int the number of rows affected.
      */
@@ -679,12 +676,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @param array|null $attributes attributes to update.
      *
-     * @return int|false the number of rows affected, or false if {@see beforeSave()} stops the updating process.
-     * @throws Exception
-     * @throws NotSupportedException
-     * @throws StaleObjectException
+     * @throws Exception|NotSupportedException|StaleObjectException
+     *
+     * @return int the number of rows affected.
      */
-    protected function updateInternal(?array $attributes = null)
+    protected function updateInternal(?array $attributes = null): int
     {
         $values = $this->getDirtyAttributes($attributes);
 
@@ -740,8 +736,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param array $counters the counters to be updated (attribute name => increment value), use negative values if you
      * want to decrement the counters.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return bool whether the saving is successful.
      *
@@ -1236,7 +1231,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
      * @param bool $delete whether to delete the model that contains the foreign key.
-     *
      *
      * @throws Exception|ReflectionException|StaleObjectException|Throwable
      */

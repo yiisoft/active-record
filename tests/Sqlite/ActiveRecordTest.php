@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
+use PHPUnit\Framework\TestCase;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordTestTrait;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -14,8 +16,8 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 class ActiveRecordTest extends AbstractActiveRecordTest
 {
-    protected ?string $driverName = 'sqlite';
-    protected ?ConnectionInterface $db;
+    protected string $driverName = 'sqlite';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
@@ -33,7 +35,7 @@ class ActiveRecordTest extends AbstractActiveRecordTest
         unset($this->sqliteConnection);
     }
 
-    public function testExplicitPkOnAutoIncrement()
+    public function testExplicitPkOnAutoIncrement(): void
     {
         $this->loadFixture($this->db);
 

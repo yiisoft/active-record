@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\Tests\BatchQueryResultFactoryTest as AbstractBatchQuery
  */
 final class BatchQueryResultFactoryTest extends AbstractBatchQueryResultFactoryTest
 {
-    protected ?string $driverName = 'mysql';
+    protected string $driverName = 'mysql';
 
     public function setUp(): void
     {

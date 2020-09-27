@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\Tests\ActiveDataProviderFactoryTest as AbstractActiveDa
  */
 final class ActiveDataProviderFactoryTest extends AbstractActiveDataProviderFactoryTest
 {
-    protected ?string $driverName = 'mysql';
+    protected string $driverName = 'mysql';
 
     public function setUp(): void
     {

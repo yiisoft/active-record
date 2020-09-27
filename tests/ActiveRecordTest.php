@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
@@ -19,16 +20,19 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\Db\Exception\UnknownPropertyException;
+use Yiisoft\Db\Query\Query;
 
 use function ucfirst;
 
@@ -38,6 +42,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCustomColumns(): void
     {
+        $this->loadFixture($this->db);
+
         $customer = new Customer($this->db);
 
         /** find custom column */
@@ -49,14 +55,12 @@ abstract class ActiveRecordTest extends TestCase
                 ->where(['name' => 'user3'])->one();
         }
 
-        $this->assertEquals(3, $customers->id);
+        $this->assertEquals(3, $customers->getAttribute('id'));
         $this->assertEquals(4, $customers->status2);
     }
 
     public function testCallFind(): void
     {
-        $this->loadFixture($this->db);
-
         $customer = new Customer($this->db);
 
         /** find count, sum, average, min, max, scalar */
@@ -121,7 +125,7 @@ abstract class ActiveRecordTest extends TestCase
         /** find one */
         $customer = $customer->findBySql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC')->one();
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user3', $customer->name);
+        $this->assertEquals('user3', $customer->getAttribute('name'));
 
         /** find all */
         $customers = $customer->findBySql('SELECT * FROM {{customer}}')->all();
@@ -130,7 +134,7 @@ abstract class ActiveRecordTest extends TestCase
         /** find with parameter binding */
         $customer = $customer->findBySql('SELECT * FROM {{customer}} WHERE [[id]]=:id', [':id' => 2])->one();
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->name);
+        $this->assertEquals('user2', $customer->getAttribute('name'));
     }
 
     /**
@@ -154,7 +158,7 @@ abstract class ActiveRecordTest extends TestCase
         $order = $order->findOne(2);
 
         $this->assertCount(0, $order->books);
-        $this->assertEquals(2, $order->id);
+        $this->assertEquals(2, $order->getAttribute('id'));
 
         $order = $order->find()->where(['id' => 1])->asArray()->one();
         $this->assertIsArray($order);
@@ -169,18 +173,18 @@ abstract class ActiveRecordTest extends TestCase
 
         $order = $orders[0];
         $this->assertCount(2, $order->books);
-        $this->assertEquals(1, $order->id);
-        $this->assertEquals(1, $order->books[0]->id);
-        $this->assertEquals(2, $order->books[1]->id);
+        $this->assertEquals(1, $order->getAttribute('id'));
+        $this->assertEquals(1, $order->books[0]->getAttribute('id'));
+        $this->assertEquals(2, $order->books[1]->getAttribute('id'));
 
         $order = $orders[1];
         $this->assertCount(0, $order->books);
-        $this->assertEquals(2, $order->id);
+        $this->assertEquals(2, $order->getAttribute('id'));
 
         $order = $orders[2];
         $this->assertCount(1, $order->books);
-        $this->assertEquals(3, $order->id);
-        $this->assertEquals(2, $order->books[0]->id);
+        $this->assertEquals(3, $order->getAttribute('id'));
+        $this->assertEquals(2, $order->books[0]->getAttribute('id'));
 
         /** https://github.com/yiisoft/yii2/issues/1402 */
         $orders = $order->find()->with('books')->orderBy('id')->asArray()->all();
@@ -205,8 +209,8 @@ abstract class ActiveRecordTest extends TestCase
         $items = $customers->orderItems;
 
         $this->assertCount(2, $items);
-        $this->assertEquals(1, $items[0]->id);
-        $this->assertEquals(2, $items[1]->id);
+        $this->assertEquals(1, $items[0]->getAttribute('id'));
+        $this->assertEquals(2, $items[1]->getAttribute('id'));
         $this->assertInstanceOf(Item::class, $items[0]);
         $this->assertInstanceOf(Item::class, $items[1]);
     }
@@ -229,7 +233,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertInstanceOf(Order::class, $orders[0]);
         $this->assertInstanceOf(Order::class, $orders[1]);
 
-        $ids = [$orders[0]->id, $orders[1]->id];
+        $ids = [$orders[0]->id, $orders[1]->getAttribute('id')];
         sort($ids);
         $this->assertEquals([1, 3], $ids);
 
@@ -238,7 +242,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $orders = $categories->orders;
         $this->assertCount(1, $orders);
-        $this->assertEquals(2, $orders[0]->id);
+        $this->assertEquals(2, $orders[0]->getAttribute('id'));
         $this->assertInstanceOf(Order::class, $orders[0]);
     }
 
@@ -246,47 +250,46 @@ abstract class ActiveRecordTest extends TestCase
     {
         $record = new NullValues($this->db);
 
-        $this->assertNull($record->var1);
-        $this->assertNull($record->var2);
-        $this->assertNull($record->var3);
-        $this->assertNull($record->stringcol);
+        $this->assertNull($record->getAttribute('var1'));
+        $this->assertNull($record->getAttribute('var2'));
+        $this->assertNull($record->getAttribute('var3'));
+        $this->assertNull($record->getAttribute('stringcol'));
 
-        $record->var1 = 123;
-        $record->var2 = 456;
-        $record->var3 = 789;
-        $record->stringcol = 'hello!';
+        $record->setAttribute('var1', 123);
+        $record->setAttribute('var2', 456);
+        $record->setAttribute('var3', 789);
+        $record->setAttribute('stringcol', 'hello!');
         $record->save();
 
         $this->assertTrue($record->refresh());
-        $this->assertEquals(123, $record->var1);
-        $this->assertEquals(456, $record->var2);
-        $this->assertEquals(789, $record->var3);
-        $this->assertEquals('hello!', $record->stringcol);
+        $this->assertEquals(123, $record->getAttribute('var1'));
+        $this->assertEquals(456, $record->getAttribute('var2'));
+        $this->assertEquals(789, $record->getAttribute('var3'));
+        $this->assertEquals('hello!', $record->getAttribute('stringcol'));
 
-        $record->var1 = null;
-        $record->var2 = null;
-        $record->var3 = null;
-        $record->stringcol = null;
+        $record->setAttribute('var1', null);
+        $record->setAttribute('var2', null);
+        $record->setAttribute('var3', null);
+        $record->setAttribute('stringcol', null);
         $record->save();
 
         $this->assertTrue($record->refresh());
-        $this->assertNull($record->var1);
-        $this->assertNull($record->var2);
-        $this->assertNull($record->var3);
+        $this->assertNull($record->getAttribute('var1'));
+        $this->assertNull($record->getAttribute('var2'));
+        $this->assertNull($record->getAttribute('var3'));
+        $this->assertNull($record->getAttribute('>stringcol'));
 
-        $this->assertNull($record->stringcol);
-
-        $record->var1 = 0;
-        $record->var2 = 0;
-        $record->var3 = 0;
-        $record->stringcol = '';
+        $record->setAttribute('var1', 0);
+        $record->setAttribute('var2', 0);
+        $record->setAttribute('var3', 0);
+        $record->setAttribute('stringcol', '');
         $record->save();
 
         $this->assertTrue($record->refresh());
-        $this->assertEquals(0, $record->var1);
-        $this->assertEquals(0, $record->var2);
-        $this->assertEquals(0, $record->var3);
-        $this->assertEquals('', $record->stringcol);
+        $this->assertEquals(0, $record->getAttribute('var1'));
+        $this->assertEquals(0, $record->getAttribute('var2'));
+        $this->assertEquals(0, $record->getAttribute('var3'));
+        $this->assertEquals('', $record->getAttribute('stringcol'));
     }
 
     public function testStoreEmpty(): void
@@ -621,6 +624,8 @@ abstract class ActiveRecordTest extends TestCase
      * @dataProvider aliasMethodProvider
      *
      * @param string $aliasMethod whether alias is specified explicitly or using the query syntax {{@tablename}}
+     *
+     * @throws Exception|InvalidConfigException|Throwable
      */
     public function testJoinWithAlias(string $aliasMethod): void
     {
@@ -1653,10 +1658,7 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testUnlinkAllOnCondition(): void
     {
-        /** @var Category $categoryClass */
         $categoryClass = new Category($this->db);
-
-        /** @var Item $itemClass */
         $itemClass = new Item($this->db);
 
         /** Ensure there are three items with category_id = 2 in the Items table */
@@ -1689,10 +1691,7 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->loadFixture($this->db);
 
-        /** @var Order $orderClass */
         $orderClass = new Order($this->db);
-
-        /** @var Item $itemClass */
         $itemClass = new Item($this->db);
 
         /** Ensure there are three items with category_id = 2 in the Items table */
@@ -1968,5 +1967,290 @@ abstract class ActiveRecordTest extends TestCase
         $cat = new Cat($this->db);
 
         $this->assertFalse(isset($cat->throwable));
+    }
+
+    public function testGetAttributes(): void
+    {
+        $attributesExpected['id'] = 1;
+        $attributesExpected['email'] = 'user1@example.com';
+        $attributesExpected['name'] = 'user1';
+        $attributesExpected['address'] = 'address1';
+        $attributesExpected['status'] = 1;
+
+        if ($this->driverName === 'pgsql') {
+            $attributesExpected['bool_status'] = true;
+        }
+
+        $attributesExpected['profile_id'] = 1;
+
+        $customer = new Customer($this->db);
+
+        $attributes = $customer->findOne(1)->getAttributes();
+
+        $this->assertEquals($attributes, $attributesExpected);
+    }
+
+    public function testGetAttributesExcept(): void
+    {
+        $customer = new Customer($this->db);
+
+        $attributes = $customer->findOne(1)->getAttributes(null, ['status', 'bool_status', 'profile_id']);
+
+        $this->assertEquals(
+            $attributes,
+            ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1']
+        );
+    }
+
+    public function testSetAttributes(): void
+    {
+        $attributes['email'] = 'samdark@mail.ru';
+        $attributes['name'] = 'samdark';
+        $attributes['address'] = 'rusia';
+        $attributes['status'] = 1;
+
+        if ($this->driverName === 'pgsql') {
+            $attributes['bool_status'] = true;
+        }
+
+        $attributes['profile_id'] = null;
+
+        $customer = new Customer($this->db);
+
+        $customer->setAttributes($attributes);
+
+        $this->assertTrue($customer->save());
+    }
+
+    public function testFields(): void
+    {
+        $orderItem = new OrderItem($this->db);
+
+        $fields = $orderItem->findOne(['order_id' => 1, 'item_id' => 2])->fields();
+
+        $this->assertEquals(
+            $fields,
+            ['order_id' => 1, 'item_id' => 2, 'quantity' => 2, 'subtotal' => '40', 'price' => 20]
+        );
+    }
+
+    public function testExtraFields(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->find()->with('orders2')->where(['id' => 1])->one();
+        $this->assertCount(1, $query->getRelatedRecords());
+        $this->assertCount(1, $query->extraFields());
+        $this->assertArrayHasKey('orders2', $query->getRelatedRecords());
+        $this->assertContains('orders2', $query->extraFields());
+    }
+
+    public function testSetAttributeNoExist(): void
+    {
+        $cat = new Cat($this->db);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat has no attribute named "noExist"'
+        );
+
+        $cat->setAttribute('noExist', 1);
+    }
+
+    public function testGetOldAttribute(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+        $this->assertEquals('user1', $query->getOldAttribute('name'));
+        $this->assertEquals($query->getAttributes(), $query->getOldAttributes());
+
+        $query->setAttribute('name', 'samdark');
+        $this->assertEquals('samdark', $query->getAttribute('name'));
+        $this->assertEquals('user1', $query->getOldAttribute('name'));
+        $this->assertNotEquals($query->getAttribute('name'), $customer->getOldAttribute('name'));
+    }
+
+    public function testGetOldAttributes(): void
+    {
+        $attributes['id'] = 1;
+        $attributes['email'] = 'user1@example.com';
+        $attributes['name'] = 'user1';
+        $attributes['address'] = 'address1';
+        $attributes['status'] = 1;
+
+        if ($this->driverName === 'pgsql') {
+            $attributes['bool_status'] = true;
+        }
+
+        $attributes['profile_id'] = 1;
+
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+        $this->assertEquals($query->getAttributes(), $attributes);
+        $this->assertEquals($query->getAttributes(), $query->getOldAttributes());
+
+        $query->setAttribute('name', 'samdark');
+        $attributesNew['id'] = 1;
+        $attributesNew['email'] = 'user1@example.com';
+        $attributesNew['name'] = 'samdark';
+        $attributesNew['address'] = 'address1';
+        $attributesNew['status'] = 1;
+
+        if ($this->driverName === 'pgsql') {
+            $attributesNew['bool_status'] = true;
+        }
+
+        $attributesNew['profile_id'] = 1;
+
+        $this->assertEquals($attributesNew, $query->getAttributes());
+        $this->assertEquals($attributes, $query->getOldAttributes());
+        $this->assertNotEquals($query->getAttributes(), $query->getOldAttributes());
+    }
+
+    public function testSetOldAttribute(): void
+    {
+        $customer = new Customer($this->db);
+
+        $this->assertEmpty($customer->getOldAttribute('name'));
+
+        $customer->setOldAttribute('name', 'samdark');
+
+        $this->assertEquals('samdark', $customer->getOldAttribute('name'));
+    }
+
+    public function testSetOldAttributeException(): void
+    {
+        $customer = new Customer($this->db);
+
+        $this->assertEmpty($customer->getOldAttribute('name'));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no attribute named "noExist"'
+        );
+        $customer->setOldAttribute('noExist', 'samdark');
+    }
+
+    public function testIsAttributeChanged(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+        $this->assertEquals('user1', $query->getAttribute('name'));
+        $this->assertEquals('user1', $query->getOldAttribute('name'));
+
+        $query->setAttribute('name', 'samdark');
+        $this->assertEquals('samdark', $query->getAttribute('name'));
+        $this->assertEquals('user1', $query->getOldAttribute('name'));
+        $this->assertNotEquals($query->getAttribute('name'), $query->getOldAttribute('name'));
+        $this->assertTrue($query->isAttributeChanged('name', true));
+    }
+
+    public function testIsAttributeChangedNotIdentical(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+        $this->assertEquals('user1', $query->getAttribute('name'));
+        $this->assertEquals('user1', $query->getOldAttribute('name'));
+
+        $query->setAttribute('name', 'samdark');
+        $this->assertEquals('samdark', $query->getAttribute('name'));
+        $this->assertEquals('user1', $query->getOldAttribute('name'));
+        $this->assertNotEquals($query->getAttribute('name'), $query->getOldAttribute('name'));
+        $this->assertTrue($query->isAttributeChanged('name', false));
+    }
+
+    public function testIsAttributeChangedNotChanged(): void
+    {
+        $customer = new Customer($this->db);
+
+        $this->assertEmpty($customer->getAttribute('name'));
+        $this->assertEmpty($customer->getOldAttribute('name'));
+        $this->assertFalse($customer->isAttributeChanged('name', false));
+    }
+
+    public function testTableSchemaException(): void
+    {
+        $noExist = new NoExist($this->db);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('The table does not exist: NoExist');
+        $noExist->getTableSchema();
+    }
+
+    public function testCheckRelationUnknownPropertyException(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+
+        $this->expectException(UnknownPropertyException::class);
+        $this->expectExceptionMessage('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::noExist');
+        $query->noExist;
+    }
+
+    public function testCheckRelationInvalidCallException(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(2);
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Getting write-only property: Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::ordersReadOnly'
+        );
+        $query->ordersReadOnly;
+    }
+
+    public function testGetRelationInvalidArgumentException(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+
+        /** Without throwing exception */
+        $this->assertEmpty($query->getRelation('items', false));
+
+        /** Throwing exception */
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "items".'
+        );
+        $query->getRelation('items');
+    }
+
+    public function testGetRelationInvalidArgumentExceptionHasNoRelationNamed(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+
+        /** Without throwing exception */
+        $this->assertEmpty($query->getRelation('item', false));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "item"'
+        );
+        $query->getRelation('item');
+    }
+
+    public function testGetRelationInvalidArgumentExceptionCaseSensitive(): void
+    {
+        $customer = new Customer($this->db);
+
+        $query = $customer->findOne(1);
+
+        $this->assertEmpty($query->getRelation('expensiveorders', false));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Relation names are case sensitive. Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer ' .
+            'has a relation named "expensiveOrders" instead of "expensiveorders"'
+        );
+        $query->getRelation('expensiveorders');
     }
 }

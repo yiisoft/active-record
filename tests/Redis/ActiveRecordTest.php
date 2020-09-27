@@ -4,32 +4,36 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Redis;
 
+use JsonException;
+use ReflectionException;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Redis\ActiveQuery;
 use Yiisoft\ActiveRecord\Redis\LuaScriptBuilder;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTestTrait;
 use Yiisoft\ActiveRecord\Tests\TestCase;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Department;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Dummy;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Employee;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\OrderItemWithNullFK;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\InvalidParamException;
+use Yiisoft\Db\Exception\NotSupportedException;
 
 /**
  * @group redis
  */
 final class ActiveRecordTest extends TestCase
 {
-    protected ?string $driverName = 'redis';
+    protected string $driverName = 'redis';
 
     public function setUp(): void
     {
@@ -69,9 +73,9 @@ final class ActiveRecordTest extends TestCase
 
         $customer = new Customer($this->redisConnection);
 
-        $this->assertEquals(1, count($customer->findAll(3)));
-        $this->assertEquals(1, count($customer->findAll(['id' => 1])));
-        $this->assertEquals(3, count($customer->findAll(['id' => [1, 2, 3]])));
+        $this->assertCount(1, $customer->findAll(3));
+        $this->assertCount(1, $customer->findAll(['id' => 1]));
+        $this->assertCount(3, $customer->findAll(['id' => [1, 2, 3]]));
     }
 
     public function testFindScalar(): void
@@ -548,7 +552,7 @@ final class ActiveRecordTest extends TestCase
         $this->assertEquals($condition, $query->getWhere());
     }
 
-    public function testFilterWhereRecursively()
+    public function testFilterWhereRecursively(): void
     {
         $query = new ActiveQuery(Dummy::class, $this->redisConnection);
 
@@ -620,7 +624,6 @@ final class ActiveRecordTest extends TestCase
         $customer->save();
         $this->assertEquals(6, $customer->id);
 
-        /** @var Customer $customer */
         $customers = $customer->findOne(4);
         $this->assertNotNull($customers);
         $this->assertEquals('user4', $customers->name);
@@ -666,10 +669,10 @@ final class ActiveRecordTest extends TestCase
         $this->assertSame([], $rows);
 
         $row = $order->find()->emulateExecution()->one();
-        $this->assertSame(null, $row);
+        $this->assertNull($row);
 
         $exists = $order->find()->emulateExecution()->exists();
-        $this->assertSame(false, $exists);
+        $this->assertFalse($exists);
 
         $count = $order->find()->emulateExecution()->count();
         $this->assertSame(0, $count);
@@ -681,14 +684,14 @@ final class ActiveRecordTest extends TestCase
         $this->assertSame(0, $sum);
 
         $max = $order->find()->emulateExecution()->max('id');
-        $this->assertSame(null, $max);
+        $this->assertNull($max);
 
         $min = $order->find()->emulateExecution()->min('id');
-        $this->assertSame(null, $min);
+        $this->assertNull($min);
 
         /** withAttribute() only needed for column() and scalar(). */
         $scalar = $order->find()->withAttribute('id')->emulateExecution()->scalar();
-        $this->assertSame(null, $scalar);
+        $this->assertNull($scalar);
 
         /** withAttribute() only needed for column() and scalar(). */
         $column = $order->find()->withAttribute('id')->emulateExecution()->column();
@@ -810,6 +813,12 @@ final class ActiveRecordTest extends TestCase
 
     /**
      * @dataProvider illegalValuesForWhere
+     *
+     * @param array $filterWithInjection
+     * @param array $expectedStrings
+     * @param array $unexpectedStrings
+     *
+     * @throws Exception|NotSupportedException
      */
     public function testValueEscapingInWhere(
         array $filterWithInjection,
@@ -870,6 +879,13 @@ final class ActiveRecordTest extends TestCase
 
     /**
      * @dataProvider illegalValuesForFindByCondition
+     *
+     * @param array $filterWithInjection
+     * @param array $expectedStrings
+     * @param array $unexpectedStrings
+     *
+     * @throws Exception|InvalidConfigException|NotSupportedException|JsonException|ReflectionException
+     * @throws InvalidParamException
      */
     public function testValueEscapingInFindByCondition(
         array $filterWithInjection,
@@ -1508,7 +1524,7 @@ final class ActiveRecordTest extends TestCase
         $this->assertFalse($customer->isNewRecord);
     }
 
-    public function testExplicitPkOnAutoIncrement()
+    public function testExplicitPkOnAutoIncrement(): void
     {
         $customer = new Customer($this->redisConnection);
 
@@ -1524,7 +1540,7 @@ final class ActiveRecordTest extends TestCase
         $this->assertFalse($customer->isNewRecord);
     }
 
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $this->customerData();
 
@@ -1751,8 +1767,6 @@ final class ActiveRecordTest extends TestCase
         $baseModel = new Customer($this->redisConnection);
         $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
 
-
-        /** @var $customer ActiveRecord */
         $customer = new Customer($this->redisConnection);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertTrue($customer->canGetProperty('id'));
@@ -1789,7 +1803,7 @@ final class ActiveRecordTest extends TestCase
         $this->assertFalse($customer->canSetProperty('non_existing_property'));
     }
 
-    public function testLink()
+    public function testLink(): void
     {
         $this->customerData();
         $this->itemData();
@@ -1843,6 +1857,28 @@ final class ActiveRecordTest extends TestCase
         $this->assertEquals(100, $orderItem->subtotal);
     }
 
+    public function testFindByConditionException(): void
+    {
+        $dummy = new Dummy($this->redisConnection);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('"Yiisoft\ActiveRecord\Tests\Stubs\Redis\Dummy" must have a primary key.');
+        $dummy->findOne([1]);
+    }
+
+    public function testGetOldPrimaryKeyException(): void
+    {
+        $dummyClass = new Dummy($this->redisConnection);
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(
+            'Yiisoft\ActiveRecord\Tests\Stubs\Redis\Dummy does not have a primary key. ' .
+            'You should either define a primary key for the corresponding table or override the primaryKey() method.'
+        );
+
+        $dummyClass->getOldPrimaryKey();
+    }
+
     private function categoryData(): void
     {
         $category = new Category($this->redisConnection);
@@ -1880,15 +1916,15 @@ final class ActiveRecordTest extends TestCase
     private function orderData(): void
     {
         $order = new Order($this->redisConnection);
-        $order->setAttributes(['customer_id' => 1, 'created_at' => 1325282384, 'total' => 110.0], false);
+        $order->setAttributes(['customer_id' => 1, 'created_at' => 1325282384, 'total' => 110.0]);
         $order->save();
 
         $order = new Order($this->redisConnection);
-        $order->setAttributes(['customer_id' => 2, 'created_at' => 1325334482, 'total' => 33.0], false);
+        $order->setAttributes(['customer_id' => 2, 'created_at' => 1325334482, 'total' => 33.0]);
         $order->save();
 
         $order = new Order($this->redisConnection);
-        $order->setAttributes(['customer_id' => 2, 'created_at' => 1325502201, 'total' => 40.0], false);
+        $order->setAttributes(['customer_id' => 2, 'created_at' => 1325502201, 'total' => 40.0]);
         $order->save();
     }
 
@@ -1926,15 +1962,14 @@ final class ActiveRecordTest extends TestCase
     private function orderWithNullFKData(): void
     {
         $orderWithNullFKData = new OrderWithNullFK($this->redisConnection);
-        $orderWithNullFKData->setAttributes(['customer_id' => 1, 'created_at' => 1325282384, 'total' => 110.0], false);
+        $orderWithNullFKData->setAttributes(['customer_id' => 1, 'created_at' => 1325282384, 'total' => 110.0]);        $orderWithNullFKData->save();
+
+        $orderWithNullFKData = new OrderWithNullFK($this->redisConnection);
+        $orderWithNullFKData->setAttributes(['customer_id' => 2, 'created_at' => 1325334482, 'total' => 33.0]);
         $orderWithNullFKData->save();
 
         $orderWithNullFKData = new OrderWithNullFK($this->redisConnection);
-        $orderWithNullFKData->setAttributes(['customer_id' => 2, 'created_at' => 1325334482, 'total' => 33.0], false);
-        $orderWithNullFKData->save();
-
-        $orderWithNullFKData = new OrderWithNullFK($this->redisConnection);
-        $orderWithNullFKData->setAttributes(['customer_id' => 2, 'created_at' => 1325502201, 'total' => 40.0], false);
+        $orderWithNullFKData->setAttributes(['customer_id' => 2, 'created_at' => 1325502201, 'total' => 40.0]);
         $orderWithNullFKData->save();
     }
 

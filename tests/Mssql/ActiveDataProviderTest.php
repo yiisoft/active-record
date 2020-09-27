@@ -12,7 +12,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ActiveDataProviderTest extends AbstractActiveDataProviderTest
 {
-    protected ?string $driverName = 'mssql';
+    protected string $driverName = 'mssql';
     protected ConnectionInterface $db;
 
     public function setUp(): void

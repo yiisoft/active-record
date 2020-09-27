@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
+use PHPUnit\Framework\TestCase;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordTestTrait;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -14,7 +16,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ActiveRecordTest extends AbstractActiveRecordTest
 {
-    protected ?string $driverName = 'mysql';
+    protected string $driverName = 'mysql';
     protected ConnectionInterface $db;
 
     public function setUp(): void
@@ -33,7 +35,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         unset($this->mysqlConnection);
     }
 
-    public function testExplicitPkOnAutoIncrement()
+    public function testExplicitPkOnAutoIncrement(): void
     {
         /** @var $this TestCase|ActiveRecordTestTrait */
         $customer = new Customer($this->db);

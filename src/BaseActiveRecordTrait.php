@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use ArrayAccess;
 use ArrayIterator;
+use Error;
 use Exception;
 use IteratorAggregate;
 use ReflectionException;
@@ -14,7 +15,6 @@ use Throwable;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\UnknownMethodException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 
 use function array_key_exists;
@@ -37,7 +37,7 @@ trait BaseActiveRecordTrait
      * @param string $name property name.
      *
      * @throws InvalidArgumentException|InvalidCallException|ReflectionException|Throwable|UnknownPropertyException
-     * @throws \Yiisoft\Db\Exception\Exception|InvalidConfigException
+     * @throws InvalidConfigException
      *
      * @return mixed property value.
      *
@@ -107,13 +107,9 @@ trait BaseActiveRecordTrait
         try {
             /** the relation could be defined in a behavior */
             $relation = $this->$getter();
-        } catch (UnknownMethodException $e) {
+        } catch (Error $e) {
             if ($throwException) {
-                throw new InvalidArgumentException(
-                    get_class($this) . ' has no relation named "' . $name . '".',
-                    [],
-                    $e
-                );
+                throw new InvalidArgumentException(get_class($this) . ' has no relation named "' . $name . '".');
             }
 
             return null;

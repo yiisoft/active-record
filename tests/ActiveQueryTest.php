@@ -94,6 +94,28 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals([[['profile'], true, 'INNER JOIN']], $query->getJoinWith());
     }
 
+    public function testBuildJoinWithRemoveDuplicateJoinByTableName(): void
+    {
+        $query = new ActiveQuery(Customer::class, $this->db);
+
+        $query->innerJoinWith('orders')->joinWith('orders.orderItems');
+
+        $this->invokeMethod($query, 'buildJoinWith');
+
+        $this->assertEquals([
+            [
+                'INNER JOIN',
+                'order',
+                '{{customer}}.[[id]] = {{order}}.[[customer_id]]'
+            ],
+            [
+                'LEFT JOIN',
+                'order_item',
+                '{{order}}.[[id]] = {{order_item}}.[[order_id]]'
+            ],
+        ], $query->getJoin());
+    }
+
     public function testGetQueryTableNameFromNotSet(): void
     {
         $query = new ActiveQuery(Customer::class, $this->db);
@@ -268,5 +290,14 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $orders);
         $this->assertInstanceOf(Order::class, $orders[0]);
         $this->assertEquals(2, $orders[0]->id);
+    }
+
+    public function testGetSql(): void
+    {
+        $query = new ActiveQuery(Customer::class, $this->db);
+
+        $query->sql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC');
+
+        $this->assertEquals('SELECT * FROM {{customer}} ORDER BY [[id]] DESC', $query->getSql());
     }
 }

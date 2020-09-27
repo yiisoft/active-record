@@ -7,15 +7,13 @@ namespace Yiisoft\ActiveRecord\Tests\Redis;
 use Yiisoft\ActiveRecord\Redis\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\TestCase;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Category;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Order;
 
 /**
  * @group redis
  */
 final class ActiveQueryTest extends TestCase
 {
-    protected ?string $driverName = 'redis';
+    protected string $driverName = 'redis';
 
     public function setUp(): void
     {
@@ -40,9 +38,9 @@ final class ActiveQueryTest extends TestCase
 
         $query = $query->on(['a' => 'b'])->joinWith('profile');
 
-        $this->assertEquals($query->getARClass(), Customer::class);
-        $this->assertEquals($query->getOn(), ['a' => 'b']);
-        $this->assertEquals($query->getJoinWith(), [[['profile'], true, 'LEFT JOIN']]);
+        $this->assertEquals(Customer::class, $query->getARClass());
+        $this->assertEquals(['a' => 'b'], $query->getOn());
+        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
     }
 
     public function testPopulateEmptyRows(): void

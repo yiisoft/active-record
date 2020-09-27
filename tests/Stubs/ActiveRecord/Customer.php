@@ -54,6 +54,10 @@ final class Customer extends ActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
+    public function getItem(): void
+    {
+    }
+
     public function getOrdersWithItems(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
@@ -80,7 +84,6 @@ final class Customer extends ActiveRecord
     /** deeply nested table relation */
     public function getOrderItems(): ActiveQuery
     {
-        /* @var $rel ActiveQuery */
         $rel = $this->hasMany(Item::class, ['id' => 'item_id']);
 
         return $rel->viaTable('order_item', ['order_id' => 'id'], function ($q) {
@@ -92,5 +95,9 @@ final class Customer extends ActiveRecord
     public function find(): CustomerQuery
     {
         return new CustomerQuery(static::class, $this->db);
+    }
+
+    public function setOrdersReadOnly(): void
+    {
     }
 }

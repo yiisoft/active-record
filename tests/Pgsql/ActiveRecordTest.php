@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 
 use ArrayAccess;
+use PHPUnit\Framework\TestCase;
 use Traversable;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordTestTrait;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BoolAR;
@@ -24,7 +26,7 @@ use Yiisoft\Db\Pgsql\Schema;
  */
 final class ActiveRecordTest extends AbstractActiveRecordTest
 {
-    protected ?string $driverName = 'pgsql';
+    protected string $driverName = 'pgsql';
     protected ConnectionInterface $db;
 
     public function setUp(): void
@@ -43,7 +45,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         unset($this->pgsqlConnection);
     }
 
-    public function testExplicitPkOnAutoIncrement()
+    public function testExplicitPkOnAutoIncrement(): void
     {
         /** @var $this TestCase|ActiveRecordTestTrait */
         $customer = new Customer($this->db);
@@ -329,7 +331,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
                     '5.8',
                 ],
                 'jsonb_col' => [
-                    pi()
+                    M_PI
                 ],
             ]],
         ];
@@ -353,7 +355,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $type = $type->find()->one();
 
         foreach ($attributes as $attribute => $expected) {
-            $expected = isset($expected[1]) ? $expected[1] : $expected[0];
+            $expected = $expected[1] ?? $expected[0];
             $value = $type->$attribute;
 
             if ($expected instanceof ArrayExpression) {
