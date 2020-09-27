@@ -226,8 +226,8 @@ CREATE TABLE "beta" (
 
 CREATE VIEW "animal_view" AS SELECT * FROM "animal";
 
-INSERT INTO "animal" (type) VALUES ('yiiunit\data\ar\Cat');
-INSERT INTO "animal" (type) VALUES ('yiiunit\data\ar\Dog');
+INSERT INTO "animal" (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat');
+INSERT INTO "animal" (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog');
 
 
 INSERT INTO "profile" (description) VALUES ('profile customer 1');
