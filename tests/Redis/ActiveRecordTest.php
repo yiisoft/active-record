@@ -1962,7 +1962,8 @@ final class ActiveRecordTest extends TestCase
     private function orderWithNullFKData(): void
     {
         $orderWithNullFKData = new OrderWithNullFK($this->redisConnection);
-        $orderWithNullFKData->setAttributes(['customer_id' => 1, 'created_at' => 1325282384, 'total' => 110.0]);        $orderWithNullFKData->save();
+        $orderWithNullFKData->setAttributes(['customer_id' => 1, 'created_at' => 1325282384, 'total' => 110.0]);
+        $orderWithNullFKData->save();
 
         $orderWithNullFKData = new OrderWithNullFK($this->redisConnection);
         $orderWithNullFKData->setAttributes(['customer_id' => 2, 'created_at' => 1325334482, 'total' => 33.0]);
