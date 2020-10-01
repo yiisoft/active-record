@@ -17,6 +17,8 @@ abstract class ActiveQueryFactoryTest extends TestCase
 {
     public function testOptions(): void
     {
+        $this->loadFixture($this->db);
+
         $query = $this->arFactory->createQueryTo(Customer::class)->on(['a' => 'b'])->joinWith('profile');
 
         $this->assertEquals($query->getARClass(), Customer::class);
