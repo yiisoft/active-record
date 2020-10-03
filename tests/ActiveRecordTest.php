@@ -283,7 +283,6 @@ abstract class ActiveRecordTest extends TestCase
         array $validFilter,
         ?string $alias = null
     ): void {
-
         $activeQuery = new ActiveQuery($modelClassName, $this->db);
 
         if ($alias !== null) {
