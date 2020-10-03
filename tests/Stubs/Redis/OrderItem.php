@@ -60,6 +60,6 @@ final class OrderItem extends ActiveRecord
 
     public function getCustom(): ActiveQuery
     {
-        return Order::find();
+        return new ActiveQuery(Order::class, $this->db);
     }
 }

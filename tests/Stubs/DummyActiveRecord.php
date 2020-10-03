@@ -44,9 +44,4 @@ class DummyActiveRecord extends BaseActiveRecord
     {
         throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }
-
-    public function find(): ActiveQueryInterface
-    {
-        throw new NotSupportedException(__METHOD__ . ' is not supported.');
-    }
 }

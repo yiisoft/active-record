@@ -17,7 +17,9 @@ abstract class ActiveQueryFactoryTest extends TestCase
 {
     public function testOptions(): void
     {
-        $this->loadFixture($this->db);
+        $db = $this->arFactory->getConnection();
+
+        $this->loadFixture($db);
 
         $query = $this->arFactory->createQueryTo(Customer::class)->on(['a' => 'b'])->joinWith('profile');
 
@@ -245,9 +247,9 @@ abstract class ActiveQueryFactoryTest extends TestCase
     public function testDeeplyNestedTableRelationWith(): void
     {
         /** @var $category Category */
-        $categories = $this->arFactory->createAR(Category::class);
+        $categories = $this->arFactory->createQueryTo(Category::class);
 
-        $categories = $categories->find()->with('orders')->indexBy('id')->all();
+        $categories = $categories->with('orders')->indexBy('id')->all();
 
         $category = $categories[1];
         $this->assertNotNull($category);

@@ -92,11 +92,6 @@ final class Customer extends ActiveRecord
         })->orderBy('id');
     }
 
-    public function find(): CustomerQuery
-    {
-        return new CustomerQuery(static::class, $this->db);
-    }
-
     public function setOrdersReadOnly(): void
     {
     }

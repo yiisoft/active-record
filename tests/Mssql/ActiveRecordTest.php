@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mssql;
 
+use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTrigger;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTriggerAlert;
@@ -62,8 +63,8 @@ END';
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
 
-        $testRecord = new TestTriggerAlert($db);
+        $testRecordQuery = new ActiveQuery(TestTriggerAlert::class, $db);
 
-        $this->assertEquals('test', $testRecord->findOne(1)->stringcol);
+        $this->assertEquals('test', $testRecordQuery->findOne(1)->stringcol);
     }
 }

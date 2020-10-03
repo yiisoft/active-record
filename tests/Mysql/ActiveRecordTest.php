@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
 use PHPUnit\Framework\TestCase;
+use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTestTrait;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
@@ -58,9 +59,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $beta = new Beta($this->db);
+        $betaQuery = new ActiveQuery(Beta::class, $this->db);
 
-        $betas = $beta->find()->with('alpha')->all();
+        $betas = $betaQuery->with('alpha')->all();
 
         $this->assertNotEmpty($betas);
 

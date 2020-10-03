@@ -29,13 +29,4 @@ final class CustomerWithAlias extends ActiveRecord
     {
         return 'customer';
     }
-
-    public function find(): CustomerQuery
-    {
-        $activeQuery = new CustomerQuery(static::class, $this->db);
-
-        $activeQuery->alias('csr');
-
-        return $activeQuery;
-    }
 }

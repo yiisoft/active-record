@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Redis;
 
-use Yiisoft\ActiveRecord\Tests\RedisActiveRecordTest as AbstractRedisActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\RedisActiveQueryFindTest as AbstractRedisActiveQueryFindTest;
 
 /**
  * @group redis
  */
-final class ActiveRecordTest extends AbstractRedisActiveRecordTest
+final class ActiveQueryFindTest extends AbstractRedisActiveQueryFindTest
 {
     protected string $driverName = 'redis';
 

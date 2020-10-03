@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 use ArrayAccess;
 use PHPUnit\Framework\TestCase;
 use Traversable;
+use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTestTrait;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
@@ -68,9 +69,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $beta = new Beta($this->db);
+        $betaQuery = new ActiveQuery(Beta::class, $this->db);
 
-        $betas = $beta->find()->with('alpha')->all();
+        $betas = $betaQuery->with('alpha')->all();
 
         $this->assertNotEmpty($betas);
 
@@ -107,74 +108,36 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $customer->refresh();
         $this->assertTrue($customer->bool_status);
 
-        $customers = $customer->find()->where(['bool_status' => true])->all();
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
-        $customers = $customer->find()->where(['bool_status' => false])->all();
+        $customers = $customerQuery->where(['bool_status' => false])->all();
         $this->assertCount(1, $customers);
-    }
-
-    public function testFindAsArray(): void
-    {
-        $this->loadFixture($this->db);
-
-        $customerInstance = new Customer($this->db);
-
-        /** asArray */
-        $customer = $customerInstance->find()->where(['id' => 2])->asArray()->one();
-        $this->assertEquals([
-            'id' => 2,
-            'email' => 'user2@example.com',
-            'name' => 'user2',
-            'address' => 'address2',
-            'status' => 1,
-            'bool_status' => true,
-            'profile_id' => null,
-        ], $customer);
-
-        /** find all asArray */
-        $customers = $customerInstance->find()->asArray()->all();
-        $this->assertCount(3, $customers);
-        $this->assertArrayHasKey('id', $customers[0]);
-        $this->assertArrayHasKey('name', $customers[0]);
-        $this->assertArrayHasKey('email', $customers[0]);
-        $this->assertArrayHasKey('address', $customers[0]);
-        $this->assertArrayHasKey('status', $customers[0]);
-        $this->assertArrayHasKey('bool_status', $customers[0]);
-        $this->assertArrayHasKey('id', $customers[1]);
-        $this->assertArrayHasKey('name', $customers[1]);
-        $this->assertArrayHasKey('email', $customers[1]);
-        $this->assertArrayHasKey('address', $customers[1]);
-        $this->assertArrayHasKey('status', $customers[1]);
-        $this->assertArrayHasKey('bool_status', $customers[1]);
-        $this->assertArrayHasKey('id', $customers[2]);
-        $this->assertArrayHasKey('name', $customers[2]);
-        $this->assertArrayHasKey('email', $customers[2]);
-        $this->assertArrayHasKey('address', $customers[2]);
-        $this->assertArrayHasKey('status', $customers[2]);
-        $this->assertArrayHasKey('bool_status', $customers[2]);
     }
 
     public function testBooleanValues(): void
     {
+        $this->loadFixture($this->db);
+
         $command = $this->db->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
 
-        $boolAR = new BoolAR($this->db);
+        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
 
-        $this->assertEquals(1, $boolAR->find()->where('bool_col = TRUE')->count('*'));
-        $this->assertEquals(1, $boolAR->find()->where('bool_col = FALSE')->count('*'));
-        $this->assertEquals(2, $boolAR->find()->where('bool_col IN (TRUE, FALSE)')->count('*'));
+        $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
+        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
 
-        $this->assertEquals(1, $boolAR->find()->where(['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolAR->find()->where(['bool_col' => false])->count('*'));
-        $this->assertEquals(2, $boolAR->find()->where(['bool_col' => [true, false]])->count('*'));
+        $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
+        $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
+        $this->assertEquals(2, $boolARQuery->where('bool_col IN (TRUE, FALSE)')->count('*'));
 
-        $this->assertEquals(1, $boolAR->find()->where('bool_col = :bool_col', ['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolAR->find()->where('bool_col = :bool_col', ['bool_col' => false])->count('*'));
+        $this->assertEquals(1, $boolARQuery->where(['bool_col' => true])->count('*'));
+        $this->assertEquals(1, $boolARQuery->where(['bool_col' => false])->count('*'));
+        $this->assertEquals(2, $boolARQuery->where(['bool_col' => [true, false]])->count('*'));
 
-        $this->assertTrue($boolAR->find()->where(['bool_col' => true])->one()->bool_col);
-        $this->assertFalse($boolAR->find()->where(['bool_col' => false])->one()->bool_col);
+        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => true])->count('*'));
+        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => false])->count('*'));
     }
 
     /**
@@ -206,6 +169,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         )->execute();
 
         $user = new UserAR($this->db);
+
         $user->username = 'test';
         $user->auth_key = 'test';
         $user->password_hash = 'test';
@@ -215,19 +179,23 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $user->save();
 
-        $this->assertCount(1, $user->find()->where(['is_deleted' => false])->all());
-        $this->assertCount(0, $user->find()->where(['is_deleted' => true])->all());
-        $this->assertCount(1, $user->find()->where(['is_deleted' => [true, false]])->all());
+        $userQuery = new ActiveQuery(UserAR::class, $this->db);
+
+        $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
+        $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
+        $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
     }
 
     public function testBooleanDefaultValues(): void
     {
         $arClass = new BoolAR($this->db);
+
         $this->assertNull($arClass->bool_col);
         $this->assertNull($arClass->default_true);
         $this->assertNull($arClass->default_false);
 
         $arClass->loadDefaultValues();
+
         $this->assertNull($arClass->bool_col);
         $this->assertTrue($arClass->default_true);
         $this->assertFalse($arClass->default_false);
@@ -352,7 +320,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $type->save();
 
-        $type = $type->find()->one();
+        $typeQuery = new ActiveQuery(get_class($type), $this->db);
+
+        $type = $typeQuery->one();
 
         foreach ($attributes as $attribute => $expected) {
             $expected = $expected[1] ?? $expected[0];
