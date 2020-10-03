@@ -87,8 +87,7 @@ trait ActiveRelationTrait
      *    }
      *
      *    public function getItems() {
-     *        return $this->hasMany(Item::class, ['id' => 'item_id'])
-     *                    ->via('orderItems');
+     *        return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems');
      *    }
      * }
      * ```
@@ -98,7 +97,7 @@ trait ActiveRelationTrait
      * table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
      *
-     * @return self the relation object itself.
+     * @return $this the relation object itself.
      */
     public function via(string $relationName, callable $callable = null): self
     {
@@ -145,14 +144,16 @@ trait ActiveRelationTrait
      * Let's suppose customer has several orders. If only one order was loaded:
      *
      * ```php
-     * $orders = Order::find()->where(['id' => 1])->all();
+     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orders = $orderQuery->where(['id' => 1])->all();
      * $customerOrders = $orders[0]->customer->orders;
      * ```
      *
      * variable `$customerOrders` will contain only one order. If orders was loaded like this:
      *
      * ```php
-     * $orders = Order::find()->with('customer')->where(['customer_id' => 1])->all();
+     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orders = $orderQuery->with('customer')->where(['customer_id' => 1])->all();
      * $customerOrders = $orders[0]->customer->orders;
      * ```
      *
@@ -674,9 +675,9 @@ trait ActiveRelationTrait
     /**
      * @return bool whether this query represents a relation to more than one record.
      *
-     * This property is only used in relational context. If true, this relation will populate all query results into AR
-     * instances using {@see Query::all()|all()}. If false, only the first row of the results will be retrieved using
-     * {@see Query::one()|one()}.
+     * This property is only used in relational context. If true, this relation will populate all query results into
+     * active record instances using {@see Query::all()|all()}. If false, only the first row of the results will be
+     * retrieved using {@see Query::one()|one()}.
      */
     public function getMultiple(): bool
     {

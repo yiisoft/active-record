@@ -47,14 +47,6 @@ use function reset;
 class ActiveRecord extends BaseActiveRecord
 {
     /**
-     * @return ActiveQuery the newly created {@see ActiveQuery} instance.
-     */
-    public function find(): ActiveQuery
-    {
-        return new ActiveQuery(static::class, $this->db);
-    }
-
-    /**
      * Returns the primary key name(s) for this active record class.
      *
      * This method should be overridden by child classes to define the primary key. Note that an array should be
@@ -114,7 +106,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @throws JsonException|InvalidArgumentException
+     * @throws InvalidArgumentException|JsonException
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
      */
@@ -355,7 +347,7 @@ class ActiveRecord extends BaseActiveRecord
 
     private function fetchPks(?array $condition = []): array
     {
-        $query = $this->find();
+        $query = $this->instantiateQuery();
 
         $query->where($condition);
 

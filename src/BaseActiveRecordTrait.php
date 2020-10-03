@@ -36,8 +36,8 @@ trait BaseActiveRecordTrait
      *
      * @param string $name property name.
      *
-     * @throws InvalidArgumentException|InvalidCallException|ReflectionException|Throwable|UnknownPropertyException
-     * @throws InvalidConfigException
+     * @throws InvalidArgumentException|InvalidCallException|InvalidConfigException|ReflectionException|Throwable
+     * @throws UnknownPropertyException
      *
      * @return mixed property value.
      *
@@ -82,7 +82,6 @@ trait BaseActiveRecordTrait
 
         throw new UnknownPropertyException('Getting unknown property: ' . get_class($this) . '::' . $name);
     }
-
 
     /**
      * Returns the relation object with the specified name.

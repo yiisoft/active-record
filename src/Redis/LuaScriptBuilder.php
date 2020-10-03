@@ -33,8 +33,7 @@ final class LuaScriptBuilder
      *
      * @param ActiveQuery $query the query used to build the script.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -50,8 +49,7 @@ final class LuaScriptBuilder
      *
      * @param ActiveQuery $query the query used to build the script.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -68,8 +66,7 @@ final class LuaScriptBuilder
      * @param ActiveQuery $query the query used to build the script.
      * @param string $column name of the column.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -89,8 +86,7 @@ final class LuaScriptBuilder
      *
      * @param ActiveQuery $query the query used to build the script.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -105,8 +101,7 @@ final class LuaScriptBuilder
      * @param ActiveQuery $query the query used to build the script.
      * @param string $column name of the column.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -123,8 +118,7 @@ final class LuaScriptBuilder
      * @param ActiveQuery $query the query used to build the script.
      * @param string $column name of the column.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -145,8 +139,7 @@ final class LuaScriptBuilder
      * @param ActiveQuery $query the query used to build the script.
      * @param string $column name of the column.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -167,8 +160,7 @@ final class LuaScriptBuilder
      * @param ActiveQuery $query the query used to build the script.
      * @param string $column name of the column.
      *
-     * @throws Exception
-     * @throws NotSupportedException
+     * @throws Exception|NotSupportedException
      *
      * @return string
      */
@@ -188,8 +180,7 @@ final class LuaScriptBuilder
      * @param string $buildResult the lua script for building the result.
      * @param string $return the lua variable that should be returned.
      *
-     * @throws Exception
-     * @throws NotSupportedException when query contains unsupported order by condition.
+     * @throws Exception|NotSupportedException when query contains unsupported order by condition.
      *
      * @return string
      */

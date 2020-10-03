@@ -10,7 +10,6 @@ use IteratorAggregate;
 use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
-use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -18,7 +17,6 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
-use Yiisoft\Db\Query\QueryInterface;
 
 use function array_combine;
 use function array_flip;
@@ -64,66 +62,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function __construct(ConnectionInterface $db)
     {
         $this->db = $db;
-    }
-
-    /**
-     * @param mixed $condition primary key value or a set of column values.
-     *
-     * @throws InvalidConfigException
-     *
-     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
-     */
-    public function findOne($condition): ?ActiveRecordInterface
-    {
-        return $this->findByCondition($condition)->one();
-    }
-
-    /**
-     * @param mixed $condition primary key value or a set of column values.
-     *
-     * @throws InvalidConfigException
-     *
-     * @return array of ActiveRecord instance, or an empty array if nothing matches.
-     */
-    public function findAll($condition): array
-    {
-        return $this->findByCondition($condition)->all();
-    }
-
-    /**
-     * Finds ActiveRecord instance(s) by the given condition.
-     *
-     * This method is internally called by {@see findOne()} and {@see findAll()}.
-     *
-     * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
-     *
-     * @throws InvalidConfigException if there is no primary key defined.
-     *
-     * @return QueryInterface the newly created {@see QueryInterface} instance.
-     */
-    protected function findByCondition($condition): QueryInterface
-    {
-        $query = $this->find();
-
-        if (!is_array($condition)) {
-            $condition = [$condition];
-        }
-
-        if (!ArrayHelper::isAssociative($condition)) {
-            /** query by primary key */
-            $primaryKey = $this->primaryKey();
-
-            if (isset($primaryKey[0])) {
-                /** if condition is scalar, search for a single primary key, if it is array, search for multiple
-                 *  primary key values
-                 */
-                $condition = [$primaryKey[0] => is_array($condition) ? array_values($condition) : $condition];
-            } else {
-                throw new InvalidConfigException('"' . static::class . '" must have a primary key.');
-            }
-        }
-
-        return $query->andWhere($condition);
     }
 
     /**
@@ -822,15 +760,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Repopulates this active record with the latest data.
      *
-     * @throws InvalidConfigException
-     *
      * @return bool whether the row still exists in the database. If `true`, the latest data will be populated to this
      * active record. Otherwise, this record will remain unchanged.
      */
     public function refresh(): bool
     {
-        /* @var $record BaseActiveRecord */
-        $record = $this->findOne($this->getPrimaryKey(true));
+        /** @var $record BaseActiveRecord */
+        $record = $this->instantiateQuery()->findOne($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
     }
@@ -914,7 +850,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * Returns the old primary key value(s).
      *
      * This refers to the primary key value that is populated into the record after executing a find method
-     * (e.g. find(), findOne()).
+     * (e.g. findOne()).
      *
      * The value remains unchanged even if the primary key attribute is manually assigned with a different value.
      *
@@ -1001,6 +937,15 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function instantiate($row): ActiveRecordInterface
     {
         return new static($this->db);
+    }
+
+    public function instantiateQuery(): ActiveQueryInterface
+    {
+        if ($this->db->getDriverName() === 'redis') {
+            return new RedisActiveQuery(static::class, $this->db);
+        }
+
+        return new ActiveQuery(static::class, $this->db);
     }
 
     /**

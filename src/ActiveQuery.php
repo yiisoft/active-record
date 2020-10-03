@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
 use Throwable;
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\Command;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
@@ -36,7 +37,9 @@ use function substr;
  *
  * An ActiveQuery can be a normal query or be used in a relational context.
  *
- * ActiveQuery instances are usually created by {@see ActiveRecord::find()} and {@see ActiveRecord::findBySql()}.
+ * ActiveQuery instances are usually created by {@see ActiveQuery::findOne()}, {@see ActiveQuery::findBySql()},
+ * {@see ActiveQuery::findAll()}
+ *
  * Relational queries are created by {@see ActiveRecord::hasOne()} and {@see ActiveRecord::hasMany()}.
  *
  * Normal Query
@@ -68,8 +71,8 @@ use function substr;
  * These options can be configured using methods of the same name. For example:
  *
  * ```php
- * $customer = new Customer($db);
- * $query = $customer->find()->with('orders')->asArray()->all();
+ * $customerQuery = ActiveQuery(new Customer::class, $db);
+ * $query = $customerQuery->with('orders')->asArray()->all();
  * ```
  *
  * Relational query
@@ -141,9 +144,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function prepare(QueryBuilder $builder): Query
     {
         /**
-         * NOTE: because the same ActiveQuery may be used to build different SQL statements (e.g. by ActiveDataProvider,
-         * one for count query, the other for row data query, it is important to make sure the same ActiveQuery can be
-         * used to build SQL statements multiple times.
+         * NOTE: because the same ActiveQuery may be used to build different SQL statements, one for count query, the
+         * other for row data query, it is important to make sure the same ActiveQuery can be used to build SQL
+         * statements multiple times.
          */
         if (!empty($this->joinWith)) {
             $this->buildJoinWith();
@@ -417,20 +420,20 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * ```php
      * // find all orders that contain books, and eager loading "books".
-     * $order = new Order($db);
-     * $order->find()->joinWith('books', true, 'INNER JOIN')->all();
+     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orderQuery->joinWith('books', true, 'INNER JOIN')->all();
      *
      * // find all orders, eager loading "books", and sort the orders and books by the book names.
-     * $order = new Order($db);
-     * $order->find()->joinWith([
-     *     'books' => function (\Yiisoft\ActiveRecord\ActiveQuery $query) {
+     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orderQuery->joinWith([
+     *     'books' => function (ActiveQuery $query) {
      *         $query->orderBy('item.name');
      *     }
      * ])->all();
      *
      * // find all orders that contain books of the category 'Science fiction', using the alias "b" for the books table.
-     * $order = new Order($db);
-     * $order->find()->joinWith(['books b'], true, 'INNER JOIN')->where(['b.category' => 'Science fiction'])->all();
+     * $order = new ActiveQuery(Order::class, $db);
+     * $orderQuery->joinWith(['books b'], true, 'INNER JOIN')->where(['b.category' => 'Science fiction'])->all();
      * ```
      *
      * @param bool|array $eagerLoading whether to eager load the relations specified in `$with`. When this is a boolean,
@@ -854,8 +857,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * ```php
      * public function getItems()
      * {
-     *     return $this->hasMany(Item::class, ['id' => 'item_id'])
-     *         ->viaTable('order_item', ['order_id' => 'id']);
+     *     return $this->hasMany(Item::class, ['id' => 'item_id'])->viaTable('order_item', ['order_id' => 'id']);
      * }
      * ```
      *
@@ -977,24 +979,116 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->arClass;
     }
 
+    /**
+     * @param mixed $condition primary key value or a set of column values.
+     *
+     * @throws InvalidConfigException
+     *
+     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
+     */
+    public function findOne($condition): ?ActiveRecordInterface
+    {
+        return $this->findByCondition($condition)->one();
+    }
+
+    /**
+     * @param mixed $condition primary key value or a set of column values.
+     *
+     * @throws InvalidConfigException
+     *
+     * @return array of ActiveRecord instance, or an empty array if nothing matches.
+     */
+    public function findAll($condition): array
+    {
+        return $this->findByCondition($condition)->all();
+    }
+
+    /**
+     * Finds ActiveRecord instance(s) by the given condition.
+     *
+     * This method is internally called by {@see findOne()} and {@see findAll()}.
+     *
+     * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
+     *
+     * @throws InvalidConfigException if there is no primary key defined.
+     *
+     * @return ActiveQueryInterface the newly created {@see QueryInterface} instance.
+     */
+    protected function findByCondition($condition): ActiveQueryInterface
+    {
+        $arInstance = $this->getARInstance();
+
+        if (!is_array($condition)) {
+            $condition = [$condition];
+        }
+
+        if (!ArrayHelper::isAssociative($condition) && !$condition instanceof ExpressionInterface) {
+            /** query by primary key */
+            $primaryKey = $arInstance->primaryKey();
+
+            if (isset($primaryKey[0])) {
+                $pk = $primaryKey[0];
+
+                if (!empty($this->getJoin()) || !empty($this->getJoinWith())) {
+                    $pk = $arInstance->tableName() . '.' . $pk;
+                }
+
+                /**
+                 * if condition is scalar, search for a single primary key, if it is array, search for multiple primary
+                 * key values
+                 */
+                $condition = [$pk => is_array($condition) ? array_values($condition) : $condition];
+            } else {
+                throw new InvalidConfigException('"' . get_class($arInstance) . '" must have a primary key.');
+            }
+        } elseif (is_array($condition)) {
+            $aliases = $arInstance->filterValidAliases($this);
+            $condition = $arInstance->filterCondition($condition, $aliases);
+        }
+
+        return $this->andWhere($condition);
+    }
+
+    /**
+     * Creates an {@see ActiveQuery} instance with a given SQL statement.
+     *
+     * Note that because the SQL statement is already specified, calling additional query modification methods (such as
+     * `where()`, `order()`) on the created {@see ActiveQuery} instance will have no effect. However, calling `with()`,
+     * `asArray()` or `indexBy()` is still fine.
+     *
+     * Below is an example:
+     *
+     * ```php
+     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customers = $customerQuery->findBySql('SELECT * FROM customer')->all();
+     * ```
+     *
+     * @param string $sql the SQL statement to be executed.
+     * @param array $params parameters to be bound to the SQL statement during execution.
+     *
+     * @return Query the newly created {@see ActiveQuery} instance
+     */
+    public function findBySql(string $sql, array $params = []): Query
+    {
+        return $this->sql($sql)->params($params);
+    }
+
     public function on($value): self
     {
         $this->on = $value;
-
         return $this;
     }
 
     public function sql(?string $value): self
     {
         $this->sql = $value;
-
         return $this;
     }
 
     public function getARInstance(): ActiveRecordInterface
     {
-        $class = $this->arClass;
-
+        $new = clone $this;
+        $class = $new->arClass;
         return new $class($this->db);
     }
 }

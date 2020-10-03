@@ -6,11 +6,16 @@ namespace Yiisoft\ActiveRecord\Redis;
 
 use JsonException;
 use ReflectionException;
+use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery as BaseActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\InvalidParamException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function array_keys;
 use function arsort;
@@ -27,8 +32,6 @@ use function reset;
  * ActiveQuery represents a query associated with an Active Record class.
  *
  * An ActiveQuery can be a normal query or be used in a relational context.
- *
- * ActiveQuery instances are usually created by {@see ActiveRecord::find()}.
  *
  * Relational queries are created by {@see ActiveRecord::hasOne()} and {@see ActiveRecord::hasMany()}.
  *
@@ -59,8 +62,8 @@ use function reset;
  * These options can be configured using methods of the same name. For example:
  *
  * ```php
- * $customer = new Customer($db);
- * $customers = $customer->find()->with('orders')->asArray()->all();
+ * $customerQuery = new ActiveQuery(Customer::class, $db);
+ * $customers = $customerQuery->with('orders')->asArray()->all();
  * ```
  *
  * Relational query
@@ -88,8 +91,8 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Executes the query and returns all results as an array.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
@@ -154,8 +157,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * Null will be returned, if the query results in nothing.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting of {@see asArray}, the
      * query result may be either an array or an ActiveRecord object.
@@ -204,8 +207,9 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $q the COUNT expression. This parameter is ignored by this implementation.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     *
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int number of records.
      */
@@ -225,10 +229,10 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Returns a value indicating whether the query result contains any row of data.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
-     *
      * @return bool whether the query result contains any row of data.
+     *
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      */
     public function exists(): bool
     {
@@ -245,8 +249,8 @@ class ActiveQuery extends BaseActiveQuery
      * @param string $column the column to sum up. If this parameter is not given, the `db` application component will
      * be used.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int number of records.
      */
@@ -264,8 +268,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int the average of the specified column values.
      */
@@ -283,8 +287,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int the minimum of the specified column values.
      */
@@ -302,8 +306,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int the maximum of the specified column values.
      */
@@ -322,8 +326,8 @@ class ActiveQuery extends BaseActiveQuery
      * @param string $type the type of the script to generate
      * @param string|null $columnName
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return array|bool|null|string
      */
@@ -557,8 +561,8 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Executes the query and returns the first column of the result.
      *
-     * @throws Exception|InvalidConfigException|InvalidParamException|ReflectionException|NotSupportedException
-     * @throws JsonException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException
      *
      * @return array the first column of the query result. An empty array is returned if the query results in nothing.
      */
@@ -612,5 +616,41 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         return $this->luaScriptBuilder;
+    }
+
+    /**
+     * Finds ActiveRecord instance(s) by the given condition.
+     *
+     * This method is internally called by {@see findOne()} and {@see findAll()}.
+     *
+     * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
+     *
+     * @throws InvalidConfigException if there is no primary key defined.
+     *
+     * @return ActiveQueryInterface the newly created {@see QueryInterface} instance.
+     */
+    protected function findByCondition($condition): ActiveQueryInterface
+    {
+        $arInstance = $this->getARInstance();
+
+        if (!is_array($condition)) {
+            $condition = [$condition];
+        }
+
+        if (!ArrayHelper::isAssociative($condition) && !$condition instanceof ExpressionInterface) {
+            /** query by primary key */
+            $primaryKey = $arInstance->primaryKey();
+            if (isset($primaryKey[0])) {
+                /**
+                 * If condition is scalar, search for a single primary key, if it is array, search for multiple primary
+                 * key values.
+                 */
+                $condition = [$primaryKey[0] => is_array($condition) ? array_values($condition) : $condition];
+            } else {
+                throw new InvalidConfigException('"' . get_class($arInstance) . '" must have a primary key.');
+            }
+        }
+
+        return $this->andWhere($condition);
     }
 }

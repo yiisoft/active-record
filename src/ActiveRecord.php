@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Throwable;
-use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -32,8 +31,8 @@ use function preg_replace;
  *
  * Active Record implements the [Active Record design pattern](http://en.wikipedia.org/wiki/Active_record).
  *
- * The premise behind Active Record is that an individual [[ActiveRecord]] object is associated with a specific row in a
- * database table. The object's attributes are mapped to the columns of the corresponding table.
+ * The premise behind Active Record is that an individual {@see ActiveRecord} object is associated with a specific row
+ * in a database table. The object's attributes are mapped to the columns of the corresponding table.
  *
  * Referencing an Active Record attribute is equivalent to accessing the corresponding table column for that record.
  *
@@ -53,7 +52,7 @@ use function preg_replace;
  *
  * class Customer extends ActiveRecord
  * {
- *     public static function tableName()
+ *     public function tableName(): string
  *     {
  *         return 'customer';
  *     }
@@ -62,13 +61,10 @@ use function preg_replace;
  *
  * The `tableName` method only has to return the name of the database table associated with the class.
  *
- * > Tip: You may also use the [Gii code generator](guide:start-gii) to generate ActiveRecord classes from your
- * > database tables.
- *
  * Class instances are obtained in one of two ways:
  *
- * * Using the `new` operator to create a new, empty object
- * * Using a method to fetch an existing record (or records) from the database
+ * Using the `new` operator to create a new, empty object.
+ * Using a method to fetch an existing record (or records) from the database.
  *
  * Below is an example showing some typical usage of ActiveRecord:
  *
@@ -148,76 +144,6 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Creates an {@see ActiveQuery} instance with a given SQL statement.
-     *
-     * Note that because the SQL statement is already specified, calling additional query modification methods (such as
-     * `where()`, `order()`) on the created {@see ActiveQuery} instance will have no effect. However, calling `with()`,
-     * `asArray()` or `indexBy()` is still fine.
-     *
-     * Below is an example:
-     *
-     * ```php
-     * $customer = new Customer($db);
-     * $customers = $customer->findBySql('SELECT * FROM customer')->all();
-     * ```
-     *
-     * @param string $sql the SQL statement to be executed.
-     * @param array $params parameters to be bound to the SQL statement during execution.
-     *
-     * @return Query the newly created {@see ActiveQuery} instance
-     */
-    public function findBySql(string $sql, array $params = []): Query
-    {
-        return $this->find()->sql($sql)->params($params);
-    }
-
-    /**
-     * Finds ActiveRecord instance(s) by the given condition.
-     *
-     * This method is internally called by {@see findOne()} and {@see findAll()}.
-     *
-     * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
-     *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException if there is no primary key defined.
-     *
-     * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface|ActiveQuery} instance.
-     */
-    protected function findByCondition($condition): ActiveQueryInterface
-    {
-        $query = $this->find();
-
-        if (!is_array($condition)) {
-            $condition = [$condition];
-        }
-
-        if (!ArrayHelper::isAssociative($condition)) {
-            /** query by primary key */
-            $primaryKey = $this->primaryKey();
-
-            if (isset($primaryKey[0])) {
-                $pk = $primaryKey[0];
-
-                if (!empty($query->getJoin()) || !empty($query->getJoinWith())) {
-                    $pk = $this->tableName() . '.' . $pk;
-                }
-
-                /**
-                 * if condition is scalar, search for a single primary key, if it is array, search for multiple primary
-                 * key values
-                 */
-                $condition = [$pk => is_array($condition) ? array_values($condition) : $condition];
-            } else {
-                throw new InvalidConfigException('"' . static::class . '" must have a primary key.');
-            }
-        } elseif (is_array($condition)) {
-            $aliases = $this->filterValidAliases($query);
-            $condition = $this->filterCondition($condition, $aliases);
-        }
-
-        return $query->andWhere($condition);
-    }
-
-    /**
      * Returns table aliases which are not the same as the name of the tables.
      *
      * @param ActiveQuery $query
@@ -226,7 +152,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return array
      */
-    protected function filterValidAliases(ActiveQuery $query): array
+    public function filterValidAliases(ActiveQuery $query): array
     {
         $tables = $query->getTablesUsedInFrom();
 
@@ -249,7 +175,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return array filtered condition.
      */
-    protected function filterCondition(array $condition, array $aliases = []): array
+    public function filterCondition(array $condition, array $aliases = []): array
     {
         $result = [];
 
@@ -300,7 +226,7 @@ class ActiveRecord extends BaseActiveRecord
 
     public function refresh(): bool
     {
-        $query = $this->find();
+        $query = $this->instantiateQuery();
 
         $tableName = key($query->getTablesUsedInFrom());
         $pk = [];
@@ -331,11 +257,11 @@ class ActiveRecord extends BaseActiveRecord
      * > Warning: If you do not specify any condition, this method will update **all** rows in the table.
      *
      * ```php
-     * $customer = new Customer($db);
-     * $arClasses = $customer->find()->where('status = 2')->all();
-     * foreach ($arClasses as $arClass) {
-     *     $arClass->status = 1;
-     *     $arClass->update();
+     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $aqClasses = $customerQuery->where('status = 2')->all();
+     * foreach ($aqClasses as $aqClass) {
+     *     $aqClass->status = 1;
+     *     $aqClass->update();
      * }
      * ```
      *
@@ -411,10 +337,10 @@ class ActiveRecord extends BaseActiveRecord
      * > Warning: If you do not specify any condition, this method will delete **all** rows in the table.
      *
      * ```php
-     * $customer = new Customer($this->db);
-     * $arClasses = $customer->find()->where('status = 3')->all();
-     * foreach ($arClasses as $arClass) {
-     *     $arClass->delete();
+     * $customerQuery = new ActiveQuery(Customer::class, $this->db);
+     * $aqClasses = $customerQuery->where('status = 3')->all();
+     * foreach ($aqClasses as $aqClass) {
+     *     $aqClass->delete();
      * }
      * ```
      *
@@ -437,15 +363,7 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * @return ActiveQuery the newly created {@see ActiveQuery} instance.
-     */
-    public function find(): ActiveQuery
-    {
-        return new ActiveQuery(static::class, $this->db);
-    }
-
-    /**
-     * Declares the name of the database table associated with this AR class.
+     * Declares the name of the database table associated with this active record class.
      *
      * By default this method returns the class name as the table name by calling {@see Inflector::pascalCaseToId()}
      * with prefix {@see Connection::tablePrefix}. For example if {@see Connection::tablePrefix} is `tbl_`, `Customer`
