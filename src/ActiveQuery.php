@@ -99,15 +99,17 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     use ActiveRelationTrait;
 
     protected string $arClass;
+    protected ConnectionInterface $db;
     private ?string $sql = null;
     private $on;
     private array $joinWith = [];
     private ?ActiveRecordInterface $arInstance = null;
-    protected ConnectionInterface $db;
+    private ?ActiveRecordFactory $arFactory;
 
-    public function __construct(string $modelClass, ConnectionInterface $db)
+    public function __construct(string $modelClass, ConnectionInterface $db, ?ActiveRecordFactory $arFactory = null)
     {
         $this->arClass = $modelClass;
+        $this->arFactory = $arFactory;
         $this->db = $db;
 
         parent::__construct($db);
@@ -1087,8 +1089,19 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function getARInstance(): ActiveRecordInterface
     {
+        if ($this->arFactory !== null) {
+            return $this->getARInstanceFactory();
+        }
+
         $new = clone $this;
         $class = $new->arClass;
         return new $class($this->db);
+    }
+
+    public function getARInstanceFactory(): ActiveRecordInterface
+    {
+        $this->arFactory->withConnection($this->db);
+
+        return $this->arFactory->createAR($this->arClass);
     }
 }
