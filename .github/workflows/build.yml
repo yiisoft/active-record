@@ -126,7 +126,7 @@ jobs:
 
       - name: Run tests with phpunit PHP 8.0
         if: matrix.php-version == '8.0'
-        run: vendor/bin/phpunit --colors=always
+        run: vendor/bin/phpunit --exclude-group mssql --colors=always
 
       - name: Code coverage
         if: matrix.php-version == '7.4'
