@@ -14,17 +14,39 @@ final class ActiveRecordFactory extends Factory
     /**
      * Allows you to create an active record instance through the factory.
      *
-     * @param string $class active record class.
+     * @param string $arClass active record class.
      *
      * @throws InvalidConfigException
      *
      * @return ActiveRecordInterface
      */
-    public function createAR(string $class): ActiveRecordInterface
+    public function createAR(string $arClass): ActiveRecordInterface
     {
         return $this->create(
             [
-                '__class' => $class
+                '__class' => $arClass
+            ]
+        );
+    }
+
+    /**
+     * Allows you to create an query instance through the factory.
+     *
+     * @param string $queryClass active query class.
+     * @param string $arClass active record class.
+     *
+     * @throws InvalidConfigException
+     *
+     * @return ActiveQueryInterface
+     */
+    public function createQuery(string $queryClass, string $arClass): ActiveQueryInterface
+    {
+        return $this->create(
+            [
+                '__class' => $queryClass,
+                '__construct()' => [
+                    $arClass
+                ]
             ]
         );
     }
@@ -32,19 +54,19 @@ final class ActiveRecordFactory extends Factory
     /**
      * Allows you to create an active query instance through the factory.
      *
-     * @param string $class active query class.
+     * @param string $arClass active record class.
      *
      * @throws InvalidConfigException
      *
      * @return ActiveQueryInterface
      */
-    public function createQueryTo(string $class): ActiveQueryInterface
+    public function createQueryTo(string $arClass): ActiveQueryInterface
     {
         return $this->create(
             [
                 '__class' => ActiveQuery::class,
                 '__construct()' => [
-                    $class
+                    $arClass
                 ]
             ]
         );
@@ -53,19 +75,19 @@ final class ActiveRecordFactory extends Factory
     /**
      * Allows you to create an redis active query instance through the factory.
      *
-     * @param string $class active query class.
+     * @param string $arClass active record class.
      *
      * @throws InvalidConfigException
      *
      * @return ActiveQueryInterface
      */
-    public function createRedisQueryTo(string $class): ActiveQueryInterface
+    public function createRedisQueryTo(string $arClass): ActiveQueryInterface
     {
         return $this->create(
             [
                 '__class' => RedisActiveQuery::class,
                 '__construct()' => [
-                    $class
+                    $arClass
                 ]
             ]
         );
