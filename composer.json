@@ -25,8 +25,8 @@
         "yiisoft/strings": "^1.0"
     },
     "require-dev": {
-        "infection/infection": "^0.17.4",
-        "phpunit/phpunit": "^9.4",
+        "infection/infection": "^0.17.0",
+        "phpunit/phpunit": "^9.3",
         "vimeo/psalm": "^3.15",
         "yiisoft/aliases": "^1.0",
         "yiisoft/db-mssql": "^1.0@dev",

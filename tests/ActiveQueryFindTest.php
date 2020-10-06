@@ -96,6 +96,8 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerViaTable(): void
     {
+        $this->loadFixture($this->db);
+
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $orders = $orderQuery->with('books')->orderBy('id')->all();
         $this->assertCount(3, $orders);

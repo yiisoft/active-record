@@ -280,6 +280,8 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testDeeplyNestedTableRelationWith(): void
     {
+        $this->loadFixture($this->db);
+
         /** @var $category Category */
         $categoriesQuery = new ActiveQuery(Category::class, $this->db);
 
