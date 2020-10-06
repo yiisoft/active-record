@@ -315,7 +315,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testCustomColumns(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
 
@@ -1379,7 +1379,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUnlinkAllViaTable(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         /** via table with delete. */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1417,7 +1417,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testIssues(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         /** {@see https://github.com/yiisoft/yii2/issues/4938} */
         $categoryQuery = $this->arFactory->createQueryTo(Category::class);
@@ -1621,7 +1621,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
      */
     public function testUnlinkAllOnConditionViaTable(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         /** Ensure there are three items with category_id = 2 in the Items table */
         $itemQuery = $this->arFactory->createQueryTo(Item::class);
@@ -1804,7 +1804,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testOutdatedViaTableRelationsAreReset(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
 
@@ -1893,7 +1893,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUpdateAttributes(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
         $order = $orderQuery->findOne(1);
@@ -1934,7 +1934,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testCustomARRelation(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         $orderItem = $this->arFactory->createQueryTo(OrderItem::class);
 
@@ -2158,7 +2158,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUnlink(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         /** has many without delete */
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
@@ -2225,7 +2225,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUnlinkAllAndConditionDelete(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         /** in this test all orders are owned by customer 1 */
         $orderInstance = $this->arFactory->createAR(Order::class);
@@ -2251,7 +2251,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUpdate(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(2);
@@ -2295,7 +2295,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUpdateCounters(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         /** updateCounters */
         $pk = ['order_id' => 2, 'item_id' => 4];
@@ -2327,7 +2327,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testDelete(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         /** delete */
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
@@ -2361,7 +2361,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
      */
     public function testViaWithCallable(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
 
@@ -2379,7 +2379,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testLink(): void
     {
-       $this->loadFixture($this->arFactory->getConnection());
+        $this->loadFixture($this->arFactory->getConnection());
 
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(2);
