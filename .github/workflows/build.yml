@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php-version }}
 
     env:
-      extensions: curl, mbstring, dom, intl, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv
+      extensions: curl, mbstring, dom, intl, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite
       key: cache-v1
 
     runs-on: ubuntu-latest
@@ -82,6 +82,9 @@ jobs:
           extensions: ${{ env.extensions }}
           key: ${{ env.key }}
 
+      - name: install pecl pdo_sqlsrv support PHP 8.0
+        run: sudo pecl install pdo_sqlsrv-5.9.0preview1
+
       - name: Cache extensions
         uses: actions/cache@v1
         with:
@@ -123,7 +126,7 @@ jobs:
 
       - name: Run tests with phpunit PHP 8.0
         if: matrix.php-version == '8.0'
-        run: vendor/bin/phpunit --exclude-group mssql --colors=always
+        run: vendor/bin/phpunit --colors=always
 
       - name: Code coverage
         if: matrix.php-version == '7.4'
