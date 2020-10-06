@@ -90,12 +90,12 @@ jobs:
             php${{ matrix.php-version }}-composer-
 
       - name: Install dependencies with composer
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader
+        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
       - name: Run test mutation infection with coverage
         run: |
           mkdir -p build/logs
-          vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml
+          vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml --colors=always
           vendor/bin/infection --threads=2 --coverage=build/logs --show-mutations --no-progress
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
