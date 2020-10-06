@@ -65,7 +65,10 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Adjust max connections pgsql
-        run: docker exec -i postgres psql -d yiitest -c "ALTER SYSTEM SET max_connections TO '200'"
+        run: |
+          docker exec -i postgres psql -d yiitest -U root -c "ALTER SYSTEM SET max_connections TO '200'"
+          docker restart postgres
+          docker exec -i postgres psql -d yiitest -U root -c "SHOW max_connections"
 
       - name: Create MS SQL Database
         if: matrix.php-version == '7.4'
