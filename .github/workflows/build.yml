@@ -64,6 +64,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Adjust max connections pgsql
+        run: docker exec -i postgres psql -d yiitest -c "ALTER SYSTEM SET max_connections TO '200'"
+
       - name: Create MS SQL Database
         if: matrix.php-version == '7.4'
         run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
