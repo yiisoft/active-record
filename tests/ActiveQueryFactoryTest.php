@@ -214,6 +214,8 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testViaTable(): void
     {
+        $this->loadFixture($this->arFactory->getConnection());
+
         $order = $this->arFactory->createAR(Order::class);
 
         $query = $this->arFactory->createQueryTo(Customer::class);
@@ -315,8 +317,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testCustomColumns(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
 
         /** find custom column */
@@ -657,14 +657,14 @@ abstract class ActiveQueryFactoryTest extends TestCase
     public function testJoinWithAndScope(): void
     {
         /**  hasOne inner join */
-        $customer = $this->arFactory->createQuery(CustomerQuery::class, Customer::class);
+        $customer = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class);
         $customers = $customer->active()->innerJoinWith('profile')->orderBy('customer.id')->all();
         $this->assertCount(1, $customers);
         $this->assertEquals(1, $customers[0]->id);
         $this->assertTrue($customers[0]->isRelationPopulated('profile'));
 
         /** hasOne outer join */
-        $customer = $this->arFactory->createQuery(CustomerQuery::class, Customer::class);
+        $customer = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class);
         $customers = $customer->active()->joinWith('profile')->orderBy('customer.id')->all();
         $this->assertCount(2, $customers);
         $this->assertEquals(1, $customers[0]->id);
@@ -675,7 +675,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
         $this->assertTrue($customers[1]->isRelationPopulated('profile'));
 
         /** hasMany */
-        $customer = $this->arFactory->createQuery(CustomerQuery::class, Customer::class);
+        $customer = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class);
         $customers = $customer->active()->joinWith(
             [
                 'orders' => static function ($q) {
@@ -1379,8 +1379,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUnlinkAllViaTable(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         /** via table with delete. */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
         $order = $orderQuery->findOne(1);
@@ -1461,6 +1459,8 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testPopulateWithoutPk(): void
     {
+        $this->loadFixture($this->arFactory->getConnection());
+
         /** tests with single pk asArray */
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $aggregation = $customerQuery
@@ -1757,6 +1757,8 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testOutdatedRelationsAreResetForExistingRecords(): void
     {
+        $this->loadFixture($this->arFactory->getConnection());
+
         $orderItemQuery = $this->arFactory->createQueryTo(OrderItem::class);
         $orderItems = $orderItemQuery->findOne(1);
         $this->assertEquals(1, $orderItems->order->id);
@@ -1804,8 +1806,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testOutdatedViaTableRelationsAreReset(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
 
         $orders = $orderQuery->findOne(1);
@@ -1893,8 +1893,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUpdateAttributes(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
         $order = $orderQuery->findOne(1);
         $newTotal = 978;
@@ -1921,7 +1919,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
      */
     public function testAmbiguousColumnFindOne(): void
     {
-        $customerQuery = $this->arFactory->createQuery(CustomerQuery::class, Customer::class);
+        $customerQuery = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class);
 
         $customerQuery->joinWithProfile = true;
 
@@ -1978,6 +1976,8 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testFields(): void
     {
+        $this->loadFixture($this->arFactory->getConnection());
+
         $orderItem = $this->arFactory->createQueryTo(OrderItem::class);
 
         $fields = $orderItem->findOne(['order_id' => 1, 'item_id' => 2])->fields();
@@ -2158,8 +2158,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUnlink(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         /** has many without delete */
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(2);
@@ -2251,8 +2249,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testUpdate(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(2);
         $this->assertInstanceOf(Customer::class, $customer);
@@ -2327,8 +2323,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testDelete(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         /** delete */
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(2);
@@ -2379,8 +2373,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
 
     public function testLink(): void
     {
-        $this->loadFixture($this->arFactory->getConnection());
-
         $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(2);
         $this->assertCount(2, $customer->orders);

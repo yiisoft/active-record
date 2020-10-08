@@ -30,41 +30,20 @@ final class ActiveRecordFactory extends Factory
     }
 
     /**
-     * Allows you to create an query instance through the factory.
-     *
-     * @param string $queryClass active query class.
-     * @param string $arClass active record class.
-     *
-     * @throws InvalidConfigException
-     *
-     * @return ActiveQueryInterface
-     */
-    public function createQuery(string $queryClass, string $arClass): ActiveQueryInterface
-    {
-        return $this->create(
-            [
-                '__class' => $queryClass,
-                '__construct()' => [
-                    $arClass
-                ]
-            ]
-        );
-    }
-
-    /**
      * Allows you to create an active query instance through the factory.
      *
      * @param string $arClass active record class.
+     * @param string|null $queryClass custom query active query class.
      *
      * @throws InvalidConfigException
      *
      * @return ActiveQueryInterface
      */
-    public function createQueryTo(string $arClass): ActiveQueryInterface
+    public function createQueryTo(string $arClass, ?string $queryClass = null): ActiveQueryInterface
     {
         return $this->create(
             [
-                '__class' => ActiveQuery::class,
+                '__class' => $queryClass ?? ActiveQuery::class,
                 '__construct()' => [
                     $arClass
                 ]
@@ -76,16 +55,17 @@ final class ActiveRecordFactory extends Factory
      * Allows you to create an redis active query instance through the factory.
      *
      * @param string $arClass active record class.
+     * @param string|null $queryClass custom query active query class.
      *
      * @throws InvalidConfigException
      *
      * @return ActiveQueryInterface
      */
-    public function createRedisQueryTo(string $arClass): ActiveQueryInterface
+    public function createRedisQueryTo(string $arClass, ?string $queryClass = null): ActiveQueryInterface
     {
         return $this->create(
             [
-                '__class' => RedisActiveQuery::class,
+                '__class' => $queryClass ?? RedisActiveQuery::class,
                 '__construct()' => [
                     $arClass
                 ]
