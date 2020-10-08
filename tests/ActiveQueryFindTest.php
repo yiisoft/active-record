@@ -17,6 +17,8 @@ abstract class ActiveQueryFindTest extends TestCase
 {
     public function testFindAll(): void
     {
+        $this->loadFixture($this->db);
+
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $this->assertCount(1, $customerQuery->findAll(3));
 

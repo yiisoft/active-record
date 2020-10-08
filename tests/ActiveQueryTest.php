@@ -29,6 +29,7 @@ use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+
 use function sort;
 use function ucfirst;
 
