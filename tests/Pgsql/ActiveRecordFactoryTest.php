@@ -6,15 +6,12 @@ namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 
 use ArrayAccess;
 use Traversable;
-use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest as AbstractActiveRecordFactoryTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BoolAR;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
@@ -23,16 +20,15 @@ use Yiisoft\Db\Pgsql\Schema;
 /**
  * @group pgsql
  */
-final class ActiveRecordTest extends AbstractActiveRecordTest
+final class ActiveRecordFactoryTest extends AbstractActiveRecordFactoryTest
 {
     protected string $driverName = 'pgsql';
-    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->pgsqlConnection;
+        $this->arFactory->withConnection($this->pgsqlConnection);
     }
 
     protected function tearDown(): void
@@ -41,12 +37,12 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $this->pgsqlConnection->close();
 
-        unset($this->pgsqlConnection);
+        unset($this->arFactory, $this->pgsqlConnection);
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
@@ -61,34 +57,11 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->assertFalse($customer->isNewRecord);
     }
 
-    /**
-     * {@see https://github.com/yiisoft/yii2/issues/15482}
-     */
-    public function testEagerLoadingUsingStringIdentifiers(): void
-    {
-        $betaQuery = new ActiveQuery(Beta::class, $this->db);
-
-        $betas = $betaQuery->with('alpha')->all();
-
-        $this->assertNotEmpty($betas);
-
-        $alphaIdentifiers = [];
-
-        /** @var Beta[] $betas */
-        foreach ($betas as $beta) {
-            $this->assertNotNull($beta->alpha);
-            $this->assertEquals($beta->alpha_string_identifier, $beta->alpha->string_identifier);
-            $alphaIdentifiers[] = $beta->alpha->string_identifier;
-        }
-
-        $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
-    }
-
     public function testBooleanAttribute(): void
     {
-        $this->loadFixture($this->db);
+        $this->loadFixture($this->pgsqlConnection);
 
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
         $customer->bool_status = false;
@@ -104,7 +77,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $customer->refresh();
         $this->assertTrue($customer->bool_status);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
@@ -112,40 +85,16 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->assertCount(1, $customers);
     }
 
-    public function testBooleanValues(): void
-    {
-        $this->loadFixture($this->db);
-
-        $command = $this->db->createCommand();
-        $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
-
-        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
-
-        $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
-        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
-
-        $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
-        $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
-        $this->assertEquals(2, $boolARQuery->where('bool_col IN (TRUE, FALSE)')->count('*'));
-
-        $this->assertEquals(1, $boolARQuery->where(['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolARQuery->where(['bool_col' => false])->count('*'));
-        $this->assertEquals(2, $boolARQuery->where(['bool_col' => [true, false]])->count('*'));
-
-        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => false])->count('*'));
-    }
-
     /**
      * {@see https://github.com/yiisoft/yii2/issues/4672}
      */
     public function testBooleanValues2(): void
     {
-        $this->db->setCharset('utf8');
+        $this->pgsqlConnection->setCharset('utf8');
 
-        $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
+        $this->pgsqlConnection->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
 
-        $this->db->createCommand()->createTable('bool_user', [
+        $this->pgsqlConnection->createCommand()->createTable('bool_user', [
             'id' => Schema::TYPE_PK,
             'username' => Schema::TYPE_STRING . ' NOT NULL',
             'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL',
@@ -158,13 +107,13 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
             'updated_at' => Schema::TYPE_INTEGER . ' NOT NULL',
         ])->execute();
 
-        $this->db->createCommand()->addColumn(
+        $this->pgsqlConnection->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
             Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
         )->execute();
 
-        $user = new UserAR($this->db);
+        $user = $this->arFactory->createAR(UserAR::class);
 
         $user->username = 'test';
         $user->auth_key = 'test';
@@ -175,7 +124,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class, $this->db);
+        $userQuery = $this->arFactory->createQueryTo(UserAR::class);
 
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
@@ -184,7 +133,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testBooleanDefaultValues(): void
     {
-        $arClass = new BoolAR($this->db);
+        $arClass = $this->arFactory->createAR(BoolAR::class);
 
         $this->assertNull($arClass->bool_col);
         $this->assertNull($arClass->default_true);
@@ -200,7 +149,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testPrimaryKeyAfterSave(): void
     {
-        $record = new DefaultPk($this->db);
+        $record = $this->arFactory->createAR(DefaultPk::class);
 
         $record->type = 'type';
 
@@ -306,9 +255,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testArrayValues($attributes): void
     {
-        $this->loadFixture($this->db);
+        $this->loadFixture($this->pgsqlConnection);
 
-        $type = new ArrayAndJsonTypes($this->db);
+        $type = $this->arFactory->createAR(ArrayAndJsonTypes::class);
 
         foreach ($attributes as $attribute => $expected) {
             $type->$attribute = $expected[0];
@@ -316,7 +265,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $type->save();
 
-        $typeQuery = new ActiveQuery(get_class($type), $this->db);
+        $typeQuery = $this->arFactory->createQueryTo(get_class($type));
 
         $type = $typeQuery->one();
 

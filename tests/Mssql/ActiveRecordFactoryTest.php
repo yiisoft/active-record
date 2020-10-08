@@ -4,25 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mssql;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest as AbstractActiveRecordFactoryTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTrigger;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTriggerAlert;
-use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group mssql
  */
-final class ActiveRecordTest extends AbstractActiveRecordTest
+final class ActiveRecordFactoryTest extends AbstractActiveRecordFactoryTest
 {
     protected string $driverName = 'mssql';
-    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->mssqlConnection;
+        $this->arFactory->withConnection($this->mssqlConnection);
     }
 
     protected function tearDown(): void
@@ -31,7 +28,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $this->mssqlConnection->close();
 
-        unset($this->mssqlConnection);
+        unset($this->arFactory, $this->mssqlConnection);
     }
 
     public function testSaveWithTrigger(): void
@@ -56,14 +53,14 @@ BEGIN
 END';
         $db->createCommand($sql)->execute();
 
-        $record = new TestTrigger($db);
+        $record = $this->arFactory->createAR(TestTrigger::class);
 
         $record->stringcol = 'test';
 
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
 
-        $testRecordQuery = new ActiveQuery(TestTriggerAlert::class, $db);
+        $testRecordQuery = $this->arFactory->createQueryTo(TestTriggerAlert::class);
 
         $this->assertEquals('test', $testRecordQuery->findOne(1)->stringcol);
     }

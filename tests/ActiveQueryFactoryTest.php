@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use ReflectionException;
+use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -19,12 +21,17 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+
+use function sort;
+use function ucfirst;
 
 abstract class ActiveQueryFactoryTest extends TestCase
 {
@@ -821,7 +828,6 @@ abstract class ActiveQueryFactoryTest extends TestCase
         $this->assertTrue($orders[0]->isRelationPopulated('books'));
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
-
         /** joining sub relations */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
         $query = $orderQuery->innerJoinWith(
@@ -1085,7 +1091,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateSimple()
+    public function testJoinWithDuplicateSimple(): void
     {
         /** left join and eager loading */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1108,7 +1114,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateCallbackFiltering()
+    public function testJoinWithDuplicateCallbackFiltering(): void
     {
         /** inner join filtering and eager loading */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1131,7 +1137,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateCallbackFilteringConditionsOnPrimary()
+    public function testJoinWithDuplicateCallbackFilteringConditionsOnPrimary(): void
     {
         /** inner join filtering, eager loading, conditions on both primary and relation */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1152,7 +1158,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateWithSubRelation()
+    public function testJoinWithDuplicateWithSubRelation(): void
     {
         /** join with sub-relation */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1176,7 +1182,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateTableAlias1()
+    public function testJoinWithDuplicateTableAlias1(): void
     {
         /** join with table alias */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1201,7 +1207,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateTableAlias2()
+    public function testJoinWithDuplicateTableAlias2(): void
     {
         /** join with table alias */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1224,7 +1230,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateTableAliasSubRelation()
+    public function testJoinWithDuplicateTableAliasSubRelation(): void
     {
         /** join with table alias sub-relation */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1252,7 +1258,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateSubRelationCalledInsideClosure()
+    public function testJoinWithDuplicateSubRelationCalledInsideClosure(): void
     {
         /** join with sub-relation called inside Closure */
         $orderQuery = $this->arFactory->createQueryTo(Order::class);
@@ -1682,8 +1688,10 @@ abstract class ActiveQueryFactoryTest extends TestCase
     /**
      * @dataProvider filterTableNamesFromAliasesProvider
      *
-     * @param array|string$fromParams
-     * @param $expectedAliases
+     * @param array|string $fromParams
+     * @param array $expectedAliases
+     *
+     * @throws ReflectionException|\Yiisoft\Factory\Exceptions\InvalidConfigException
      */
     public function testFilterTableNamesFromAliases($fromParams, array $expectedAliases): void
     {
@@ -1727,7 +1735,7 @@ abstract class ActiveQueryFactoryTest extends TestCase
      * @param string $orderTableName
      * @param string $orderItemTableName
      *
-     * @throws Exception|InvalidConfigException
+     * @throws Exception|\Yiisoft\Factory\Exceptions\InvalidConfigException
      */
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
     {

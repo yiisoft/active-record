@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
-use PHPUnit\Framework\TestCase;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTestTrait;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -40,7 +38,6 @@ class ActiveRecordTest extends AbstractActiveRecordTest
     {
         $this->loadFixture($this->db);
 
-        /** @var $this TestCase|ActiveRecordTestTrait */
         $customer = new Customer($this->db);
 
         $customer->id = 1337;

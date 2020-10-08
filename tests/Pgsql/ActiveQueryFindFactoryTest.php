@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveQueryFindFactoryTest as AbstractActiveQueryFindFactoryTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 

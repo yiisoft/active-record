@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ReflectionException;
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
@@ -24,13 +23,13 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Query\Query;
 
-abstract class ActiveRecordTest extends TestCase
+abstract class ActiveRecordFactoryTest extends TestCase
 {
     public function testStoreNull(): void
     {
-        $this->loadFixture($this->db);
+        $this->loadFixture($this->arFactory->getConnection());
 
-        $record = new NullValues($this->db);
+        $record = $this->arFactory->createAR(NullValues::class);
 
         $this->assertNull($record->getAttribute('var1'));
         $this->assertNull($record->getAttribute('var2'));
@@ -76,7 +75,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testStoreEmpty(): void
     {
-        $record = new NullValues($this->db);
+        $record = $this->arFactory->createAR(NullValues::class);
 
         /** this is to simulate empty html form submission */
         $record->var1 = '';
@@ -94,8 +93,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsPrimaryKey(): void
     {
-        $customer = new Customer($this->db);
-        $orderItem = new OrderItem($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
 
         $this->assertTrue($customer->isPrimaryKey(['id']));
         $this->assertFalse($customer->isPrimaryKey([]));
@@ -114,7 +113,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testOutdatedRelationsAreResetForNewRecords(): void
     {
-        $orderItem = new OrderItem($this->db);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
 
         $orderItem->order_id = 1;
         $orderItem->item_id = 3;
@@ -136,7 +135,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testDefaultValues(): void
     {
-        $arClass = new Type($this->db);
+        $arClass = $this->arFactory->createAR(Type::class);
 
         $arClass->loadDefaultValues();
 
@@ -147,13 +146,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(true, $arClass->bool_col2);
         $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
-        $arClass = new Type($this->db);
+        $arClass = $this->arFactory->createAR(Type::class);
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
         $this->assertEquals('not something', $arClass->char_col2);
 
-        $arClass = new Type($this->db);
+        $arClass = $this->arFactory->createAR(Type::class);
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
@@ -162,7 +161,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCastValues(): void
     {
-        $arClass = new Type($this->db);
+        $arClass = $this->arFactory->createAR(Type::class);
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -178,9 +177,9 @@ abstract class ActiveRecordTest extends TestCase
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass =  new ActiveQuery(Type::class, $this->db);
-        $query = $aqClass->one();
+        $aqClass =  $this->arFactory->createQueryTo(Type::class);
 
+        $query = $aqClass->one();
         $this->assertSame(123, $query->int_col);
         $this->assertSame(456, $query->int_col2);
         $this->assertSame(42, $query->smallint_col);
@@ -191,13 +190,13 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testPopulateRecordCallWhenQueryingOnParentClass(): void
     {
-        $cat = new Cat($this->db);
+        $cat = $this->arFactory->createAR(Cat::class);
         $cat->save();
 
-        $dog = new Dog($this->db);
+        $dog = $this->arFactory->createAR(Dog::class);
         $dog->save();
 
-        $animal = new ActiveQuery(Animal::class, $this->db);
+        $animal = $this->arFactory->createQueryTo(Animal::class);
 
         $animals = $animal->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animals->getDoes());
@@ -208,9 +207,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSaveEmpty(): void
     {
-        $this->loadFixture($this->db);
+        $this->loadFixture($this->arFactory->getConnection());
 
-        $record = new NullValues($this->db);
+        $record = $this->arFactory->createAR(NullValues::class);
 
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
@@ -221,7 +220,7 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testNoTablenameReplacement(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $customer->name = 'Some {{weird}} name';
         $customer->email = 'test@example.com';
@@ -265,14 +264,14 @@ abstract class ActiveRecordTest extends TestCase
      * @param array $validFilter
      * @param string|null $alias
      *
-     * @throws ReflectionException
+     * @throws ReflectionException|\Yiisoft\Factory\Exceptions\InvalidConfigException
      */
     public function testLegalValuesForFindByCondition(
         string $modelClassName,
         array $validFilter,
         ?string $alias = null
     ): void {
-        $activeQuery = new ActiveQuery($modelClassName, $this->db);
+        $activeQuery = $this->arFactory->createQueryTo($modelClassName);
 
         if ($alias !== null) {
             $activeQuery->alias('csr');
@@ -282,7 +281,7 @@ abstract class ActiveRecordTest extends TestCase
         $query = $this->invokeMethod($activeQuery, 'findByCondition', [$validFilter]);
 
 
-        $this->db->getQueryBuilder()->build($query);
+        $this->arFactory->getConnection()->getQueryBuilder()->build($query);
 
         $this->assertTrue(true);
     }
@@ -322,7 +321,7 @@ abstract class ActiveRecordTest extends TestCase
      * @param string $modelClassName
      * @param array $filterWithInjection
      *
-     * @throws ReflectionException
+     * @throws ReflectionException|\Yiisoft\Factory\Exceptions\InvalidConfigException
      */
     public function testValueEscapingInFindByCondition(string $modelClassName, array $filterWithInjection): void
     {
@@ -335,7 +334,7 @@ abstract class ActiveRecordTest extends TestCase
             '/^Key "(.+)?" is not a column name and can not be used as a filter$/'
         );
 
-        $query = new ActiveQuery($modelClassName, $this->db);
+        $query = $this->arFactory->createQueryTo($modelClassName);
 
         /** @var Query $query */
         $query = $this->invokeMethod(
@@ -344,12 +343,12 @@ abstract class ActiveRecordTest extends TestCase
             $filterWithInjection
         );
 
-        $this->db->getQueryBuilder()->build($query);
+        $this->arFactory->getConnection()->getQueryBuilder()->build($query);
     }
 
     public function testRefreshQuerySetAliasFindRecord(): void
     {
-        $customer = new CustomerWithAlias($this->db);
+        $customer = $this->arFactory->createAR(CustomerWithAlias::class);
 
         $customer->id = 1;
         $customer->refresh();
@@ -359,13 +358,13 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testResetNotSavedRelation(): void
     {
-        $order = new Order($this->db);
+        $order = $this->arFactory->createAR(Order::class);
 
         $order->customer_id = 1;
         $order->created_at = 1325502201;
         $order->total = 0;
 
-        $orderItem = new OrderItem($this->db);
+        $orderItem = $this->arFactory->createAR(OrderItem::class);
 
         $order->orderItems;
 
@@ -378,14 +377,14 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIssetException(): void
     {
-        $cat = new Cat($this->db);
+        $cat = $this->arFactory->createAR(Cat::class);
 
         $this->assertFalse(isset($cat->exception));
     }
 
     public function testIssetThrowable(): void
     {
-        $cat = new Cat($this->db);
+        $cat = $this->arFactory->createAR(Cat::class);
 
         $this->assertFalse(isset($cat->throwable));
     }
@@ -403,7 +402,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $attributes['profile_id'] = null;
 
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $customer->setAttributes($attributes);
 
@@ -412,7 +411,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetAttributeNoExist(): void
     {
-        $cat = new Cat($this->db);
+        $cat = $this->arFactory->createAR(Cat::class);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -424,7 +423,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetOldAttribute(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $this->assertEmpty($customer->getOldAttribute('name'));
 
@@ -435,7 +434,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetOldAttributeException(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $this->assertEmpty($customer->getOldAttribute('name'));
 
@@ -448,7 +447,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsAttributeChangedNotChanged(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $this->assertEmpty($customer->getAttribute('name'));
         $this->assertEmpty($customer->getOldAttribute('name'));
@@ -457,7 +456,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testTableSchemaException(): void
     {
-        $noExist = new NoExist($this->db);
+        $noExist = $this->arFactory->createAR(NoExist::class);
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage('The table does not exist: NoExist');
@@ -466,7 +465,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testInsert(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $customer->email = 'user4@example.com';
         $customer->name = 'user4';
@@ -488,9 +487,9 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testBooleanAttribute(): void
     {
-        $this->loadFixture($this->db);
+        $this->loadFixture($this->arFactory->getConnection());
 
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
@@ -506,18 +505,18 @@ abstract class ActiveRecordTest extends TestCase
         $customer->refresh();
         $this->assertEquals(0, $customer->status);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customers = $customerQuery->where(['status' => true])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customers = $customerQuery->where(['status' => false])->all();
         $this->assertCount(1, $customers);
     }
 
     public function testAttributeAccess(): void
     {
-        $arClass = new Customer($this->db);
+        $arClass = $this->arFactory->createAR(Customer::class);
 
         $this->assertTrue($arClass->canSetProperty('name'));
         $this->assertTrue($arClass->canGetProperty('name'));
@@ -531,10 +530,10 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($arClass->name);
 
         /** {@see https://github.com/yiisoft/yii2-gii/issues/190} */
-        $baseModel = new Customer($this->db);
+        $baseModel = $this->arFactory->createAR(Customer::class);
         $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
 
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertTrue($customer->canGetProperty('id'));
         $this->assertTrue($customer->canSetProperty('id'));
@@ -557,7 +556,7 @@ abstract class ActiveRecordTest extends TestCase
 
         try {
             /** @var $itemClass ActiveRecordInterface */
-            $customer->orderItems = [new Item($this->db)];
+            $customer->orderItems = [$this->arFactory->createAR(Item::class)];
             $this->fail('setter call above MUST throw Exception');
         } catch (Exception $e) {
             /** catch exception "Setting read-only property" */
@@ -572,7 +571,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testHasAttribute(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $this->assertTrue($customer->hasAttribute('id'));
         $this->assertTrue($customer->hasAttribute('email'));
@@ -580,7 +579,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($customer->hasAttribute(null));
         $this->assertFalse($customer->hasAttribute(42));
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(1);
         $this->assertTrue($customer->hasAttribute('id'));
         $this->assertTrue($customer->hasAttribute('email'));
@@ -591,11 +590,11 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRefresh(): void
     {
-        $customer = new Customer($this->db);
+        $customer = $this->arFactory->createAR(Customer::class);
 
         $this->assertFalse($customer->refresh());
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = $this->arFactory->createQueryTo(Customer::class);
         $customer = $customerQuery->findOne(1);
         $customer->name = 'to be refreshed';
 
@@ -605,12 +604,12 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testEquals(): void
     {
-        $customerA = new Customer($this->db);
-        $customerB = new Customer($this->db);
+        $customerA = $this->arFactory->createAR(Customer::class);
+        $customerB = $this->arFactory->createAR(Customer::class);
         $this->assertFalse($customerA->equals($customerB));
 
-        $customerA = new Customer($this->db);
-        $customerB = new Item($this->db);
+        $customerA = $this->arFactory->createAR(Customer::class);
+        $customerB = $this->arFactory->createAR(Item::class);
         $this->assertFalse($customerA->equals($customerB));
     }
 }

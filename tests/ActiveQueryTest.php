@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use ReflectionException;
+use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -20,12 +21,16 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+use function sort;
+use function ucfirst;
 
 abstract class ActiveQueryTest extends TestCase
 {
@@ -560,7 +565,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
         $this->assertTrue($orders[0]->items[0]->isRelationPopulated('category'));
 
-
         /** join with ON condition */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $orders = $orderQuery->joinWith('books2')->orderBy('order.id')->all();
@@ -823,7 +827,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(3, $orders[1]->id);
         $this->assertTrue($orders[0]->isRelationPopulated('books'));
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
-
 
         /** joining sub relations */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1088,7 +1091,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateSimple()
+    public function testJoinWithDuplicateSimple(): void
     {
         /** left join and eager loading */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1111,7 +1114,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateCallbackFiltering()
+    public function testJoinWithDuplicateCallbackFiltering(): void
     {
         /** inner join filtering and eager loading */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1134,7 +1137,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateCallbackFilteringConditionsOnPrimary()
+    public function testJoinWithDuplicateCallbackFilteringConditionsOnPrimary(): void
     {
         /** inner join filtering, eager loading, conditions on both primary and relation */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1155,7 +1158,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateWithSubRelation()
+    public function testJoinWithDuplicateWithSubRelation(): void
     {
         /** join with sub-relation */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1179,7 +1182,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateTableAlias1()
+    public function testJoinWithDuplicateTableAlias1(): void
     {
         /** join with table alias */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1204,7 +1207,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateTableAlias2()
+    public function testJoinWithDuplicateTableAlias2(): void
     {
         /** join with table alias */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1227,7 +1230,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateTableAliasSubRelation()
+    public function testJoinWithDuplicateTableAliasSubRelation(): void
     {
         /** join with table alias sub-relation */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1255,7 +1258,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @depends testJoinWith
      */
-    public function testJoinWithDuplicateSubRelationCalledInsideClosure()
+    public function testJoinWithDuplicateSubRelationCalledInsideClosure(): void
     {
         /** join with sub-relation called inside Closure */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1685,8 +1688,10 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @dataProvider filterTableNamesFromAliasesProvider
      *
-     * @param array|string$fromParams
+     * @param array|string $fromParams
      * @param $expectedAliases
+     *
+     * @throws ReflectionException
      */
     public function testFilterTableNamesFromAliases($fromParams, array $expectedAliases): void
     {
