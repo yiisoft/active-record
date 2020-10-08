@@ -71,7 +71,6 @@ jobs:
           docker exec -i postgres psql -d yiitest -U root -c "SHOW max_connections"
 
       - name: Create MS SQL Database
-        if: matrix.php-version == '7.4'
         run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
 
       - name: Setup cache environment
