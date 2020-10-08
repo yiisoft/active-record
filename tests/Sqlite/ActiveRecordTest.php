@@ -57,6 +57,8 @@ class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
+        $this->checkFixture($this->db, 'beta');
+
         $betaQuery = new ActiveQuery(Beta::class, $this->db);
 
         $betas = $betaQuery->with('alpha')->all();

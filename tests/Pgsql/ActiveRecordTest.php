@@ -46,6 +46,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testExplicitPkOnAutoIncrement(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $customer->id = 1337;
@@ -66,6 +68,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
+        $this->checkFixture($this->db, 'beta');
+
         $betaQuery = new ActiveQuery(Beta::class, $this->db);
 
         $betas = $betaQuery->with('alpha')->all();
@@ -86,7 +90,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testBooleanAttribute(): void
     {
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'customer');
 
         $customer = new Customer($this->db);
         $customer->name = 'boolean customer';
@@ -114,7 +118,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testBooleanValues(): void
     {
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'bool_values');
 
         $command = $this->db->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
@@ -141,6 +145,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testBooleanValues2(): void
     {
+        $this->checkFixture($this->db, 'bool_user');
+
         $this->db->setCharset('utf8');
 
         $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
@@ -184,6 +190,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testBooleanDefaultValues(): void
     {
+        $this->checkFixture($this->db, 'bool_values');
+
         $arClass = new BoolAR($this->db);
 
         $this->assertNull($arClass->bool_col);
@@ -200,6 +208,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testPrimaryKeyAfterSave(): void
     {
+        $this->checkFixture($this->db, 'default_pk');
+
         $record = new DefaultPk($this->db);
 
         $record->type = 'type';
@@ -306,7 +316,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testArrayValues($attributes): void
     {
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'array_and_json_types');
 
         $type = new ArrayAndJsonTypes($this->db);
 

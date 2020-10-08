@@ -36,6 +36,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testSaveWithTrigger(): void
     {
+        $this->checkFixture($this->db, 'test_trigger');
+
         $db = $this->mssqlConnection;
 
         /** drop trigger if exist */

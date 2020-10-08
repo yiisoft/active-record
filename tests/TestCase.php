@@ -106,6 +106,14 @@ class TestCase extends AbstractTestCase
         $customer->save();
     }
 
+    protected function checkFixture(ConnectionInterface $db, string $tablename, bool $reset = false): void
+    {
+        if ($db->getSchema()->getTableSchema($tablename, true) === null || $reset) {
+            $this->loadFixture($db);
+            $db->getSchema()->refresh();
+        }
+    }
+
     /**
      * Invokes a inaccessible method.
      *

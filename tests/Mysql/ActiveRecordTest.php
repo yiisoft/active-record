@@ -36,6 +36,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testExplicitPkOnAutoIncrement(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $customer->id = 1337;
@@ -56,6 +58,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
+        $this->checkFixture($this->db, 'beta');
+
         $betaQuery = new ActiveQuery(Beta::class, $this->db);
 
         $betas = $betaQuery->with('alpha')->all();

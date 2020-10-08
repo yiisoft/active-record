@@ -12,7 +12,7 @@ abstract class BatchQueryResultTest extends TestCase
 {
     public function testQuery(): void
     {
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'customer', true);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
@@ -117,6 +117,8 @@ abstract class BatchQueryResultTest extends TestCase
 
     public function testActiveQuery(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         /** batch with eager loading */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
@@ -136,6 +138,8 @@ abstract class BatchQueryResultTest extends TestCase
 
     public function testBatchWithIndexBy(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
         $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');

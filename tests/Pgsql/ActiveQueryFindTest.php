@@ -35,7 +35,7 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 
     public function testFindAsArray(): void
     {
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'customer');
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);

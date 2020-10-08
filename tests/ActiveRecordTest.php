@@ -28,7 +28,7 @@ abstract class ActiveRecordTest extends TestCase
 {
     public function testStoreNull(): void
     {
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'null_values', true);
 
         $record = new NullValues($this->db);
 
@@ -76,7 +76,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testStoreEmpty(): void
     {
-        $record = new NullValues($this->db);
+        $this->checkFixture($this->db, 'null_values');
 
         /** this is to simulate empty html form submission */
         $record->var1 = '';
@@ -94,6 +94,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsPrimaryKey(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
         $orderItem = new OrderItem($this->db);
 
@@ -114,6 +116,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testOutdatedRelationsAreResetForNewRecords(): void
     {
+        $this->checkFixture($this->db, 'order_item');
+
         $orderItem = new OrderItem($this->db);
 
         $orderItem->order_id = 1;
@@ -136,6 +140,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testDefaultValues(): void
     {
+        $this->checkFixture($this->db, 'type');
+
         $arClass = new Type($this->db);
 
         $arClass->loadDefaultValues();
@@ -162,6 +168,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCastValues(): void
     {
+        $this->checkFixture($this->db, 'type');
+
         $arClass = new Type($this->db);
 
         $arClass->int_col = 123;
@@ -191,6 +199,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testPopulateRecordCallWhenQueryingOnParentClass(): void
     {
+        $this->checkFixture($this->db, 'cat');
+
         $cat = new Cat($this->db);
         $cat->save();
 
@@ -208,6 +218,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSaveEmpty(): void
     {
+        $this->checkFixture($this->db, 'null_values');
+
         $this->loadFixture($this->db);
 
         $record = new NullValues($this->db);
@@ -221,6 +233,8 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testNoTablenameReplacement(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $customer->name = 'Some {{weird}} name';
@@ -272,6 +286,8 @@ abstract class ActiveRecordTest extends TestCase
         array $validFilter,
         ?string $alias = null
     ): void {
+        $this->checkFixture($this->db, 'customer');
+
         $activeQuery = new ActiveQuery($modelClassName, $this->db);
 
         if ($alias !== null) {
@@ -330,6 +346,8 @@ abstract class ActiveRecordTest extends TestCase
             $this->markTestSkipped('The test should be fixed in PHP 8.0.');
         }
 
+        $this->checkFixture($this->db, 'customer');
+
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches(
             '/^Key "(.+)?" is not a column name and can not be used as a filter$/'
@@ -349,6 +367,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRefreshQuerySetAliasFindRecord(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new CustomerWithAlias($this->db);
 
         $customer->id = 1;
@@ -359,6 +379,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testResetNotSavedRelation(): void
     {
+        $this->checkFixture($this->db, 'order');
+
         $order = new Order($this->db);
 
         $order->customer_id = 1;
@@ -378,6 +400,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIssetException(): void
     {
+        $this->checkFixture($this->db, 'cat');
+
         $cat = new Cat($this->db);
 
         $this->assertFalse(isset($cat->exception));
@@ -385,6 +409,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIssetThrowable(): void
     {
+        $this->checkFixture($this->db, 'cat');
+
         $cat = new Cat($this->db);
 
         $this->assertFalse(isset($cat->throwable));
@@ -392,6 +418,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetAttributes(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $attributes['email'] = 'samdark@mail.ru';
         $attributes['name'] = 'samdark';
         $attributes['address'] = 'rusia';
@@ -412,6 +440,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetAttributeNoExist(): void
     {
+        $this->checkFixture($this->db, 'cat');
+
         $cat = new Cat($this->db);
 
         $this->expectException(InvalidArgumentException::class);
@@ -424,6 +454,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetOldAttribute(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $this->assertEmpty($customer->getOldAttribute('name'));
@@ -435,6 +467,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetOldAttributeException(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $this->assertEmpty($customer->getOldAttribute('name'));
@@ -448,6 +482,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsAttributeChangedNotChanged(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $this->assertEmpty($customer->getAttribute('name'));
@@ -466,6 +502,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testInsert(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $customer->email = 'user4@example.com';
@@ -488,6 +526,8 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testBooleanAttribute(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $this->loadFixture($this->db);
 
         $customer = new Customer($this->db);
@@ -517,6 +557,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testAttributeAccess(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $arClass = new Customer($this->db);
 
         $this->assertTrue($arClass->canSetProperty('name'));
@@ -572,6 +614,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testHasAttribute(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $this->assertTrue($customer->hasAttribute('id'));
@@ -591,6 +635,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRefresh(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customer = new Customer($this->db);
 
         $this->assertFalse($customer->refresh());
@@ -605,6 +651,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testEquals(): void
     {
+        $this->checkFixture($this->db, 'customer');
+
         $customerA = new Customer($this->db);
         $customerB = new Customer($this->db);
         $this->assertFalse($customerA->equals($customerB));
