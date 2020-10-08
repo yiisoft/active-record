@@ -36,6 +36,8 @@ final class ActiveQueryFactoryTest extends AbstractActiveQueryFactoryTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
+        $this->loadFixture($this->pgsqlConnection);
+
         $betaQuery = $this->arFactory->createQueryTo(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();
