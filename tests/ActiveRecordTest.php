@@ -76,7 +76,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testStoreEmpty(): void
     {
-        $this->checkFixture($this->db, 'null_values');
+        $this->checkFixture($this->db, 'null_values', true);
 
         /** this is to simulate empty html form submission */
         $record->var1 = '';

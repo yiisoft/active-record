@@ -90,7 +90,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testBooleanAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db, 'customer', true);
 
         $customer = new Customer($this->db);
         $customer->name = 'boolean customer';
@@ -316,7 +316,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testArrayValues($attributes): void
     {
-        $this->checkFixture($this->db, 'array_and_json_types');
+        $this->checkFixture($this->db, 'array_and_json_types', true);
 
         $type = new ArrayAndJsonTypes($this->db);
 
