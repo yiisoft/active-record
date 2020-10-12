@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
+use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 
-use function get_class;
 use function is_array;
 use function is_int;
 use function reset;
@@ -51,12 +51,14 @@ trait ActiveQueryTrait
      * The following are some usage examples:
      *
      * ```php
+     * // Create active query
+     * CustomerQuery = new ActiveQuery(Customer::class, $db);
      * // find customers together with their orders and country
-     * Customer::find()->with('orders', 'country')->all();
+     * CustomerQuery->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
-     * Customer::find()->with('orders.address')->all();
+     * CustomerQuery->with('orders.address')->all();
      * // find customers together with their country and orders of status 1
-     * Customer::find()->with([
+     * CustomerQuery->with([
      *     'orders' => function (ActiveQuery $query) {
      *         $query->andWhere('status = 1');
      *     },
@@ -69,8 +71,8 @@ trait ActiveQueryTrait
      * For example, the following two statements are equivalent:
      *
      * ```php
-     * Customer::find()->with('orders', 'country')->all();
-     * Customer::find()->with('orders')->with('country')->all();
+     * CustomerQuery->with('orders', 'country')->all();
+     * CustomerQuery->with('orders')->with('country')->all();
      * ```
      * @param array|string $with
      *
@@ -110,24 +112,19 @@ trait ActiveQueryTrait
     {
         if ($this->asArray) {
             return $rows;
-        } else {
-            $models = [];
-
-            /* @var $class ActiveRecord */
-            $class = $this->modelClass;
-
-            foreach ($rows as $row) {
-                $model = $class::instantiate($row);
-
-                $modelClass = get_class($model);
-
-                $modelClass::populateRecord($model, $row);
-
-                $models[] = $model;
-            }
-
-            return $models;
         }
+
+        $arClassInstance = [];
+
+        foreach ($rows as $row) {
+            $arClass = $this->getARInstance()->instantiate($row);
+
+            $arClass->populateRecord($arClass, $row);
+
+            $arClassInstance[] = $arClass;
+        }
+
+        return $arClassInstance;
     }
 
     /**
@@ -137,18 +134,15 @@ trait ActiveQueryTrait
      * for details about specifying this parameter.
      * @param ActiveRecord[]|array $models the primary models (can be either AR instances or arrays)
      *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
+     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
+     * @throws Throwable
      */
     public function findWith(array $with, array &$models): void
     {
         $primaryModel = reset($models);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
-            $primaryModel = $this->modelClass::instance();
+            $primaryModel = $this->getARInstance();
         }
 
         $relations = $this->normalizeRelations($primaryModel, $with);
@@ -164,11 +158,8 @@ trait ActiveQueryTrait
     }
 
     /**
-     * @param ActiveRecord $model
+     * @param ActiveRecordInterface $model
      * @param array $with
-     *
-     * @throws ReflectionException
-     * @throws InvalidArgumentException
      *
      * @return ActiveQuery[]|array
      */

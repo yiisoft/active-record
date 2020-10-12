@@ -19,7 +19,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Dossier extends ActiveRecord
 {
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'dossier';
     }

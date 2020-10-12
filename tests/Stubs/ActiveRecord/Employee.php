@@ -21,7 +21,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Employee extends ActiveRecord
 {
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'employee';
     }
