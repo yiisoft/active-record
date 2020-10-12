@@ -31,7 +31,7 @@ final class OrderItem extends ActiveRecord
         ];
     }
 
-    public static function primaryKey(): array
+    public function primaryKey(): array
     {
         return ['order_id', 'item_id'];
     }
@@ -60,6 +60,6 @@ final class OrderItem extends ActiveRecord
 
     public function getCustom(): ActiveQuery
     {
-        return Order::find();
+        return new ActiveQuery(Order::class, $this->db);
     }
 }

@@ -6,17 +6,21 @@ namespace Yiisoft\ActiveRecord\Redis;
 
 use JsonException;
 use ReflectionException;
+use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery as BaseActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\InvalidParamException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function array_keys;
 use function arsort;
 use function asort;
 use function count;
-use function get_class;
 use function in_array;
 use function is_array;
 use function is_numeric;
@@ -28,8 +32,6 @@ use function reset;
  * ActiveQuery represents a query associated with an Active Record class.
  *
  * An ActiveQuery can be a normal query or be used in a relational context.
- *
- * ActiveQuery instances are usually created by {@see ActiveRecord::find()}.
  *
  * Relational queries are created by {@see ActiveRecord::hasOne()} and {@see ActiveRecord::hasMany()}.
  *
@@ -60,7 +62,8 @@ use function reset;
  * These options can be configured using methods of the same name. For example:
  *
  * ```php
- * $customers = Customer::find()->with('orders')->asArray()->all();
+ * $customerQuery = new ActiveQuery(Customer::class, $db);
+ * $customers = $customerQuery->with('orders')->asArray()->all();
  * ```
  *
  * Relational query
@@ -69,16 +72,16 @@ use function reset;
  * In relational context ActiveQuery represents a relation between two Active Record classes.
  *
  * Relational ActiveQuery instances are usually created by calling {@see ActiveRecord::hasOne()} and
- * {@see ActiveRecord::hasMany()}. An Active Record class declares a relation by defining
- * a getter method which calls one of the above methods and returns the created ActiveQuery object.
+ * {@see ActiveRecord::hasMany()}. An Active Record class declares a relation by defining a getter method which calls
+ * one of the above methods and returns the created ActiveQuery object.
  *
  * A relation is specified by {@see link} which represents the association between columns of different tables; and the
  * multiplicity of the relation is indicated by {@see multiple}.
  *
  * If a relation involves a junction table, it may be specified by {@see via()}.
  *
- * This methods may only be called in a relational context. Same is true for {@see inverseOf()}, which
- * marks a relation as inverse of another relation.
+ * This methods may only be called in a relational context. Same is true for {@see inverseOf()}, which marks a relation
+ * as inverse of another relation.
  */
 class ActiveQuery extends BaseActiveQuery
 {
@@ -88,8 +91,8 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Executes the query and returns all results as an array.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      */
@@ -154,8 +157,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * Null will be returned, if the query results in nothing.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return ActiveRecord|array|null a single row of query result. Depending on the setting of {@see asArray}, the
      * query result may be either an array or an ActiveRecord object.
@@ -182,27 +185,21 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         if ($this->isAsArray()) {
-            $model = $row;
+            $arClass = $row;
         } else {
-            /** @var $class ActiveRecord */
-            $class = $this->modelClass;
-
-            $model = $class::instantiate($row);
-
-            $class = get_class($model);
-
-            $class::populateRecord($model, $row);
+            $arClass = $this->getARInstance();
+            $arClass->populateRecord($arClass, $row);
         }
 
         if (!empty($this->getWith())) {
-            $models = [$model];
+            $arClasses = [$arClass];
 
-            $this->findWith($this->getWith(), $models);
+            $this->findWith($this->getWith(), $arClasses);
 
-            $model = $models[0];
+            $arClass = $arClasses[0];
         }
 
-        return $model;
+        return $arClass;
     }
 
     /**
@@ -210,8 +207,9 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $q the COUNT expression. This parameter is ignored by this implementation.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     *
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int number of records.
      */
@@ -222,10 +220,7 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         if ($this->getWhere() === null) {
-            /* @var $modelClass ActiveRecord */
-            $modelClass = $this->modelClass;
-
-            return (int) $this->modelClass::getConnection()->executeCommand('LLEN', [$modelClass::keyPrefix()]);
+            return (int) $this->db->executeCommand('LLEN', [$this->getARInstance()->keyPrefix()]);
         }
 
         return (int) $this->executeScript('Count');
@@ -234,10 +229,10 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Returns a value indicating whether the query result contains any row of data.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
-     *
      * @return bool whether the query result contains any row of data.
+     *
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      */
     public function exists(): bool
     {
@@ -254,8 +249,8 @@ class ActiveQuery extends BaseActiveQuery
      * @param string $column the column to sum up. If this parameter is not given, the `db` application component will
      * be used.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int number of records.
      */
@@ -273,8 +268,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int the average of the specified column values.
      */
@@ -292,8 +287,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int the minimum of the specified column values.
      */
@@ -311,8 +306,8 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return int the maximum of the specified column values.
      */
@@ -331,8 +326,8 @@ class ActiveQuery extends BaseActiveQuery
      * @param string $type the type of the script to generate
      * @param string|null $columnName
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|ReflectionException
-     * @throws NotSupportedException
+     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|NotSupportedException
+     * @throws ReflectionException|Throwable
      *
      * @return array|bool|null|string
      */
@@ -370,10 +365,10 @@ class ActiveQuery extends BaseActiveQuery
         if (
             is_array($this->getWhere()) &&
             (
-                (!isset($this->getWhere()[0]) && $this->modelClass::isPrimaryKey(array_keys($this->getWhere()))) ||
+                (!isset($this->getWhere()[0]) && $this->getARInstance()->isPrimaryKey(array_keys($this->getWhere()))) ||
                 (
                     isset($this->getWhere()[0]) && $this->getWhere()[0] === 'in' &&
-                    $this->modelClass::isPrimaryKey((array) $this->getWhere()[1])
+                    $this->getARInstance()->isPrimaryKey((array) $this->getWhere()[1])
                 )
             )
         ) {
@@ -384,7 +379,7 @@ class ActiveQuery extends BaseActiveQuery
 
         $script = $this->getLuaScriptBuilder()->$method($this, $columnName);
 
-        return $this->modelClass::getConnection()->executeCommand('EVAL', [$script, 0]);
+        return $this->db->executeCommand('EVAL', [$script, 0]);
     }
 
     /**
@@ -426,7 +421,7 @@ class ActiveQuery extends BaseActiveQuery
 
         if (isset($where[0]) && $where[0] === 'in') {
             $pks = (array) $where[2];
-        } elseif (count($where) == 1) {
+        } elseif (count($where) === 1) {
             $pks = (array) reset($where);
         } else {
             foreach ($where as $values) {
@@ -437,9 +432,6 @@ class ActiveQuery extends BaseActiveQuery
             }
             $pks = [$where];
         }
-
-        /** @var $modelClass ActiveRecord */
-        $modelClass = $this->modelClass;
 
         if ($type === 'Count') {
             $start = 0;
@@ -455,12 +447,12 @@ class ActiveQuery extends BaseActiveQuery
 
         foreach ($pks as $pk) {
             if (++$i > $start && ($limit === null || $i <= $start + $limit)) {
-                $key = $modelClass::keyPrefix() . ':a:' . $modelClass::buildKey($pk);
-                $result = $this->modelClass::getConnection()->executeCommand('HGETALL', [$key]);
+                $key = $this->getARInstance()->keyPrefix() . ':a:' . $this->getARInstance()->buildKey($pk);
+                $result = $this->db->executeCommand('HGETALL', [$key]);
                 if (!empty($result)) {
                     $data[] = $result;
                     if ($needSort) {
-                        $orderArray[] = $this->modelClass::getConnection()->executeCommand(
+                        $orderArray[] = $this->db->executeCommand(
                             'HGET',
                             [$key, $orderColumn]
                         );
@@ -512,7 +504,7 @@ class ActiveQuery extends BaseActiveQuery
                 foreach ($data as $dataRow) {
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName) {
+                        if ($dataRow[$i++] === $columnName) {
                             $sum += $dataRow[$i];
                             break;
                         }
@@ -527,7 +519,7 @@ class ActiveQuery extends BaseActiveQuery
                     $count++;
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName) {
+                        if ($dataRow[$i++] === $columnName) {
                             $sum += $dataRow[$i];
                             break;
                         }
@@ -540,7 +532,7 @@ class ActiveQuery extends BaseActiveQuery
                 foreach ($data as $dataRow) {
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName && ($min == null || $dataRow[$i] < $min)) {
+                        if ($dataRow[$i++] === $columnName && ($min === null || $dataRow[$i] < $min)) {
                             $min = $dataRow[$i];
                             break;
                         }
@@ -553,7 +545,7 @@ class ActiveQuery extends BaseActiveQuery
                 foreach ($data as $dataRow) {
                     $c = count($dataRow);
                     for ($i = 0; $i < $c;) {
-                        if ($dataRow[$i++] == $columnName && ($max == null || $dataRow[$i] > $max)) {
+                        if ($dataRow[$i++] === $columnName && ($max === null || $dataRow[$i] > $max)) {
                             $max = $dataRow[$i];
                             break;
                         }
@@ -569,7 +561,8 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Executes the query and returns the first column of the result.
      *
-     * @throws Exception|InvalidConfigException|InvalidParamException|ReflectionException|NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
+     * @throws ReflectionException
      *
      * @return array the first column of the query result. An empty array is returned if the query results in nothing.
      */
@@ -589,6 +582,7 @@ class ActiveQuery extends BaseActiveQuery
      * The value returned will be the specified attribute in the first record of the query results.
      *
      * @throws Exception|InvalidConfigException|InvalidParamException|ReflectionException|NotSupportedException
+     * @throws JsonException
      *
      * @return string|null the value of the specified attribute in the first record of the query result. Null is
      * returned if the query result is empty.
@@ -622,5 +616,41 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         return $this->luaScriptBuilder;
+    }
+
+    /**
+     * Finds ActiveRecord instance(s) by the given condition.
+     *
+     * This method is internally called by {@see findOne()} and {@see findAll()}.
+     *
+     * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
+     *
+     * @throws InvalidConfigException if there is no primary key defined.
+     *
+     * @return ActiveQueryInterface the newly created {@see QueryInterface} instance.
+     */
+    protected function findByCondition($condition): ActiveQueryInterface
+    {
+        $arInstance = $this->getARInstance();
+
+        if (!is_array($condition)) {
+            $condition = [$condition];
+        }
+
+        if (!ArrayHelper::isAssociative($condition) && !$condition instanceof ExpressionInterface) {
+            /** query by primary key */
+            $primaryKey = $arInstance->primaryKey();
+            if (isset($primaryKey[0])) {
+                /**
+                 * If condition is scalar, search for a single primary key, if it is array, search for multiple primary
+                 * key values.
+                 */
+                $condition = [$primaryKey[0] => is_array($condition) ? array_values($condition) : $condition];
+            } else {
+                throw new InvalidConfigException('"' . get_class($arInstance) . '" must have a primary key.');
+            }
+        }
+
+        return $this->andWhere($condition);
     }
 }

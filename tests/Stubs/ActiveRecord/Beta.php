@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Beta extends ActiveRecord
 {
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'beta';
     }

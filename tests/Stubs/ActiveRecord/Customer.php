@@ -29,7 +29,7 @@ final class Customer extends ActiveRecord
     public $status2;
     public ?string $sumTotal;
 
-    public static function tableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }
@@ -52,6 +52,10 @@ final class Customer extends ActiveRecord
     public function getExpensiveOrders(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
+    }
+
+    public function getItem(): void
+    {
     }
 
     public function getOrdersWithItems(): ActiveQuery
@@ -80,7 +84,6 @@ final class Customer extends ActiveRecord
     /** deeply nested table relation */
     public function getOrderItems(): ActiveQuery
     {
-        /* @var $rel ActiveQuery */
         $rel = $this->hasMany(Item::class, ['id' => 'item_id']);
 
         return $rel->viaTable('order_item', ['order_id' => 'id'], function ($q) {
@@ -89,8 +92,7 @@ final class Customer extends ActiveRecord
         })->orderBy('id');
     }
 
-    public static function find(): CustomerQuery
+    public function setOrdersReadOnly(): void
     {
-        return new CustomerQuery(static::class);
     }
 }

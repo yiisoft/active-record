@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Mysql;
 
-use Yiisoft\ActiveRecord\BaseActiveRecord;
-use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as BaseBatchQueryResultTest;
+use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group mysql
  */
-final class BatchQueryResultTest extends BaseBatchQueryResultTest
+final class BatchQueryResultTest extends AbstractBatchQueryResultTest
 {
-    public ?string $driverName = 'mysql';
+    protected string $driverName = 'mysql';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        BaseActiveRecord::connectionId($this->driverName);
+        $this->db = $this->mysqlConnection;
     }
 
     protected function tearDown(): void

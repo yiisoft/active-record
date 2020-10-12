@@ -16,6 +16,7 @@ use function ctype_alnum;
 use function end;
 use function implode;
 use function is_array;
+use function is_bool;
 use function is_numeric;
 use function is_string;
 use function json_encode;
@@ -46,22 +47,14 @@ use function reset;
 class ActiveRecord extends BaseActiveRecord
 {
     /**
-     * @return ActiveQuery the newly created {@see ActiveQuery} instance.
-     */
-    public static function find(): ActiveQuery
-    {
-        return new ActiveQuery(static::class);
-    }
-
-    /**
-     * Returns the primary key name(s) for this AR class.
+     * Returns the primary key name(s) for this active record class.
      *
      * This method should be overridden by child classes to define the primary key. Note that an array should be
      * returned even when it is a single primary key.
      *
      * @return array the primary keys of this record.
      */
-    public static function primaryKey(): array
+    public function primaryKey(): array
     {
         return ['id'];
     }
@@ -86,14 +79,16 @@ class ActiveRecord extends BaseActiveRecord
      * Declares prefix of the key that represents the keys that store this records in redis.
      *
      * By default this method returns the class name as the table name by calling {@see Inflector->pascalCaseToId()}.
-     * For example, 'Customer' becomes 'customer', and 'OrderItem' becomes 'order_item'. You may override this method
-     * if you want different key naming.
+     * For example, 'Customer' becomes 'customer', and 'OrderItem' becomes 'order_item'. You may override this method if
+     * you want different key naming.
      *
-     * @return string the prefix to apply to all AR keys
+     * @return string the prefix to apply to all AR keys.
      */
-    public static function keyPrefix(): string
+    public function keyPrefix(): string
     {
-        return (new Inflector())->pascalCaseToId(StringHelper::basename(static::class), '_');
+        $inflector = new Inflector();
+
+        return $inflector->pascalCaseToId(StringHelper::basename(static::class), '_');
     }
 
     /**
@@ -102,22 +97,22 @@ class ActiveRecord extends BaseActiveRecord
      * Usage example:
      *
      * ```php
-     * $customer = new Customer();
+     * $customer = new Customer($db);
      * $customer->setAttribute('name', $name);
      * $customer->setAttribute('email', $email);
      * $customer->insert();
      * ```
      *
-     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all attributes
-     * that are loaded from DB will be saved.
+     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
+     * attributes that are loaded from DB will be saved.
      *
-     * @throws JsonException|InvalidArgumentException
+     * @throws InvalidArgumentException|JsonException
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
      */
     public function insert(?array $attributes = null): bool
     {
-        $db = static::getConnection();
+        $db = $this->db;
 
         $values = $this->getDirtyAttributes($attributes);
 
@@ -129,26 +124,26 @@ class ActiveRecord extends BaseActiveRecord
                 /** use auto increment if pk is null */
                 $pk[$key] = $values[$key] = $db->executeCommand(
                     'INCR',
-                    [static::keyPrefix() . ':s:' . $key]
+                    [$this->keyPrefix() . ':s:' . $key]
                 );
 
                 $this->setAttribute($key, $values[$key]);
             } elseif (is_numeric($pk[$key])) {
                 /** if pk is numeric update auto increment value */
-                $currentPk = $db->executeCommand('GET', [static::keyPrefix() . ':s:' . $key]);
+                $currentPk = $db->executeCommand('GET', [$this->keyPrefix() . ':s:' . $key]);
 
                 if ($pk[$key] > $currentPk) {
-                    $db->executeCommand('SET', [static::keyPrefix() . ':s:' . $key, $pk[$key]]);
+                    $db->executeCommand('SET', [$this->keyPrefix() . ':s:' . $key, $pk[$key]]);
                 }
             }
         }
 
         /** save pk in a `findAll()` pool */
-        $pk = static::buildKey($pk);
+        $pk = $this->buildKey($pk);
 
-        $db->executeCommand('RPUSH', [static::keyPrefix(), $pk]);
+        $db->executeCommand('RPUSH', [$this->keyPrefix(), $pk]);
 
-        $key = static::keyPrefix() . ':a:' . $pk;
+        $key = $this->keyPrefix() . ':a:' . $pk;
 
         /** save attributes */
         $setArgs = [$key];
@@ -179,7 +174,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
      * ```php
-     * Customer::updateAll(['status' => 1], ['id' => 2]);
+     * $customer = new Customer($db);
+     * $customer->updateAll(['status' => 1], ['id' => 2]);
      * ```
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
@@ -191,9 +187,9 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows updated.
      */
-    public static function updateAll(array $attributes, $condition = [], array $params = []): int
+    public function updateAll(array $attributes, $condition = [], array $params = []): int
     {
-        $db = static::getConnection();
+        $db = $this->db;
 
         if (empty($attributes)) {
             return 0;
@@ -201,10 +197,10 @@ class ActiveRecord extends BaseActiveRecord
 
         $n = 0;
 
-        foreach (self::fetchPks($condition) as $pk) {
+        foreach ($this->fetchPks($condition) as $pk) {
             $newPk = $pk;
-            $pk = static::buildKey($pk);
-            $key = static::keyPrefix() . ':a:' . $pk;
+            $pk = $this->buildKey($pk);
+            $key = $this->keyPrefix() . ':a:' . $pk;
 
             /** save attributes */
             $delArgs = [$key];
@@ -226,8 +222,8 @@ class ActiveRecord extends BaseActiveRecord
                 }
             }
 
-            $newPk = static::buildKey($newPk);
-            $newKey = static::keyPrefix() . ':a:' . $newPk;
+            $newPk = $this->buildKey($newPk);
+            $newKey = $this->keyPrefix() . ':a:' . $newPk;
 
             /** rename index if pk changed */
             if ($newPk !== $pk) {
@@ -241,8 +237,8 @@ class ActiveRecord extends BaseActiveRecord
                     $db->executeCommand('HDEL', $delArgs);
                 }
 
-                $db->executeCommand('LINSERT', [static::keyPrefix(), 'AFTER', $pk, $newPk]);
-                $db->executeCommand('LREM', [static::keyPrefix(), 0, $pk]);
+                $db->executeCommand('LINSERT', [$this->keyPrefix(), 'AFTER', $pk, $newPk]);
+                $db->executeCommand('LREM', [$this->keyPrefix(), 0, $pk]);
                 $db->executeCommand('RENAME', [$key, $newKey]);
                 $db->executeCommand('EXEC');
             } else {
@@ -267,7 +263,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to increment all customers' age by 1,
      *
      * ```php
-     * Customer::updateAllCounters(['age' => 1]);
+     * $customer = new Customer($db);
+     * $customer->updateAllCounters(['age' => 1]);
      * ```
      *
      * @param array $counters the counters to be updated (attribute name => increment value). Use negative values if you
@@ -281,7 +278,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public static function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
     {
         if (empty($counters)) {
             return 0;
@@ -289,10 +286,10 @@ class ActiveRecord extends BaseActiveRecord
 
         $n = 0;
 
-        foreach (self::fetchPks($condition) as $pk) {
-            $key = static::keyPrefix() . ':a:' . static::buildKey($pk);
+        foreach ($this->fetchPks($condition) as $pk) {
+            $key = $this->keyPrefix() . ':a:' . $this->buildKey($pk);
             foreach ($counters as $attribute => $value) {
-                static::getConnection()->executeCommand('HINCRBY', [$key, $attribute, $value]);
+                $this->db->executeCommand('HINCRBY', [$key, $attribute, $value]);
             }
             $n++;
         }
@@ -308,7 +305,8 @@ class ActiveRecord extends BaseActiveRecord
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * Customer::deleteAll(['status' => 3]);
+     * $customer = new Customer($db);
+     * $customer->deleteAll(['status' => 3]);
      * ```
      *
      * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
@@ -320,11 +318,11 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public static function deleteAll(?array $condition = null, array $params = []): int
+    public function deleteAll(?array $condition = null, array $params = []): int
     {
-        $db = static::getConnection();
+        $db = $this->db;
 
-        $pks = self::fetchPks($condition);
+        $pks = $this->fetchPks($condition);
 
         if (empty($pks)) {
             return 0;
@@ -335,9 +333,9 @@ class ActiveRecord extends BaseActiveRecord
         $db->executeCommand('MULTI');
 
         foreach ($pks as $pk) {
-            $pk = static::buildKey($pk);
-            $db->executeCommand('LREM', [static::keyPrefix(), 0, $pk]);
-            $attributeKeys[] = static::keyPrefix() . ':a:' . $pk;
+            $pk = $this->buildKey($pk);
+            $db->executeCommand('LREM', [$this->keyPrefix(), 0, $pk]);
+            $attributeKeys[] = $this->keyPrefix() . ':a:' . $pk;
         }
 
         $db->executeCommand('DEL', $attributeKeys);
@@ -347,16 +345,16 @@ class ActiveRecord extends BaseActiveRecord
         return (int) end($result);
     }
 
-    private static function fetchPks(?array $condition = []): array
+    private function fetchPks(?array $condition = []): array
     {
-        $query = static::find();
+        $query = $this->instantiateQuery();
 
         $query->where($condition);
 
         /** limit fetched columns to pk */
         $records = $query->asArray()->all();
 
-        $primaryKey = static::primaryKey();
+        $primaryKey = $this->primaryKey();
 
         $pks = [];
 
@@ -382,7 +380,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return string|int the generated key.
      */
-    public static function buildKey($key)
+    public function buildKey($key)
     {
         if (is_numeric($key)) {
             return $key;
@@ -394,7 +392,7 @@ class ActiveRecord extends BaseActiveRecord
 
         if (is_array($key)) {
             if (count($key) === 1) {
-                return self::buildKey(reset($key));
+                return $this->buildKey(reset($key));
             }
 
             /** ensure order is always the same */

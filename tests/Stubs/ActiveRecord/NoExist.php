@@ -6,16 +6,10 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-/**
- * Class TestTrigger.
- *
- * @property int $id
- * @property string $stringcol
- */
-final class TestTrigger extends ActiveRecord
+final class NoExist extends ActiveRecord
 {
     public function tableName(): string
     {
-        return 'test_trigger';
+        return 'NoExist';
     }
 }

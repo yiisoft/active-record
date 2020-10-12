@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\ActiveRecord\Tests\Stubs\Redis;
 
 use Yiisoft\ActiveRecord\Redis\ActiveRecord;
@@ -19,7 +21,7 @@ final class OrderItemWithNullFK extends ActiveRecord
         return ['order_id', 'item_id', 'quantity', 'subtotal'];
     }
 
-    public static function primaryKey(): array
+    public function primaryKey(): array
     {
         return ['order_id', 'item_id'];
     }

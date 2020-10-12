@@ -208,8 +208,8 @@ CREATE TABLE [dbo].[dossier] (
 
 CREATE VIEW [dbo].[animal_view] AS SELECT * FROM [dbo].[animal];
 
-INSERT INTO [dbo].[animal] (type) VALUES ('yiiunit\data\ar\Cat');
-INSERT INTO [dbo].[animal] (type) VALUES ('yiiunit\data\ar\Dog');
+INSERT INTO [dbo].[animal] (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat');
+INSERT INTO [dbo].[animal] (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog');
 
 INSERT INTO [dbo].[profile] ([description]) VALUES ('profile customer 1');
 INSERT INTO [dbo].[profile] ([description]) VALUES ('profile customer 3');

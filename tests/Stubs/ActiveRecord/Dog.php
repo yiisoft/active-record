@@ -9,10 +9,10 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
  */
 final class Dog extends Animal
 {
-    public static function populateRecord($record, $row): void
+    public function populateRecord($record, $row): void
     {
         parent::populateRecord($record, $row);
 
-        $record->does = 'bark';
+        $record->setDoes('bark');
     }
 }

@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Pgsql;
 
-use Yiisoft\ActiveRecord\BaseActiveRecord;
-use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as BaseBatchQueryResultTest;
+use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group pgsql
  */
-final class BatchQueryResultTest extends BaseBatchQueryResultTest
+final class BatchQueryResultTest extends AbstractBatchQueryResultTest
 {
-    public ?string $driverName = 'pgsql';
+    protected string $driverName = 'pgsql';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        BaseActiveRecord::connectionId($this->driverName);
+        $this->db = $this->pgsqlConnection;
     }
 
     protected function tearDown(): void

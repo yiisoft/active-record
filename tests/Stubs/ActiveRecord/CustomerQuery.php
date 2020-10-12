@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 
 final class CustomerQuery extends ActiveQuery
 {
-    public static bool $joinWithProfile = false;
+    public bool $joinWithProfile = false;
 
     public function active(): self
     {

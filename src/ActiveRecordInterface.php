@@ -16,9 +16,9 @@ interface ActiveRecordInterface
      *
      * For the primary key **value** see {@see getPrimaryKey()} instead.
      *
-     * @return array|string[] the primary key name(s) for this AR class.
+     * @return array the primary key name(s) for this AR class.
      */
-    public static function primaryKey(): array;
+    public function primaryKey(): array;
 
     /**
      * Returns the list of all attribute names of the record.
@@ -32,7 +32,7 @@ interface ActiveRecordInterface
      *
      * If this record is the result of a query and the attribute is not loaded, `null` will be returned.
      *
-     * @param string $name the attribute name
+     * @param string $name the attribute name.
      *
      * @return mixed the attribute value. `null` if the attribute is not set or does not exist.
      *
@@ -53,7 +53,7 @@ interface ActiveRecordInterface
     /**
      * Returns a value indicating whether the record has an attribute with the specified name.
      *
-     * @param string $name the name of the attribute
+     * @param string $name the name of the attribute.
      * @return bool whether the record has an attribute with the specified name.
      */
     public function hasAttribute(string $name): bool;
@@ -75,7 +75,7 @@ interface ActiveRecordInterface
      * Returns the old primary key value(s).
      *
      * This refers to the primary key value that is populated into the record after executing a find method (e.g.
-     * find(), findOne()).
+     * findOne()).
      *
      * The value remains unchanged even if the primary key attribute is manually assigned with a different value.
      *
@@ -90,210 +90,13 @@ interface ActiveRecordInterface
     public function getOldPrimaryKey(bool $asArray = false);
 
     /**
-     * Returns a value indicating whether the given set of attributes represents the primary key for this model.
+     * Returns a value indicating whether the given set of attributes represents the primary key for this active record.
      *
-     * @param array $keys the set of attributes to check
+     * @param array $keys the set of attributes to check.
      *
-     * @return bool whether the given set of attributes represents the primary key for this model
+     * @return bool whether the given set of attributes represents the primary key for this active record.
      */
-    public static function isPrimaryKey(array $keys): bool;
-
-    /**
-     * Creates an {@see ActiveQueryInterface} instance for query purpose.
-     *
-     * The returned {@see ActiveQueryInterface} instance can be further customized by calling  methods defined in
-     * {@see ActiveQueryInterface} before `one()` or `all()` is called to return populated ActiveRecord instances.
-     *
-     * For example,
-     *
-     * ```php
-     * // find the customer whose ID is 1
-     * $customer = Customer::find()->where(['id' => 1])->one();
-     *
-     * // find all active customers and order them by their age:
-     * $customers = Customer::find()
-     *     ->where(['status' => 1])
-     *     ->orderBy('age')
-     *     ->all();
-     * ```
-     *
-     * This method is also called by {@see BaseActiveRecord::hasOne()} and {@see BaseActiveRecord::hasMany()} to create
-     * a relational query.
-     *
-     * You may override this method to return a customized query. For example,
-     *
-     * ```php
-     * class Customer extends ActiveRecord
-     * {
-     *     public static function find()
-     *     {
-     *         // use CustomerQuery instead of the default ActiveQuery
-     *         return new CustomerQuery(get_called_class());
-     *     }
-     * }
-     * ```
-     *
-     * The following code shows how to apply a default condition for all queries:
-     *
-     * ```php
-     * class Customer extends ActiveRecord
-     * {
-     *     public static function find()
-     *     {
-     *         return parent::find()->where(['deleted' => false]);
-     *     }
-     * }
-     *
-     * // Use andWhere()/orWhere() to apply the default condition
-     * // SELECT FROM customer WHERE `deleted`=:deleted AND age>30
-     * $customers = Customer::find()->andWhere('age>30')->all();
-     *
-     * // Use where() to ignore the default condition
-     * // SELECT FROM customer WHERE age>30
-     * $customers = Customer::find()->where('age>30')->all();
-     *
-     * @return ActiveQueryInterface the newly created {@see ActiveQueryInterface} instance.
-     */
-    public static function find(): ActiveQueryInterface;
-
-    /**
-     * Returns a single active record model instance by a primary key or an array of column values.
-     *
-     * The method accepts:
-     *
-     *  - a scalar value (integer or string): query by a single primary key value and return the corresponding record
-     * (or `null` if not found).
-     *  - a non-associative array: query by a list of primary key values and return the first record (or `null` if not
-     * found).
-     *  - an associative array of name-value pairs: query by a set of attribute values and return a single record
-     * matching all of them (or `null` if not found). Note that `['id' => 1, 2]` is treated as a non-associative array.
-     *
-     * Column names are limited to current records table columns for SQL DBMS, or filtered otherwise to be limited to
-     * simple filter conditions.
-     *
-     * That this method will automatically call the `one()` method and return an
-     * {@see ActiveRecordInterface|ActiveRecord} instance.
-     *
-     * > Note: As this is a short-hand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
-     * > If you need to specify more complex conditions, use {@see find()} in combination with
-     * {@see ActiveQuery::where()|where()} instead.
-     *
-     * See the following code for usage examples:
-     *
-     * ```php
-     * // find a single customer whose primary key value is 10
-     * $customer = Customer::findOne(10);
-     *
-     * // the above code is equivalent to:
-     * $customer = Customer::find()->where(['id' => 10])->one();
-     *
-     * // find the customers whose primary key value is 10, 11 or 12.
-     * $customers = Customer::findOne([10, 11, 12]);
-     *
-     * // the above code is equivalent to:
-     * $customers = Customer::find()->where(['id' => [10, 11, 12]])->one();
-     *
-     * // find the first customer whose age is 30 and whose status is 1
-     * $customer = Customer::findOne(['age' => 30, 'status' => 1]);
-     *
-     * // the above code is equivalent to:
-     * $customer = Customer::find()->where(['age' => 30, 'status' => 1])->one();
-     * ```
-     *
-     * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
-     * make sure the array structure can not be changed from the outside:
-     *
-     * ```php
-     * public function actionView($id)
-     * {
-     *     $model = Post::findOne($id);
-     * }
-     *
-     * - Explicitly specifying the column to search, passing a scalar or array here will always result in finding a
-     * single record:
-     * $model = Post::findOne(['id' => $id);
-     *
-     * Do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column
-     * values!:
-     * $model = Post::findOne($id);
-     * ```
-     *
-     * @param mixed $condition primary key value or a set of column values
-     *
-     * @return ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
-     */
-    public static function findOne($condition): ?ActiveRecordInterface;
-
-    /**
-     * Returns a list of active record models that match the specified primary key value(s) or a set of column values.
-     *
-     * The method accepts:
-     *
-     *  - a scalar value (integer or string): query by a single primary key value and return an array containing the
-     *    corresponding record (or an empty array if not found).
-     *  - a non-associative array: query by a list of primary key values and return the
-     *    corresponding records (or an empty array if none was found).
-     *    Note that an empty condition will result in an empty result as it will be interpreted as a search for
-     *    primary keys and not an empty `WHERE` condition.
-     *  - an associative array of name-value pairs: query by a set of attribute values and return an array of records
-     *    matching all of them (or an empty array if none was found). Note that `['id' => 1, 2]` is treated as
-     *    a non-associative array.
-     *    Column names are limited to current records table columns for SQL DBMS, or filtered otherwise to be limted to
-     *    simple filter conditions.
-     *
-     * This method will automatically call the `all()` method and return an array of
-     * {@see ActiveRecordInterface|ActiveRecord} instances.
-     *
-     * > Note: As this is a short-hand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
-     * > If you need to specify more complex conditions, use {@see find()} in combination with
-     * > {@see ActiveQuery::where()|where()} instead.
-     *
-     * See the following code for usage examples:
-     *
-     * ```php
-     * // find the customers whose primary key value is 10
-     * $customers = Customer::findAll(10);
-     *
-     * // the above code is equivalent to:
-     * $customers = Customer::find()->where(['id' => 10])->all();
-     *
-     * // find the customers whose primary key value is 10, 11 or 12.
-     * $customers = Customer::findAll([10, 11, 12]);
-     *
-     * // the above code is equivalent to:
-     * $customers = Customer::find()->where(['id' => [10, 11, 12]])->all();
-     *
-     * // find customers whose age is 30 and whose status is 1
-     * $customers = Customer::findAll(['age' => 30, 'status' => 1]);
-     *
-     * // the above code is equivalent to:
-     * $customers = Customer::find()->where(['age' => 30, 'status' => 1])->all();
-     * ```
-     *
-     * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
-     * make sure the array structure can not be changed from the outside:
-     *
-     * ```php
-     * // \Yiisoft\Yii\Web\Controller ensures that $id is scalar
-     * public function actionView($id)
-     * {
-     *     $model = Post::findOne($id);
-     *     // ...
-     * }
-     *
-     * Explicitly specifying the colum to search, passing a scalar or array here will always result in finding a single
-     * record:
-     * $model = Post::findOne(['id' => $id]);
-     *
-     * Do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column values!:
-     * $model = Post::findOne($id);
-     * ```
-     *
-     * @param mixed $condition primary key value or a set of column values.
-     *
-     * @return array an array of ActiveRecord instance, or an empty array if nothing matches.
-     */
-    public static function findAll($condition): array;
+    public function isPrimaryKey(array $keys): bool;
 
     /**
      * Updates records using the provided attribute values and conditions.
@@ -301,19 +104,20 @@ interface ActiveRecordInterface
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
      * ```php
-     * Customer::updateAll(['status' => 1], ['status' => '2']);
+     * $customer = new Customer($db);
+     * $customer->updateAll(['status' => 1], ['status' => '2']);
      * ```
      *
-     * @param array $attributes attribute values (name-value pairs) to be saved for the record.
-     * Unlike {@see update()} these are not going to be validated.
-     * @param array|string $condition the condition that matches the records that should get updated.
-     * Please refer to {@see QueryInterface::where()} on how to specify this parameter.
-     * An empty condition will match all records.
+     * @param array $attributes attribute values (name-value pairs) to be saved for the record. Unlike {@see update()}
+     * these are not going to be validated.
+     * @param array|string|null $condition the condition that matches the records that should get updated.
+     * Please refer to {@see QueryInterface::where()} on how to specify this parameter. An empty condition will match
+     * all records.
      * @param array $params
      *
      * @return int the number of rows updated.
      */
-    public static function updateAll(array $attributes, $condition = null, array $params = []): int;
+    public function updateAll(array $attributes, $condition = null, array $params = []): int;
 
     /**
      * Deletes records using the provided conditions.
@@ -323,7 +127,8 @@ interface ActiveRecordInterface
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * Customer::deleteAll([status = 3]);
+     * $customer = new Customer($this->db);
+     * $customer->deleteAll([status = 3]);
      * ```
      *
      * @param array|null $condition the condition that matches the records that should get deleted.
@@ -332,7 +137,7 @@ interface ActiveRecordInterface
      *
      * @return int the number of rows deleted.
      */
-    public static function deleteAll(?array $condition = null): int;
+    public function deleteAll(?array $condition = null): int;
 
     /**
      * Saves the current record.
@@ -343,7 +148,7 @@ interface ActiveRecordInterface
      * For example, to save a customer record:
      *
      * ```php
-     * $customer = new Customer; // or $customer = Customer::findOne($id);
+     * $customer = new Customer($db);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->save();
@@ -362,7 +167,7 @@ interface ActiveRecordInterface
      * Usage example:
      *
      * ```php
-     * $customer = new Customer;
+     * $customer = new Customer($db);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->insert();
@@ -381,14 +186,15 @@ interface ActiveRecordInterface
      * Usage example:
      *
      * ```php
-     * $customer = Customer::findOne($id);
+     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customer = $customerQuery->findOne($id);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
      * ```
      *
-     * @param array $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all attributes
-     * that are loaded from DB will be saved.
+     * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all
+     * attributes that are loaded from DB will be saved.
      *
      * @return int|bool the number of rows affected, or `false` if validation fails or updating process is stopped for
      * other reasons.
@@ -434,9 +240,9 @@ interface ActiveRecordInterface
      * (case-sensitive).
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
-     * @return ActiveQueryInterface the relational query object.
+     * @return ActiveQueryInterface|null the relational query object.
      */
-    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface;
+    public function getRelation(string $name, bool $throwException = true): ?ActiveQueryInterface;
 
     /**
      * Populates the named relation with the related records.
@@ -464,12 +270,12 @@ interface ActiveRecordInterface
      *
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
-     * @param ActiveRecordInterface $model the record to be linked with the current one.
-     * @param array $extraColumns additional column values to be saved into the junction table.
-     * This parameter is only meaningful for a relationship involving a junction table (i.e., a relation set with
+     * @param ActiveRecordInterface $arClass the record to be linked with the current one.
+     * @param array $extraColumns additional column values to be saved into the junction table. This parameter is only
+     * meaningful for a relationship involving a junction table (i.e., a relation set with
      * {@see ActiveQueryInterface::via()}).
      */
-    public function link(string $name, ActiveRecordInterface $model, array $extraColumns = []): void;
+    public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void;
 
     /**
      * Destroys the relationship between two records.
@@ -480,10 +286,10 @@ interface ActiveRecordInterface
      *
      * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
-     * @param ActiveRecordInterface $model the model to be unlinked from the current one.
-     * @param bool $delete whether to delete the model that contains the foreign key.
-     * If false, the model's foreign key will be set `null` and saved.
-     * If true, the model containing the foreign key will be deleted.
+     * @param ActiveRecordInterface $arClass the active record to be unlinked from the current one.
+     * @param bool $delete whether to delete the active record that contains the foreign key.
+     * If false, the active record's foreign key will be set `null` and saved.
+     * If true, the active record containing the foreign key will be deleted.
      */
-    public function unlink(string $name, ActiveRecordInterface $model, bool $delete = false): void;
+    public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void;
 }

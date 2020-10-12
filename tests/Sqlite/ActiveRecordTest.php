@@ -4,29 +4,42 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Sqlite;
 
-use Yiisoft\ActiveRecord\BaseActiveRecord;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as BaseActiveRecordTest;
+use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group sqlite
  */
-class ActiveRecordTest extends BaseActiveRecordTest
+class ActiveRecordTest extends AbstractActiveRecordTest
 {
-    protected ?string $driverName = 'sqlite';
+    protected string $driverName = 'sqlite';
+    protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        BaseActiveRecord::connectionId($this->driverName);
+        $this->db = $this->sqliteConnection;
     }
 
-    public function testExplicitPkOnAutoIncrement()
+    protected function tearDown(): void
     {
-        /** @var $this TestCase|ActiveRecordTestTrait */
-        $customer = new Customer();
+        parent::tearDown();
+
+        $this->sqliteConnection->close();
+
+        unset($this->sqliteConnection);
+    }
+
+    public function testExplicitPkOnAutoIncrement(): void
+    {
+        $this->loadFixture($this->db);
+
+        $customer = new Customer($this->db);
+
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
         $customer->name = 'user1337';
@@ -44,7 +57,11 @@ class ActiveRecordTest extends BaseActiveRecordTest
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betas = Beta::find()->with('alpha')->all();
+        $this->checkFixture($this->db, 'beta');
+
+        $betaQuery = new ActiveQuery(Beta::class, $this->db);
+
+        $betas = $betaQuery->with('alpha')->all();
 
         $this->assertNotEmpty($betas);
 
