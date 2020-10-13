@@ -8,9 +8,9 @@ name: mutation
 
 jobs:
   mutation:
-    name: PHP ${{ matrix.php-version }}-${{ matrix.os }}
+    name: PHP ${{ matrix.php }}-${{ matrix.os }}
     env:
-      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, xml, xmlwriter
+      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv-5.9.0preview1, xml, xmlwriter
 
     runs-on: ${{ matrix.os }}
 
@@ -19,7 +19,7 @@ jobs:
         os:
           - ubuntu-latest
 
-        php-version:
+        php:
           - "7.4"
 
     services:
@@ -69,14 +69,11 @@ jobs:
       - name: "Install PHP"
         uses: "shivammathur/setup-php@v2"
         with:
-          php-version: "${{ matrix.php-version }}"
+          php-version: "${{ matrix.php }}"
           extensions: ${{ env.extensions }}
           ini-values: memory_limit=-1
           coverage: "pcov"
           tools: composer:v2, pecl
-
-      - name: install pecl pdo_sqlsrv support PHP 8.0
-        run: sudo pecl install pdo_sqlsrv-5.9.0preview1
 
       - name: Determine composer cache directory
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"
@@ -85,9 +82,9 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
+          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            php${{ matrix.php-version }}-composer-
+            php${{ matrix.php }}-composer-
 
       - name: Install dependencies with composer
         run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
