@@ -10,7 +10,7 @@ jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
     env:
-      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv, xml, xmlwriter
+      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv-5.9.0preview1, xml, xmlwriter
 
     runs-on: ${{ matrix.os }}
 

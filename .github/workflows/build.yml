@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      extensions: curl, mbstring, dom, intl, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv
+      extensions: curl, mbstring, dom, intl, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv-5.9.0preview1
       key: cache-v1
 
     runs-on: ubuntu-latest
@@ -90,10 +90,6 @@ jobs:
           ini-values: date.timezone='UTC'
           coverage: pcov
           tools: composer:v2, pecl
-
-      - name: install pecl pdo_sqlsrv support PHP 8.0
-        if: matrix.php == '8.0'
-        run: sudo pecl install pdo_sqlsrv-5.9.0preview1
 
       - name: Determine composer cache directory on Linux
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"
