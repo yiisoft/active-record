@@ -10,7 +10,7 @@ jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
     env:
-      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, xml, xmlwriter
+      extensions: curl, mbstring, dom, intl, json, libxml, pdo, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv, xml, xmlwriter
 
     runs-on: ${{ matrix.os }}
 
@@ -74,9 +74,6 @@ jobs:
           ini-values: memory_limit=-1
           coverage: "pcov"
           tools: composer:v2, pecl
-
-      - name: install pecl pdo_sqlsrv support PHP 8.0
-        run: sudo pecl install pdo_sqlsrv-5.9.0preview1
 
       - name: Determine composer cache directory
         run: echo "::set-env name=COMPOSER_CACHE_DIR::$(composer config cache-dir)"
