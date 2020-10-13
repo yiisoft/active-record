@@ -74,8 +74,8 @@ use function preg_replace;
  * $user->save();  // a new row is inserted into user table
  *
  * // the following will retrieve the user 'CeBe' from the database
- * $user = ActiveQuery(User::class, $db);
- * $user = User->where(['name' => 'CeBe'])->one();
+ * $userQuery = new ActiveQuery(User::class, $db);
+ * $user = $userQuery->where(['name' => 'CeBe'])->one();
  *
  * // this will get related records from orders table when relation is defined
  * $orders = $user->orders;
