@@ -1048,7 +1048,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $condition = $arInstance->filterCondition($condition, $aliases);
         }
 
-        return $this->andWhere($condition);
+        return $this->where($condition);
     }
 
     /**
