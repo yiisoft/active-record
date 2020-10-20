@@ -1093,8 +1093,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return $this->getARInstanceFactory();
         }
 
-        $new = clone $this;
-        $class = $new->arClass;
+        $class = $this->arClass;
+
         return new $class($this->db);
     }
 
