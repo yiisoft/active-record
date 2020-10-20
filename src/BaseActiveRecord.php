@@ -531,7 +531,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * For example, to update a customer record:
      *
      * ```php
-     * $customer = new Customer($db);
+     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customer = $customerQuery->findOne(2);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
