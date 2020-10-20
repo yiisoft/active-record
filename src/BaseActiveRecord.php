@@ -101,7 +101,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @param array $counters the counters to be updated (attribute name => increment value). Use negative values if you
      * want to decrement the counters.
-     * @param string|array $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
      *
      * @throws NotSupportedException if not override.
@@ -125,8 +125,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * $customer::deleteAll('status = 3');
      * ```
      *
-     * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL. Please refer to
-     * {@see Query::where()} on how to specify this parameter.
+     * @param array|string|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
+     *
+     * Please refer to {@see Query::where()} on how to specify this parameter.
      *
      * @return int the number of rows deleted.
      *

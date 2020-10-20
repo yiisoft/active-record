@@ -278,7 +278,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    public function updateAllCounters(array $counters, $condition = [], array $params = []): int
     {
         if (empty($counters)) {
             return 0;
@@ -309,7 +309,7 @@ class ActiveRecord extends BaseActiveRecord
      * $customer->deleteAll(['status' => 3]);
      * ```
      *
-     * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
+     * @param array|string|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
      * @param array $params
      *
      * @throws JsonException
@@ -318,7 +318,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public function deleteAll(array $condition = null, array $params = []): int
+    public function deleteAll($condition = null, array $params = []): int
     {
         $db = $this->db;
 
@@ -345,7 +345,10 @@ class ActiveRecord extends BaseActiveRecord
         return (int) end($result);
     }
 
-    private function fetchPks(?array $condition = []): array
+    /**
+     * @param array|string|null $condition
+     */
+    private function fetchPks($condition = []): array
     {
         $query = $this->instantiateQuery(static::class);
 
