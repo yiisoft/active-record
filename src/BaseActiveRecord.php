@@ -57,10 +57,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private ?array $oldAttributes = null;
     private array $related = [];
     private array $relationsDependencies = [];
+    private ?ActiveRecordFactory $arFactory;
     protected ConnectionInterface $db;
 
-    public function __construct(ConnectionInterface $db)
+    public function __construct(ConnectionInterface $db, ?ActiveRecordFactory $arFactory = null)
     {
+        $this->arFactory = $arFactory;
         $this->db = $db;
     }
 
@@ -247,13 +249,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     protected function createRelationQuery(string $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
-        if ($this->db->getDriverName() === 'redis') {
-            $aqClassInstance = new RedisActiveQuery($arClass, $this->db);
-        } else {
-            $aqClassInstance = new ActiveQuery($arClass, $this->db);
-        }
-
-        return $aqClassInstance->primaryModel($this)->link($link)->multiple($multiple);
+        return $this->instantiateQuery($arClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
 
     /**
@@ -767,7 +763,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function refresh(): bool
     {
         /** @var $record BaseActiveRecord */
-        $record = $this->instantiateQuery()->findOne($this->getPrimaryKey(true));
+        $record = $this->instantiateQuery(static::class)->findOne($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
     }
@@ -938,13 +934,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return new static($this->db);
     }
 
-    public function instantiateQuery(): ActiveQueryInterface
+    public function instantiateQuery(string $arClass): ActiveQueryInterface
     {
         if ($this->db->getDriverName() === 'redis') {
-            return new RedisActiveQuery(static::class, $this->db);
+            return new RedisActiveQuery($arClass, $this->db, $this->arFactory);
         }
 
-        return new ActiveQuery(static::class, $this->db);
+        return new ActiveQuery($arClass, $this->db, $this->arFactory);
     }
 
     /**

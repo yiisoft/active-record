@@ -226,7 +226,7 @@ class ActiveRecord extends BaseActiveRecord
 
     public function refresh(): bool
     {
-        $query = $this->instantiateQuery();
+        $query = $this->instantiateQuery(static::class);
 
         $tableName = key($query->getTablesUsedInFrom());
         $pk = [];

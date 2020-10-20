@@ -347,7 +347,7 @@ class ActiveRecord extends BaseActiveRecord
 
     private function fetchPks(?array $condition = []): array
     {
-        $query = $this->instantiateQuery();
+        $query = $this->instantiateQuery(static::class);
 
         $query->where($condition);
 
