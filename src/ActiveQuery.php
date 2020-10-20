@@ -374,7 +374,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return bool|string
+     * @return bool|null|string
      */
     protected function queryScalar($selectExpression)
     {
