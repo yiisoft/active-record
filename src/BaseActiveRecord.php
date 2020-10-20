@@ -60,7 +60,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private ?ActiveRecordFactory $arFactory;
     protected ConnectionInterface $db;
 
-    public function __construct(ConnectionInterface $db, ?ActiveRecordFactory $arFactory = null)
+    public function __construct(ConnectionInterface $db, ActiveRecordFactory $arFactory = null)
     {
         $this->arFactory = $arFactory;
         $this->db = $db;
