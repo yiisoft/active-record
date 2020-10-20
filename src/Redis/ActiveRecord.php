@@ -309,8 +309,7 @@ class ActiveRecord extends BaseActiveRecord
      * $customer->deleteAll(['status' => 3]);
      * ```
      *
-     * @param array|string|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
-     * @param array $params
+     * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
      *
      * @throws JsonException
      *
@@ -318,7 +317,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public function deleteAll($condition = null, array $params = []): int
+    public function deleteAll(array $condition = null): int
     {
         $db = $this->db;
 

@@ -125,7 +125,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * $customer::deleteAll('status = 3');
      * ```
      *
-     * @param array|string|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
+     * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
      *
      * Please refer to {@see Query::where()} on how to specify this parameter.
      *
