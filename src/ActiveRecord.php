@@ -354,7 +354,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows deleted.
      */
-    public function deleteAll(?array $condition = null, array $params = []): int
+    public function deleteAll(array $condition = null, array $params = []): int
     {
         $command = $this->db->createCommand();
         $command->delete($this->tableName(), $condition, $params);
@@ -547,7 +547,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return bool whether the record is inserted successfully.
      */
-    protected function insertInternal(?array $attributes = null): bool
+    protected function insertInternal(array $attributes = null): bool
     {
         $values = $this->getDirtyAttributes($attributes);
 
@@ -603,7 +603,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return bool|int the number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
      * updating process.
      */
-    public function update(?array $attributeNames = null)
+    public function update(array $attributeNames = null)
     {
         if (!$this->isTransactional(self::OP_UPDATE)) {
             return $this->updateInternal($attributeNames);

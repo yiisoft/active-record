@@ -110,7 +110,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
      */
-    public function insert(?array $attributes = null): bool
+    public function insert(array $attributes = null): bool
     {
         $db = $this->db;
 
@@ -318,7 +318,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public function deleteAll(?array $condition = null, array $params = []): int
+    public function deleteAll(array $condition = null, array $params = []): int
     {
         $db = $this->db;
 

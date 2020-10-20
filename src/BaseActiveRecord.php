@@ -132,7 +132,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @throws NotSupportedException if not overridden.
      */
-    public function deleteAll(?array $condition = null): int
+    public function deleteAll(array $condition = null): int
     {
         throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }
@@ -374,7 +374,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param array|null $values old attribute values to be set. If set to `null` this record is considered to be
      * {@see isNewRecord|new}.
      */
-    public function setOldAttributes(?array $values): void
+    public function setOldAttributes(array $values = null): void
     {
         $this->oldAttributes = $values;
     }
@@ -459,7 +459,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return array the changed attribute values (name-value pairs).
      */
-    public function getDirtyAttributes(?array $names = null): array
+    public function getDirtyAttributes(array $names = null): array
     {
         if ($names === null) {
             $names = $this->attributes();
@@ -510,7 +510,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return bool whether the saving succeeded (i.e. no validation errors occurred).
      */
-    public function save(?array $attributeNames = null): bool
+    public function save(array $attributeNames = null): bool
     {
         if ($this->getIsNewRecord()) {
             return $this->insert($attributeNames);
@@ -554,7 +554,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @throws StaleObjectException if {@see href='psi_element://optimisticLock'>|optimistic locking} is enabled and the
      * data being updated is outdated.
      */
-    public function update(?array $attributeNames = null)
+    public function update(array $attributeNames = null)
     {
         return $this->updateInternal($attributeNames);
     }
@@ -615,7 +615,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return int the number of rows affected.
      */
-    protected function updateInternal(?array $attributes = null): int
+    protected function updateInternal(array $attributes = null): int
     {
         $values = $this->getDirtyAttributes($attributes);
 
@@ -777,7 +777,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * {@see refresh()}
      */
-    protected function refreshInternal(?BaseActiveRecord $record): bool
+    protected function refreshInternal(BaseActiveRecord $record = null): bool
     {
         if ($record === null) {
             return false;
@@ -1366,7 +1366,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return array attribute values (name => value).
      */
-    public function getAttributes(?array $names = null, array $except = []): array
+    public function getAttributes(array $names = null, array $except = []): array
     {
         $values = [];
 

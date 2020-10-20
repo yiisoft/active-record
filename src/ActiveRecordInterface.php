@@ -137,7 +137,7 @@ interface ActiveRecordInterface
      *
      * @return int the number of rows deleted.
      */
-    public function deleteAll(?array $condition = null): int;
+    public function deleteAll(array $condition = null): int;
 
     /**
      * Saves the current record.
@@ -159,7 +159,7 @@ interface ActiveRecordInterface
      *
      * @return bool whether the saving succeeded (i.e. no validation errors occurred).
      */
-    public function save(?array $attributeNames = null): bool;
+    public function save(array $attributeNames = null): bool;
 
     /**
      * Inserts the record into the database using the attribute values of this record.
@@ -201,7 +201,7 @@ interface ActiveRecordInterface
      *
      * Note that it is possible that the number of rows affected is 0, even though the update execution is successful.
      */
-    public function update(?array $attributeNames = null);
+    public function update(array $attributeNames = null);
 
     /**
      * Deletes the record from the database.
