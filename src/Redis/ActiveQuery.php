@@ -188,7 +188,7 @@ class ActiveQuery extends BaseActiveQuery
             $arClass = $row;
         } else {
             $arClass = $this->getARInstance();
-            $arClass->populateRecord($arClass, $row);
+            $arClass->populateRecord($row);
         }
 
         if (!empty($this->getWith())) {

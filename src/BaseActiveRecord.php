@@ -897,25 +897,23 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * This is an internal method meant to be called to create active record objects after fetching data from the
      * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
      *
-     * @param ActiveRecordInterface|array $record the record to be populated. In most cases this will be an instance
-     * created by {@see instantiate()} beforehand.
      * @param array|object $row attribute values (name => value).
      */
-    public function populateRecord($record, $row): void
+    public function populateRecord($row): void
     {
-        $columns = array_flip($record->attributes());
+        $columns = array_flip($this->attributes());
 
         foreach ($row as $name => $value) {
             if (isset($columns[$name])) {
-                $record->attributes[$name] = $value;
-            } elseif ($record->canSetProperty($name)) {
-                $record->$name = $value;
+                $this->attributes[$name] = $value;
+            } elseif ($this->canSetProperty($name)) {
+                $this->$name = $value;
             }
         }
 
-        $record->oldAttributes = $record->attributes;
-        $record->related = [];
-        $record->relationsDependencies = [];
+        $this->oldAttributes = $this->attributes;
+        $this->related = [];
+        $this->relationsDependencies = [];
     }
 
     /**
