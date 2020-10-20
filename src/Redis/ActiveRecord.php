@@ -187,7 +187,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = [], array $params = []): int
+    public function updateAll(array $attributes, $condition = '', array $params = []): int
     {
         $db = $this->db;
 
