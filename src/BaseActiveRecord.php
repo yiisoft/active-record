@@ -77,7 +77,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * ```
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * @param array|string|null $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params
      *
@@ -85,7 +85,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = '', array $params = []): int
+    public function updateAll(array $attributes, $condition = null, array $params = []): int
     {
         throw new NotSupportedException(__METHOD__ . ' is not supported.');
     }

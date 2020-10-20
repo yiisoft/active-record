@@ -179,7 +179,7 @@ class ActiveRecord extends BaseActiveRecord
      * ```
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * @param array|string|null $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      * @param array $params
      *
@@ -187,7 +187,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = '', array $params = []): int
+    public function updateAll(array $attributes, $condition = null, array $params = []): int
     {
         $db = $this->db;
 

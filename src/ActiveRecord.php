@@ -268,15 +268,15 @@ class ActiveRecord extends BaseActiveRecord
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
-     * to {@see Query::where()} on how to specify this parameter.
+     * @param array|string|null $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = '', array $params = []): int
+    public function updateAll(array $attributes, $condition = null, array $params = []): int
     {
         $command = $this->db->createCommand();
 
