@@ -1085,7 +1085,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             if (is_array($relation->getVia())) {
                 /** @var $viaRelation ActiveQuery */
                 [$viaName, $viaRelation] = $relation->getVia();
-                $viaClass = $viaRelation->getArInstance();
+                $viaClass = $viaRelation->getARInstance();
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->getVia();
