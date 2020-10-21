@@ -93,6 +93,6 @@ jobs:
         run: |
           mkdir -p build/logs
           vendor/bin/phpunit --coverage-xml=build/logs/coverage-xml --log-junit=build/logs/junit.xml --colors=always
-          vendor/bin/infection --threads=2 --coverage=build/logs --show-mutations --no-progress --skip-initial-tests -vvv
+          vendor/bin/infection --threads=2 --coverage=build/logs --show-mutations --no-progress --skip-initial-tests --min-msi=50 --min-covered-msi=95
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
