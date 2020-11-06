@@ -54,12 +54,7 @@ web.php:
 
 declare(strict_types=1);
 
-use Psr\Log\LoggerInterface;
-use Yiisoft\Cache\CacheInterface;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
-use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Profiler\Profiler;
 
 /**
  * config ConnectionInterface::class
@@ -68,10 +63,7 @@ return [
     ConnectionInterface::class => [
         '__class' => SqliteConnection::class,
         '__construct()' => [
-            Reference::to(CacheInterface::class),
-            Reference::to(LoggerInterface::class),
-            Reference::to(Profiler::class),
-            $params['yiisoft/db-sqlite']['dsn']
+            'dsn' => $params['yiisoft/db-sqlite']['dsn']
         ]
     ]
 ];
@@ -149,13 +141,10 @@ web.php:
 
 declare(strict_types=1);
 
-use Psr\Log\LoggerInterface;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
-use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 use Yiisoft\Factory\Definitions\Reference;
-use Yiisoft\Profiler\Profiler;
 
 /**
  * config SqliteConnection::class
@@ -164,10 +153,7 @@ return [
     SqliteConnection::class => [
         '__class' => SqliteConnection::class,
         '__construct()' => [
-            Reference::to(CacheInterface::class),
-            Reference::to(LoggerInterface::class),
-            Reference::to(Profiler::class),
-            $params['yiisoft/db-sqlite']['dsn']
+            'dsn' => $params['yiisoft/db-sqlite']['dsn']
         ]
     ],
 
