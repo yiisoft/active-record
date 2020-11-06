@@ -5,9 +5,6 @@
          verbose="true"
          failOnRisky="true"
          failOnWarning="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
          stopOnFailure="false"
          executionOrder="default"
          resolveDependencies="true">
