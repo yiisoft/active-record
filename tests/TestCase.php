@@ -17,7 +17,7 @@ use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Helper\Dsn;
+use Yiisoft\Db\Connection\Dsn;
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
