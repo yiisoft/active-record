@@ -611,7 +611,7 @@ trait ActiveRelationTrait
      * @param ActiveRecordInterface|array $model
      * @param array $attributes
      *
-     * @return int|string
+     * @return false|int|string
      */
     private function getModelKey($model, array $attributes)
     {

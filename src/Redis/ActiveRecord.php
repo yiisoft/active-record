@@ -110,7 +110,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
      */
-    public function insert(?array $attributes = null): bool
+    public function insert(array $attributes = null): bool
     {
         $db = $this->db;
 
@@ -179,7 +179,7 @@ class ActiveRecord extends BaseActiveRecord
      * ```
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * @param array|string|null $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      * @param array $params
      *
@@ -187,7 +187,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = [], array $params = []): int
+    public function updateAll(array $attributes, $condition = null, array $params = []): int
     {
         $db = $this->db;
 
@@ -278,7 +278,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    public function updateAllCounters(array $counters, $condition = [], array $params = []): int
     {
         if (empty($counters)) {
             return 0;
@@ -310,7 +310,6 @@ class ActiveRecord extends BaseActiveRecord
      * ```
      *
      * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL.
-     * @param array $params
      *
      * @throws JsonException
      *
@@ -318,7 +317,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Please refer to {@see ActiveQuery::where()} on how to specify this parameter.
      */
-    public function deleteAll(?array $condition = null, array $params = []): int
+    public function deleteAll(array $condition = null): int
     {
         $db = $this->db;
 
@@ -345,9 +344,12 @@ class ActiveRecord extends BaseActiveRecord
         return (int) end($result);
     }
 
-    private function fetchPks(?array $condition = []): array
+    /**
+     * @param array|string|null $condition
+     */
+    private function fetchPks($condition = []): array
     {
-        $query = $this->instantiateQuery();
+        $query = $this->instantiateQuery(static::class);
 
         $query->where($condition);
 

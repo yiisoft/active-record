@@ -226,7 +226,7 @@ class ActiveRecord extends BaseActiveRecord
 
     public function refresh(): bool
     {
-        $query = $this->instantiateQuery();
+        $query = $this->instantiateQuery(static::class);
 
         $tableName = key($query->getTablesUsedInFrom());
         $pk = [];
@@ -268,15 +268,15 @@ class ActiveRecord extends BaseActiveRecord
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
-     * to {@see Query::where()} on how to specify this parameter.
+     * @param array|string|null $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = '', array $params = []): int
+    public function updateAll(array $attributes, $condition = null, array $params = []): int
     {
         $command = $this->db->createCommand();
 
@@ -354,7 +354,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows deleted.
      */
-    public function deleteAll(?array $condition = null, array $params = []): int
+    public function deleteAll(array $condition = null, array $params = []): int
     {
         $command = $this->db->createCommand();
         $command->delete($this->tableName(), $condition, $params);
@@ -473,13 +473,11 @@ class ActiveRecord extends BaseActiveRecord
      * This is an internal method meant to be called to create active record objects after fetching data from the
      * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
      *
-     * @param ActiveRecordInterface|array $record the record to be populated. In most cases this will be an instance
-     * created by {@see instantiate()} beforehand.
      * @param array|object $row attribute values (name => value).
      *
      * @throws Exception|InvalidConfigException
      */
-    public function populateRecord($record, $row): void
+    public function populateRecord($row): void
     {
         $columns = $this->getTableSchema()->getColumns();
 
@@ -489,7 +487,7 @@ class ActiveRecord extends BaseActiveRecord
             }
         }
 
-        parent::populateRecord($record, $row);
+        parent::populateRecord($row);
     }
 
     /**
@@ -549,7 +547,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return bool whether the record is inserted successfully.
      */
-    protected function insertInternal(?array $attributes = null): bool
+    protected function insertInternal(array $attributes = null): bool
     {
         $values = $this->getDirtyAttributes($attributes);
 
@@ -605,7 +603,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return bool|int the number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
      * updating process.
      */
-    public function update(?array $attributeNames = null)
+    public function update(array $attributeNames = null)
     {
         if (!$this->isTransactional(self::OP_UPDATE)) {
             return $this->updateInternal($attributeNames);

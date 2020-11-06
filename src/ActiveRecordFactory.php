@@ -39,7 +39,7 @@ final class ActiveRecordFactory extends Factory
      *
      * @return ActiveQueryInterface
      */
-    public function createQueryTo(string $arClass, ?string $queryClass = null): ActiveQueryInterface
+    public function createQueryTo(string $arClass, string $queryClass = null): ActiveQueryInterface
     {
         return $this->create(
             [
@@ -61,7 +61,7 @@ final class ActiveRecordFactory extends Factory
      *
      * @return ActiveQueryInterface
      */
-    public function createRedisQueryTo(string $arClass, ?string $queryClass = null): ActiveQueryInterface
+    public function createRedisQueryTo(string $arClass, string $queryClass = null): ActiveQueryInterface
     {
         return $this->create(
             [

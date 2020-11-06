@@ -343,7 +343,7 @@ EOF;
         return $this->buildHashCondition($condition, $columns);
     }
 
-    private function buildHashCondition($condition, &$columns)
+    private function buildHashCondition(array $condition, array &$columns): string
     {
         $parts = [];
 
@@ -374,7 +374,7 @@ EOF;
         return count($parts) === 1 ? $parts[0] : '(' . implode(') and (', $parts) . ')';
     }
 
-    private function buildNotCondition($operator, $operands, &$params)
+    private function buildNotCondition($operator, $operands, &$params): string
     {
         if (count($operands) !== 1) {
             throw new InvalidParamException("Operator '$operator' requires exactly one operand.");
@@ -389,7 +389,7 @@ EOF;
         return "$operator ($operand)";
     }
 
-    private function buildAndCondition($operator, $operands, &$columns)
+    private function buildAndCondition($operator, $operands, &$columns): string
     {
         $parts = [];
 
@@ -409,7 +409,7 @@ EOF;
         return '';
     }
 
-    private function buildBetweenCondition($operator, $operands, &$columns)
+    private function buildBetweenCondition($operator, $operands, &$columns): string
     {
         if (!isset($operands[0], $operands[1], $operands[2])) {
             throw new Exception("Operator '$operator' requires three operands.");
@@ -426,7 +426,10 @@ EOF;
         return $operator === 'not between' ? "not ($condition)" : $condition;
     }
 
-    private function buildInCondition($operator, $operands, &$columns): string
+    /**
+     * @param (array|mixed)[] $operands
+     */
+    private function buildInCondition(string $operator, array $operands, &$columns): string
     {
         if (!isset($operands[0], $operands[1])) {
             throw new Exception("Operator '$operator' requires two operands.");
@@ -471,7 +474,7 @@ EOF;
         return "$operator(" . implode(' or ', $parts) . ')';
     }
 
-    protected function buildCompositeInCondition($operator, $inColumns, $values, &$columns): string
+    protected function buildCompositeInCondition($operator, array $inColumns, array $values, &$columns): string
     {
         $vss = [];
 
@@ -494,7 +497,7 @@ EOF;
         return "$operator(" . implode(' or ', $vss) . ')';
     }
 
-    private function buildLikeCondition($operator, $operands, &$columns)
+    private function buildLikeCondition($operator, $operands, &$columns): void
     {
         throw new NotSupportedException('LIKE conditions are not suppoerted by redis ActiveRecord.');
     }

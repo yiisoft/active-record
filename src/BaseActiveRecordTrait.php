@@ -96,7 +96,7 @@ trait BaseActiveRecordTrait
      *
      * @throws ReflectionException|InvalidArgumentException if the named relation does not exist.
      *
-     * @return ActiveQueryInterface|null the relational query object. If the relation does not exist and
+     * @return ActiveQuery|null the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
     public function getRelation(string $name, bool $throwException = true): ?ActiveQuery
