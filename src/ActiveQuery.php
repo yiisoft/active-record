@@ -106,7 +106,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private ?ActiveRecordInterface $arInstance = null;
     private ?ActiveRecordFactory $arFactory;
 
-    public function __construct(string $modelClass, ConnectionInterface $db, ?ActiveRecordFactory $arFactory = null)
+    public function __construct(string $modelClass, ConnectionInterface $db, ActiveRecordFactory $arFactory = null)
     {
         $this->arClass = $modelClass;
         $this->arFactory = $arFactory;
@@ -374,7 +374,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return bool|string
+     * @return bool|null|string
      */
     protected function queryScalar($selectExpression)
     {
@@ -1093,8 +1093,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return $this->getARInstanceFactory();
         }
 
-        $new = clone $this;
-        $class = $new->arClass;
+        $class = $this->arClass;
+
         return new $class($this->db);
     }
 

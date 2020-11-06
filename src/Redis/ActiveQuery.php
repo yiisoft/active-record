@@ -188,7 +188,7 @@ class ActiveQuery extends BaseActiveQuery
             $arClass = $row;
         } else {
             $arClass = $this->getARInstance();
-            $arClass->populateRecord($arClass, $row);
+            $arClass->populateRecord($row);
         }
 
         if (!empty($this->getWith())) {
@@ -331,7 +331,7 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @return array|bool|null|string
      */
-    protected function executeScript(string $type, ?string $columnName = null)
+    protected function executeScript(string $type, string $columnName = null)
     {
         if ($this->getPrimaryModel() !== null) {
             /** lazy loading */
@@ -392,7 +392,7 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @return array|bool|null|string
      */
-    private function findByPk(string $type, ?string $columnName = null)
+    private function findByPk(string $type, string $columnName = null)
     {
         $limit = $this->getLimit();
         $offset = $this->getOffset();
