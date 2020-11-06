@@ -93,7 +93,7 @@ jobs:
 
       - name: Install pecl pdo_sqlsrv php 8.0
         if: matrix.php == '8.0'
-        run: pecl install pdo_sqlsrv-5.9.0preview1
+        run: sudo pecl install pdo_sqlsrv-5.9.0preview1
 
       - name: Determine composer cache directory on Linux
         if: matrix.os == 'ubuntu-latest'
