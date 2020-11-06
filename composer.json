@@ -25,9 +25,9 @@
         "yiisoft/strings": "^1.0"
     },
     "require-dev": {
-        "infection/infection": "^0.18",
-        "phpunit/phpunit": "^9.3",
-        "vimeo/psalm": "^4.0",
+        "phpunit/phpunit": "^9.4",
+        "roave/infection-static-analysis-plugin": "^1.3",
+        "vimeo/psalm": "^4.1",
         "yiisoft/aliases": "^1.0",
         "yiisoft/db-mssql": "^1.0@dev",
         "yiisoft/db-mysql": "^3.0@dev",
