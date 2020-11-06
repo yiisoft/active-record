@@ -241,10 +241,7 @@ class TestCase extends AbstractTestCase
             MssqlConnection::class => [
                 '__class' => MssqlConnection::class,
                 '__construct()' => [
-                    Reference::to(CacheInterface::class),
-                    Reference::to(LoggerInterface::class),
-                    Reference::to(Profiler::class),
-                    $params['yiisoft/db-mssql']['dsn']
+                    'dsn' => $params['yiisoft/db-mssql']['dsn']
                 ],
                 'setUsername()' => [$params['yiisoft/db-mssql']['username']],
                 'setPassword()' => [$params['yiisoft/db-mssql']['password']]
@@ -253,10 +250,7 @@ class TestCase extends AbstractTestCase
             MysqlConnection::class => [
                 '__class' => MysqlConnection::class,
                 '__construct()' => [
-                    Reference::to(CacheInterface::class),
-                    Reference::to(LoggerInterface::class),
-                    Reference::to(Profiler::class),
-                    $params['yiisoft/db-mysql']['dsn']
+                    'dsn' => $params['yiisoft/db-mysql']['dsn']
                 ],
                 'setUsername()' => [$params['yiisoft/db-mysql']['username']],
                 'setPassword()' => [$params['yiisoft/db-mysql']['password']]
@@ -265,10 +259,7 @@ class TestCase extends AbstractTestCase
             PgsqlConnection::class => [
                 '__class' => PgsqlConnection::class,
                 '__construct()' => [
-                    Reference::to(CacheInterface::class),
-                    Reference::to(LoggerInterface::class),
-                    Reference::to(Profiler::class),
-                    $params['yiisoft/db-pgsql']['dsn']
+                    'dsn' => $params['yiisoft/db-pgsql']['dsn']
                 ],
                 'setUsername()' => [$params['yiisoft/db-pgsql']['username']],
                 'setPassword()' => [$params['yiisoft/db-pgsql']['password']]
@@ -276,20 +267,13 @@ class TestCase extends AbstractTestCase
 
             RedisConnection::class => [
                 '__class' => RedisConnection::class,
-                '__construct()' => [
-                    Reference::to(EventDispatcherInterface::class),
-                    Reference::to(LoggerInterface::class),
-                ],
                 'database()' => [$params['yiisoft/db-redis']['database']]
             ],
 
             SqliteConnection::class => [
                 '__class' => SqliteConnection::class,
                 '__construct()' => [
-                    Reference::to(CacheInterface::class),
-                    Reference::to(LoggerInterface::class),
-                    Reference::to(Profiler::class),
-                    $params['yiisoft/db-sqlite']['dsn']
+                    'dsn' => $params['yiisoft/db-sqlite']['dsn']
                 ]
             ],
 
@@ -307,19 +291,19 @@ class TestCase extends AbstractTestCase
     {
         return [
             'yiisoft/db-mssql' => [
-                'dsn' => (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->getDsn(),
+                'dsn' => (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
                 'username' => 'SA',
                 'password' => 'YourStrong!Passw0rd',
                 'fixture' => __DIR__ . '/Data/mssql.sql',
             ],
             'yiisoft/db-mysql' => [
-                'dsn' => (new Dsn('mysql', '127.0.0.1', 'yiitest', '3306'))->getDsn(),
+                'dsn' => (new Dsn('mysql', '127.0.0.1', 'yiitest', '3306'))->asString(),
                 'username' => 'root',
                 'password' => 'root',
                 'fixture' => __DIR__ . '/Data/mysql.sql',
             ],
             'yiisoft/db-pgsql' => [
-                'dsn' => (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->getDsn(),
+                'dsn' => (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->asString(),
                 'username' => 'root',
                 'password' => 'root',
                 'fixture' => __DIR__ . '/Data/pgsql.sql',
