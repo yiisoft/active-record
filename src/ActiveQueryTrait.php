@@ -117,7 +117,11 @@ trait ActiveQueryTrait
         $arClassInstance = [];
 
         foreach ($rows as $row) {
-            $arClass = $this->getARInstance()->instantiate($row);
+            $arClass = $this->getARInstance();
+
+            if (method_exists($arClass, 'instantiate')) {
+                $arClass = $arClass->instantiate($row);
+            }
 
             $arClass->populateRecord($row);
 

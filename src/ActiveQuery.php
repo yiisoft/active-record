@@ -596,10 +596,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     $relation = $relations[$fullName];
                 }
 
-                /** @var $relationModelClass ActiveRecordInterface */
-                $relationModelClass = $relation->arClass;
-
-                $primaryModel = new $relationModelClass($this->db);
+                $primaryModel = $relation->getARInstance();
 
                 $parent = $relation;
                 $prefix = $fullName;
