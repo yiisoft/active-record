@@ -913,28 +913,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $this->relationsDependencies = [];
     }
 
-    /**
-     * Creates an active record instance.
-     *
-     * This method is called together with {@see populateRecord()} by {@see ActiveQuery}.
-     *
-     * It is not meant to be used for creating new records directly.
-     *
-     * @param ActiveRecordInterface|array $row the row data to be populated.
-     *
-     * You may override this method if the instance being created depends on the row data to be populated into the
-     * record.
-     *
-     * For example, by creating a record based on the value of a column, you may implement the so-called single-table
-     * inheritance mapping.
-     *
-     * @return ActiveRecordInterface the newly created active record
-     */
-    public function instantiate($row): ActiveRecordInterface
-    {
-        return new static($this->db);
-    }
-
     public function instantiateQuery(string $arClass): ActiveQueryInterface
     {
         if ($this->db->getDriverName() === 'redis') {

@@ -8,6 +8,8 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ProfileWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer as RedisCustomer;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\CustomerQuery as RedisCustomerQuery;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
@@ -18,6 +20,8 @@ use Yiisoft\Db\Redis\Connection as RedisConnection;
  */
 final class ActiveRecordFactoryTest extends TestCase
 {
+    protected string $driverName = 'sqlite';
+
     public function testCreateAR(): void
     {
         $customerAR = $this->arFactory->createAR(Customer::class);
@@ -67,5 +71,15 @@ final class ActiveRecordFactoryTest extends TestCase
         $connection = $this->arFactory->getConnection();
 
         $this->assertInstanceOf(RedisConnection::class, $connection);
+    }
+
+    public function testGetArInstanceWithConstructor(): void
+    {
+        $this->checkFixture($this->sqliteConnection, 'customer', true);
+
+        $query = $this->arFactory->createQueryTo(CustomerWithConstructor::class);
+        $customer = $query->one();
+
+        $this->assertNotNull($customer->profile);
     }
 }
