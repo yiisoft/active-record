@@ -308,29 +308,29 @@ abstract class ActiveRecordTest extends TestCase
     public function illegalValuesForFindByCondition(): array
     {
         return [
-            [Customer::class, ['id' => ['`id`=`id` and 1' => 1]]],
-            [Customer::class, ['id' => [
+            [Customer::class, [['`id`=`id` and 1' => 1]]],
+            [Customer::class, [[
                 'legal' => 1,
                 '`id`=`id` and 1' => 1,
             ]]],
-            [Customer::class, ['id' => [
+            [Customer::class, [[
                 'nested_illegal' => [
                     'false or 1=' => 1
                 ]
             ]]],
             [Customer::class, [['true--' => 1]]],
 
-            [CustomerWithAlias::class, ['csr.id' => ['`csr`.`id`=`csr`.`id` and 1' => 1]]],
-            [CustomerWithAlias::class, ['csr.id' => [
+            [CustomerWithAlias::class, [['`csr`.`id`=`csr`.`id` and 1' => 1]]],
+            [CustomerWithAlias::class, [[
                 'legal' => 1,
                 '`csr`.`id`=`csr`.`id` and 1' => 1,
             ]]],
-            [CustomerWithAlias::class, ['csr.id' => [
+            [CustomerWithAlias::class, [[
                 'nested_illegal' => [
                     'false or 1=' => 1
                 ]
             ]]],
-            [CustomerWithAlias::class, [['true--' => 1]]],
+            [CustomerWithAlias::class, [['true--' => 1]]]
         ];
     }
 
