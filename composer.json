@@ -22,13 +22,13 @@
         "ext-json": "*",
         "yiisoft/arrays": "^3.0@dev",
         "yiisoft/db": "^3.0@dev",
-        "yiisoft/strings": "^1.0"
+        "yiisoft/strings": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.4",
-        "roave/infection-static-analysis-plugin": "^1.3",
+        "roave/infection-static-analysis-plugin": "^1.4",
         "vimeo/psalm": "^4.1",
-        "yiisoft/aliases": "^1.0",
+        "yiisoft/aliases": "^1.1",
         "yiisoft/db-mssql": "^1.0@dev",
         "yiisoft/db-mysql": "^3.0@dev",
         "yiisoft/db-pgsql": "^3.0@dev",
