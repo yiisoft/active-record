@@ -4,15 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use ReflectionException;
-use ReflectionMethod;
-use Throwable;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\ArrayExpression;
-use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-
 use function array_combine;
 use function array_keys;
 use function array_merge;
@@ -21,14 +12,23 @@ use function array_values;
 use function count;
 use function get_class;
 use function is_array;
+
 use function is_object;
 use function is_scalar;
 use function is_string;
 use function key;
 use function lcfirst;
 use function method_exists;
+use ReflectionException;
+use ReflectionMethod;
 use function reset;
 use function serialize;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ArrayExpression;
 
 /**
  * ActiveRelationTrait implements the common methods and properties for active record relational queries.
@@ -178,7 +178,7 @@ trait ActiveRelationTrait
      * @param string $name the relation name.
      * @param ActiveRecordInterface $model the primary model.
      *
-     * @throws Exception|InvalidConfigException|Throwable|ReflectionException|InvalidArgumentException if the relation
+     * @throws Exception|InvalidArgumentException|InvalidConfigException|ReflectionException|Throwable if the relation
      * is invalid.
      *
      * @return mixed the related record(s).
@@ -236,11 +236,11 @@ trait ActiveRelationTrait
      * @param string $name the relation name
      * @param array $primaryModels primary models
      *
-     * @return array the related models
-     * @throws InvalidArgumentException|NotSupportedException|Throwable|InvalidConfigException if {@see link()} is
+     * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable if {@see link()} is
      * invalid.
-     *
      * @throws Exception
+     *
+     * @return array the related models
      */
     public function populateRelation(string $name, array &$primaryModels): array
     {
@@ -494,7 +494,7 @@ trait ActiveRelationTrait
      * Indexes buckets by column name.
      *
      * @param array $buckets
-     * @param string|callable $indexBy the name of the column by which the query results should be indexed by. This can
+     * @param callable|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a callable (e.g. anonymous function) that returns the index value based on the given row data.
      *
      * @return array

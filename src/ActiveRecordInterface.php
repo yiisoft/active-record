@@ -54,6 +54,7 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the record has an attribute with the specified name.
      *
      * @param string $name the name of the attribute.
+     *
      * @return bool whether the record has an attribute with the specified name.
      */
     public function hasAttribute(string $name): bool;
@@ -196,7 +197,7 @@ interface ActiveRecordInterface
      * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @return int|bool the number of rows affected, or `false` if validation fails or updating process is stopped for
+     * @return bool|int the number of rows affected, or `false` if validation fails or updating process is stopped for
      * other reasons.
      *
      * Note that it is possible that the number of rows affected is 0, even though the update execution is successful.
@@ -206,7 +207,7 @@ interface ActiveRecordInterface
     /**
      * Deletes the record from the database.
      *
-     * @return int|bool the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * @return bool|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      *
      * Note that it is possible that the number of rows deleted is 0, even though the deletion execution is successful.
      */

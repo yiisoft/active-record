@@ -12,7 +12,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  *
  * @property int $id
  * @property string $title
- *
  * @property Employee[] $employees
  */
 final class Department extends ActiveRecord
