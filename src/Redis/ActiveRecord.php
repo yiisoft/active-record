@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Redis;
 
-use JsonException;
-use Yiisoft\ActiveRecord\BaseActiveRecord;
-use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Strings\Inflector;
-use Yiisoft\Strings\StringHelper;
-
 use function count;
 use function ctype_alnum;
 use function end;
 use function implode;
 use function is_array;
 use function is_bool;
+
 use function is_numeric;
 use function is_string;
 use function json_encode;
+use JsonException;
 use function ksort;
 use function md5;
 use function reset;
+use Yiisoft\ActiveRecord\BaseActiveRecord;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Strings\Inflector;
+use Yiisoft\Strings\StringHelper;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -380,7 +380,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @throws JsonException
      *
-     * @return string|int the generated key.
+     * @return int|string the generated key.
      */
     public function buildKey($key)
     {

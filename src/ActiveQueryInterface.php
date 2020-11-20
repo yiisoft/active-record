@@ -24,7 +24,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return ActiveQueryInterface the query object itself.
      */
-    public function asArray(?bool $value = true): ActiveQueryInterface;
+    public function asArray(?bool $value = true): self;
 
     /**
      * Executes query and returns a single row of result.
@@ -38,7 +38,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Sets the {@see indexBy} property.
      *
-     * @param string|callable $column the name of the column by which the query results should be indexed by.
+     * @param callable|string $column the name of the column by which the query results should be indexed by.
      *
      * This can also be a callable (e.g. anonymous function) that returns the index value based on the given row or
      * model data. The signature of the callable should be:
