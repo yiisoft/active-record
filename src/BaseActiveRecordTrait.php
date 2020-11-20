@@ -4,26 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use function array_key_exists;
 use ArrayAccess;
 use ArrayIterator;
 use Error;
 use Exception;
 use IteratorAggregate;
+use function lcfirst;
+use function method_exists;
+use function property_exists;
 use ReflectionException;
 use ReflectionMethod;
+use function substr;
+
 use Throwable;
+use function ucfirst;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-
-use function array_key_exists;
-use function get_class;
-use function lcfirst;
-use function method_exists;
-use function property_exists;
-use function substr;
-use function ucfirst;
 
 trait BaseActiveRecordTrait
 {
@@ -77,10 +76,10 @@ trait BaseActiveRecordTrait
         }
 
         if (method_exists($this, 'set' . ucfirst($name))) {
-            throw new InvalidCallException('Getting write-only property: ' . get_class($this) . '::' . $name);
+            throw new InvalidCallException('Getting write-only property: ' . static::class . '::' . $name);
         }
 
-        throw new UnknownPropertyException('Getting unknown property: ' . get_class($this) . '::' . $name);
+        throw new UnknownPropertyException('Getting unknown property: ' . static::class . '::' . $name);
     }
 
     /**
@@ -94,7 +93,7 @@ trait BaseActiveRecordTrait
      * (case-sensitive).
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
-     * @throws ReflectionException|InvalidArgumentException if the named relation does not exist.
+     * @throws InvalidArgumentException|ReflectionException if the named relation does not exist.
      *
      * @return ActiveQuery|null the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
@@ -108,7 +107,7 @@ trait BaseActiveRecordTrait
             $relation = $this->$getter();
         } catch (Error $e) {
             if ($throwException) {
-                throw new InvalidArgumentException(get_class($this) . ' has no relation named "' . $name . '".');
+                throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
             }
 
             return null;
@@ -116,7 +115,7 @@ trait BaseActiveRecordTrait
 
         if (!$relation instanceof ActiveQueryInterface) {
             if ($throwException) {
-                throw new InvalidArgumentException(get_class($this) . ' has no relation named "' . $name . '".');
+                throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
             }
 
             return null;
@@ -130,7 +129,7 @@ trait BaseActiveRecordTrait
             if ($realName !== $name) {
                 if ($throwException) {
                     throw new InvalidArgumentException(
-                        'Relation names are case sensitive. ' . get_class($this)
+                        'Relation names are case sensitive. ' . static::class
                         . " has a relation named \"$realName\" instead of \"$name\"."
                     );
                 }
@@ -202,7 +201,7 @@ trait BaseActiveRecordTrait
         }
 
         if (method_exists($this, 'get' . ucfirst($name))) {
-            throw new InvalidCallException('Setting read-only property: ' . get_class($this) . '::' . $name);
+            throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
     }
 

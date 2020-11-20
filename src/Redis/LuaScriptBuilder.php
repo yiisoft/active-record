@@ -4,15 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Redis;
 
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidParamException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\Expression;
-
 use function addcslashes;
 use function array_shift;
 use function count;
 use function implode;
+
 use function is_array;
 use function is_bool;
 use function is_int;
@@ -22,6 +18,10 @@ use function key;
 use function preg_replace;
 use function reset;
 use function strtolower;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidParamException;
+use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\Expression;
 
 /**
  * LuaScriptBuilder builds lua scripts used for retrieving data from redis.
@@ -76,7 +76,7 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=n+1 pks[n]=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ")",
+            "n=n+1 pks[n]=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ')',
             'pks'
         );
     }
@@ -109,7 +109,7 @@ final class LuaScriptBuilder
     {
         $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
 
-        return $this->build($query, "n=n+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ")", 'n');
+        return $this->build($query, "n=n+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ')', 'n');
     }
 
     /**
@@ -128,7 +128,7 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=n+1 if v==nil then v=0 end v=v+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ")",
+            "n=n+1 if v==nil then v=0 end v=v+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ')',
             'v/n'
         );
     }
@@ -149,7 +149,7 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ") if v==nil or n<v then v=n end",
+            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ') if v==nil or n<v then v=n end',
             'v'
         );
     }
@@ -170,7 +170,7 @@ final class LuaScriptBuilder
 
         return $this->build(
             $query,
-            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ") if v==nil or n>v then v=n end",
+            "n=redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ') if v==nil or n>v then v=n end',
             'v'
         );
     }
@@ -271,7 +271,7 @@ EOF;
             return $columns[$column];
         }
 
-        $name = 'c' . preg_replace("/[^a-z]+/i", "", $column) . count($columns);
+        $name = 'c' . preg_replace('/[^a-z]+/i', '', $column) . count($columns);
 
         return $columns[$column] = $name;
     }
@@ -281,9 +281,9 @@ EOF;
      *
      * Note that if the parameter is not a string or int, it will be returned without change.
      *
-     * @param string|int $str string to be quoted.
+     * @param int|string $str string to be quoted.
      *
-     * @return string|int the properly quoted string.
+     * @return int|string the properly quoted string.
      */
     private function quoteValue($str)
     {
@@ -297,7 +297,7 @@ EOF;
     /**
      * Parses the condition specification and generates the corresponding Lua expression.
      *
-     * @param string|array $condition the condition specification. Please refer to {@see ActiveQuery::where()} on how
+     * @param array|string $condition the condition specification. Please refer to {@see ActiveQuery::where()} on how
      * to specify a condition.
      * @param array $columns the list of columns and aliases to be used.
      *
@@ -357,7 +357,7 @@ EOF;
                 }
 
                 if ($value === null) {
-                    $parts[] = "redis.call('HEXISTS',key .. ':a:' .. pk, " . $this->quoteValue($column) . ")==0";
+                    $parts[] = "redis.call('HEXISTS',key .. ':a:' .. pk, " . $this->quoteValue($column) . ')==0';
                 } elseif ($value instanceof Expression) {
                     $column = $this->addColumn($column, $columns);
 
@@ -460,7 +460,7 @@ EOF;
             }
 
             if ($value === null) {
-                $parts[] = "redis.call('HEXISTS',key .. ':a:' .. pk, " . $this->quoteValue($column) . ")==0";
+                $parts[] = "redis.call('HEXISTS',key .. ':a:' .. pk, " . $this->quoteValue($column) . ')==0';
             } elseif ($value instanceof Expression) {
                 $parts[] = "$columnAlias==" . $value->getExpression();
             } else {
@@ -485,7 +485,7 @@ EOF;
                     $columnAlias = $this->addColumn($column, $columns);
                     $vs[] = "$columnAlias==" . $this->quoteValue($value[$column]);
                 } else {
-                    $vs[] = "redis.call('HEXISTS',key .. ':a:' .. pk, " . $this->quoteValue($column) . ")==0";
+                    $vs[] = "redis.call('HEXISTS',key .. ':a:' .. pk, " . $this->quoteValue($column) . ')==0';
                 }
             }
 

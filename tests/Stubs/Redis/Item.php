@@ -21,7 +21,7 @@ final class Item extends ActiveRecord
         return [
             'id',
             'name',
-            'category_id'
+            'category_id',
         ];
     }
 

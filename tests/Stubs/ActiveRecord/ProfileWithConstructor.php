@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\Aliases\Aliases;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\Aliases\Aliases;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
