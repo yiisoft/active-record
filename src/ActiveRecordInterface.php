@@ -54,6 +54,7 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the record has an attribute with the specified name.
      *
      * @param string $name the name of the attribute.
+     *
      * @return bool whether the record has an attribute with the specified name.
      */
     public function hasAttribute(string $name): bool;
@@ -196,7 +197,7 @@ interface ActiveRecordInterface
      * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @return int|bool the number of rows affected, or `false` if validation fails or updating process is stopped for
+     * @return bool|int the number of rows affected, or `false` if validation fails or updating process is stopped for
      * other reasons.
      *
      * Note that it is possible that the number of rows affected is 0, even though the update execution is successful.
@@ -206,7 +207,7 @@ interface ActiveRecordInterface
     /**
      * Deletes the record from the database.
      *
-     * @return int|bool the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * @return bool|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      *
      * Note that it is possible that the number of rows deleted is 0, even though the deletion execution is successful.
      */
@@ -228,7 +229,7 @@ interface ActiveRecordInterface
      *
      * @return bool whether the two active records refer to the same row in the same database table.
      */
-    public function equals(ActiveRecordInterface $record): bool;
+    public function equals(self $record): bool;
 
     /**
      * Returns the relation object with the specified name.
@@ -275,7 +276,7 @@ interface ActiveRecordInterface
      * meaningful for a relationship involving a junction table (i.e., a relation set with
      * {@see ActiveQueryInterface::via()}).
      */
-    public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void;
+    public function link(string $name, self $arClass, array $extraColumns = []): void;
 
     /**
      * Destroys the relationship between two records.
@@ -291,5 +292,5 @@ interface ActiveRecordInterface
      * If false, the active record's foreign key will be set `null` and saved.
      * If true, the active record containing the foreign key will be deleted.
      */
-    public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void;
+    public function unlink(string $name, self $arClass, bool $delete = false): void;
 }

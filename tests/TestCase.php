@@ -4,13 +4,19 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use function array_merge;
+use function explode;
+use function file_get_contents;
 use PHPUnit\Framework\TestCase as AbstractTestCase;
+use function preg_replace;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
 use ReflectionObject;
+use function str_replace;
+use function trim;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
 use Yiisoft\Cache\ArrayCache;
@@ -24,19 +30,13 @@ use Yiisoft\Db\Mysql\Connection as MysqlConnection;
 use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
+
 use Yiisoft\Di\Container;
-use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\Provider;
+use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
-
-use function array_merge;
-use function explode;
-use function file_get_contents;
-use function preg_replace;
-use function str_replace;
-use function trim;
 
 class TestCase extends AbstractTestCase
 {
@@ -76,7 +76,7 @@ class TestCase extends AbstractTestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 1,
-                'profile_id', 1
+                'profile_id', 1,
             ]
         );
         $customer->save();
@@ -88,7 +88,7 @@ class TestCase extends AbstractTestCase
                 'name' => 'user2',
                 'address' => 'address2',
                 'status' => 1,
-                'profile_id' => null
+                'profile_id' => null,
             ]
         );
         $customer->save();
@@ -100,7 +100,7 @@ class TestCase extends AbstractTestCase
                 'name' => 'user3',
                 'address' => 'address3',
                 'status' => 2,
-                'profile_id' => 2
+                'profile_id' => 2,
             ]
         );
         $customer->save();
@@ -221,8 +221,8 @@ class TestCase extends AbstractTestCase
             CacheInterface::class => [
                 '__class' => Cache::class,
                 '__construct()' => [
-                    Reference::to(ArrayCache::class)
-                ]
+                    Reference::to(ArrayCache::class),
+                ],
             ],
 
             LoggerInterface::class => Logger::class,
@@ -230,8 +230,8 @@ class TestCase extends AbstractTestCase
             Profiler::class => [
                 '__class' => Profiler::class,
                 '__construct()' => [
-                    Reference::to(LoggerInterface::class)
-                ]
+                    Reference::to(LoggerInterface::class),
+                ],
             ],
 
             ListenerProviderInterface::class => Provider::class,
@@ -241,40 +241,40 @@ class TestCase extends AbstractTestCase
             MssqlConnection::class => [
                 '__class' => MssqlConnection::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-mssql']['dsn']
+                    'dsn' => $params['yiisoft/db-mssql']['dsn'],
                 ],
                 'setUsername()' => [$params['yiisoft/db-mssql']['username']],
-                'setPassword()' => [$params['yiisoft/db-mssql']['password']]
+                'setPassword()' => [$params['yiisoft/db-mssql']['password']],
             ],
 
             MysqlConnection::class => [
                 '__class' => MysqlConnection::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-mysql']['dsn']
+                    'dsn' => $params['yiisoft/db-mysql']['dsn'],
                 ],
                 'setUsername()' => [$params['yiisoft/db-mysql']['username']],
-                'setPassword()' => [$params['yiisoft/db-mysql']['password']]
+                'setPassword()' => [$params['yiisoft/db-mysql']['password']],
             ],
 
             PgsqlConnection::class => [
                 '__class' => PgsqlConnection::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-pgsql']['dsn']
+                    'dsn' => $params['yiisoft/db-pgsql']['dsn'],
                 ],
                 'setUsername()' => [$params['yiisoft/db-pgsql']['username']],
-                'setPassword()' => [$params['yiisoft/db-pgsql']['password']]
+                'setPassword()' => [$params['yiisoft/db-pgsql']['password']],
             ],
 
             RedisConnection::class => [
                 '__class' => RedisConnection::class,
-                'database()' => [$params['yiisoft/db-redis']['database']]
+                'database()' => [$params['yiisoft/db-redis']['database']],
             ],
 
             SqliteConnection::class => [
                 '__class' => SqliteConnection::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-sqlite']['dsn']
-                ]
+                    'dsn' => $params['yiisoft/db-sqlite']['dsn'],
+                ],
             ],
 
             ActiveRecordFactory::class => [
@@ -313,8 +313,8 @@ class TestCase extends AbstractTestCase
             ],
             'yiisoft/db-sqlite' => [
                 'dsn' => 'sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3',
-                'fixture' => __DIR__ . '/Data/sqlite.sql'
-            ]
+                'fixture' => __DIR__ . '/Data/sqlite.sql',
+            ],
         ];
     }
 }
