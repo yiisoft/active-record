@@ -4,7 +4,22 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use function array_merge;
+use function array_values;
+use function count;
+use function get_class;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_string;
+use function preg_match;
 use ReflectionException;
+use function reset;
+
+use function serialize;
+use function strpos;
+use function substr;
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\Command;
@@ -16,21 +31,6 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
-
-use function array_merge;
-use function array_values;
-use function count;
-use function get_class;
-use function implode;
-use function in_array;
-use function is_array;
-use function is_int;
-use function is_string;
-use function preg_match;
-use function reset;
-use function serialize;
-use function strpos;
-use function substr;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.
@@ -122,7 +122,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return array|ActiveRecord[] the query results. If the query results in nothing, an empty array will be returned.
+     * @return ActiveRecord[]|array the query results. If the query results in nothing, an empty array will be returned.
      */
     public function all(): array
     {
@@ -370,11 +370,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * Restores the value of select to make this query reusable.
      *
-     * @param string|ExpressionInterface $selectExpression
+     * @param ExpressionInterface|string $selectExpression
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return bool|null|string
+     * @return bool|string|null
      */
     protected function queryScalar($selectExpression)
     {
@@ -406,7 +406,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * This method differs from {@see with()} in that it will build up and execute a JOIN SQL statement  for the primary
      * table. And when `$eagerLoading` is true, it will call {@see with()} in addition with the specified relations.
      *
-     * @param string|array $with the relations to be joined. This can either be a string, representing a relation name
+     * @param array|string $with the relations to be joined. This can either be a string, representing a relation name
      * or an array with the following semantics:
      *
      * - Each array element represents a single relation.
@@ -437,12 +437,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * $order = new ActiveQuery(Order::class, $db);
      * $orderQuery->joinWith(['books b'], true, 'INNER JOIN')->where(['b.category' => 'Science fiction'])->all();
      * ```
-     *
-     * @param bool|array $eagerLoading whether to eager load the relations specified in `$with`. When this is a boolean,
+     * @param array|bool $eagerLoading whether to eager load the relations specified in `$with`. When this is a boolean,
      * it applies to all relations specified in `$with`. Use an array to explicitly list which relations in `$with` need
      * to be eagerly loaded.  Note, that this does not mean, that the relations are populated from the query result. An
      * extra query will still be performed to bring in the related data. Defaults to `true`.
-     * @param string|array $joinType the join type of the relations specified in `$with`.  When this is a string, it
+     * @param array|string $joinType the join type of the relations specified in `$with`.  When this is a string, it
      * applies to all relations specified in `$with`. Use an array in the format of `relationName => joinType` to
      * specify different join types for different relations.
      *
@@ -549,8 +548,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * This is a shortcut method to {@see joinWith()} with the join type set as "INNER JOIN". Please refer to
      * {@see joinWith()} for detailed usage of this method.
      *
-     * @param string|array $with the relations to be joined with.
-     * @param bool|array $eagerLoading whether to eager load the relations. Note, that this does not mean, that the
+     * @param array|string $with the relations to be joined with.
+     * @param array|bool $eagerLoading whether to eager load the relations. Note, that this does not mean, that the
      * relations are populated from the query result. An extra query will still be performed to bring in the related
      * data.
      *
@@ -568,7 +567,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param ActiveRecordInterface $arClass the primary model.
      * @param array $with the relations to be joined.
-     * @param string|array $joinType the join type.
+     * @param array|string $joinType the join type.
      */
     private function joinWithRelations(ActiveRecordInterface $arClass, array $with, $joinType): void
     {
@@ -624,7 +623,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Returns the join type based on the given join type parameter and the relation name.
      *
-     * @param string|array $joinType the given join type(s).
+     * @param array|string $joinType the given join type(s).
      * @param string $name relation name.
      *
      * @return string the real join type.
@@ -676,7 +675,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveQuery $child
      * @param string $joinType
      */
-    private function joinWithRelation(ActiveQuery $parent, ActiveQuery $child, string $joinType): void
+    private function joinWithRelation(self $parent, self $child, string $joinType): void
     {
         $via = $child->via;
         $child->via = null;
@@ -779,7 +778,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * fields of the related table can be used in the condition. Trying to access fields of the primary record will
      * cause an error in a non-join-query.
      *
-     * @param string|array $condition the ON condition. Please refer to {@see Query::where()} on how to specify this
+     * @param array|string $condition the ON condition. Please refer to {@see Query::where()} on how to specify this
      * parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
@@ -799,7 +798,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * The new condition and the existing one will be joined using the 'AND' operator.
      *
-     * @param string|array $condition the new ON condition. Please refer to {@see where()} on how to specify this
+     * @param array|string $condition the new ON condition. Please refer to {@see where()} on how to specify this
      * parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
@@ -826,7 +825,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * The new condition and the existing one will be joined using the 'OR' operator.
      *
-     * @param string|array $condition the new ON condition. Please refer to {@see where()} on how to specify this
+     * @param array|string $condition the new ON condition. Please refer to {@see where()} on how to specify this
      * parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
@@ -941,7 +940,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * @return string|array the join condition to be used when this query is used in a relational context.
+     * @return array|string the join condition to be used when this query is used in a relational context.
      *
      * The condition will be used in the ON part when {@see ActiveQuery::joinWith()} is called. Otherwise, the condition
      * will be used in the WHERE part of a query.

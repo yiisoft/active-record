@@ -13,15 +13,15 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Query\Query;
 
 abstract class ActiveRecordTest extends TestCase
@@ -188,7 +188,7 @@ abstract class ActiveRecordTest extends TestCase
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass =  new ActiveQuery(Type::class, $this->db);
+        $aqClass = new ActiveQuery(Type::class, $this->db);
         $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
@@ -315,8 +315,8 @@ abstract class ActiveRecordTest extends TestCase
             ]]],
             [Customer::class, [[
                 'nested_illegal' => [
-                    'false or 1=' => 1
-                ]
+                    'false or 1=' => 1,
+                ],
             ]]],
             [Customer::class, [['true--' => 1]]],
 
@@ -327,10 +327,10 @@ abstract class ActiveRecordTest extends TestCase
             ]]],
             [CustomerWithAlias::class, [[
                 'nested_illegal' => [
-                    'false or 1=' => 1
-                ]
+                    'false or 1=' => 1,
+                ],
             ]]],
-            [CustomerWithAlias::class, [['true--' => 1]]]
+            [CustomerWithAlias::class, [['true--' => 1]]],
         ];
     }
 
