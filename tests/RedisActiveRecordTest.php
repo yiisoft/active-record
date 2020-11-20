@@ -9,6 +9,7 @@ use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Redis\ActiveQuery;
 use Yiisoft\ActiveRecord\Redis\LuaScriptBuilder;
+use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Dummy;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Item;
@@ -181,7 +182,7 @@ abstract class RedisActiveRecordTest extends TestCase
                 'name' => 'user4',
                 'address' => 'address4',
                 'status' => 1,
-                'profile_id' => null,
+                'profile_id' => null
             ]
         );
 
@@ -196,7 +197,7 @@ abstract class RedisActiveRecordTest extends TestCase
                 'name' => 'user5',
                 'address' => 'address5',
                 'status' => 1,
-                'profile_id' => null,
+                'profile_id' => null
             ]
         );
 
@@ -212,7 +213,7 @@ abstract class RedisActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 1,
-                'profile_id' => null,
+                'profile_id' => null
             ]
         );
 
@@ -227,7 +228,7 @@ abstract class RedisActiveRecordTest extends TestCase
                 'name' => 'user6',
                 'address' => 'address6',
                 'status' => 1,
-                'profile_id' => null,
+                'profile_id' => null
             ]
         );
 
@@ -280,8 +281,8 @@ abstract class RedisActiveRecordTest extends TestCase
             ]], ["'`id`=`id` and 1'", 'ididand']],
             [['id' => [
                 'nested_illegal' => [
-                    'false or 1=' => 1,
-                ],
+                    'false or 1=' => 1
+                ]
             ]], [], ['false or 1=']],
 
             /** custom condition injection */
@@ -298,7 +299,7 @@ abstract class RedisActiveRecordTest extends TestCase
             [['id' => [
                 'name' => 'test',
                 'email' => 'test@example.com',
-                "' .. redis.call('FLUSHALL') .. '" => "' .. redis.call('FLUSHALL') .. '",
+                "' .. redis.call('FLUSHALL') .. '" => "' .. redis.call('FLUSHALL') .. '"
             ]], ["'\\' .. redis.call(\\'FLUSHALL\\') .. \\'", 'rediscallFLUSHALL'], ["' .. redis.call('FLUSHALL') .. '"]],
         ];
     }
@@ -310,7 +311,7 @@ abstract class RedisActiveRecordTest extends TestCase
      * @param array $expectedStrings
      * @param array $unexpectedStrings
      *
-     * @throws Exception|InvalidConfigException|JsonException|NotSupportedException|ReflectionException
+     * @throws Exception|InvalidConfigException|NotSupportedException|JsonException|ReflectionException
      * @throws InvalidParamException
      */
     public function testValueEscapingInFindByCondition(

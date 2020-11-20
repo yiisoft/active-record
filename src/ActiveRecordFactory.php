@@ -24,7 +24,7 @@ final class ActiveRecordFactory extends Factory
     {
         return $this->create(
             [
-                '__class' => $arClass,
+                '__class' => $arClass
             ]
         );
     }
@@ -45,8 +45,8 @@ final class ActiveRecordFactory extends Factory
             [
                 '__class' => $queryClass ?? ActiveQuery::class,
                 '__construct()' => [
-                    $arClass,
-                ],
+                    $arClass
+                ]
             ]
         );
     }
@@ -67,8 +67,8 @@ final class ActiveRecordFactory extends Factory
             [
                 '__class' => $queryClass ?? RedisActiveQuery::class,
                 '__construct()' => [
-                    $arClass,
-                ],
+                    $arClass
+                ]
             ]
         );
     }
@@ -77,9 +77,9 @@ final class ActiveRecordFactory extends Factory
      * Allows you to configure the connection that will be used in the factory, through
      * {@see ConnectionInterface::class}.
      *
-     * @param ConnectionInterface $connection connection defined in container-di.
-     *
      * @throws InvalidConfigException
+     *
+     * @param ConnectionInterface $connection connection defined in container-di.
      */
     public function withConnection(ConnectionInterface $connection): void
     {

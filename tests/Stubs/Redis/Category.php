@@ -19,7 +19,7 @@ final class Category extends ActiveRecord
     {
         return [
             'id',
-            'name',
+            'name'
         ];
     }
 

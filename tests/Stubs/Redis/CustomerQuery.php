@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\Redis\ActiveQuery;
 
 final class CustomerQuery extends ActiveQuery
 {
-    public function active(): self
+    public function active(): CustomerQuery
     {
         $this->andWhere(['status' => 1]);
 

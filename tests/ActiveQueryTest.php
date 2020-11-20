@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ReflectionException;
-use function sort;
 use Throwable;
-use function ucfirst;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -17,21 +15,23 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\Command;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+
+use function sort;
+use function ucfirst;
 
 abstract class ActiveQueryTest extends TestCase
 {
@@ -144,12 +144,12 @@ abstract class ActiveQueryTest extends TestCase
             [
                 'INNER JOIN',
                 'order',
-                '{{customer}}.[[id]] = {{order}}.[[customer_id]]',
+                '{{customer}}.[[id]] = {{order}}.[[customer_id]]'
             ],
             [
                 'LEFT JOIN',
                 'order_item',
-                '{{order}}.[[id]] = {{order_item}}.[[order_id]]',
+                '{{order}}.[[id]] = {{order_item}}.[[order_id]]'
             ],
         ], $query->getJoin());
     }
@@ -493,7 +493,7 @@ abstract class ActiveQueryTest extends TestCase
             [
                 'customer' => function ($query) {
                     $query->where('{{customer}}.[[id]]=2');
-                },
+                }
             ]
         )->orderBy('order.id')->all();
         $this->assertCount(2, $orders);
@@ -508,7 +508,7 @@ abstract class ActiveQueryTest extends TestCase
             [
                 'customer' => function ($query) {
                     $query->where(['customer.id' => 2]);
-                },
+                }
             ]
         )->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
@@ -565,7 +565,7 @@ abstract class ActiveQueryTest extends TestCase
                 },
                 'items.category' => function ($q) {
                     $q->where('{{category}}.[[id]] = 2');
-                },
+                }
             ]
         )->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
@@ -784,7 +784,7 @@ abstract class ActiveQueryTest extends TestCase
     public function aliasMethodProvider(): array
     {
         return [
-            ['explicit'],
+            ['explicit']
         ];
     }
 
@@ -914,7 +914,7 @@ abstract class ActiveQueryTest extends TestCase
                     } elseif ($aliasMethod === 'applyAlias') {
                         $q->where([$q->applyAlias('category', 'id') => 2]);
                     }
-                },
+                }
             ]
         );
 
@@ -1021,7 +1021,7 @@ abstract class ActiveQueryTest extends TestCase
                     } elseif ($aliasMethod === 'applyAlias') {
                         $q->where([$q->applyAlias('category', 'id') => 2]);
                     }
-                },
+                }
             ]
         )->orderBy('order.id')->all();
 
@@ -1773,12 +1773,12 @@ abstract class ActiveQueryTest extends TestCase
     public function filterTableNamesFromAliasesProvider(): array
     {
         return [
-            'table name as string' => ['customer', []],
-            'table name as array' => [['customer'], []],
-            'table names' => [['customer', 'order'], []],
+            'table name as string'         => ['customer', []],
+            'table name as array'          => [['customer'], []],
+            'table names'                  => [['customer', 'order'], []],
             'table name and a table alias' => [['customer', 'ord' => 'order'], ['ord']],
-            'table alias' => [['csr' => 'customer'], ['csr']],
-            'table aliases' => [['csr' => 'customer', 'ord' => 'order'], ['csr', 'ord']],
+            'table alias'                  => [['csr' => 'customer'], ['csr']],
+            'table aliases'                => [['csr' => 'customer', 'ord' => 'order'], ['csr', 'ord']],
         ];
     }
 
@@ -2007,11 +2007,11 @@ abstract class ActiveQueryTest extends TestCase
 
         $bitValueQuery = new ActiveQuery(BitValues::class, $this->db);
         $falseBit = $bitValueQuery->findOne(1);
-        $this->assertFalse($falseBit->val);
+        $this->assertEquals(false, $falseBit->val);
 
         $bitValueQuery = new ActiveQuery(BitValues::class, $this->db);
         $trueBit = $bitValueQuery->findOne(2);
-        $this->assertTrue($trueBit->val);
+        $this->assertEquals(true, $trueBit->val);
     }
 
     public function testUpdateAttributes(): void

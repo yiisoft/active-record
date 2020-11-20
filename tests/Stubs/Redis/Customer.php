@@ -39,7 +39,7 @@ final class Customer extends ActiveRecord
             'name',
             'email',
             'address',
-            'status',
+            'status'
         ];
     }
 

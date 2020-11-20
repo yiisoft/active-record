@@ -4,17 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function array_diff;
-use function array_fill_keys;
-use function array_keys;
-use function array_map;
-use function array_values;
-use function in_array;
-use function is_array;
-use function is_string;
-use function key;
-use function preg_replace;
-
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -25,6 +14,17 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\TableSchema;
 use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
+
+use function array_diff;
+use function array_fill_keys;
+use function array_keys;
+use function array_map;
+use function array_values;
+use function in_array;
+use function is_array;
+use function is_string;
+use function key;
+use function preg_replace;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -171,7 +171,7 @@ class ActiveRecord extends BaseActiveRecord
      * @param array $condition condition to filter.
      * @param array $aliases
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException in case array contains unsafe values.
+     * @throws Exception|InvalidConfigException|InvalidArgumentException in case array contains unsafe values.
      *
      * @return array filtered condition.
      */
@@ -299,7 +299,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @param array $counters the counters to be updated (attribute name => increment value).
      * Use negative values if you want to decrement the counters.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
+     * @param string|array $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
      * to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
@@ -424,10 +424,11 @@ class ActiveRecord extends BaseActiveRecord
      *
      * The default implementation will return all column names of the table associated with this AR class.
      *
-     * @throws InvalidConfigException
-     * @throws Exception
-     *
      * @return array list of attribute names.
+     *
+     * @throws InvalidConfigException
+     *
+     * @throws Exception
      */
     public function attributes(): array
     {
@@ -632,7 +633,7 @@ class ActiveRecord extends BaseActiveRecord
      * is outdated.
      * @throws Throwable in case delete failed.
      *
-     * @return false|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      *
      * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
      */
@@ -666,7 +667,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @throws Exception|StaleObjectException|Throwable
      *
-     * @return false|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * @return int|false the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      */
     protected function deleteInternal()
     {
