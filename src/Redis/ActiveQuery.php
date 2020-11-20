@@ -4,8 +4,19 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Redis;
 
+use function array_keys;
+use function arsort;
+use function asort;
+use function count;
+use function in_array;
+use function is_array;
+use function is_numeric;
+use function is_string;
 use JsonException;
+use function key;
 use ReflectionException;
+use function reset;
+
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery as BaseActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
@@ -16,17 +27,6 @@ use Yiisoft\Db\Exception\InvalidParamException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
-
-use function array_keys;
-use function arsort;
-use function asort;
-use function count;
-use function in_array;
-use function is_array;
-use function is_numeric;
-use function is_string;
-use function key;
-use function reset;
 
 /**
  * ActiveQuery represents a query associated with an Active Record class.
@@ -207,7 +207,6 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @param string $q the COUNT expression. This parameter is ignored by this implementation.
      *
-     *
      * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
      * @throws ReflectionException|Throwable
      *
@@ -229,10 +228,10 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Returns a value indicating whether the query result contains any row of data.
      *
-     * @return bool whether the query result contains any row of data.
-     *
      * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
      * @throws ReflectionException|Throwable
+     *
+     * @return bool whether the query result contains any row of data.
      */
     public function exists(): bool
     {
@@ -326,10 +325,10 @@ class ActiveQuery extends BaseActiveQuery
      * @param string $type the type of the script to generate
      * @param string|null $columnName
      *
-     * @throws Exception|JsonException|InvalidConfigException|InvalidParamException|NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
      * @throws ReflectionException|Throwable
      *
-     * @return array|bool|null|string
+     * @return array|bool|string|null
      */
     protected function executeScript(string $type, string $columnName = null)
     {
@@ -342,6 +341,7 @@ class ActiveQuery extends BaseActiveQuery
             } elseif (is_array($this->getVia())) {
                 /**
                  * via relation
+                 *
                  * @var $viaQuery ActiveQuery
                  */
                 [$viaName, $viaQuery] = $this->getVia();
@@ -390,7 +390,7 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @throws InvalidParamException|JsonException|NotSupportedException
      *
-     * @return array|bool|null|string
+     * @return array|bool|string|null
      */
     private function findByPk(string $type, string $columnName = null)
     {
@@ -581,7 +581,7 @@ class ActiveQuery extends BaseActiveQuery
      *
      * The value returned will be the specified attribute in the first record of the query results.
      *
-     * @throws Exception|InvalidConfigException|InvalidParamException|ReflectionException|NotSupportedException
+     * @throws Exception|InvalidConfigException|InvalidParamException|NotSupportedException|ReflectionException
      * @throws JsonException
      *
      * @return string|null the value of the specified attribute in the first record of the query result. Null is

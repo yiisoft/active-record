@@ -14,7 +14,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $department_id
  * @property int $employee_id
  * @property string $summary
- *
  * @property Employee $employee
  */
 final class Dossier extends ActiveRecord

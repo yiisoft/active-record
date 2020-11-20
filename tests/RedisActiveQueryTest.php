@@ -471,7 +471,6 @@ abstract class RedisActiveQueryTest extends TestCase
         $this->assertEquals(1, $orders[0]['customer_id']);
     }
 
-
     public function testBetweenCondition(): void
     {
         $this->orderData();
@@ -537,8 +536,8 @@ abstract class RedisActiveQueryTest extends TestCase
             ]], ["'`id`=`id` and 1'", 'ididand']],
             [['id' => [
                 'nested_illegal' => [
-                    'false or 1=' => 1
-                ]
+                    'false or 1=' => 1,
+                ],
             ]], [], ['false or 1=']],
         ];
     }
@@ -550,7 +549,7 @@ abstract class RedisActiveQueryTest extends TestCase
      * @param array $expectedStrings
      * @param array $unexpectedStrings
      *
-     * @throws NotSupportedException|Exception
+     * @throws Exception|NotSupportedException
      */
     public function testValueEscapingInWhere(
         array $filterWithInjection,
