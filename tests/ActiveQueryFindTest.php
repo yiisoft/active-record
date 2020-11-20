@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use function ksort;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
-
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
+
+use function ksort;
 
 abstract class ActiveQueryFindTest extends TestCase
 {

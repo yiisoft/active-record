@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Yiisoft\ActiveRecord\Tests\Stubs\Redis;
 
 use Yiisoft\ActiveRecord\Redis\ActiveRecord;

@@ -14,6 +14,7 @@ use Yiisoft\ActiveRecord\Redis\ActiveRecord;
  * @property int $customer_id
  * @property int $created_at
  * @property string $total
+ *
  * @property Customer $customer
  * @property Item[] $itemsIndexed
  * @property OrderItem[] $orderItems
@@ -33,7 +34,7 @@ final class Order extends ActiveRecord
             'id',
             'customer_id',
             'created_at',
-            'total',
+            'total'
         ];
     }
 

@@ -14,6 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $department_id
  * @property string $first_name
  * @property string $last_name
+ *
  * @property string $fullName
  * @property Department $department
  * @property Dossier $dossier

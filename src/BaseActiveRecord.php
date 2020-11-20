@@ -4,24 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function array_combine;
-use function array_flip;
-use function array_intersect;
-use function array_key_exists;
-use function array_keys;
-use function array_search;
-use function array_values;
 use ArrayAccess;
 use Closure;
-use function count;
-use function get_class;
-use function in_array;
-use function is_array;
-
-use function is_int;
 use IteratorAggregate;
 use ReflectionException;
-use function reset;
 use Throwable;
 use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -31,6 +17,20 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
+
+use function array_combine;
+use function array_flip;
+use function array_intersect;
+use function array_key_exists;
+use function array_keys;
+use function array_search;
+use function array_values;
+use function count;
+use function get_class;
+use function in_array;
+use function is_array;
+use function is_int;
+use function reset;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -129,9 +129,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * Please refer to {@see Query::where()} on how to specify this parameter.
      *
-     * @throws NotSupportedException if not overridden.
-     *
      * @return int the number of rows deleted.
+     *
+     * @throws NotSupportedException if not overridden.
      */
     public function deleteAll(array $condition = null): int
     {
@@ -261,6 +261,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
      * (case-sensitive).
      * @param ActiveRecordInterface|array|null $records the related records to be populated into the relation.
+     *
+     * @return void
+     *
+     * {@see getRelation()}
      */
     public function populateRelation(string $name, $records): void
     {
@@ -301,7 +305,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Returns a value indicating whether the model has an attribute with the specified name.
      *
-     * @param int|string $name the name or position of the attribute.
+     * @param string|int $name the name or position of the attribute.
      *
      * @return bool whether the model has an attribute with the specified name.
      */
@@ -333,6 +337,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param mixed $value the attribute value.
      *
      * @throws InvalidArgumentException if the named attribute does not exist.
+     *
+     * @return void
+     *
+     * {@see hasAttribute()}
      */
     public function setAttribute(string $name, $value): void
     {
@@ -345,7 +353,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
             $this->attributes[$name] = $value;
         } else {
-            throw new InvalidArgumentException(static::class . ' has no attribute named "' . $name . '".');
+            throw new InvalidArgumentException(get_class($this) . ' has no attribute named "' . $name . '".');
         }
     }
 
@@ -403,7 +411,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         if (isset($this->oldAttributes[$name]) || $this->hasAttribute($name)) {
             $this->oldAttributes[$name] = $value;
         } else {
-            throw new InvalidArgumentException(static::class . ' has no attribute named "' . $name . '".');
+            throw new InvalidArgumentException(get_class($this) . ' has no attribute named "' . $name . '".');
         }
     }
 
@@ -541,12 +549,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param array|null $attributeNames list of attribute names that need to be saved. Defaults to null, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @throws Exception|NotSupportedException in case update failed.
+     * @return int|false the number of rows affected, or `false` if validation fails or {@see beforeSave()} stops the
+     * updating process.
+     * @throws NotSupportedException|Exception in case update failed.
      * @throws StaleObjectException if {@see href='psi_element://optimisticLock'>|optimistic locking} is enabled and the
      * data being updated is outdated.
-     *
-     * @return false|int the number of rows affected, or `false` if validation fails or {@see beforeSave()} stops the
-     * updating process.
      */
     public function update(array $attributeNames = null)
     {
@@ -804,7 +811,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return false;
         }
 
-        return static::class === get_class($record) && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return get_class($this) === get_class($record) && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**
@@ -813,7 +820,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param bool $asArray whether to return the primary key value as an array. If `true`, the return value will be an
      * array with column names as keys and column values as values. Note that for composite primary keys, an array will
      * always be returned regardless of this parameter value.
-     *
      * @property mixed The primary key value. An array (column name => column value) is returned if the primary key is
      * composite. A string is returned otherwise (null will be returned if the key value is null).
      *
@@ -849,7 +855,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param bool $asArray whether to return the primary key value as an array. If `true`, the return value will be an
      * array with column name as key and column value as value. If this is `false` (default), a scalar value will be
      * returned for non-composite primary key.
-     *
      * @property mixed The old primary key value. An array (column name => column value) is returned if the primary key
      * is composite. A string is returned otherwise (null will be returned if the key value is null).
      *
@@ -865,7 +870,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         if (empty($keys)) {
             throw new Exception(
-                static::class . ' does not have a primary key. You should either define a primary key for '
+                get_class($this) . ' does not have a primary key. You should either define a primary key for '
                 . 'the corresponding table or override the primaryKey() method.'
             );
         }
@@ -1042,7 +1047,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param bool $delete whether to delete the model that contains the foreign key. If `false`, the active records
      * foreign key will be set `null` and saved. If `true`, the model containing the foreign key will be deleted.
      *
-     * @throws Exception|InvalidCallException|ReflectionException|StaleObjectException|Throwable if the models cannot be
+     * @throws Exception|ReflectionException|StaleObjectException|Throwable|InvalidCallException if the models cannot be
      * unlinked.
      */
     public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void

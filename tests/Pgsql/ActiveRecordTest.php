@@ -244,10 +244,10 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
                     new ArrayExpression([null, null], 'text', 2),
                 ],
                 'json_col' => [
-                    null,
+                    null
                 ],
                 'jsonarray_col' => [
-                    null,
+                    null
                 ],
             ]],
             'empty arrays values' => [[
@@ -267,16 +267,16 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
                 ],
                 'json_col' => [
                     new JsonExpression(new JsonExpression(new JsonExpression(['a' => 1, 'b' => null, 'c' => new JsonExpression([1,3,5])]))),
-                    ['a' => 1, 'b' => null, 'c' => [1,3,5]],
+                    ['a' => 1, 'b' => null, 'c' => [1,3,5]]
                 ],
                 'jsonb_col' => [
                     new JsonExpression(new ArrayExpression([1,2,3])),
-                    [1,2,3],
+                    [1,2,3]
                 ],
                 'jsonarray_col' => [
                     new ArrayExpression([new JsonExpression(['1', 2]), [3,4,5]], 'json'),
-                    new ArrayExpression([['1', 2], [3,4,5]], 'json'),
-                ],
+                    new ArrayExpression([['1', 2], [3,4,5]], 'json')
+                ]
             ]],
             'arrays packed in classes' => [[
                 'intarray_col' => [
@@ -289,23 +289,23 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
                 ],
                 'json_col' => [
                     new JsonExpression(['a' => 1, 'b' => null, 'c' => [1,3,5]]),
-                    ['a' => 1, 'b' => null, 'c' => [1,3,5]],
+                    ['a' => 1, 'b' => null, 'c' => [1,3,5]]
                 ],
                 'jsonb_col' => [
                     new JsonExpression([null, 'a', 'b', '\"', '{"af"}']),
-                    [null, 'a', 'b', '\"', '{"af"}'],
+                    [null, 'a', 'b', '\"', '{"af"}']
                 ],
                 'jsonarray_col' => [
                     new Expression("array['[\",\",\"null\",true,\"false\",\"f\"]'::json]::json[]"),
                     new ArrayExpression([[',', 'null', true, 'false', 'f']], 'json'),
-                ],
+                ]
             ]],
             'scalars' => [[
                 'json_col' => [
                     '5.8',
                 ],
                 'jsonb_col' => [
-                    M_PI,
+                    M_PI
                 ],
             ]],
         ];

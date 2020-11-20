@@ -9,9 +9,9 @@ use Yiisoft\ActiveRecord\Redis\ActiveRecord;
 /**
  * Class OrderItem
  *
- * @property int $order_id
- * @property int $item_id
- * @property int $quantity
+ * @property integer $order_id
+ * @property integer $item_id
+ * @property integer $quantity
  * @property string $subtotal
  */
 final class OrderItemWithNullFK extends ActiveRecord

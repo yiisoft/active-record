@@ -14,6 +14,7 @@ use Yiisoft\ActiveRecord\Redis\ActiveRecord;
  * @property int $item_id
  * @property int $quantity
  * @property string $subtotal
+ *
  * @property Order $order
  * @property Item $item
  */
@@ -26,7 +27,7 @@ final class OrderItem extends ActiveRecord
             'order_id',
             'item_id',
             'quantity',
-            'subtotal',
+            'subtotal'
         ];
     }
 
