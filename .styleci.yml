@@ -77,7 +77,6 @@ enabled:
     - print_to_echo
     - regular_callable_call
     - return_assignment
-    - self_accessor
     - self_static_accessor
     - set_type_to_cast
     - short_array_syntax
