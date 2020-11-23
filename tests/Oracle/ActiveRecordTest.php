@@ -36,8 +36,6 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testCastValues(): void
     {
-        $this->markTestSkipped('Cant bind floats without support from a custom PDO driver.');
-
         $this->checkFixture($this->ociConnection, 'customer');
 
         $arClass = new Type($this->ociConnection);
@@ -48,7 +46,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $arClass->char_col2 = 'test';
         $arClass->char_col3 = 'test123';
         /** can't bind floats without support from a custom PDO driver */
-        $arClass->float_col = 2.235;
+        $arClass->float_col = 2;
+        $arClass->float_col2 = 1;
         $arClass->bool_col = 1;
         $arClass->bool_col2 = 0;
         $arClass->save();
@@ -62,7 +61,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->assertSame('1337', trim($query->char_col));
         $this->assertSame('test', $query->char_col2);
         $this->assertSame('test123', $query->char_col3);
-        $this->assertSame(2.235, $query->float_col);
+        $this->assertSame(2.0, $query->float_col);
+        $this->assertSame(1.0, $query->float_col2);
         $this->assertEquals('1', $query->bool_col);
         $this->assertEquals('0', $query->bool_col2);
     }
