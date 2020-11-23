@@ -27,10 +27,10 @@ use Yiisoft\Db\Connection\Dsn;
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
+use Yiisoft\Db\Oracle\Connection as ociConnection;
 use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
-
 use Yiisoft\Di\Container;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\Provider;
@@ -43,6 +43,7 @@ class TestCase extends AbstractTestCase
     protected ContainerInterface $container;
     protected MssqlConnection $mssqlConnection;
     protected MysqlConnection $mysqlConnection;
+    protected OciConnection $ociConnection;
     protected PgsqlConnection $pgsqlConnection;
     protected RedisConnection $redisConnection;
     protected SqliteConnection $sqliteConnection;
@@ -61,6 +62,7 @@ class TestCase extends AbstractTestCase
 
         $this->mssqlConnection = $this->container->get(MssqlConnection::class);
         $this->mysqlConnection = $this->container->get(MysqlConnection::class);
+        $this->ociConnection = $this->container->get(OciConnection::class);
         $this->pgsqlConnection = $this->container->get(PgsqlConnection::class);
         $this->redisConnection = $this->container->get(RedisConnection::class);
         $this->sqliteConnection = $this->container->get(SqliteConnection::class);
@@ -151,6 +153,9 @@ class TestCase extends AbstractTestCase
                 break;
             case 'mysql':
                 $fixture = $this->params()['yiisoft/db-mysql']['fixture'];
+                break;
+            case 'oci':
+                $fixture = $this->params()['yiisoft/db-oracle']['fixture'];
                 break;
             case 'pgsql':
                 $fixture = $this->params()['yiisoft/db-pgsql']['fixture'];
@@ -256,6 +261,15 @@ class TestCase extends AbstractTestCase
                 'setPassword()' => [$params['yiisoft/db-mysql']['password']],
             ],
 
+            OciConnection::class => [
+                '__class' => OciConnection::class,
+                '__construct()' => [
+                    'dsn' => $params['yiisoft/db-oracle']['dsn'],
+                ],
+                'setUsername()' => [$params['yiisoft/db-oracle']['username']],
+                'setPassword()' => [$params['yiisoft/db-oracle']['password']],
+            ],
+
             PgsqlConnection::class => [
                 '__class' => PgsqlConnection::class,
                 '__construct()' => [
@@ -301,6 +315,12 @@ class TestCase extends AbstractTestCase
                 'username' => 'root',
                 'password' => 'root',
                 'fixture' => __DIR__ . '/Data/mysql.sql',
+            ],
+            'yiisoft/db-oracle' => [
+                'dsn' => 'oci:dbname=localhost/XE;charset=AL32UTF8;',
+                'username' => 'system',
+                'password' => 'oracle',
+                'fixture' => __DIR__ . '/Data/oci.sql',
             ],
             'yiisoft/db-pgsql' => [
                 'dsn' => (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->asString(),
