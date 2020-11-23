@@ -27,7 +27,7 @@ use Yiisoft\Db\Connection\Dsn;
 use Yiisoft\Db\Mssql\Connection as MssqlConnection;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
-use Yiisoft\Db\Oracle\Connection as ociConnection;
+use Yiisoft\Db\Oracle\Connection as OciConnection;
 use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
