@@ -9,7 +9,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      extensions: pdo, pdo_mysql, pdo_oci, pdo_pgsql, pdo_sqlite, pdo_sqlsrv, pdo_sqlsrv-5.9.0preview1, oci8_12c
+      extensions: pdo, pdo_mysql, pdo_oci, pdo_pgsql, pdo_sqlite, pdo_sqlsrv-5.9.0preview1, oci8
       key: cache-v1
 
     runs-on: ubuntu-latest

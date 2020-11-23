@@ -36,6 +36,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testCastValues(): void
     {
+        $this->markTestSkipped('Cant bind floats without support from a custom PDO driver.');
+
         $this->checkFixture($this->ociConnection, 'customer');
 
         $arClass = new Type($this->ociConnection);
