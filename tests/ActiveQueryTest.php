@@ -2082,6 +2082,10 @@ abstract class ActiveQueryTest extends TestCase
             $attributesExpected['bool_status'] = true;
         }
 
+        if ($this->driverName === 'oci') {
+            $attributesExpected['bool_status'] = '1';
+        }
+
         $attributesExpected['profile_id'] = 1;
 
         $customer = new ActiveQuery(Customer::class, $this->db);
@@ -2149,6 +2153,10 @@ abstract class ActiveQueryTest extends TestCase
             $attributes['bool_status'] = true;
         }
 
+        if ($this->driverName === 'oci') {
+            $attributes['bool_status'] = '1';
+        }
+
         $attributes['profile_id'] = 1;
 
         $customer = new ActiveQuery(Customer::class, $this->db);
@@ -2166,6 +2174,10 @@ abstract class ActiveQueryTest extends TestCase
 
         if ($this->driverName === 'pgsql') {
             $attributesNew['bool_status'] = true;
+        }
+
+        if ($this->driverName === 'oci') {
+            $attributesNew['bool_status'] = '1';
         }
 
         $attributesNew['profile_id'] = 1;
