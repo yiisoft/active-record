@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $created_at
  * @property string $total
  */
-final class Order extends ActiveRecord
+class Order extends ActiveRecord
 {
     private ?string $tableName = null;
 

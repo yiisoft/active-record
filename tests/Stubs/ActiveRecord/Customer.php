@@ -18,7 +18,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  *
  * @method CustomerQuery findBySql($sql, $params = []) static.
  */
-final class Customer extends ActiveRecord
+class Customer extends ActiveRecord
 {
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
@@ -46,7 +46,7 @@ final class Customer extends ActiveRecord
 
     public function getOrders(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('id');
+        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
     public function getExpensiveOrders(): ActiveQuery
