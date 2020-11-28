@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use function array_merge;
-use function explode;
-use function file_get_contents;
 use PHPUnit\Framework\TestCase as AbstractTestCase;
-use function preg_replace;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface as SimpleCacheInterface;
 use ReflectionException;
 use ReflectionObject;
-use function str_replace;
-use function trim;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
 use Yiisoft\Cache\ArrayCache;
@@ -37,6 +32,13 @@ use Yiisoft\EventDispatcher\Provider\Provider;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
+
+use function array_merge;
+use function explode;
+use function file_get_contents;
+use function preg_replace;
+use function str_replace;
+use function trim;
 
 class TestCase extends AbstractTestCase
 {
@@ -229,6 +231,8 @@ class TestCase extends AbstractTestCase
                     Reference::to(ArrayCache::class),
                 ],
             ],
+
+            SimpleCacheInterface::class => CacheInterface::class,
 
             LoggerInterface::class => Logger::class,
 
