@@ -361,7 +361,7 @@ EOF;
                 } elseif ($value instanceof Expression) {
                     $column = $this->addColumn($column, $columns);
 
-                    $parts[] = "$column==" . $value->getExpression();
+                    $parts[] = "$column==" . $value;
                 } else {
                     $column = $this->addColumn($column, $columns);
                     $value = $this->quoteValue((string) $value);
@@ -427,7 +427,11 @@ EOF;
     }
 
     /**
+     * @param string $operator
+     * @param array $operands
      * @param (array|mixed)[] $operands
+     * @return string
+     * @throws Exception
      */
     private function buildInCondition(string $operator, array $operands, &$columns): string
     {
@@ -462,7 +466,7 @@ EOF;
             if ($value === null) {
                 $parts[] = "redis.call('HEXISTS',key .. ':a:' .. pk, " . $this->quoteValue($column) . ')==0';
             } elseif ($value instanceof Expression) {
-                $parts[] = "$columnAlias==" . $value->getExpression();
+                $parts[] = "$columnAlias==" . $value;
             } else {
                 $value = $this->quoteValue($value);
                 $parts[] = "$columnAlias==$value";
