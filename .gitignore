@@ -34,6 +34,8 @@ phpunit.phar
 # local phpunit config
 /phpunit.xml
 
+.phpunit.result.cache
+
 # ignore dev installed apps and extensions
 /apps
 /extensions
