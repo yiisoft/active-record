@@ -430,8 +430,10 @@ EOF;
      * @param string $operator
      * @param array $operands
      * @param (array|mixed)[] $operands
-     * @return string
+     *
      * @throws Exception
+     *
+     * @return string
      */
     private function buildInCondition(string $operator, array $operands, &$columns): string
     {
