@@ -9,7 +9,7 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
-use Psr\SimpleCache\CacheInterface as SimpleCacheInterface;
+use Psr\SimpleCache\CacheInterface as PsrCacheInterface;
 use ReflectionException;
 use ReflectionObject;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
@@ -225,14 +225,14 @@ class TestCase extends AbstractTestCase
         $params = $this->params();
 
         return [
+            PsrCacheInterface::class => ArrayCache::class,
+
             CacheInterface::class => [
                 '__class' => Cache::class,
                 '__construct()' => [
                     Reference::to(ArrayCache::class),
                 ],
             ],
-
-            SimpleCacheInterface::class => CacheInterface::class,
 
             LoggerInterface::class => Logger::class,
 
