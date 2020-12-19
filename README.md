@@ -55,6 +55,7 @@ web.php:
 
 declare(strict_types=1);
 
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 
 /**
@@ -64,7 +65,7 @@ return [
     ConnectionInterface::class => [
         '__class' => SqliteConnection::class,
         '__construct()' => [
-            'dsn' => $params['yiisoft/db-sqlite']['dsn']
+            'dsn' => $params['yiisoft/db-sqlite']['dsn'],
         ]
     ]
 ];
@@ -78,7 +79,7 @@ declare(strict_types=1);
 
 return [
     'yiisoft/db-sqlite' => [
-        'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3'
+        'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3',
     ]
 ]
 ```
@@ -154,7 +155,7 @@ return [
     SqliteConnection::class => [
         '__class' => SqliteConnection::class,
         '__construct()' => [
-            'dsn' => $params['yiisoft/db-sqlite']['dsn']
+            'dsn' => $params['yiisoft/db-sqlite']['dsn'],
         ]
     ],
 
@@ -176,7 +177,7 @@ declare(strict_types=1);
 
 return [
     'yiisoft/db-sqlite' => [
-        'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3'
+        'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3',
     ]
 ]
 ```
