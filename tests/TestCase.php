@@ -236,13 +236,6 @@ class TestCase extends AbstractTestCase
 
             ProfilerInterface::class => Profiler::class,
 
-            Profiler::class => [
-                '__class' => Profiler::class,
-                '__construct()' => [
-                    Reference::to(LoggerInterface::class),
-                ],
-            ],
-
             ListenerProviderInterface::class => Provider::class,
 
             EventDispatcherInterface::class => Dispatcher::class,
