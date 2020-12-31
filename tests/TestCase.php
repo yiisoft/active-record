@@ -31,6 +31,7 @@ use Yiisoft\EventDispatcher\Provider\Provider;
 use Yiisoft\Factory\Definitions\Reference;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
+use Yiisoft\Profiler\ProfilerInterface;
 
 use function array_merge;
 use function explode;
@@ -233,12 +234,7 @@ class TestCase extends AbstractTestCase
 
             LoggerInterface::class => Logger::class,
 
-            Profiler::class => [
-                '__class' => Profiler::class,
-                '__construct()' => [
-                    Reference::to(LoggerInterface::class),
-                ],
-            ],
+            ProfilerInterface::class => Profiler::class,
 
             ListenerProviderInterface::class => Provider::class,
 
