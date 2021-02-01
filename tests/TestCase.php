@@ -29,6 +29,7 @@ use Yiisoft\Di\Container;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\Provider;
 use Yiisoft\Factory\Definitions\Reference;
+use Yiisoft\Factory\Factory;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
 use Yiisoft\Profiler\ProfilerInterface;
@@ -288,8 +289,8 @@ class TestCase extends AbstractTestCase
                 ],
             ],
 
-            ActiveRecordFactory::class => [
-                '__class' => ActiveRecordFactory::class,
+            Factory::class => [
+                '__class' => Factory::class,
                 '__construct()' => [
                     null,
                     [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
