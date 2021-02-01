@@ -9,8 +9,18 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Factory\Exceptions\InvalidConfigException;
 use Yiisoft\Factory\Factory;
 
-final class ActiveRecordFactory extends Factory
+final class ActiveRecordFactory
 {
+    /**
+     * @var Factory
+     */
+    private Factory $factory;
+
+    public function __construct(Factory $factory)
+    {
+        $this->factory = $factory;
+    }
+
     /**
      * Allows you to create an active record instance through the factory.
      *
@@ -22,7 +32,7 @@ final class ActiveRecordFactory extends Factory
      */
     public function createAR(string $arClass): ActiveRecordInterface
     {
-        return $this->create(
+        return $this->factory->create(
             [
                 '__class' => $arClass,
             ]
@@ -41,7 +51,7 @@ final class ActiveRecordFactory extends Factory
      */
     public function createQueryTo(string $arClass, string $queryClass = null): ActiveQueryInterface
     {
-        return $this->create(
+        return $this->factory->create(
             [
                 '__class' => $queryClass ?? ActiveQuery::class,
                 '__construct()' => [
@@ -63,7 +73,7 @@ final class ActiveRecordFactory extends Factory
      */
     public function createRedisQueryTo(string $arClass, string $queryClass = null): ActiveQueryInterface
     {
-        return $this->create(
+        return $this->factory->create(
             [
                 '__class' => $queryClass ?? RedisActiveQuery::class,
                 '__construct()' => [
@@ -83,7 +93,7 @@ final class ActiveRecordFactory extends Factory
      */
     public function withConnection(ConnectionInterface $connection): void
     {
-        $this->set(ConnectionInterface::class, $connection);
+        $this->factory->set(ConnectionInterface::class, $connection);
     }
 
     /**
@@ -95,6 +105,6 @@ final class ActiveRecordFactory extends Factory
      */
     public function getConnection(): ConnectionInterface
     {
-        return $this->create(ConnectionInterface::class);
+        return $this->factory->create(ConnectionInterface::class);
     }
 }
