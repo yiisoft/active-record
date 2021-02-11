@@ -39,7 +39,7 @@
         "yiisoft/di": "^3.0@dev",
         "yiisoft/event-dispatcher": "^3.0@dev",
         "yiisoft/json": "^1.0",
-        "yiisoft/log": "^3.0@dev"
+        "yiisoft/log": "^1.0"
     },
     "autoload": {
         "psr-4": {
