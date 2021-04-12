@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Factory;
 
 final class ActiveRecordFactory
