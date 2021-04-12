@@ -63,7 +63,7 @@ use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
  */
 return [
     ConnectionInterface::class => [
-        '__class' => SqliteConnection::class,
+        'class' => SqliteConnection::class,
         '__construct()' => [
             'dsn' => $params['yiisoft/db-sqlite']['dsn'],
         ]
@@ -153,14 +153,14 @@ use Yiisoft\Factory\Definition\Reference;
  */
 return [
     SqliteConnection::class => [
-        '__class' => SqliteConnection::class,
+        'class' => SqliteConnection::class,
         '__construct()' => [
             'dsn' => $params['yiisoft/db-sqlite']['dsn'],
         ]
     ],
 
     ActiveRecordFactory::class => [
-        '__class' => ActiveRecordFactory::class,
+        'class' => ActiveRecordFactory::class,
         '__construct()' => [
             null,
             [ConnectionInterface::class => Reference::to(SqliteConnection::class)],

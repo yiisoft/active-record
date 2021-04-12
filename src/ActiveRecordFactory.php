@@ -34,7 +34,7 @@ final class ActiveRecordFactory
     {
         return $this->factory->create(
             [
-                '__class' => $arClass,
+                'class' => $arClass,
             ]
         );
     }
@@ -53,7 +53,7 @@ final class ActiveRecordFactory
     {
         return $this->factory->create(
             [
-                '__class' => $queryClass ?? ActiveQuery::class,
+                'class' => $queryClass ?? ActiveQuery::class,
                 '__construct()' => [
                     $arClass,
                 ],
@@ -75,7 +75,7 @@ final class ActiveRecordFactory
     {
         return $this->factory->create(
             [
-                '__class' => $queryClass ?? RedisActiveQuery::class,
+                'class' => $queryClass ?? RedisActiveQuery::class,
                 '__construct()' => [
                     $arClass,
                 ],

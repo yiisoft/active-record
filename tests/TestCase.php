@@ -227,7 +227,7 @@ class TestCase extends AbstractTestCase
 
         return [
             CacheInterface::class => [
-                '__class' => Cache::class,
+                'class' => Cache::class,
                 '__construct()' => [
                     Reference::to(ArrayCache::class),
                 ],
@@ -242,7 +242,7 @@ class TestCase extends AbstractTestCase
             EventDispatcherInterface::class => Dispatcher::class,
 
             MssqlConnection::class => [
-                '__class' => MssqlConnection::class,
+                'class' => MssqlConnection::class,
                 '__construct()' => [
                     'dsn' => $params['yiisoft/db-mssql']['dsn'],
                 ],
@@ -251,7 +251,7 @@ class TestCase extends AbstractTestCase
             ],
 
             MysqlConnection::class => [
-                '__class' => MysqlConnection::class,
+                'class' => MysqlConnection::class,
                 '__construct()' => [
                     'dsn' => $params['yiisoft/db-mysql']['dsn'],
                 ],
@@ -260,7 +260,7 @@ class TestCase extends AbstractTestCase
             ],
 
             OciConnection::class => [
-                '__class' => OciConnection::class,
+                'class' => OciConnection::class,
                 '__construct()' => [
                     'dsn' => $params['yiisoft/db-oracle']['dsn'],
                 ],
@@ -269,7 +269,7 @@ class TestCase extends AbstractTestCase
             ],
 
             PgsqlConnection::class => [
-                '__class' => PgsqlConnection::class,
+                'class' => PgsqlConnection::class,
                 '__construct()' => [
                     'dsn' => $params['yiisoft/db-pgsql']['dsn'],
                 ],
@@ -278,19 +278,19 @@ class TestCase extends AbstractTestCase
             ],
 
             RedisConnection::class => [
-                '__class' => RedisConnection::class,
+                'class' => RedisConnection::class,
                 'database()' => [$params['yiisoft/db-redis']['database']],
             ],
 
             SqliteConnection::class => [
-                '__class' => SqliteConnection::class,
+                'class' => SqliteConnection::class,
                 '__construct()' => [
                     'dsn' => $params['yiisoft/db-sqlite']['dsn'],
                 ],
             ],
 
             Factory::class => [
-                '__class' => Factory::class,
+                'class' => Factory::class,
                 '__construct()' => [
                     null,
                     [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
