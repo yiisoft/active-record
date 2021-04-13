@@ -29,7 +29,7 @@
         "roave/infection-static-analysis-plugin": "^1.5",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.2",
-        "yiisoft/aliases": "^1.1",
+        "yiisoft/aliases": "^2.0",
         "yiisoft/db-mssql": "^1.0@dev",
         "yiisoft/db-mysql": "^3.0@dev",
         "yiisoft/db-oracle": "^1.0@dev",
