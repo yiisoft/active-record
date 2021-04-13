@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Factory\Exceptions\InvalidConfigException;
+use Yiisoft\Factory\Exception\InvalidConfigException;
 use Yiisoft\Factory\Factory;
 
 final class ActiveRecordFactory
@@ -34,7 +34,7 @@ final class ActiveRecordFactory
     {
         return $this->factory->create(
             [
-                '__class' => $arClass,
+                'class' => $arClass,
             ]
         );
     }
@@ -53,7 +53,7 @@ final class ActiveRecordFactory
     {
         return $this->factory->create(
             [
-                '__class' => $queryClass ?? ActiveQuery::class,
+                'class' => $queryClass ?? ActiveQuery::class,
                 '__construct()' => [
                     $arClass,
                 ],
@@ -75,7 +75,7 @@ final class ActiveRecordFactory
     {
         return $this->factory->create(
             [
-                '__class' => $queryClass ?? RedisActiveQuery::class,
+                'class' => $queryClass ?? RedisActiveQuery::class,
                 '__construct()' => [
                     $arClass,
                 ],
