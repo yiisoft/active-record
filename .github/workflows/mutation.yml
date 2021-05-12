@@ -73,7 +73,7 @@ jobs:
         run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
 
       - name: Install PHP with extensions
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@2.11.0
         with:
           php-version: "${{ matrix.php }}"
           extensions: ${{ env.extensions }}
