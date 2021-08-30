@@ -146,7 +146,7 @@ declare(strict_types=1);
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
-use Yiisoft\Factory\Definition\Reference;
+use Yiisoft\Definitions\Reference;
 
 /**
  * config SqliteConnection::class

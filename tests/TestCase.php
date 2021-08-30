@@ -28,7 +28,7 @@ use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 use Yiisoft\Di\Container;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\Provider;
-use Yiisoft\Factory\Definition\Reference;
+use Yiisoft\Definitions\Reference;
 use Yiisoft\Factory\Factory;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
