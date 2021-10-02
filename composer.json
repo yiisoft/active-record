@@ -21,7 +21,8 @@
         "php": "^7.4|^8.0",
         "ext-json": "*",
         "yiisoft/arrays": "^1.0",
-        "yiisoft/db": "^3.0@dev",
+        "yiisoft/db": "^3.0",
+        "yiisoft/factory": "^3.0",
         "yiisoft/strings": "^2.0"
     },
     "require-dev": {
@@ -36,7 +37,7 @@
         "yiisoft/db-pgsql": "^3.0@dev",
         "yiisoft/db-redis": "^1.0@dev",
         "yiisoft/db-sqlite": "^3.0@dev",
-        "yiisoft/di": "^3.0@dev",
+        "yiisoft/di": "^3.0",
         "yiisoft/event-dispatcher": "^1.0",
         "yiisoft/json": "^1.0",
         "yiisoft/log": "^1.0"

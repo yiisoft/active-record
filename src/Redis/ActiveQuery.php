@@ -4,19 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Redis;
 
-use function array_keys;
-use function arsort;
-use function asort;
-use function count;
-use function in_array;
-use function is_array;
-use function is_numeric;
-use function is_string;
 use JsonException;
-use function key;
 use ReflectionException;
-use function reset;
-
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery as BaseActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
@@ -27,6 +16,17 @@ use Yiisoft\Db\Exception\InvalidParamException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
+
+use function array_keys;
+use function arsort;
+use function asort;
+use function count;
+use function in_array;
+use function is_array;
+use function is_numeric;
+use function is_string;
+use function key;
+use function reset;
 
 /**
  * ActiveQuery represents a query associated with an Active Record class.
@@ -245,7 +245,7 @@ class ActiveQuery extends BaseActiveQuery
     /**
      * Returns the number of records.
      *
-     * @param string $column the column to sum up. If this parameter is not given, the `db` application component will
+     * @param string $q the column to sum up. If this parameter is not given, the `db` application component will
      * be used.
      *
      * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
@@ -253,70 +253,70 @@ class ActiveQuery extends BaseActiveQuery
      *
      * @return int number of records.
      */
-    public function sum(string $column): int
+    public function sum(string $q): int
     {
         if ($this->shouldEmulateExecution()) {
             return 0;
         }
 
-        return (int) $this->executeScript('Sum', !empty($column) ? $column : $this->attribute);
+        return (int) $this->executeScript('Sum', !empty($q) ? $q : $this->attribute);
     }
 
     /**
      * Returns the average of the specified column values.
      *
-     * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
+     * @param string $q the column name or expression. Make sure you properly quote column names in the expression.
      *
      * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
      * @throws ReflectionException|Throwable
      *
      * @return int the average of the specified column values.
      */
-    public function average(string $column): int
+    public function average(string $q): int
     {
         if ($this->shouldEmulateExecution()) {
             return 0;
         }
 
-        return (int) $this->executeScript('Average', !empty($column) ? $column : $this->attribute);
+        return (int) $this->executeScript('Average', !empty($q) ? $q : $this->attribute);
     }
 
     /**
      * Returns the minimum of the specified column values.
      *
-     * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
+     * @param string $q the column name or expression. Make sure you properly quote column names in the expression.
      *
      * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
      * @throws ReflectionException|Throwable
      *
      * @return int the minimum of the specified column values.
      */
-    public function min(string $column): ?int
+    public function min(string $q): ?int
     {
         if ($this->shouldEmulateExecution()) {
             return null;
         }
 
-        return (int) $this->executeScript('Min', !empty($column) ? $column : $this->attribute);
+        return (int) $this->executeScript('Min', !empty($q) ? $q : $this->attribute);
     }
 
     /**
      * Returns the maximum of the specified column values.
      *
-     * @param string $column the column name or expression. Make sure you properly quote column names in the expression.
+     * @param string $q the column name or expression. Make sure you properly quote column names in the expression.
      *
      * @throws Exception|InvalidConfigException|InvalidParamException|JsonException|NotSupportedException
      * @throws ReflectionException|Throwable
      *
      * @return int the maximum of the specified column values.
      */
-    public function max(string $column): ?int
+    public function max(string $q): ?int
     {
         if ($this->shouldEmulateExecution()) {
             return null;
         }
 
-        return (int) $this->executeScript('Max', !empty($column) ? $column : $this->attribute);
+        return (int) $this->executeScript('Max', !empty($q) ? $q : $this->attribute);
     }
 
     /**
