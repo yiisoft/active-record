@@ -321,9 +321,9 @@ class TestCase extends AbstractTestCase
                 'fixture' => __DIR__ . '/Data/oci.sql',
             ],
             'yiisoft/db-pgsql' => [
-                'dsn' => (new Dsn('pgsql', '127.0.0.1', 'scrutinizer', '5432'))->asString(),
-                'username' => 'scrutinizer',
-                'password' => 'scrutinizer',
+                'dsn' => (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->asString(),
+                'username' => 'root',
+                'password' => 'root',
                 'fixture' => __DIR__ . '/Data/pgsql.sql',
             ],
             'yiisoft/db-redis' => [
