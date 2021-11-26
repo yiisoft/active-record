@@ -26,6 +26,7 @@ use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\Provider;
 use Yiisoft\Definitions\Reference;
@@ -61,7 +62,9 @@ class TestCase extends AbstractTestCase
 
     protected function configContainer(): void
     {
-        $this->container = new Container($this->config());
+        $config = ContainerConfig::create()
+            ->withDefinitions($this->config());
+        $this->container = new Container($config);
 
         $this->mssqlConnection = $this->container->get(MssqlConnection::class);
         $this->mysqlConnection = $this->container->get(MysqlConnection::class);
