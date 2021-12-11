@@ -62,16 +62,6 @@ final class ActiveRecordFactoryTest extends TestCase
         $this->assertInstanceOf(SqliteConnection::class, $connection);
     }
 
-    public function testWithConnection(): void
-    {
-        /** connection swith */
-        $this->arFactory->withConnection($this->redisConnection);
-
-        $connection = $this->arFactory->getConnection();
-
-        $this->assertInstanceOf(RedisConnection::class, $connection);
-    }
-
     public function testGetArInstanceWithConstructor(): void
     {
         $this->checkFixture($this->sqliteConnection, 'customer', true);

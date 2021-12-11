@@ -295,8 +295,7 @@ class TestCase extends AbstractTestCase
             Factory::class => [
                 'class' => Factory::class,
                 '__construct()' => [
-                    null,
-                    [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
+                    'definitions' => [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
                 ],
             ],
         ];

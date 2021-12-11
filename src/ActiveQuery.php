@@ -1096,8 +1096,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function getARInstanceFactory(): ActiveRecordInterface
     {
-        $this->arFactory->withConnection($this->db);
-
-        return $this->arFactory->createAR($this->arClass);
+        return $this->arFactory->createAR($this->arClass, $this->db);
     }
 }
