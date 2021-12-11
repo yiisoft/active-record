@@ -89,7 +89,7 @@ final class ActiveRecordFactory
                 'class' => $queryClass ?? RedisActiveQuery::class,
                 '__construct()' => [
                     $arClass,
-                    $connection ?? $this->getConnection()
+                    $connection ?? $this->getConnection(),
                 ],
             ]
         );
