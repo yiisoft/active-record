@@ -22,7 +22,7 @@
         "ext-json": "*",
         "yiisoft/arrays": "^2.0",
         "yiisoft/db": "^3.0",
-        "yiisoft/factory": "^3.0",
+        "yiisoft/factory": "^1.0",
         "yiisoft/strings": "^2.0"
     },
     "require-dev": {
