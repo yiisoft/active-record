@@ -11,7 +11,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer as RedisCustomer;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\CustomerQuery as RedisCustomerQuery;
-use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 
 /**
@@ -60,16 +59,6 @@ final class ActiveRecordFactoryTest extends TestCase
         $connection = $this->arFactory->getConnection();
 
         $this->assertInstanceOf(SqliteConnection::class, $connection);
-    }
-
-    public function testWithConnection(): void
-    {
-        /** connection swith */
-        $this->arFactory->withConnection($this->redisConnection);
-
-        $connection = $this->arFactory->getConnection();
-
-        $this->assertInstanceOf(RedisConnection::class, $connection);
     }
 
     public function testGetArInstanceWithConstructor(): void
