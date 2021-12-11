@@ -11,7 +11,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer as RedisCustomer;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\CustomerQuery as RedisCustomerQuery;
-use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 
 /**
