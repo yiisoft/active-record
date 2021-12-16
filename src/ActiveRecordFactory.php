@@ -25,20 +25,21 @@ final class ActiveRecordFactory
      * Allows you to create an active record instance through the factory.
      *
      * @param string $arClass active record class.
-     * @param ConnectionInterface $connection the database connection used for creating active record instances.
+     * @param ConnectionInterface|null $db the database connection used for creating active record instances.
      *
      * @throws InvalidConfigException
      *
      * @return ActiveRecordInterface
      */
-    public function createAR(string $arClass, ConnectionInterface $connection = null): ActiveRecordInterface
+    public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
-        return $this->factory->create(
-            [
-                'class' => $arClass,
-                '__construct()' => ['db' => $connection ?? $this->getConnection()],
-            ]
-        );
+        if ($db === null) {
+            $activeRecord = $this->factory->create(['class' => $arClass]);
+        } else {
+            $activeRecord = $this->factory->create(['class' => $arClass, '__construct()' => ['db' => $db]]);
+        }
+
+        return $activeRecord;
     }
 
     /**
@@ -55,17 +56,30 @@ final class ActiveRecordFactory
     public function createQueryTo(
         string $arClass,
         string $queryClass = null,
-        ConnectionInterface $connection = null
+        ConnectionInterface $db = null
     ): ActiveQueryInterface {
-        return $this->factory->create(
-            [
-                'class' => $queryClass ?? ActiveQuery::class,
-                '__construct()' => [
-                    $arClass,
-                    $connection ?? $this->getConnection(),
+        if ($db === null) {
+            $activeQuery = $this->factory->create(
+                [
+                    'class' => $queryClass ?? ActiveQuery::class,
+                    '__construct()' => [
+                        $arClass,
+                    ],
                 ],
-            ]
-        );
+            );
+        } else {
+            $activeQuery = $this->factory->create(
+                [
+                    'class' => $queryClass ?? ActiveQuery::class,
+                    '__construct()' => [
+                        $arClass,
+                        $db,
+                    ],
+                ],
+            );
+        }
+
+        return $activeQuery;
     }
 
     /**
@@ -82,28 +96,29 @@ final class ActiveRecordFactory
     public function createRedisQueryTo(
         string $arClass,
         string $queryClass = null,
-        ConnectionInterface $connection = null
+        ConnectionInterface $db = null,
     ): ActiveQueryInterface {
-        return $this->factory->create(
-            [
-                'class' => $queryClass ?? RedisActiveQuery::class,
-                '__construct()' => [
-                    $arClass,
-                    $connection ?? $this->getConnection(),
+        if ($db === null) {
+            $activeQuery = $this->factory->create(
+                [
+                    'class' => $queryClass ?? RedisActiveQuery::class,
+                    '__construct()' => [
+                        $arClass,
+                    ],
                 ],
-            ]
-        );
-    }
+            );
+        } else {
+            $activeQuery = $this->factory->create(
+                [
+                    'class' => $queryClass ?? RedisActiveQuery::class,
+                    '__construct()' => [
+                        $arClass,
+                        $db,
+                    ],
+                ],
+            );
+        }
 
-    /**
-     * Returns the active connection at the factory.
-     *
-     * @throws InvalidConfigException
-     *
-     * @return ConnectionInterface
-     */
-    public function getConnection(): ConnectionInterface
-    {
-        return $this->factory->create(ConnectionInterface::class);
+        return $activeQuery;
     }
 }

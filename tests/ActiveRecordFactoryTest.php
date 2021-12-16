@@ -11,6 +11,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer as RedisCustomer;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\CustomerQuery as RedisCustomerQuery;
+use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 
 /**
@@ -25,6 +26,14 @@ final class ActiveRecordFactoryTest extends TestCase
         $customerAR = $this->arFactory->createAR(Customer::class);
 
         $this->assertInstanceOf(Customer::class, $customerAR);
+    }
+
+    public function testCreateARWithConnection(): void
+    {
+        $customerAR = $this->arFactory->createAR(Customer::class, $this->redisConnection);
+        $db = $this->getInaccessibleProperty($customerAR, 'db', true);
+
+        $this->assertInstanceOf(RedisConnection::class, $db);
     }
 
     public function testCreateQueryTo(): void
@@ -51,14 +60,6 @@ final class ActiveRecordFactoryTest extends TestCase
         $customerQuery = $this->arFactory->createRedisQueryTo(RedisCustomer::class, RedisCustomerQuery::class);
 
         $this->assertInstanceOf(RedisCustomerQuery::class, $customerQuery);
-    }
-
-    public function testGetConnection(): void
-    {
-        /** connection default */
-        $connection = $this->arFactory->getConnection();
-
-        $this->assertInstanceOf(SqliteConnection::class, $connection);
     }
 
     public function testGetArInstanceWithConstructor(): void

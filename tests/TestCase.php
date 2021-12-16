@@ -9,6 +9,7 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
@@ -25,11 +26,11 @@ use Yiisoft\Db\Oracle\Connection as OciConnection;
 use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
+use Yiisoft\Definitions\Reference;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\Provider;
-use Yiisoft\Definitions\Reference;
 use Yiisoft\Factory\Factory;
 use Yiisoft\Log\Logger;
 use Yiisoft\Profiler\Profiler;
@@ -120,6 +121,36 @@ class TestCase extends AbstractTestCase
             $this->loadFixture($db);
             $db->getSchema()->refresh();
         }
+    }
+
+    /**
+     * Gets an inaccessible object property.
+     *
+     * @param object $object
+     * @param string $propertyName
+     * @param bool $revoke whether to make property inaccessible after getting.
+     *
+     * @return mixed
+     */
+    protected function getInaccessibleProperty(object $object, string $propertyName, bool $revoke = true)
+    {
+        $class = new ReflectionClass($object);
+
+        while (!$class->hasProperty($propertyName)) {
+            $class = $class->getParentClass();
+        }
+
+        $property = $class->getProperty($propertyName);
+
+        $property->setAccessible(true);
+
+        $result = $property->getValue($object);
+
+        if ($revoke) {
+            $property->setAccessible(false);
+        }
+
+        return $result;
     }
 
     /**
