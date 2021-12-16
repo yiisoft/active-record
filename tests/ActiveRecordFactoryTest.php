@@ -13,7 +13,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer as RedisCustomer;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\CustomerQuery as RedisCustomerQuery;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
-use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 
 /**
  * @group main
