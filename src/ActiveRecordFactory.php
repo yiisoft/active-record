@@ -88,7 +88,7 @@ final class ActiveRecordFactory
     public function createRedisQueryTo(
         string $arClass,
         string $queryClass = null,
-        ConnectionInterface $db = null,
+        ConnectionInterface $db = null
     ): ActiveQueryInterface {
         $params = [
             'class' => $queryClass ?? RedisActiveQuery::class,
