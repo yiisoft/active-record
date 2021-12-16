@@ -33,13 +33,15 @@ final class ActiveRecordFactory
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
-        if ($db === null) {
-            $activeRecord = $this->factory->create(['class' => $arClass]);
-        } else {
-            $activeRecord = $this->factory->create(['class' => $arClass, '__construct()' => ['db' => $db]]);
+        $params = [
+            'class' => $arClass,
+        ];
+
+        if ($db) {
+            $params['__construct()']['db'] = $db;
         }
 
-        return $activeRecord;
+        return $this->factory->create($params);
     }
 
     /**
@@ -58,28 +60,18 @@ final class ActiveRecordFactory
         string $queryClass = null,
         ConnectionInterface $db = null
     ): ActiveQueryInterface {
-        if ($db === null) {
-            $activeQuery = $this->factory->create(
-                [
-                    'class' => $queryClass ?? ActiveQuery::class,
-                    '__construct()' => [
-                        $arClass,
-                    ],
-                ],
-            );
-        } else {
-            $activeQuery = $this->factory->create(
-                [
-                    'class' => $queryClass ?? ActiveQuery::class,
-                    '__construct()' => [
-                        $arClass,
-                        $db,
-                    ],
-                ],
-            );
+        $params = [
+            'class' => $queryClass ?? ActiveQuery::class,
+            '__construct()' => [
+                'modelClass' => $arClass,
+            ],
+        ];
+
+        if ($db) {
+            $params['__construct()']['db'] = $db;
         }
 
-        return $activeQuery;
+        return $this->factory->create($params);
     }
 
     /**
@@ -98,27 +90,17 @@ final class ActiveRecordFactory
         string $queryClass = null,
         ConnectionInterface $db = null,
     ): ActiveQueryInterface {
-        if ($db === null) {
-            $activeQuery = $this->factory->create(
-                [
-                    'class' => $queryClass ?? RedisActiveQuery::class,
-                    '__construct()' => [
-                        $arClass,
-                    ],
-                ],
-            );
-        } else {
-            $activeQuery = $this->factory->create(
-                [
-                    'class' => $queryClass ?? RedisActiveQuery::class,
-                    '__construct()' => [
-                        $arClass,
-                        $db,
-                    ],
-                ],
-            );
+        $params = [
+            'class' => $queryClass ?? RedisActiveQuery::class,
+            '__construct()' => [
+                'modelClass' => $arClass,
+            ],
+        ];
+
+        if ($db) {
+            $params['__construct()']['db'] = $db;
         }
 
-        return $activeQuery;
+        return $this->factory->create($params);
     }
 }

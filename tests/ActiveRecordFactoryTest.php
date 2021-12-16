@@ -11,6 +11,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer as RedisCustomer;
 use Yiisoft\ActiveRecord\Tests\Stubs\Redis\CustomerQuery as RedisCustomerQuery;
+use Yiisoft\Db\Mysql\Connection as MysqlConnection;
 use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 
@@ -34,6 +35,7 @@ final class ActiveRecordFactoryTest extends TestCase
         $db = $this->getInaccessibleProperty($customerAR, 'db', true);
 
         $this->assertInstanceOf(RedisConnection::class, $db);
+        $this->assertInstanceOf(Customer::class, $customerAR);
     }
 
     public function testCreateQueryTo(): void
@@ -47,6 +49,16 @@ final class ActiveRecordFactoryTest extends TestCase
         $customerQuery = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class);
 
         $this->assertInstanceOf(CustomerQuery::class, $customerQuery);
+    }
+
+    public function testCreateQueryToWithConnection(): void
+    {
+        /** example create active query */
+        $customerQuery = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class, $this->mysqlConnection);
+        $db = $this->getInaccessibleProperty($customerQuery, 'db', true);
+
+        $this->assertInstanceOf(MysqlConnection::class, $db);
+        $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
     }
 
     public function testCreateRedisQueryTo(): void
