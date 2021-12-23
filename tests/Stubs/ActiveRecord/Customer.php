@@ -27,7 +27,10 @@ class Customer extends ActiveRecord
      * @var int|string
      */
     public $status2;
-    public ?string $sumTotal;
+    /**
+     * @var int|string|null
+     */
+    public $sumTotal;
 
     public function tableName(): string
     {
