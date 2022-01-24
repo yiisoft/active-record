@@ -4,17 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function array_diff;
-use function array_fill_keys;
-use function array_keys;
-use function array_map;
-use function array_values;
-use function in_array;
-use function is_array;
-use function is_string;
-use function key;
-use function preg_replace;
-
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -25,6 +14,17 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\TableSchema;
 use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
+
+use function array_diff;
+use function array_fill_keys;
+use function array_keys;
+use function array_map;
+use function array_values;
+use function in_array;
+use function is_array;
+use function is_string;
+use function key;
+use function preg_replace;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.

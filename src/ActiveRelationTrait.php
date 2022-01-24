@@ -4,6 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use ReflectionException;
+use ReflectionMethod;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ArrayExpression;
+
 use function array_combine;
 use function array_keys;
 use function array_merge;
@@ -12,23 +21,14 @@ use function array_values;
 use function count;
 use function get_class;
 use function is_array;
-
 use function is_object;
 use function is_scalar;
 use function is_string;
 use function key;
 use function lcfirst;
 use function method_exists;
-use ReflectionException;
-use ReflectionMethod;
 use function reset;
 use function serialize;
-use Throwable;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\ArrayExpression;
 
 /**
  * ActiveRelationTrait implements the common methods and properties for active record relational queries.

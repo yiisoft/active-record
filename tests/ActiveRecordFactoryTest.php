@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer as RedisCustomer;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\CustomerQuery as RedisCustomerQuery;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
-use Yiisoft\Db\Redis\Connection as RedisConnection;
 
 /**
  * @group main
@@ -30,10 +26,10 @@ final class ActiveRecordFactoryTest extends TestCase
 
     public function testCreateARWithConnection(): void
     {
-        $customerAR = $this->arFactory->createAR(Customer::class, $this->redisConnection);
+        $customerAR = $this->arFactory->createAR(Customer::class, $this->mysqlConnection);
         $db = $this->getInaccessibleProperty($customerAR, 'db', true);
 
-        $this->assertInstanceOf(RedisConnection::class, $db);
+        $this->assertInstanceOf(MysqlConnection::class, $db);
         $this->assertInstanceOf(Customer::class, $customerAR);
     }
 
@@ -58,19 +54,6 @@ final class ActiveRecordFactoryTest extends TestCase
 
         $this->assertInstanceOf(MysqlConnection::class, $db);
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
-    }
-
-    public function testCreateRedisQueryTo(): void
-    {
-        /** example create redis active query */
-        $customerQuery = $this->arFactory->createRedisQueryTo(RedisCustomer::class);
-
-        $this->assertInstanceOf(RedisActiveQuery::class, $customerQuery);
-
-        /** example create redis active query custom */
-        $customerQuery = $this->arFactory->createRedisQueryTo(RedisCustomer::class, RedisCustomerQuery::class);
-
-        $this->assertInstanceOf(RedisCustomerQuery::class, $customerQuery);
     }
 
     public function testGetArInstanceWithConstructor(): void

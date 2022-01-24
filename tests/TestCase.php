@@ -13,7 +13,6 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
@@ -24,7 +23,6 @@ use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mysql\Connection as MysqlConnection;
 use Yiisoft\Db\Oracle\Connection as OciConnection;
 use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
-use Yiisoft\Db\Redis\Connection as RedisConnection;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Di\Container;
@@ -50,7 +48,6 @@ class TestCase extends AbstractTestCase
     protected MysqlConnection $mysqlConnection;
     protected OciConnection $ociConnection;
     protected PgsqlConnection $pgsqlConnection;
-    protected RedisConnection $redisConnection;
     protected SqliteConnection $sqliteConnection;
     protected ActiveRecordFactory $arFactory;
 
@@ -71,48 +68,8 @@ class TestCase extends AbstractTestCase
         $this->mysqlConnection = $this->container->get(MysqlConnection::class);
         $this->ociConnection = $this->container->get(OciConnection::class);
         $this->pgsqlConnection = $this->container->get(PgsqlConnection::class);
-        $this->redisConnection = $this->container->get(RedisConnection::class);
         $this->sqliteConnection = $this->container->get(SqliteConnection::class);
         $this->arFactory = $this->container->get(ActiveRecordFactory::class);
-    }
-
-    protected function customerData(): void
-    {
-        $customer = new Customer($this->redisConnection);
-        $customer->setAttributes(
-            [
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 1,
-                'profile_id', 1,
-            ]
-        );
-        $customer->save();
-
-        $customer = new Customer($this->redisConnection);
-        $customer->setAttributes(
-            [
-                'email' => 'user2@example.com',
-                'name' => 'user2',
-                'address' => 'address2',
-                'status' => 1,
-                'profile_id' => null,
-            ]
-        );
-        $customer->save();
-
-        $customer = new Customer($this->redisConnection);
-        $customer->setAttributes(
-            [
-                'email' => 'user3@example.com',
-                'name' => 'user3',
-                'address' => 'address3',
-                'status' => 2,
-                'profile_id' => 2,
-            ]
-        );
-        $customer->save();
     }
 
     protected function checkFixture(ConnectionInterface $db, string $tablename, bool $reset = false): void
@@ -200,8 +157,6 @@ class TestCase extends AbstractTestCase
             case 'sqlite':
                 $fixture = $this->params()['yiisoft/db-sqlite']['fixture'];
                 break;
-            case 'redis':
-                return;
         }
 
         if ($db->isActive()) {
@@ -311,11 +266,6 @@ class TestCase extends AbstractTestCase
                 'setPassword()' => [$params['yiisoft/db-pgsql']['password']],
             ],
 
-            RedisConnection::class => [
-                'class' => RedisConnection::class,
-                'database()' => [$params['yiisoft/db-redis']['database']],
-            ],
-
             SqliteConnection::class => [
                 'class' => SqliteConnection::class,
                 '__construct()' => [
@@ -358,9 +308,6 @@ class TestCase extends AbstractTestCase
                 'username' => 'root',
                 'password' => 'root',
                 'fixture' => __DIR__ . '/Data/pgsql.sql',
-            ],
-            'yiisoft/db-redis' => [
-                'database' => 0,
             ],
             'yiisoft/db-sqlite' => [
                 'dsn' => 'sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3',

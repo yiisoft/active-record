@@ -4,22 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function array_merge;
-use function array_values;
-use function count;
-use function get_class;
-use function implode;
-use function in_array;
-use function is_array;
-use function is_int;
-use function is_string;
-use function preg_match;
 use ReflectionException;
-use function reset;
-
-use function serialize;
-use function strpos;
-use function substr;
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\Command;
@@ -31,6 +16,21 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+
+use function array_merge;
+use function array_values;
+use function count;
+use function get_class;
+use function implode;
+use function in_array;
+use function is_array;
+use function is_int;
+use function is_string;
+use function preg_match;
+use function reset;
+use function serialize;
+use function strpos;
+use function substr;
 
 /**
  * ActiveQuery represents a DB query associated with an Active Record class.

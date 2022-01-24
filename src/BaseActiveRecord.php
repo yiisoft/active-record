@@ -4,26 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function array_combine;
-use function array_flip;
-use function array_intersect;
-use function array_key_exists;
-use function array_keys;
-use function array_search;
-use function array_values;
 use ArrayAccess;
 use Closure;
-use function count;
-use function get_class;
-use function in_array;
-use function is_array;
-
-use function is_int;
 use IteratorAggregate;
 use ReflectionException;
-use function reset;
 use Throwable;
-use Yiisoft\ActiveRecord\Redis\ActiveQuery as RedisActiveQuery;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -31,6 +16,20 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
+
+use function array_combine;
+use function array_flip;
+use function array_intersect;
+use function array_key_exists;
+use function array_keys;
+use function array_search;
+use function array_values;
+use function count;
+use function get_class;
+use function in_array;
+use function is_array;
+use function is_int;
+use function reset;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -910,10 +909,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function instantiateQuery(string $arClass): ActiveQueryInterface
     {
-        if ($this->db->getDriverName() === 'redis') {
-            return new RedisActiveQuery($arClass, $this->db, $this->arFactory);
-        }
-
         return new ActiveQuery($arClass, $this->db, $this->arFactory);
     }
 

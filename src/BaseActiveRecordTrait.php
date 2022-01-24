@@ -4,25 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function array_key_exists;
 use ArrayAccess;
 use ArrayIterator;
 use Error;
 use Exception;
 use IteratorAggregate;
-use function lcfirst;
-use function method_exists;
-use function property_exists;
 use ReflectionException;
 use ReflectionMethod;
-use function substr;
-
 use Throwable;
-use function ucfirst;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
+
+use function array_key_exists;
+use function lcfirst;
+use function method_exists;
+use function property_exists;
+use function substr;
+use function ucfirst;
 
 trait BaseActiveRecordTrait
 {

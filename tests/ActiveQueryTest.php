@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ReflectionException;
-use function sort;
 use Throwable;
-use function ucfirst;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -29,9 +27,11 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+
+use function sort;
+use function ucfirst;
 
 abstract class ActiveQueryTest extends TestCase
 {
