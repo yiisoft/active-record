@@ -34,7 +34,7 @@ jobs:
           - ubuntu-latest
 
         php:
-          - 7.4
+          - 8.1
 
     services:
       mysql:
@@ -89,10 +89,10 @@ jobs:
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "${{ matrix.php }}"
+          php-version: ${{ matrix.php }}
           extensions: ${{ env.extensions }}
           ini-values: memory_limit=-1
-          coverage: "pcov"
+          coverage: pcov
           tools: composer:v2, pecl
 
       - name: Determine composer cache directory
