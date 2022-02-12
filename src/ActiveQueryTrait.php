@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function is_array;
-use function is_int;
 use ReflectionException;
-use function reset;
-use function strpos;
-use function substr;
-
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+
+use function is_array;
+use function is_int;
+use function reset;
+use function strpos;
+use function substr;
 
 trait ActiveQueryTrait
 {

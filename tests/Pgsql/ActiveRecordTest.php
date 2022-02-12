@@ -18,7 +18,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
-use Yiisoft\Db\Pgsql\Schema;
+use Yiisoft\Db\Pgsql\PDO\SchemaPDOPgsql;
 
 /**
  * @group pgsql
@@ -38,9 +38,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
     protected function tearDown(): void
     {
         parent::tearDown();
-
         $this->pgsqlConnection->close();
-
         unset($this->pgsqlConnection);
     }
 
@@ -49,16 +47,13 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->checkFixture($this->db, 'customer');
 
         $customer = new Customer($this->db);
-
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
         $customer->name = 'user1337';
         $customer->address = 'address1337';
-
         $this->assertTrue($customer->isNewRecord);
 
         $customer->save();
-
         $this->assertEquals(1337, $customer->id);
         $this->assertFalse($customer->isNewRecord);
     }
@@ -71,9 +66,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->checkFixture($this->db, 'beta');
 
         $betaQuery = new ActiveQuery(Beta::class, $this->db);
-
         $betas = $betaQuery->with('alpha')->all();
-
         $this->assertNotEmpty($betas);
 
         $alphaIdentifiers = [];
@@ -96,7 +89,6 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
         $customer->bool_status = false;
-
         $customer->save();
 
         $customer->refresh();
@@ -122,7 +114,6 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $command = $this->db->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
-
         $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
@@ -147,42 +138,36 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
     {
         $this->checkFixture($this->db, 'bool_user');
 
-        $this->db->setCharset('utf8');
-
+        //$this->db->setCharset('utf8');
         $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
-
         $this->db->createCommand()->createTable('bool_user', [
-            'id' => Schema::TYPE_PK,
-            'username' => Schema::TYPE_STRING . ' NOT NULL',
-            'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL',
-            'password_hash' => Schema::TYPE_STRING . ' NOT NULL',
-            'password_reset_token' => Schema::TYPE_STRING,
-            'email' => Schema::TYPE_STRING . ' NOT NULL',
-            'role' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'status' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'created_at' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'updated_at' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'id' => SchemaPDOPgsql::TYPE_PK,
+            'username' => SchemaPDOPgsql::TYPE_STRING . ' NOT NULL',
+            'auth_key' => SchemaPDOPgsql::TYPE_STRING . '(32) NOT NULL',
+            'password_hash' => SchemaPDOPgsql::TYPE_STRING . ' NOT NULL',
+            'password_reset_token' => SchemaPDOPgsql::TYPE_STRING,
+            'email' => SchemaPDOPgsql::TYPE_STRING . ' NOT NULL',
+            'role' => SchemaPDOPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+            'status' => SchemaPDOPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+            'created_at' => SchemaPDOPgsql::TYPE_INTEGER . ' NOT NULL',
+            'updated_at' => SchemaPDOPgsql::TYPE_INTEGER . ' NOT NULL',
         ])->execute();
-
         $this->db->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
-            Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
+            SchemaPDOPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
         )->execute();
 
         $user = new UserAR($this->db);
-
         $user->username = 'test';
         $user->auth_key = 'test';
         $user->password_hash = 'test';
         $user->email = 'test@example.com';
         $user->created_at = time();
         $user->updated_at = time();
-
         $user->save();
 
         $userQuery = new ActiveQuery(UserAR::class, $this->db);
-
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());

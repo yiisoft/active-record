@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ReflectionException;
-use function sort;
 use Throwable;
-use function ucfirst;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -29,9 +27,11 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+
+use function sort;
+use function ucfirst;
 
 abstract class ActiveQueryTest extends TestCase
 {
@@ -42,7 +42,6 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
-
         $this->assertEquals($query->getARClass(), Customer::class);
         $this->assertEquals($query->getOn(), ['a' => 'b']);
         $this->assertEquals($query->getJoinWith(), [[['profile'], true, 'LEFT JOIN']]);
@@ -52,11 +51,8 @@ abstract class ActiveQueryTest extends TestCase
     {
         $this->checkFixture($this->db, 'customer');
 
-        $builder = new QueryBuilder($this->db);
-
         $query = new ActiveQuery(Customer::class, $this->db);
-
-        $this->assertInstanceOf(Query::class, $query->prepare($builder));
+        $this->assertInstanceOf(Query::class, $query->prepare($this->db->getQueryBuilder()));
     }
 
     public function testPopulateEmptyRows(): void
@@ -64,7 +60,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $this->assertEquals([], $query->populate([]));
     }
 
@@ -73,11 +68,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $rows = $query->all();
-
         $result = $query->populate($rows);
-
         $this->assertEquals($rows, $result);
     }
 
@@ -86,7 +78,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $this->assertInstanceOf(Customer::class, $query->one());
     }
 
@@ -95,7 +86,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $this->assertInstanceOf(Command::class, $query->createCommand());
     }
 
@@ -104,7 +94,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $this->assertEquals('user1', $this->invokeMethod($query, 'queryScalar', ['name']));
     }
 
@@ -113,9 +102,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $query->joinWith('profile');
-
         $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
     }
 
@@ -124,9 +111,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $query->innerJoinWith('profile');
-
         $this->assertEquals([[['profile'], true, 'INNER JOIN']], $query->getJoinWith());
     }
 
@@ -135,11 +120,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $query->innerJoinWith('orders')->joinWith('orders.orderItems');
-
         $this->invokeMethod($query, 'buildJoinWith');
-
         $this->assertEquals([
             [
                 'INNER JOIN',
@@ -159,7 +141,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $this->assertEquals(['customer', 'customer'], $this->invokeMethod($query, 'getTableNameAndAlias'));
     }
 
@@ -168,9 +149,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $query->from(['alias' => 'customer']);
-
         $this->assertEquals(['customer', 'alias'], $this->invokeMethod($query, 'getTableNameAndAlias'));
     }
 
@@ -182,9 +161,7 @@ abstract class ActiveQueryTest extends TestCase
         $params = ['a' => 'b'];
 
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $query->onCondition($on, $params);
-
         $this->assertEquals($on, $query->getOn());
         $this->assertEquals($params, $query->getParams());
     }
@@ -195,11 +172,8 @@ abstract class ActiveQueryTest extends TestCase
 
         $on = ['active' => true];
         $params = ['a' => 'b'];
-
         $query = new ActiveQuery(Customer::class, $this->db);
-
         $query->andOnCondition($on, $params);
-
         $this->assertEquals($on, $query->getOn());
         $this->assertEquals($params, $query->getParams());
     }
