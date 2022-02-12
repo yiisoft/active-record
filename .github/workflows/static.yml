@@ -33,9 +33,7 @@ jobs:
           - ubuntu-latest
 
         php:
-          - 7.4
           - 8.0
-          - 8.1
 
     steps:
       - name: Checkout
@@ -48,17 +46,6 @@ jobs:
           extensions: ${{ env.extensions }}
           tools: composer:v2, cs2pr
           coverage: none
-
-      - name: Determine composer cache directory
-        run: echo "COMPOSER_CACHE_DIR=$(composer config cache-dir)" >> $GITHUB_ENV
-
-      - name: Cache dependencies installed with composer
-        uses: actions/cache@v2
-        with:
-          path: ${{ env.COMPOSER_CACHE_DIR }}
-          key: php${{ matrix.php }}-composer-${{ hashFiles('**/composer.json') }}
-          restore-keys: |
-            php${{ matrix.php }}-composer-
 
       - name: Update composer
         run: composer self-update
