@@ -4,17 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use function array_diff;
-use function array_fill_keys;
-use function array_keys;
-use function array_map;
-use function array_values;
-use function in_array;
-use function is_array;
-use function is_string;
-use function key;
-use function preg_replace;
-
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -25,6 +14,17 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\TableSchema;
 use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
+
+use function array_diff;
+use function array_fill_keys;
+use function array_keys;
+use function array_map;
+use function array_values;
+use function in_array;
+use function is_array;
+use function is_string;
+use function key;
+use function preg_replace;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -182,7 +182,7 @@ class ActiveRecord extends BaseActiveRecord
         $columnNames = $this->filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array($this->db->quoteSql($key), $columnNames, true)) {
+            if (is_string($key) && !in_array($this->db->getQuoter()->quoteSql($key), $columnNames, true)) {
                 throw new InvalidArgumentException(
                     'Key "' . $key . '" is not a column name and can not be used as a filter'
                 );
@@ -206,18 +206,18 @@ class ActiveRecord extends BaseActiveRecord
     {
         $columnNames = [];
         $tableName = $this->tableName();
-        $quotedTableName = $this->db->quoteTableName($tableName);
+        $quotedTableName = $this->db->getQuoter()->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
-            $columnNames[] = $this->db->quoteColumnName($columnName);
+            $columnNames[] = $this->db->getQuoter()->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $this->db->quoteSql("$quotedTableName.[[$columnName]]");
+            $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableName.[[$columnName]]");
 
             foreach ($aliases as $tableAlias) {
                 $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $this->db->quoteTableName($tableAlias);
-                $columnNames[] = $this->db->quoteSql("$quotedTableAlias.[[$columnName]]");
+                $quotedTableAlias = $this->db->getQuoter()->quoteTableName($tableAlias);
+                $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableAlias.[[$columnName]]");
             }
         }
 
@@ -268,7 +268,7 @@ class ActiveRecord extends BaseActiveRecord
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string|null $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
+     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
@@ -276,7 +276,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = null, array $params = []): int
+    public function updateAll(array $attributes, $condition = [], array $params = []): int
     {
         $command = $this->db->createCommand();
 
@@ -346,7 +346,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
-     * @param array|null $condition the conditions that will be put in the WHERE part of the DELETE SQL. Please refer
+     * @param array $condition the conditions that will be put in the WHERE part of the DELETE SQL. Please refer
      * to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
@@ -354,7 +354,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int the number of rows deleted.
      */
-    public function deleteAll(array $condition = null, array $params = []): int
+    public function deleteAll(array $condition = [], array $params = []): int
     {
         $command = $this->db->createCommand();
         $command->delete($this->tableName(), $condition, $params);

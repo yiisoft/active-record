@@ -111,14 +111,14 @@ interface ActiveRecordInterface
      *
      * @param array $attributes attribute values (name-value pairs) to be saved for the record. Unlike {@see update()}
      * these are not going to be validated.
-     * @param array|string|null $condition the condition that matches the records that should get updated.
+     * @param array|string $condition the condition that matches the records that should get updated.
      * Please refer to {@see QueryInterface::where()} on how to specify this parameter. An empty condition will match
      * all records.
      * @param array $params
      *
      * @return int the number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = null, array $params = []): int;
+    public function updateAll(array $attributes, $condition = [], array $params = []): int;
 
     /**
      * Deletes records using the provided conditions.
@@ -132,13 +132,13 @@ interface ActiveRecordInterface
      * $customer->deleteAll([status = 3]);
      * ```
      *
-     * @param array|null $condition the condition that matches the records that should get deleted.
+     * @param array $condition the condition that matches the records that should get deleted.
      * Please refer to {@see QueryInterface::where()} on how to specify this parameter.
      * An empty condition will match all records.
      *
      * @return int the number of rows deleted.
      */
-    public function deleteAll(array $condition = null): int;
+    public function deleteAll(array $condition = []): int;
 
     /**
      * Saves the current record.

@@ -15,7 +15,7 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/active-record/v/stable.png)](https://packagist.org/packages/yiisoft/active-record)
 [![Total Downloads](https://poser.pugx.org/yiisoft/active-record/downloads.png)](https://packagist.org/packages/yiisoft/active-record)
 [![Build status](https://github.com/yiisoft/active-record/workflows/build/badge.svg)](https://github.com/yiisoft/active-record/actions?query=workflow%3Abuild)
-[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/active-record/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/active-record/?branch=master)
+[![codecov](https://codecov.io/gh/yiisoft/active-record/branch/master/graph/badge.svg?token=w4KarhYyEF)](https://codecov.io/gh/yiisoft/active-record)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Factive-record%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/active-record/master)
 [![type-coverage](https://shepherd.dev/github/yiisoft/active-record/coverage.svg)](https://shepherd.dev/github/yiisoft/active-record)
 

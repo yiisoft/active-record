@@ -13,19 +13,18 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
-use Yiisoft\ActiveRecord\Tests\Stubs\Redis\Customer;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\Dsn;
-use Yiisoft\Db\Mssql\Connection as MssqlConnection;
+use Yiisoft\Db\Driver\PDODriver;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
-use Yiisoft\Db\Mysql\Connection as MysqlConnection;
-use Yiisoft\Db\Oracle\Connection as OciConnection;
-use Yiisoft\Db\Pgsql\Connection as PgsqlConnection;
-use Yiisoft\Db\Redis\Connection as RedisConnection;
-use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
+use Yiisoft\Db\Mssql\PDO\ConnectionPDOMssql;
+use Yiisoft\Db\Mysql\PDO\ConnectionPDOMysql;
+use Yiisoft\Db\Oracle\PDO\ConnectionPDOOracle;
+use Yiisoft\Db\Pgsql\PDO\ConnectionPDOPgsql;
+use Yiisoft\Db\Sqlite\PDO\ConnectionPDOSqlite;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
@@ -46,12 +45,11 @@ use function trim;
 class TestCase extends AbstractTestCase
 {
     protected ContainerInterface $container;
-    protected MssqlConnection $mssqlConnection;
-    protected MysqlConnection $mysqlConnection;
-    protected OciConnection $ociConnection;
-    protected PgsqlConnection $pgsqlConnection;
-    protected RedisConnection $redisConnection;
-    protected SqliteConnection $sqliteConnection;
+    protected ConnectionPDOMssql $mssqlConnection;
+    protected ConnectionPDOMysql $mysqlConnection;
+    protected ConnectionPDOOracle $ociConnection;
+    protected ConnectionPDOPgsql $pgsqlConnection;
+    protected ConnectionPDOSqlite $sqliteConnection;
     protected ActiveRecordFactory $arFactory;
 
     protected function setUp(): void
@@ -67,52 +65,12 @@ class TestCase extends AbstractTestCase
             ->withDefinitions($this->config());
         $this->container = new Container($config);
 
-        $this->mssqlConnection = $this->container->get(MssqlConnection::class);
-        $this->mysqlConnection = $this->container->get(MysqlConnection::class);
-        $this->ociConnection = $this->container->get(OciConnection::class);
-        $this->pgsqlConnection = $this->container->get(PgsqlConnection::class);
-        $this->redisConnection = $this->container->get(RedisConnection::class);
-        $this->sqliteConnection = $this->container->get(SqliteConnection::class);
+        $this->mssqlConnection = $this->container->get(ConnectionPDOMssql::class);
+        $this->mysqlConnection = $this->container->get(ConnectionPDOMysql::class);
+        $this->ociConnection = $this->container->get(ConnectionPDOOracle::class);
+        $this->pgsqlConnection = $this->container->get(ConnectionPDOPgsql::class);
+        $this->sqliteConnection = $this->container->get(ConnectionPDOSqlite::class);
         $this->arFactory = $this->container->get(ActiveRecordFactory::class);
-    }
-
-    protected function customerData(): void
-    {
-        $customer = new Customer($this->redisConnection);
-        $customer->setAttributes(
-            [
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 1,
-                'profile_id', 1,
-            ]
-        );
-        $customer->save();
-
-        $customer = new Customer($this->redisConnection);
-        $customer->setAttributes(
-            [
-                'email' => 'user2@example.com',
-                'name' => 'user2',
-                'address' => 'address2',
-                'status' => 1,
-                'profile_id' => null,
-            ]
-        );
-        $customer->save();
-
-        $customer = new Customer($this->redisConnection);
-        $customer->setAttributes(
-            [
-                'email' => 'user3@example.com',
-                'name' => 'user3',
-                'address' => 'address3',
-                'status' => 2,
-                'profile_id' => 2,
-            ]
-        );
-        $customer->save();
     }
 
     protected function checkFixture(ConnectionInterface $db, string $tablename, bool $reset = false): void
@@ -200,8 +158,6 @@ class TestCase extends AbstractTestCase
             case 'sqlite':
                 $fixture = $this->params()['yiisoft/db-sqlite']['fixture'];
                 break;
-            case 'redis':
-                return;
         }
 
         if ($db->isActive()) {
@@ -275,58 +231,45 @@ class TestCase extends AbstractTestCase
 
             EventDispatcherInterface::class => Dispatcher::class,
 
-            MssqlConnection::class => [
-                'class' => MssqlConnection::class,
+            ConnectionPDOMssql::class => [
+                'class' => ConnectionPDOMssql::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-mssql']['dsn'],
+                    'driver' => $params['yiisoft/db-mssql']['driver'],
                 ],
-                'setUsername()' => [$params['yiisoft/db-mssql']['username']],
-                'setPassword()' => [$params['yiisoft/db-mssql']['password']],
             ],
 
-            MysqlConnection::class => [
-                'class' => MysqlConnection::class,
+            ConnectionPDOMysql::class => [
+                'class' => ConnectionPDOMysql::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-mysql']['dsn'],
+                    'driver' => $params['yiisoft/db-mysql']['driver'],
                 ],
-                'setUsername()' => [$params['yiisoft/db-mysql']['username']],
-                'setPassword()' => [$params['yiisoft/db-mysql']['password']],
             ],
 
-            OciConnection::class => [
-                'class' => OciConnection::class,
+            ConnectionPDOPgsql::class => [
+                'class' => ConnectionPDOPgsql::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-oracle']['dsn'],
+                    'driver' => $params['yiisoft/db-pgsql']['driver'],
                 ],
-                'setUsername()' => [$params['yiisoft/db-oracle']['username']],
-                'setPassword()' => [$params['yiisoft/db-oracle']['password']],
             ],
 
-            PgsqlConnection::class => [
-                'class' => PgsqlConnection::class,
+            ConnectionPDOOracle::class => [
+                'class' => ConnectionPDOOracle::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-pgsql']['dsn'],
+                    'driver' => $params['yiisoft/db-oracle']['driver'],
                 ],
-                'setUsername()' => [$params['yiisoft/db-pgsql']['username']],
-                'setPassword()' => [$params['yiisoft/db-pgsql']['password']],
             ],
 
-            RedisConnection::class => [
-                'class' => RedisConnection::class,
-                'database()' => [$params['yiisoft/db-redis']['database']],
-            ],
-
-            SqliteConnection::class => [
-                'class' => SqliteConnection::class,
+            ConnectionPDOSqlite::class => [
+                'class' => ConnectionPDOSqlite::class,
                 '__construct()' => [
-                    'dsn' => $params['yiisoft/db-sqlite']['dsn'],
+                    'driver' => $params['yiisoft/db-sqlite']['driver'],
                 ],
             ],
 
             Factory::class => [
                 'class' => Factory::class,
                 '__construct()' => [
-                    'definitions' => [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
+                    'definitions' => [ConnectionInterface::class => Reference::to(ConnectionPDOSqlite::class)],
                 ],
             ],
         ];
@@ -336,34 +279,39 @@ class TestCase extends AbstractTestCase
     {
         return [
             'yiisoft/db-mssql' => [
-                'dsn' => (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
-                'username' => 'SA',
-                'password' => 'YourStrong!Passw0rd',
+                'driver' => new PDODriver(
+                    (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
+                    'SA',
+                    'YourStrong!Passw0rd',
+                ),
                 'fixture' => __DIR__ . '/Data/mssql.sql',
             ],
             'yiisoft/db-mysql' => [
-                'dsn' => (new Dsn('mysql', '127.0.0.1', 'yiitest', '3306'))->asString(),
-                'username' => 'root',
-                'password' => '',
+                'driver' => new PDODriver(
+                    (new Dsn('mysql', '127.0.0.1', 'yiitest', '3306'))->asString(),
+                    'root',
+                    '',
+                ),
                 'fixture' => __DIR__ . '/Data/mysql.sql',
             ],
-            'yiisoft/db-oracle' => [
-                'dsn' => 'oci:dbname=localhost/XE;charset=AL32UTF8;',
-                'username' => 'system',
-                'password' => 'oracle',
-                'fixture' => __DIR__ . '/Data/oci.sql',
-            ],
             'yiisoft/db-pgsql' => [
-                'dsn' => (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->asString(),
-                'username' => 'root',
-                'password' => 'root',
+                'driver' => new PDODriver(
+                    (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->asString(),
+                    'root',
+                    'root'
+                ),
                 'fixture' => __DIR__ . '/Data/pgsql.sql',
             ],
-            'yiisoft/db-redis' => [
-                'database' => 0,
+            'yiisoft/db-oracle' => [
+                'driver' => new PDODriver(
+                    'oci:dbname=localhost/XE;charset=AL32UTF8;',
+                    'system',
+                    'oracle',
+                ),
+                'fixture' => __DIR__ . '/Data/oci.sql',
             ],
             'yiisoft/db-sqlite' => [
-                'dsn' => 'sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3',
+                'driver' => new PDODriver('sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3'),
                 'fixture' => __DIR__ . '/Data/sqlite.sql',
             ],
         ];
