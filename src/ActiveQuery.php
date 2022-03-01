@@ -168,7 +168,22 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         if ($this->primaryModel === null) {
             /** eager loading */
-            $query = Query::create($this->db, $this);
+            $query = (new Query($this->db))
+                ->where($this->getWhere())
+                ->limit($this->getLimit())
+                ->offset($this->getOffset())
+                ->orderBy($this->getOrderBy())
+                ->indexBy($this->getIndexBy())
+                ->select($this->select)
+                ->selectOption($this->selectOption)
+                ->distinct($this->distinct)
+                ->from($this->from)
+                ->groupBy($this->groupBy)
+                ->setJoin($this->join)
+                ->having($this->having)
+                ->setUnion($this->union)
+                ->params($this->params)
+                ->withQueries($this->withQueries);
         } else {
             /** lazy loading of a relation */
             $where = $this->getWhere();
@@ -211,7 +226,22 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $this->filterByModels([$this->primaryModel]);
             }
 
-            $query = Query::create($this->db, $this);
+            $query = (new Query($this->db))
+                ->where($this->getWhere())
+                ->limit($this->getLimit())
+                ->offset($this->getOffset())
+                ->orderBy($this->getOrderBy())
+                ->indexBy($this->getIndexBy())
+                ->select($this->select)
+                ->selectOption($this->selectOption)
+                ->distinct($this->distinct)
+                ->from($this->from)
+                ->groupBy($this->groupBy)
+                ->setJoin($this->join)
+                ->having($this->having)
+                ->setUnion($this->union)
+                ->params($this->params)
+                ->withQueries($this->withQueries);
             $this->where($where);
         }
 
