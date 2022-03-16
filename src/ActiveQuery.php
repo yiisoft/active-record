@@ -355,11 +355,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
      * @throws Throwable
      *
-     * @return ActiveRecord|array|null a single row of query result. Depending on the setting of {@see asArray}, the
+     * @return mixed a single row of query result. Depending on the setting of {@see asArray}, the
      * query result may be either an array or an ActiveRecord object. `null` will be returned if the query results in
      * nothing.
      */
-    public function one()
+    public function one(): mixed
     {
         $row = parent::one();
 

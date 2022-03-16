@@ -29,11 +29,11 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Executes query and returns a single row of result.
      *
-     * @return ActiveRecordInterface|array|null a single row of query result. Depending on the setting of {@see asArray}
+     * @return mixed a single row of query result. Depending on the setting of {@see asArray}
      * the query result may be either an array or an ActiveRecord object. `null` will be returned if the query results
      * in nothing.
      */
-    public function one();
+    public function one(): mixed;
 
     /**
      * Sets the {@see indexBy} property.
