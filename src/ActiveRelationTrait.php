@@ -183,7 +183,7 @@ trait ActiveRelationTrait
      *
      * @return mixed the related record(s).
      */
-    public function findFor(string $name, ActiveRecordInterface $model)
+    public function findFor(string $name, ActiveRecordInterface $model): mixed
     {
         if (method_exists($model, 'get' . $name)) {
             $method = new ReflectionMethod($model, 'get' . $name);

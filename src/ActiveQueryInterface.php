@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 
@@ -22,7 +23,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param bool|null $value whether to return the query results in terms of arrays instead of Active Records.
      *
-     * @return ActiveQueryInterface the query object itself.
+     * @return static the query object itself.
      */
     public function asArray(?bool $value = true): self;
 
@@ -38,7 +39,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Sets the {@see indexBy} property.
      *
-     * @param callable|string $column the name of the column by which the query results should be indexed by.
+     * @param string|Closure|null $column the name of the column by which the query results should be indexed by.
      *
      * This can also be a callable (e.g. anonymous function) that returns the index value based on the given row or
      * model data. The signature of the callable should be:
@@ -54,7 +55,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return Query the query object itself
      */
-    public function indexBy($column): Query;
+    public function indexBy(string|Closure|null $column): Query;
 
     /**
      * Specifies the relations with which this query should be performed.
@@ -114,7 +115,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return mixed the related record(s).
      */
-    public function findFor(string $name, ActiveRecordInterface $model);
+    public function findFor(string $name, ActiveRecordInterface $model): mixed;
 
     /**
      * Returns a single active record active record instance by a primary key or an array of column values.
@@ -193,7 +194,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
      */
-    public function findOne($condition): ?ActiveRecordInterface;
+    public function findOne(mixed $condition): ?ActiveRecordInterface;
 
     /**
      * Returns a list of active record that match the specified primary key value(s) or a set of column values.
@@ -272,5 +273,5 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return array an array of ActiveRecord instance, or an empty array if nothing matches.
      */
-    public function findAll($condition): array;
+    public function findAll(mixed $condition): array;
 }
