@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -122,7 +122,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return ActiveRecord[]|array the query results. If the query results in nothing, an empty array will be returned.
+     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     *
+     * @psalm-return ActiveRecord[]|array
      */
     public function all(): array
     {
@@ -261,6 +263,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param array $rows the raw query result from database.
      *
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
+     * @throws Throwable
      *
      * @return array the converted query result.
      */
@@ -355,11 +358,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
      * @throws Throwable
      *
-     * @return ActiveRecord|array|null a single row of query result. Depending on the setting of {@see asArray}, the
+     * @return mixed a single row of query result. Depending on the setting of {@see asArray}, the
      * query result may be either an array or an ActiveRecord object. `null` will be returned if the query results in
      * nothing.
      */
-    public function one()
+    public function one(): mixed
     {
         $row = parent::one();
 
@@ -377,9 +380,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception|InvalidConfigException
      *
-     * @return Command the created DB command instance.
+     * @return CommandInterface the created DB command instance.
      */
-    public function createCommand(): Command
+    public function createCommand(): CommandInterface
     {
         if ($this->sql === null) {
             [$sql, $params] = $this->db->getQueryBuilder()->build($this);
@@ -400,13 +403,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * Restores the value of select to make this query reusable.
      *
-     * @param ExpressionInterface|string $selectExpression
+     * @param string|ExpressionInterface $selectExpression
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return bool|string|null
+     * @return false|int|string|null
      */
-    protected function queryScalar($selectExpression): false|int|null|string
+    protected function queryScalar(string|ExpressionInterface $selectExpression): false|int|null|string
     {
         if ($this->sql === null) {
             return parent::queryScalar($selectExpression);
@@ -1010,11 +1013,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @param mixed $condition primary key value or a set of column values.
      *
-     * @throws InvalidConfigException
-     *
      * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
+     *@throws InvalidConfigException
+     *
      */
-    public function findOne($condition): ?ActiveRecordInterface
+    public function findOne(mixed $condition): ?ActiveRecordInterface
     {
         return $this->findByCondition($condition)->one();
     }
@@ -1023,10 +1026,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param mixed $condition primary key value or a set of column values.
      *
      * @throws InvalidConfigException
-     *
      * @return array of ActiveRecord instance, or an empty array if nothing matches.
      */
-    public function findAll($condition): array
+    public function findAll(mixed $condition): array
     {
         return $this->findByCondition($condition)->all();
     }

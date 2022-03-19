@@ -27,12 +27,11 @@ trait ActiveQueryTrait
      *
      * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
      *
-     * @return $this the query object itself.
+     * @return static the query object itself.
      */
     public function asArray(?bool $value = true): self
     {
         $this->asArray = $value;
-
         return $this;
     }
 
@@ -77,7 +76,7 @@ trait ActiveQueryTrait
      *
      * @param array|string $with
      *
-     * @return $this the query object itself
+     * @return static the query object itself.
      */
     public function with(...$with): self
     {
@@ -107,7 +106,7 @@ trait ActiveQueryTrait
      *
      * @param array $rows
      *
-     * @return ActiveRecord[]|array|null
+     * @return array|null
      */
     protected function createModels(array $rows): ?array
     {
@@ -166,7 +165,7 @@ trait ActiveQueryTrait
      * @param ActiveRecordInterface $model
      * @param array $with
      *
-     * @return ActiveQuery[]|array
+     * @return array
      */
     private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
