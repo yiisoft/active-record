@@ -16,6 +16,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+use Yiisoft\Db\Query\QueryHelper;
 
 use function array_merge;
 use function array_values;
@@ -105,6 +106,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array $joinWith = [];
     private ?ActiveRecordInterface $arInstance = null;
     private ?ActiveRecordFactory $arFactory;
+    private QueryHelper|null $queryHelper = null;
 
     public function __construct(string $modelClass, ConnectionInterface $db, ActiveRecordFactory $arFactory = null)
     {
@@ -403,7 +405,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * Restores the value of select to make this query reusable.
      *
-     * @param ExpressionInterface|string $selectExpression
+     * @param string|ExpressionInterface $selectExpression
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
@@ -961,7 +963,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function getTablesUsedInFrom(): array
     {
         if (empty($this->from)) {
-            return $this->cleanUpTableNames([$this->getPrimaryTableName()]);
+            return $this->createQueryHelper()
+                ->cleanUpTableNames([$this->getPrimaryTableName()], $this->db->getQuoter());
         }
 
         return parent::getTablesUsedInFrom();
@@ -1013,9 +1016,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @param mixed $condition primary key value or a set of column values.
      *
+     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
      *@throws InvalidConfigException
      *
-     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
      */
     public function findOne(mixed $condition): ?ActiveRecordInterface
     {
@@ -1026,7 +1029,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param mixed $condition primary key value or a set of column values.
      *
      * @throws InvalidConfigException
-     *
      * @return array of ActiveRecord instance, or an empty array if nothing matches.
      */
     public function findAll(mixed $condition): array
@@ -1130,5 +1132,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function getARInstanceFactory(): ActiveRecordInterface
     {
         return $this->arFactory->createAR($this->arClass, $this->db);
+    }
+
+    private function createQueryHelper(): QueryHelper
+    {
+        if ($this->queryHelper === null) {
+            $this->queryHelper = new QueryHelper($this->db);
+        }
+
+        return $this->queryHelper;
     }
 }
