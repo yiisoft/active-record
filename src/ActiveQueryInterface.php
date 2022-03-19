@@ -39,7 +39,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Sets the {@see indexBy} property.
      *
-     * @param string|Closure|null $column the name of the column by which the query results should be indexed by.
+     * @param Closure|string|null $column the name of the column by which the query results should be indexed by.
      *
      * This can also be a callable (e.g. anonymous function) that returns the index value based on the given row or
      * model data. The signature of the callable should be:

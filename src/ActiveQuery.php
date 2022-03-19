@@ -403,7 +403,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * Restores the value of select to make this query reusable.
      *
-     * @param string|ExpressionInterface $selectExpression
+     * @param ExpressionInterface|string $selectExpression
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
@@ -1013,9 +1013,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @param mixed $condition primary key value or a set of column values.
      *
-     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
      *@throws InvalidConfigException
      *
+     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
      */
     public function findOne(mixed $condition): ?ActiveRecordInterface
     {
@@ -1026,6 +1026,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param mixed $condition primary key value or a set of column values.
      *
      * @throws InvalidConfigException
+     *
      * @return array of ActiveRecord instance, or an empty array if nothing matches.
      */
     public function findAll(mixed $condition): array
