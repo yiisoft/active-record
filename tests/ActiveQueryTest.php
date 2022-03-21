@@ -1650,8 +1650,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertNull($customerQuery->emulateExecution()->one());
         $this->assertFalse($customerQuery->emulateExecution()->exists());
         $this->assertSame(0, $customerQuery->emulateExecution()->count());
-        $this->assertSame(0, $customerQuery->emulateExecution()->sum('id'));
-        $this->assertSame(0, $customerQuery->emulateExecution()->average('id'));
+        $this->assertNull($customerQuery->emulateExecution()->sum('id'));
+        $this->assertNull($customerQuery->emulateExecution()->average('id'));
         $this->assertNull($customerQuery->emulateExecution()->max('id'));
         $this->assertNull($customerQuery->emulateExecution()->min('id'));
         $this->assertNull($customerQuery->select(['id'])->emulateExecution()->scalar());
