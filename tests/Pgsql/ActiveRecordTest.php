@@ -18,7 +18,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
-use Yiisoft\Db\Pgsql\PDO\SchemaPDOPgsql;
+use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
 /**
  * @group pgsql
@@ -141,21 +141,21 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         //$this->db->setCharset('utf8');
         $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
         $this->db->createCommand()->createTable('bool_user', [
-            'id' => SchemaPDOPgsql::TYPE_PK,
-            'username' => SchemaPDOPgsql::TYPE_STRING . ' NOT NULL',
-            'auth_key' => SchemaPDOPgsql::TYPE_STRING . '(32) NOT NULL',
-            'password_hash' => SchemaPDOPgsql::TYPE_STRING . ' NOT NULL',
-            'password_reset_token' => SchemaPDOPgsql::TYPE_STRING,
-            'email' => SchemaPDOPgsql::TYPE_STRING . ' NOT NULL',
-            'role' => SchemaPDOPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'status' => SchemaPDOPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'created_at' => SchemaPDOPgsql::TYPE_INTEGER . ' NOT NULL',
-            'updated_at' => SchemaPDOPgsql::TYPE_INTEGER . ' NOT NULL',
+            'id' => SchemaPgsql::TYPE_PK,
+            'username' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
+            'auth_key' => SchemaPgsql::TYPE_STRING . '(32) NOT NULL',
+            'password_hash' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
+            'password_reset_token' => SchemaPgsql::TYPE_STRING,
+            'email' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
+            'role' => SchemaPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+            'status' => SchemaPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+            'created_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
+            'updated_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
         ])->execute();
         $this->db->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
-            SchemaPDOPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
+            SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
         )->execute();
 
         $user = new UserAR($this->db);
