@@ -409,9 +409,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return false|int|string|null|float
+     * @return false|float|int|string|null
      */
-    protected function queryScalar(string|ExpressionInterface $selectExpression): false|int|null|string|float
+    protected function queryScalar(string|ExpressionInterface $selectExpression): false|float|int|string|null
     {
         if ($this->sql === null) {
             return parent::queryScalar($selectExpression);
