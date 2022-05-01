@@ -18,7 +18,7 @@ use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\Dsn;
-use Yiisoft\Db\Driver\PDODriver;
+use Yiisoft\Db\Driver\PDO\PDODriver;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mssql\PDO\ConnectionPDOMssql;
 use Yiisoft\Db\Mysql\PDO\ConnectionPDOMysql;
