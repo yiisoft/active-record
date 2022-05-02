@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\Db\Exceptions\Exception;
+use Yiisoft\Db\Exception\Exception;
 
 final class Cat extends Animal
 {
