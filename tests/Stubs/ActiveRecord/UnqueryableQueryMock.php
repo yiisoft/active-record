@@ -9,13 +9,13 @@ use Yiisoft\Db\Query\Query;
 
 final class UnqueryableQueryMock extends Query
 {
-    public function one()
+    public function one(): mixed
     {
-        throw new InvalidCallException();
+        throw new InvalidCallException('Invalid call');
     }
 
     public function all(): array
     {
-        throw new InvalidCallException();
+        throw new InvalidCallException('Invalid call');
     }
 }

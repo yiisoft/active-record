@@ -11,7 +11,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Schema\TableSchema;
+use Yiisoft\Db\Schema\TableSchemaInterface;
 use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
 
@@ -385,9 +385,9 @@ class ActiveRecord extends BaseActiveRecord
      * @throws Exception
      * @throws InvalidConfigException if the table for the AR class does not exist.
      *
-     * @return TableSchema the schema information of the DB table associated with this AR class.
+     * @return TableSchemaInterface the schema information of the DB table associated with this AR class.
      */
-    public function getTableSchema(): TableSchema
+    public function getTableSchema(): TableSchemaInterface
     {
         $tableSchema = $this->db->getSchema()->getTableSchema($this->tableName());
 
