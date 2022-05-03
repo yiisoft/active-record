@@ -16,6 +16,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
+use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\Query\QueryHelper;
 
 use function array_merge;
@@ -147,7 +148,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return Query a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
      */
-    public function prepare(QueryBuilder $builder): Query
+    public function prepare(QueryBuilderInterface $builder): Query
     {
         /**
          * NOTE: because the same ActiveQuery may be used to build different SQL statements, one for count query, the
