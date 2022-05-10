@@ -18,7 +18,11 @@ use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\Dsn;
-use Yiisoft\Db\Driver\PDO\PDODriver;
+use Yiisoft\Db\Mssql\PDO\PDODriver as MssqlPDODriver;
+use Yiisoft\Db\Mysql\PDO\PDODriver as MysqlPDODriver;
+use Yiisoft\Db\Oracle\PDO\PDODriver as OraclePDODriver;
+use Yiisoft\Db\Pgsql\PDO\PDODriver as PgsqlPDODriver;
+use Yiisoft\Db\Sqlite\PDO\PDODriver as SqlitePDODriver;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mssql\PDO\ConnectionPDOMssql;
 use Yiisoft\Db\Mysql\PDO\ConnectionPDOMysql;
@@ -279,7 +283,7 @@ class TestCase extends AbstractTestCase
     {
         return [
             'yiisoft/db-mssql' => [
-                'driver' => new PDODriver(
+                'driver' => new MssqlPDODriver(
                     (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
                     'SA',
                     'YourStrong!Passw0rd',
@@ -287,7 +291,7 @@ class TestCase extends AbstractTestCase
                 'fixture' => __DIR__ . '/Data/mssql.sql',
             ],
             'yiisoft/db-mysql' => [
-                'driver' => new PDODriver(
+                'driver' => new MysqlPDODriver(
                     (new Dsn('mysql', '127.0.0.1', 'yiitest', '3306'))->asString(),
                     'root',
                     '',
@@ -295,7 +299,7 @@ class TestCase extends AbstractTestCase
                 'fixture' => __DIR__ . '/Data/mysql.sql',
             ],
             'yiisoft/db-pgsql' => [
-                'driver' => new PDODriver(
+                'driver' => new PgsqlPDODriver(
                     (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->asString(),
                     'root',
                     'root'
@@ -303,7 +307,7 @@ class TestCase extends AbstractTestCase
                 'fixture' => __DIR__ . '/Data/pgsql.sql',
             ],
             'yiisoft/db-oracle' => [
-                'driver' => new PDODriver(
+                'driver' => new OraclePDODriver(
                     'oci:dbname=localhost/XE;charset=AL32UTF8;',
                     'system',
                     'oracle',
@@ -311,7 +315,7 @@ class TestCase extends AbstractTestCase
                 'fixture' => __DIR__ . '/Data/oci.sql',
             ],
             'yiisoft/db-sqlite' => [
-                'driver' => new PDODriver('sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3'),
+                'driver' => new SqlitePDODriver('sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3'),
                 'fixture' => __DIR__ . '/Data/sqlite.sql',
             ],
         ];
