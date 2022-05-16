@@ -18,6 +18,7 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryBuilder;
 use Yiisoft\Db\Query\QueryBuilderInterface;
 use Yiisoft\Db\Query\QueryHelper;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function array_merge;
 use function array_values;
@@ -146,9 +147,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
      * @throws Throwable
      *
-     * @return Query a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
+     * @return QueryInterface a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
      */
-    public function prepare(QueryBuilderInterface $builder): Query
+    public function prepare(QueryBuilderInterface $builder): QueryInterface
     {
         /**
          * NOTE: because the same ActiveQuery may be used to build different SQL statements, one for count query, the
@@ -1101,9 +1102,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param string $sql the SQL statement to be executed.
      * @param array $params parameters to be bound to the SQL statement during execution.
      *
-     * @return Query the newly created {@see ActiveQuery} instance
+     * @return QueryInterface the newly created {@see ActiveQuery} instance
      */
-    public function findBySql(string $sql, array $params = []): Query
+    public function findBySql(string $sql, array $params = []): QueryInterface
     {
         return $this->sql($sql)->params($params);
     }
