@@ -27,7 +27,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-use Yiisoft\Db\Query\Query;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function sort;
 use function ucfirst;
@@ -51,7 +51,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-        $this->assertInstanceOf(Query::class, $query->prepare($this->db->getQueryBuilder()));
+        $this->assertInstanceOf(QueryInterface::class, $query->prepare($this->db->getQueryBuilder()));
     }
 
     public function testPopulateEmptyRows(): void

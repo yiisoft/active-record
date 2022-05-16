@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
-use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 
 /**
@@ -53,9 +52,9 @@ interface ActiveQueryInterface extends QueryInterface
      * }
      * ```
      *
-     * @return Query the query object itself
+     * @return QueryInterface the query object itself
      */
-    public function indexBy(string|Closure|null $column): Query;
+    public function indexBy(string|Closure|null $column): QueryInterface;
 
     /**
      * Specifies the relations with which this query should be performed.
