@@ -72,7 +72,10 @@ use Yiisoft\Db\Query\QueryBuilder;
  *
  * ```php
  * $customerQuery = new ActiveQuery(Customer::class, $db);
- * $query = $customerQuery->with('orders')->asArray()->all();
+ * $query = $customerQuery
+ *     ->with('orders')
+ *     ->asArray()
+ *     ->all();
  * ```
  *
  * Relational query
@@ -272,7 +275,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $hash = [];
 
-        $pks = $this->getARInstance()->primaryKey();
+        $pks = $this
+            ->getARInstance()
+            ->primaryKey();
 
         if (count($pks) > 1) {
             /** composite primary key */
@@ -352,7 +357,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function createCommand(): Command
     {
         if ($this->sql === null) {
-            [$sql, $params] = $this->db->getQueryBuilder()->build($this);
+            [$sql, $params] = $this->db
+                ->getQueryBuilder()
+                ->build($this);
         } else {
             $sql = $this->sql;
             $params = $this->params;
@@ -382,7 +389,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return parent::queryScalar($selectExpression);
         }
 
-        $command = (new Query($this->db))->select([$selectExpression])
+        $command = (new Query($this->db))
+            ->select([$selectExpression])
             ->from(['c' => "({$this->sql})"])
             ->params($this->params)
             ->createCommand();
@@ -423,7 +431,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * ```php
      * // find all orders that contain books, and eager loading "books".
      * $orderQuery = new ActiveQuery(Order::class, $db);
-     * $orderQuery->joinWith('books', true, 'INNER JOIN')->all();
+     * $orderQuery
+     *     ->joinWith('books', true, 'INNER JOIN')
+     *     ->all();
      *
      * // find all orders, eager loading "books", and sort the orders and books by the book names.
      * $orderQuery = new ActiveQuery(Order::class, $db);
@@ -435,7 +445,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * // find all orders that contain books of the category 'Science fiction', using the alias "b" for the books table.
      * $order = new ActiveQuery(Order::class, $db);
-     * $orderQuery->joinWith(['books b'], true, 'INNER JOIN')->where(['b.category' => 'Science fiction'])->all();
+     * $orderQuery
+     *     ->joinWith(['books b'], true, 'INNER JOIN')
+     *     ->where(['b.category' => 'Science fiction'])
+     *     ->all();
      * ```
      * @param array|bool $eagerLoading whether to eager load the relations specified in `$with`. When this is a boolean,
      * it applies to all relations specified in `$with`. Use an array to explicitly list which relations in `$with` need
@@ -770,7 +783,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * ```php
      * public function getActiveUsers(): ActiveQuery
      * {
-     *     return $this->hasMany(User::class, ['id' => 'user_id'])->onCondition(['active' => true]);
+     *     return $this
+     *         ->hasMany(User::class, ['id' => 'user_id'])
+     *         ->onCondition(['active' => true]);
      * }
      * ```
      *
@@ -855,7 +870,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * ```php
      * public function getItems()
      * {
-     *     return $this->hasMany(Item::class, ['id' => 'item_id'])->viaTable('order_item', ['order_id' => 'id']);
+     *     return $this
+     *         ->hasMany(Item::class, ['id' => 'item_id'])
+     *         ->viaTable('order_item', ['order_id' => 'id']);
      * }
      * ```
      *
@@ -876,7 +893,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $arClassInstance = new self($arClass, $this->db);
 
-        $relation = $arClassInstance->from([$tableName])->link($link)->multiple(true)->asArray(true);
+        $relation = $arClassInstance
+            ->from([$tableName])
+            ->link($link)
+            ->multiple(true)
+            ->asArray(true);
 
         $this->via = $relation;
 
@@ -936,7 +957,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     protected function getPrimaryTableName(): string
     {
-        return $this->getARInstance()->tableName();
+        return $this
+            ->getARInstance()
+            ->tableName();
     }
 
     /**
@@ -986,7 +1009,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function findOne($condition): ?ActiveRecordInterface
     {
-        return $this->findByCondition($condition)->one();
+        return $this
+            ->findByCondition($condition)
+            ->one();
     }
 
     /**
@@ -998,7 +1023,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function findAll($condition): array
     {
-        return $this->findByCondition($condition)->all();
+        return $this
+            ->findByCondition($condition)
+            ->all();
     }
 
     /**
@@ -1058,7 +1085,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * ```php
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $customers = $customerQuery->findBySql('SELECT * FROM customer')->all();
+     * $customers = $customerQuery
+     *     ->findBySql('SELECT * FROM customer')
+     *     ->all();
      * ```
      *
      * @param string $sql the SQL statement to be executed.
@@ -1068,7 +1097,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function findBySql(string $sql, array $params = []): Query
     {
-        return $this->sql($sql)->params($params);
+        return $this
+            ->sql($sql)
+            ->params($params);
     }
 
     public function on($value): self

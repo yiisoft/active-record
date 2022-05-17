@@ -72,7 +72,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $betaQuery = new ActiveQuery(Beta::class, $this->db);
 
-        $betas = $betaQuery->with('alpha')->all();
+        $betas = $betaQuery
+            ->with('alpha')
+            ->all();
 
         $this->assertNotEmpty($betas);
 
@@ -109,10 +111,14 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->assertTrue($customer->bool_status);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['bool_status' => true])->all();
+        $customers = $customerQuery
+            ->where(['bool_status' => true])
+            ->all();
         $this->assertCount(3, $customers);
 
-        $customers = $customerQuery->where(['bool_status' => false])->all();
+        $customers = $customerQuery
+            ->where(['bool_status' => false])
+            ->all();
         $this->assertCount(1, $customers);
     }
 
@@ -121,23 +127,73 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->checkFixture($this->db, 'bool_values');
 
         $command = $this->db->createCommand();
-        $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
+        $command
+            ->batchInsert('bool_values', ['bool_col'], [[true], [false]])
+            ->execute();
 
         $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
 
-        $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
-        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
+        $this->assertTrue(
+            $boolARQuery
+            ->where(['bool_col' => true])
+            ->one()->bool_col
+        );
+        $this->assertFalse(
+            $boolARQuery
+            ->where(['bool_col' => false])
+            ->one()->bool_col
+        );
 
-        $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
-        $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
-        $this->assertEquals(2, $boolARQuery->where('bool_col IN (TRUE, FALSE)')->count('*'));
+        $this->assertEquals(
+            1,
+            $boolARQuery
+                ->where('bool_col = TRUE')
+                ->count('*')
+        );
+        $this->assertEquals(
+            1,
+            $boolARQuery
+                ->where('bool_col = FALSE')
+                ->count('*')
+        );
+        $this->assertEquals(
+            2,
+            $boolARQuery
+                ->where('bool_col IN (TRUE, FALSE)')
+                ->count('*')
+        );
 
-        $this->assertEquals(1, $boolARQuery->where(['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolARQuery->where(['bool_col' => false])->count('*'));
-        $this->assertEquals(2, $boolARQuery->where(['bool_col' => [true, false]])->count('*'));
+        $this->assertEquals(
+            1,
+            $boolARQuery
+                ->where(['bool_col' => true])
+                ->count('*')
+        );
+        $this->assertEquals(
+            1,
+            $boolARQuery
+                ->where(['bool_col' => false])
+                ->count('*')
+        );
+        $this->assertEquals(
+            2,
+            $boolARQuery
+                ->where(['bool_col' => [true, false]])
+                ->count('*')
+        );
 
-        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => false])->count('*'));
+        $this->assertEquals(
+            1,
+            $boolARQuery
+                ->where('bool_col = :bool_col', ['bool_col' => true])
+                ->count('*')
+        );
+        $this->assertEquals(
+            1,
+            $boolARQuery
+                ->where('bool_col = :bool_col', ['bool_col' => false])
+                ->count('*')
+        );
     }
 
     /**
@@ -149,26 +205,34 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $this->db->setCharset('utf8');
 
-        $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
+        $this->db
+            ->createCommand('DROP TABLE IF EXISTS bool_user;')
+            ->execute();
 
-        $this->db->createCommand()->createTable('bool_user', [
-            'id' => Schema::TYPE_PK,
-            'username' => Schema::TYPE_STRING . ' NOT NULL',
-            'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL',
-            'password_hash' => Schema::TYPE_STRING . ' NOT NULL',
-            'password_reset_token' => Schema::TYPE_STRING,
-            'email' => Schema::TYPE_STRING . ' NOT NULL',
-            'role' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'status' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'created_at' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'updated_at' => Schema::TYPE_INTEGER . ' NOT NULL',
-        ])->execute();
+        $this->db
+            ->createCommand()
+            ->createTable('bool_user', [
+                'id' => Schema::TYPE_PK,
+                'username' => Schema::TYPE_STRING . ' NOT NULL',
+                'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL',
+                'password_hash' => Schema::TYPE_STRING . ' NOT NULL',
+                'password_reset_token' => Schema::TYPE_STRING,
+                'email' => Schema::TYPE_STRING . ' NOT NULL',
+                'role' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+                'status' => Schema::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
+                'created_at' => Schema::TYPE_INTEGER . ' NOT NULL',
+                'updated_at' => Schema::TYPE_INTEGER . ' NOT NULL',
+            ])
+            ->execute();
 
-        $this->db->createCommand()->addColumn(
-            'bool_user',
-            'is_deleted',
-            Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
-        )->execute();
+        $this->db
+            ->createCommand()
+            ->addColumn(
+                'bool_user',
+                'is_deleted',
+                Schema::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
+            )
+            ->execute();
 
         $user = new UserAR($this->db);
 
@@ -183,9 +247,15 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $userQuery = new ActiveQuery(UserAR::class, $this->db);
 
-        $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
-        $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
-        $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
+        $this->assertCount(1, $userQuery
+            ->where(['is_deleted' => false])
+            ->all());
+        $this->assertCount(0, $userQuery
+            ->where(['is_deleted' => true])
+            ->all());
+        $this->assertCount(1, $userQuery
+            ->where(['is_deleted' => [true, false]])
+            ->all());
     }
 
     public function testBooleanDefaultValues(): void

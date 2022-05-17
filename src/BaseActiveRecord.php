@@ -250,7 +250,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     protected function createRelationQuery(string $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
-        return $this->instantiateQuery($arClass)->primaryModel($this)->link($link)->multiple($multiple);
+        return $this
+            ->instantiateQuery($arClass)
+            ->primaryModel($this)
+            ->link($link)
+            ->multiple($multiple);
     }
 
     /**
@@ -757,7 +761,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function refresh(): bool
     {
         /** @var $record BaseActiveRecord */
-        $record = $this->instantiateQuery(static::class)->findOne($this->getPrimaryKey(true));
+        $record = $this
+            ->instantiateQuery(static::class)
+            ->findOne($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
     }
@@ -959,7 +965,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->getVia();
-                $from = $relation->getVia()->getFrom();
+                $from = $relation
+                    ->getVia()
+                    ->getFrom();
                 $viaTable = reset($from);
             }
 
@@ -985,7 +993,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $viaClass->insert();
             } else {
                 /** @var $viaTable string */
-                $this->db->createCommand()->insert($viaTable, $columns)->execute();
+                $this->db
+                    ->createCommand()
+                    ->insert($viaTable, $columns)
+                    ->execute();
             }
         } else {
             $p1 = $arClass->isPrimaryKey(array_keys($relation->getLink()));
@@ -1057,7 +1068,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->getVia();
-                $from = $relation->getVia()->getFrom();
+                $from = $relation
+                    ->getVia()
+                    ->getFrom();
                 $viaTable = reset($from);
             }
 
@@ -1086,9 +1099,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 /** @var $viaTable string */
                 $command = $this->db->createCommand();
                 if ($delete) {
-                    $command->delete($viaTable, $columns)->execute();
+                    $command
+                        ->delete($viaTable, $columns)
+                        ->execute();
                 } else {
-                    $command->update($viaTable, $nulls, $columns)->execute();
+                    $command
+                        ->update($viaTable, $nulls, $columns)
+                        ->execute();
                 }
             }
         } else {
@@ -1160,7 +1177,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $relation->getVia();
-                $from = $relation->getVia()->getFrom();
+                $from = $relation
+                    ->getVia()
+                    ->getFrom();
                 $viaTable = reset($from);
             }
 
@@ -1191,9 +1210,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 /** @var $viaTable string */
                 $command = $this->db->createCommand();
                 if ($delete) {
-                    $command->delete($viaTable, $condition)->execute();
+                    $command
+                        ->delete($viaTable, $condition)
+                        ->execute();
                 } else {
-                    $command->update($viaTable, $nulls, $condition)->execute();
+                    $command
+                        ->update($viaTable, $nulls, $condition)
+                        ->execute();
                 }
             }
         } else {

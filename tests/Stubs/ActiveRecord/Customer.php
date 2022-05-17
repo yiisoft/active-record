@@ -49,12 +49,17 @@ class Customer extends ActiveRecord
 
     public function getOrders(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->orderBy('[[id]]');
     }
 
     public function getExpensiveOrders(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->andWhere('[[total]] > 50')
+            ->orderBy('id');
     }
 
     public function getItem(): void
@@ -63,25 +68,35 @@ class Customer extends ActiveRecord
 
     public function getOrdersWithItems(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->with('orderItems');
     }
 
     public function getExpensiveOrdersWithNullFK(): ActiveQuery
     {
-        return $this->hasMany(
-            OrderWithNullFK::class,
-            ['customer_id' => 'id']
-        )->andWhere('[[total]] > 50')->orderBy('id');
+        return $this
+            ->hasMany(
+                OrderWithNullFK::class,
+                ['customer_id' => 'id']
+            )
+            ->andWhere('[[total]] > 50')
+            ->orderBy('id');
     }
 
     public function getOrdersWithNullFK(): ActiveQuery
     {
-        return $this->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->orderBy('id');
+        return $this
+            ->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])
+            ->orderBy('id');
     }
 
     public function getOrders2(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->inverseOf('customer2')
+            ->orderBy('id');
     }
 
     /** deeply nested table relation */

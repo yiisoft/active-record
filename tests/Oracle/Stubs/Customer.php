@@ -22,6 +22,8 @@ final class Customer extends AbstractCustomer
 {
     public function getOrders(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('{{customer}}.[[id]]');
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->orderBy('{{customer}}.[[id]]');
     }
 }

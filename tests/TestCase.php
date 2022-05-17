@@ -117,9 +117,16 @@ class TestCase extends AbstractTestCase
 
     protected function checkFixture(ConnectionInterface $db, string $tablename, bool $reset = false): void
     {
-        if ($db->getSchema()->getTableSchema($tablename, true) === null || $reset) {
+        if (
+            $db
+                ->getSchema()
+                ->getTableSchema($tablename, true) === null
+            || $reset
+        ) {
             $this->loadFixture($db);
-            $db->getSchema()->refresh();
+            $db
+                ->getSchema()
+                ->refresh();
         }
     }
 
@@ -225,7 +232,9 @@ class TestCase extends AbstractTestCase
 
         foreach ($lines as $line) {
             if (trim($line) !== '') {
-                $db->getPDO()->exec($line);
+                $db
+                    ->getPDO()
+                    ->exec($line);
             }
         }
     }

@@ -22,7 +22,9 @@ final class Category extends ActiveRecord
 
     public function getLimitedItems(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
+        return $this
+            ->hasMany(Item::class, ['category_id' => 'id'])
+            ->onCondition(['item.id' => [1, 2, 3]]);
     }
 
     public function getItems(): ActiveQuery
@@ -32,11 +34,15 @@ final class Category extends ActiveRecord
 
     public function getOrderItems(): ActiveQuery
     {
-        return $this->hasMany(OrderItem::class, ['item_id' => 'id'])->via('items');
+        return $this
+            ->hasMany(OrderItem::class, ['item_id' => 'id'])
+            ->via('items');
     }
 
     public function getOrders(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['id' => 'order_id'])->via('orderItems');
+        return $this
+            ->hasMany(Order::class, ['id' => 'order_id'])
+            ->via('orderItems');
     }
 }

@@ -39,7 +39,10 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
         $this->checkFixture($this->db, 'customer');
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->with('orders')->indexBy('id')->all();
+        $customers = $customerQuery
+            ->with('orders')
+            ->indexBy('id')
+            ->all();
 
         ksort($customers);
         $this->assertCount(3, $customers);
@@ -53,19 +56,27 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
         unset($customers[1]->orders);
         $this->assertFalse($customers[1]->isRelationPopulated('orders'));
 
-        $customer = $customerQuery->where(['id' => 1])->with('orders')->one();
+        $customer = $customerQuery
+            ->where(['id' => 1])
+            ->with('orders')
+            ->one();
         $this->assertTrue($customer->isRelationPopulated('orders'));
         $this->assertCount(1, $customer->orders);
         $this->assertCount(1, $customer->relatedRecords);
 
         /** multiple with() calls */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
-        $orders = $orderQuery->with('customer', 'items')->all();
+        $orders = $orderQuery
+            ->with('customer', 'items')
+            ->all();
         $this->assertCount(3, $orders);
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
 
-        $orders = $orderQuery->with('customer')->with('items')->all();
+        $orders = $orderQuery
+            ->with('customer')
+            ->with('items')
+            ->all();
         $this->assertCount(3, $orders);
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
@@ -77,7 +88,10 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->where(['[[id]]' => 2])->asArray()->one();
+        $customer = $customerQuery
+            ->where(['[[id]]' => 2])
+            ->asArray()
+            ->one();
         $this->assertEquals([
             'id' => 2,
             'email' => 'user2@example.com',
@@ -90,7 +104,9 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 
         /** find all asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->asArray()->all();
+        $customers = $customerQuery
+            ->asArray()
+            ->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers[0]);
         $this->assertArrayHasKey('name', $customers[0]);

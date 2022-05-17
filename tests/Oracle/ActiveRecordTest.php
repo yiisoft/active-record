@@ -124,11 +124,15 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->assertEquals('0', $customer->status);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['status' => '1'])->all();
+        $customers = $customerQuery
+            ->where(['status' => '1'])
+            ->all();
         $this->assertCount(2, $customers);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['status' => '0'])->all();
+        $customers = $customerQuery
+            ->where(['status' => '0'])
+            ->all();
         $this->assertCount(1, $customers);
     }
 }

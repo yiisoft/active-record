@@ -60,17 +60,23 @@ final class Customer extends ActiveRecord
 
     public function getExpensiveOrders(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere(['total' => 110]);
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->andWhere(['total' => 110]);
     }
 
     public function getOrdersWithItems(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->with('orderItems');
     }
 
     public function getExpensiveOrdersWithNullFK(): ActiveQuery
     {
-        return $this->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->andwhere(['total' => 110]);
+        return $this
+            ->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])
+            ->andwhere(['total' => 110]);
     }
 
     public function getOrdersWithNullFK(): ActiveQuery
@@ -80,11 +86,16 @@ final class Customer extends ActiveRecord
 
     public function getOrders2(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->inverseOf('customer2')
+            ->orderBy('id');
     }
 
     public function getOrderItems()
     {
-        return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orders');
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->via('orders');
     }
 }

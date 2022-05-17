@@ -45,7 +45,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 BEGIN
       DROP TRIGGER [dbo].[test_alert];
 END';
-        $db->createCommand($sql)->execute();
+        $db
+            ->createCommand($sql)
+            ->execute();
 
         /** create trigger */
         $sql = 'CREATE TRIGGER [dbo].[test_alert] ON [dbo].[test_trigger]
@@ -56,7 +58,9 @@ BEGIN
     SELECT [stringcol]
     FROM [inserted]
 END';
-        $db->createCommand($sql)->execute();
+        $db
+            ->createCommand($sql)
+            ->execute();
 
         $record = new TestTrigger($db);
 

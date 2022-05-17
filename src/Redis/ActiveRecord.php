@@ -354,7 +354,9 @@ class ActiveRecord extends BaseActiveRecord
         $query->where($condition);
 
         /** limit fetched columns to pk */
-        $records = $query->asArray()->all();
+        $records = $query
+            ->asArray()
+            ->all();
 
         $primaryKey = $this->primaryKey();
 

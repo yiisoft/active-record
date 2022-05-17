@@ -63,7 +63,10 @@ use function reset;
  *
  * ```php
  * $customerQuery = new ActiveQuery(Customer::class, $db);
- * $customers = $customerQuery->with('orders')->asArray()->all();
+ * $customers = $customerQuery
+ *     ->with('orders')
+ *     ->asArray()
+ *     ->all();
  * ```
  *
  * Relational query
@@ -219,7 +222,11 @@ class ActiveQuery extends BaseActiveQuery
         }
 
         if ($this->getWhere() === null) {
-            return (int) $this->db->executeCommand('LLEN', [$this->getARInstance()->keyPrefix()]);
+            return (int) $this->db->executeCommand('LLEN', [
+                $this
+                    ->getARInstance()
+                    ->keyPrefix()
+            ]);
         }
 
         return (int) $this->executeScript('Count');
@@ -336,7 +343,9 @@ class ActiveQuery extends BaseActiveQuery
             /** lazy loading */
             if ($this->getVia() instanceof self) {
                 /** via junction table */
-                $viaModels = $this->getVia()->findJunctionRows([$this->getPrimaryModel()]);
+                $viaModels = $this
+                    ->getVia()
+                    ->findJunctionRows([$this->getPrimaryModel()]);
                 $this->filterByModels($viaModels);
             } elseif (is_array($this->getVia())) {
                 /**
@@ -348,10 +357,14 @@ class ActiveQuery extends BaseActiveQuery
 
                 if ($viaQuery->getMultiple()) {
                     $viaModels = $viaQuery->all();
-                    $this->getPrimaryModel()->populateRelation($viaName, $viaModels);
+                    $this
+                        ->getPrimaryModel()
+                        ->populateRelation($viaName, $viaModels);
                 } else {
                     $model = $viaQuery->one();
-                    $this->getPrimaryModel()->populateRelation($viaName, $model);
+                    $this
+                        ->getPrimaryModel()
+                        ->populateRelation($viaName, $model);
                     $viaModels = $model === null ? [] : [$model];
                 }
 
@@ -365,10 +378,14 @@ class ActiveQuery extends BaseActiveQuery
         if (
             is_array($this->getWhere()) &&
             (
-                (!isset($this->getWhere()[0]) && $this->getARInstance()->isPrimaryKey(array_keys($this->getWhere()))) ||
+                (!isset($this->getWhere()[0]) && $this
+                        ->getARInstance()
+                        ->isPrimaryKey(array_keys($this->getWhere()))) ||
                 (
                     isset($this->getWhere()[0]) && $this->getWhere()[0] === 'in' &&
-                    $this->getARInstance()->isPrimaryKey((array) $this->getWhere()[1])
+                    $this
+                        ->getARInstance()
+                        ->isPrimaryKey((array) $this->getWhere()[1])
                 )
             )
         ) {
@@ -377,7 +394,9 @@ class ActiveQuery extends BaseActiveQuery
 
         $method = 'build' . $type;
 
-        $script = $this->getLuaScriptBuilder()->$method($this, $columnName);
+        $script = $this
+            ->getLuaScriptBuilder()
+            ->$method($this, $columnName);
 
         return $this->db->executeCommand('EVAL', [$script, 0]);
     }
@@ -447,7 +466,14 @@ class ActiveQuery extends BaseActiveQuery
 
         foreach ($pks as $pk) {
             if (++$i > $start && ($limit === null || $i <= $start + $limit)) {
-                $key = $this->getARInstance()->keyPrefix() . ':a:' . $this->getARInstance()->buildKey($pk);
+                $key =
+                    $this
+                        ->getARInstance()
+                        ->keyPrefix() .
+                    ':a:' .
+                    $this
+                        ->getARInstance()
+                        ->buildKey($pk);
                 $result = $this->db->executeCommand('HGETALL', [$key]);
                 if (!empty($result)) {
                     $data[] = $result;

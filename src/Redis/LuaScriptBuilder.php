@@ -39,7 +39,11 @@ final class LuaScriptBuilder
      */
     public function buildAll(ActiveQuery $query): string
     {
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix() .
+            ':a:');
 
         return $this->build($query, "n=n+1 pks[n]=redis.call('HGETALL',$key .. pk)", 'pks');
     }
@@ -55,7 +59,12 @@ final class LuaScriptBuilder
      */
     public function buildOne(ActiveQuery $query): string
     {
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix() .
+            ':a:'
+        );
 
         return $this->build($query, "do return redis.call('HGETALL',$key .. pk) end", 'pks');
     }
@@ -72,7 +81,11 @@ final class LuaScriptBuilder
      */
     public function buildColumn(ActiveQuery $query, string $column): string
     {
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix() .
+            ':a:');
 
         return $this->build(
             $query,
@@ -107,7 +120,11 @@ final class LuaScriptBuilder
      */
     public function buildSum(ActiveQuery $query, string $column): string
     {
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix() .
+            ':a:');
 
         return $this->build($query, "n=n+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ')', 'n');
     }
@@ -124,7 +141,11 @@ final class LuaScriptBuilder
      */
     public function buildAverage(ActiveQuery $query, string $column): string
     {
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix() .
+            ':a:');
 
         return $this->build(
             $query,
@@ -145,7 +166,11 @@ final class LuaScriptBuilder
      */
     public function buildMin(ActiveQuery $query, string $column): string
     {
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix() .
+            ':a:');
 
         return $this->build(
             $query,
@@ -166,7 +191,11 @@ final class LuaScriptBuilder
      */
     public function buildMax(ActiveQuery $query, string $column): string
     {
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix() . ':a:');
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix() .
+            ':a:');
 
         return $this->build(
             $query,
@@ -199,7 +228,10 @@ final class LuaScriptBuilder
             ($query->getLimit() === null || $query->getLimit() < 0) ? '' : ' and i<=' . ($start + $query->getLimit())
         );
 
-        $key = $this->quoteValue($query->getARInstance()->keyPrefix());
+        $key = $this->quoteValue(
+            $query
+                ->getARInstance()
+                ->keyPrefix());
 
         $loadColumnValues = '';
 
