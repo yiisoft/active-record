@@ -2315,7 +2315,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($customer, $orders2->customer2);
 
         /** request the inverseOf relation as array */
-        $orders2 = $customer->getOrders2()
+        $orders2 = $customer
+            ->getOrders2()
             ->asArray()
             ->all();
         $this->assertEquals($customer['id'], $orders2[0]['customer2']['id']);
