@@ -135,8 +135,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $this->assertTrue(
             $boolARQuery
-            ->where(['bool_col' => true])
-            ->one()->bool_col
+                ->where(['bool_col' => true])
+                ->one()->bool_col
         );
         $this->assertFalse(
             $boolARQuery
