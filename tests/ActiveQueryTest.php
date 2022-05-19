@@ -1730,9 +1730,14 @@ abstract class ActiveQueryTest extends TestCase
 
         $order->unlinkAll('booksWithNullFKViaTable', false);
         $this->assertCount(0, $order->booksWithNullFKViaTable);
-        $this->assertEquals(2, $orderItemsWithNullFKQuery->where(
-            ['AND', ['item_id' => [1, 2]], ['order_id' => null]]
-        )->count());
+        $this->assertEquals(
+            2,
+            $orderItemsWithNullFKQuery
+                ->where(
+                    ['AND', ['item_id' => [1, 2]], ['order_id' => null]]
+                )
+                ->count(),
+        );
 
         $orderItemsWithNullFKQuery = new ActiveQuery(OrderItemWithNullFK::class, $this->db);
         $this->assertEquals($orderItemCount, $orderItemsWithNullFKQuery->count());
@@ -2315,7 +2320,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($customer, $orders2->customer2);
 
         /** request the inverseOf relation as array */
-        $orders2 = $customer->getOrders2()
+        $orders2 = $customer
+            ->getOrders2()
             ->asArray()
             ->all();
         $this->assertEquals($customer['id'], $orders2[0]['customer2']['id']);

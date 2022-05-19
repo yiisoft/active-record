@@ -43,7 +43,8 @@ final class LuaScriptBuilder
             $query
                 ->getARInstance()
                 ->keyPrefix() .
-            ':a:');
+            ':a:'
+        );
 
         return $this->build($query, "n=n+1 pks[n]=redis.call('HGETALL',$key .. pk)", 'pks');
     }
@@ -85,7 +86,8 @@ final class LuaScriptBuilder
             $query
                 ->getARInstance()
                 ->keyPrefix() .
-            ':a:');
+            ':a:'
+        );
 
         return $this->build(
             $query,
@@ -124,7 +126,8 @@ final class LuaScriptBuilder
             $query
                 ->getARInstance()
                 ->keyPrefix() .
-            ':a:');
+            ':a:'
+        );
 
         return $this->build($query, "n=n+redis.call('HGET',$key .. pk," . $this->quoteValue($column) . ')', 'n');
     }
@@ -145,7 +148,8 @@ final class LuaScriptBuilder
             $query
                 ->getARInstance()
                 ->keyPrefix() .
-            ':a:');
+            ':a:'
+        );
 
         return $this->build(
             $query,
@@ -170,7 +174,8 @@ final class LuaScriptBuilder
             $query
                 ->getARInstance()
                 ->keyPrefix() .
-            ':a:');
+            ':a:'
+        );
 
         return $this->build(
             $query,
@@ -195,7 +200,8 @@ final class LuaScriptBuilder
             $query
                 ->getARInstance()
                 ->keyPrefix() .
-            ':a:');
+            ':a:'
+        );
 
         return $this->build(
             $query,
@@ -226,12 +232,13 @@ final class LuaScriptBuilder
         $start = ($query->getOffset() === null || $query->getOffset() < 0) ? 0 : $query->getOffset();
         $limitCondition = 'i>' . $start . (
             ($query->getLimit() === null || $query->getLimit() < 0) ? '' : ' and i<=' . ($start + $query->getLimit())
-        );
+            );
 
         $key = $this->quoteValue(
             $query
                 ->getARInstance()
-                ->keyPrefix());
+                ->keyPrefix()
+        );
 
         $loadColumnValues = '';
 
