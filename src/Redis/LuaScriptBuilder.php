@@ -232,7 +232,7 @@ final class LuaScriptBuilder
         $start = ($query->getOffset() === null || $query->getOffset() < 0) ? 0 : $query->getOffset();
         $limitCondition = 'i>' . $start . (
             ($query->getLimit() === null || $query->getLimit() < 0) ? '' : ' and i<=' . ($start + $query->getLimit())
-            );
+        );
 
         $key = $this->quoteValue(
             $query

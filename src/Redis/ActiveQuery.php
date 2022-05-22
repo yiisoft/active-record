@@ -225,7 +225,7 @@ class ActiveQuery extends BaseActiveQuery
             return (int) $this->db->executeCommand('LLEN', [
                 $this
                     ->getARInstance()
-                    ->keyPrefix()
+                    ->keyPrefix(),
             ]);
         }
 

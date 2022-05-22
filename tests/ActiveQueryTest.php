@@ -1762,7 +1762,8 @@ abstract class ActiveQueryTest extends TestCase
             1,
             $category
                 ->getLimitedItems()
-                ->count());
+                ->count()
+        );
         $this->assertEquals(
             1,
             $category

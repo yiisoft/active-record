@@ -479,17 +479,20 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $this->assertEquals(
-            3, $customerQuery
+            3,
+            $customerQuery
                 ->limit(1)
                 ->count()
         );
         $this->assertEquals(
-            3, $customerQuery
+            3,
+            $customerQuery
                 ->limit(2)
                 ->count()
         );
         $this->assertEquals(
-            3, $customerQuery
+            3,
+            $customerQuery
                 ->limit(10)
                 ->count()
         );
