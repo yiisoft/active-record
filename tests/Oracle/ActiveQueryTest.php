@@ -54,9 +54,13 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $query = $orderQuery->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->orderBy('c.id DESC, order.id')->all();
+            $orders = $query
+                ->orderBy('c.id DESC, order.id')
+                ->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->orderBy('{{@customer}}.id DESC, {{@order}}.id')->all();
+            $orders = $query
+                ->orderBy('{{@customer}}.id DESC, {{@order}}.id')
+                ->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->orderBy(
                 $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id')
@@ -76,13 +80,20 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $query = $orderQuery->innerJoinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
+            $orders = $query
+                ->where('{{c}}.[[id]]=2')
+                ->orderBy('order.id')
+                ->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
+            $orders = $query
+                ->where('{{@customer}}.[[id]]=2')
+                ->orderBy('{{@order}}.id')
+                ->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
-                [$query->applyAlias('customer', 'id') => 2]
-            )->orderBy($query->applyAlias('order', 'id'))->all();
+            $orders = $query
+                ->where([$query->applyAlias('customer', 'id') => 2])
+                ->orderBy($query->applyAlias('order', 'id'))
+                ->all();
         }
 
         $this->assertCount(2, $orders);
@@ -96,13 +107,20 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $query = $orderQuery->innerJoinWith(['customer c'], false);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
+            $orders = $query
+                ->where('{{c}}.[[id]]=2')
+                ->orderBy('order.id')
+                ->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
+            $orders = $query
+                ->where('{{@customer}}.[[id]]=2')
+                ->orderBy('{{@order}}.id')
+                ->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
-                [$query->applyAlias('customer', 'id') => 2]
-            )->orderBy($query->applyAlias('order', 'id'))->all();
+            $orders = $query
+                ->where([$query->applyAlias('customer', 'id') => 2])
+                ->orderBy($query->applyAlias('order', 'id'))
+                ->all();
         }
 
         $this->assertCount(2, $orders);
@@ -116,17 +134,20 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $query = $orderQuery->innerJoinWith(['books b']);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where(
-                ['b.name' => 'Yii 1.1 Application Development Cookbook']
-            )->orderBy('order.id')->all();
+            $orders = $query
+                ->where(['b.name' => 'Yii 1.1 Application Development Cookbook'])
+                ->orderBy('order.id')
+                ->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where(
-                ['{{@item}}.name' => 'Yii 1.1 Application Development Cookbook']
-            )->orderBy('{{@order}}.id')->all();
+            $orders = $query
+                ->where(['{{@item}}.name' => 'Yii 1.1 Application Development Cookbook'])
+                ->orderBy('{{@order}}.id')
+                ->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
-                [$query->applyAlias('book', 'name') => 'Yii 1.1 Application Development Cookbook']
-            )->orderBy($query->applyAlias('order', 'id'))->all();
+            $orders = $query
+                ->where([$query->applyAlias('book', 'name') => 'Yii 1.1 Application Development Cookbook'])
+                ->orderBy($query->applyAlias('order', 'id'))
+                ->all();
         }
 
         $this->assertCount(2, $orders);
@@ -165,11 +186,17 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         );
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->orderBy('{{i}}.id')->all();
+            $orders = $query
+                ->orderBy('{{i}}.id')
+                ->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->orderBy('{{@item}}.id')->all();
+            $orders = $query
+                ->orderBy('{{@item}}.id')
+                ->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->orderBy($query->applyAlias('item', 'id'))->all();
+            $orders = $query
+                ->orderBy($query->applyAlias('item', 'id'))
+                ->all();
         }
 
         $this->assertCount(1, $orders);
@@ -184,7 +211,10 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
             $relationName = 'books' . ucfirst($aliasMethod);
 
             $orderQuery = new ActiveQuery(Order::class, $this->db);
-            $orders = $orderQuery->joinWith(["$relationName b"])->orderBy('order.id')->all();
+            $orders = $orderQuery
+                ->joinWith(["$relationName b"])
+                ->orderBy('order.id')
+                ->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->$relationName);
@@ -203,7 +233,10 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
             $orderQuery = new ActiveQuery(Order::class, $this->db);
-            $orders = $orderQuery->joinWith([(string)$relationName])->orderBy('order.id')->all();
+            $orders = $orderQuery
+                ->joinWith([(string)$relationName])
+                ->orderBy('order.id')
+                ->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->$relationName);
@@ -238,14 +271,22 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
 
-        $customerQuery = $order->getCustomer()->innerJoinWith(['orders o'], false);
+        $customerQuery = $order
+            ->getCustomer()
+            ->innerJoinWith(['orders o'], false);
 
         if ($aliasMethod === 'explicit') {
-            $customer = $customerQuery->where(['{{o}}.[[id]]' => 1])->one();
+            $customer = $customerQuery
+                ->where(['{{o}}.[[id]]' => 1])
+                ->one();
         } elseif ($aliasMethod === 'querysyntax') {
-            $customer = $customerQuery->where(['{{@order}}.id' => 1])->one();
+            $customer = $customerQuery
+                ->where(['{{@order}}.id' => 1])
+                ->one();
         } elseif ($aliasMethod === 'applyAlias') {
-            $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->one();
+            $customer = $customerQuery
+                ->where([$query->applyAlias('order', 'id') => 1])
+                ->one();
         }
 
         $this->assertEquals(1, $customer->id);
@@ -253,23 +294,26 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
 
         /** join with sub-relation called inside Closure */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
-        $orders = $orderQuery->joinWith(
-            [
-                'items' => static function ($q) use ($aliasMethod) {
-                    /** @var $q ActiveQuery */
-                    $q->orderBy('item.id');
-                    $q->joinWith(['category c']);
+        $orders = $orderQuery
+            ->joinWith(
+                [
+                    'items' => static function ($q) use ($aliasMethod) {
+                        /** @var $q ActiveQuery */
+                        $q->orderBy('item.id');
+                        $q->joinWith(['category c']);
 
-                    if ($aliasMethod === 'explicit') {
-                        $q->where('{{c}}.[[id]] = 2');
-                    } elseif ($aliasMethod === 'querysyntax') {
-                        $q->where('{{@category}}.[[id]] = 2');
-                    } elseif ($aliasMethod === 'applyAlias') {
-                        $q->where([$q->applyAlias('category', 'id') => 2]);
-                    }
-                },
-            ]
-        )->orderBy('order.id')->all();
+                        if ($aliasMethod === 'explicit') {
+                            $q->where('{{c}}.[[id]] = 2');
+                        } elseif ($aliasMethod === 'querysyntax') {
+                            $q->where('{{@category}}.[[id]] = 2');
+                        } elseif ($aliasMethod === 'applyAlias') {
+                            $q->where([$q->applyAlias('category', 'id') => 2]);
+                        }
+                    },
+                ]
+            )
+            ->orderBy('order.id')
+            ->all();
 
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->items);
@@ -299,7 +343,9 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query
+                ->createCommand()
+                ->getRawSql() . print_r($orders, true)
         );
         $this->assertEquals(2, $orders[0]->id);
         $this->assertFalse($orders[0]->isRelationPopulated('bookItems'));
@@ -307,12 +353,17 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
 
         /** with eager loading */
         $query = new ActiveQuery(Order::class, $this->db);
-        $query->joinWith('bookItems', true)->joinWith('movieItems', true)->where(['{{movies}}.[[name]]' => 'Toy Story']);
+        $query
+            ->joinWith('bookItems', true)
+            ->joinWith('movieItems', true)
+            ->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query
+                ->createCommand()
+                ->getRawSql() . print_r($orders, true)
         );
         $this->assertCount(0, $orders[0]->bookItems);
         $this->assertCount(3, $orders[0]->movieItems);
@@ -345,7 +396,9 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query
+                ->createCommand()
+                ->getRawSql() . print_r($orders, true)
         );
         $this->assertEquals(2, $orders[0]->id);
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
@@ -370,7 +423,9 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
                 true
             )->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
-        $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
+        $this->assertCount(1, $orders, $query
+                ->createCommand()
+                ->getRawSql() . print_r($orders, true));
         $this->assertCount(3, $orders[0]->itemsIndexed);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
@@ -396,7 +451,9 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
             )
             ->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
-        $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
+        $this->assertCount(1, $orders, $query
+                ->createCommand()
+                ->getRawSql() . print_r($orders, true));
         $this->assertCount(0, $orders[0]->itemsIndexed);
         $this->assertEquals(2, $orders[0]->id);
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));

@@ -74,16 +74,21 @@ interface ActiveQueryInterface extends QueryInterface
      * // Create active query
      * CustomerQuery = new ActiveQuery(Customer::class, $this->db);
      * // find customers together with their orders and country
-     * CustomerQuery->with('orders', 'country')->all();
+     * CustomerQuery
+     *      ->with('orders', 'country')
+     *      ->all();
      * // find customers together with their orders and the orders' shipping address
-     * CustomerQuery->with('orders.address')->all();
+     * CustomerQuery
+     *     ->with('orders.address')
+     *     ->all();
      * // find customers together with their country and orders of status 1
-     * CustomerQuery->with([
-     *     'orders' => function (ActiveQuery $query) {
-     *         $query->andWhere('status = 1');
-     *     },
-     *     'country',
-     * ])->all();
+     * CustomerQuery
+     *     ->with([
+     *         'orders' => function (ActiveQuery $query) {
+     *             $query->andWhere('status = 1');
+     *         },
+     *         'country'])
+     *     ->all();
      * ```
      *
      * @param array|string $with
@@ -147,7 +152,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * // the above code is equivalent to:
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $query = $customerQuery->where(['id' => 10])->one();
+     * $query = $customerQuery
+     *     ->where(['id' => 10])
+     *     ->one();
      *
      * // find the customers whose primary key value is 10, 11 or 12.
      * $customerQuery = new ActiveQuery(Customer::class, $db);
@@ -155,7 +162,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * // the above code is equivalent to:
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $query = $customerQuery->where(['id' => [10, 11, 12]])->one();
+     * $query = $customerQuery
+     *     ->where(['id' => [10, 11, 12]])
+     *     ->one();
      *
      * // find the first customer whose age is 30 and whose status is 1
      * $customerQuery = new ActiveQuery(Customer::class, $db);
@@ -163,7 +172,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * // the above code is equivalent to:
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $query = $customerQuery->where(['age' => 30, 'status' => 1])->one();
+     * $query = $customerQuery
+     *     ->where(['age' => 30, 'status' => 1])
+     *     ->one();
      * ```
      *
      * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
@@ -227,7 +238,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * // the above code is equivalent to.
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $customers = $customerQuery->where(['id' => 10])->all();
+     * $customers = $customerQuery
+     *     ->where(['id' => 10])
+     *     ->all();
      *
      * // find the customers whose primary key value is 10, 11 or 12.
      * $customerQuery = new ActiveQuery(Customer::class, $db);
@@ -235,7 +248,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * // the above code is equivalent to,
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $customers = $customerQuery->where(['id' => [10, 11, 12]])->all();
+     * $customers = $customerQuery
+     *     ->where(['id' => [10, 11, 12]])
+     *     ->all();
      *
      * // find customers whose age is 30 and whose status is 1.
      * $customerQuery = new ActiveQuery(Customer::class, $db);
@@ -243,7 +258,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * // the above code is equivalent to.
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $customers = $customerQuery->where(['age' => 30, 'status' => 1])->all();
+     * $customers = $customerQuery
+     *     ->where(['age' => 30, 'status' => 1])
+     *     ->all();
      * ```
      *
      * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,

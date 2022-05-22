@@ -211,10 +211,14 @@ abstract class ActiveRecordTest extends TestCase
 
         $animal = new ActiveQuery(Animal::class, $this->db);
 
-        $animals = $animal->where(['type' => Dog::class])->one();
+        $animals = $animal
+            ->where(['type' => Dog::class])
+            ->one();
         $this->assertEquals('bark', $animals->getDoes());
 
-        $animals = $animal->where(['type' => Cat::class])->one();
+        $animals = $animal
+            ->where(['type' => Cat::class])
+            ->one();
         $this->assertEquals('meow', $animals->getDoes());
     }
 
@@ -300,7 +304,9 @@ abstract class ActiveRecordTest extends TestCase
         $query = $this->invokeMethod($activeQuery, 'findByCondition', [$validFilter]);
 
 
-        $this->db->getQueryBuilder()->build($query);
+        $this->db
+            ->getQueryBuilder()
+            ->build($query);
 
         $this->assertTrue(true);
     }
@@ -359,7 +365,9 @@ abstract class ActiveRecordTest extends TestCase
             $filterWithInjection
         );
 
-        $this->db->getQueryBuilder()->build($query);
+        $this->db
+            ->getQueryBuilder()
+            ->build($query);
     }
 
     public function testRefreshQuerySetAliasFindRecord(): void
@@ -544,11 +552,15 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(0, $customer->status);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['status' => true])->all();
+        $customers = $customerQuery
+            ->where(['status' => true])
+            ->all();
         $this->assertCount(2, $customers);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['status' => false])->all();
+        $customers = $customerQuery
+            ->where(['status' => false])
+            ->all();
         $this->assertCount(1, $customers);
     }
 

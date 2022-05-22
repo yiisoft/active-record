@@ -62,7 +62,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $betaQuery = new ActiveQuery(Beta::class, $this->db);
 
-        $betas = $betaQuery->with('alpha')->all();
+        $betas = $betaQuery
+            ->with('alpha')
+            ->all();
 
         $this->assertNotEmpty($betas);
 

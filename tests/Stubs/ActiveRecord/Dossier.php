@@ -25,12 +25,14 @@ final class Dossier extends ActiveRecord
 
     public function getEmployee(): ActiveQuery
     {
-        return $this->hasOne(
-            Employee::class,
-            [
-                'department_id' => 'department_id',
-                'id' => 'employee_id',
-            ]
-        )->inverseOf('dossier');
+        return $this
+            ->hasOne(
+                Employee::class,
+                [
+                    'department_id' => 'department_id',
+                    'id' => 'employee_id',
+                ]
+            )
+            ->inverseOf('dossier');
     }
 }

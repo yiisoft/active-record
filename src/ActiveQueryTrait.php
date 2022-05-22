@@ -54,16 +54,21 @@ trait ActiveQueryTrait
      * // Create active query
      * CustomerQuery = new ActiveQuery(Customer::class, $db);
      * // find customers together with their orders and country
-     * CustomerQuery->with('orders', 'country')->all();
+     * CustomerQuery
+     *     ->with('orders', 'country')
+     *     ->all();
      * // find customers together with their orders and the orders' shipping address
-     * CustomerQuery->with('orders.address')->all();
+     * CustomerQuery
+     *     ->with('orders.address')
+     *     ->all();
      * // find customers together with their country and orders of status 1
-     * CustomerQuery->with([
-     *     'orders' => function (ActiveQuery $query) {
-     *         $query->andWhere('status = 1');
-     *     },
-     *     'country',
-     * ])->all();
+     * CustomerQuery
+     *     ->with([
+     *         'orders' => function (ActiveQuery $query) {
+     *             $query->andWhere('status = 1');
+     *         },
+     *         'country'])
+     *     ->all();
      * ```
      *
      * You can call `with()` multiple times. Each call will add relations to the existing ones.
@@ -71,8 +76,13 @@ trait ActiveQueryTrait
      * For example, the following two statements are equivalent:
      *
      * ```php
-     * CustomerQuery->with('orders', 'country')->all();
-     * CustomerQuery->with('orders')->with('country')->all();
+     * CustomerQuery
+     *     ->with('orders', 'country')
+     *     ->all();
+     * CustomerQuery
+     *     ->with('orders')
+     *     ->with('country')
+     *     ->all();
      * ```
      *
      * @param array|string $with

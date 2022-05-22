@@ -24,7 +24,9 @@ abstract class RedisActiveQueryTest extends TestCase
     {
         $query = new ActiveQuery(Customer::class, $this->redisConnection);
 
-        $query = $query->on(['a' => 'b'])->joinWith('profile');
+        $query = $query
+            ->on(['a' => 'b'])
+            ->joinWith('profile');
 
         $this->assertEquals(Customer::class, $query->getARClass());
         $this->assertEquals(['a' => 'b'], $query->getOn());
@@ -116,7 +118,9 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Customer::class, $this->redisConnection);
 
-        $query = $query->on($onOld)->andOnCondition($on, $params);
+        $query = $query
+            ->on($onOld)
+            ->andOnCondition($on, $params);
 
         $this->assertEquals(['and', $onOld, $on], $query->getOn());
         $this->assertEquals($params, $query->getParams());
@@ -143,7 +147,9 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Customer::class, $this->redisConnection);
 
-        $query = $query->on($onOld)->orOnCondition($on, $params);
+        $query = $query
+            ->on($onOld)
+            ->orOnCondition($on, $params);
 
         $this->assertEquals(['or', $onOld, $on], $query->getOn());
         $this->assertEquals($params, $query->getParams());
@@ -155,7 +161,9 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Customer::class, $this->redisConnection);
 
-        $query = $query->from($aliasOld)->alias('alias');
+        $query = $query
+            ->from($aliasOld)
+            ->alias('alias');
 
         $this->assertInstanceOf(ActiveQuery::class, $query);
         $this->assertEquals(['alias' => 'old'], $query->getFrom());
@@ -187,7 +195,10 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $categoryQuery = new ActiveQuery(Category::class, $this->redisConnection);
 
-        $categories = $categoryQuery->with('orders')->indexBy('id')->all();
+        $categories = $categoryQuery
+            ->with('orders')
+            ->indexBy('id')
+            ->all();
 
         $category = $categories[1];
 
@@ -410,36 +421,58 @@ abstract class RedisActiveQueryTest extends TestCase
     {
         $orderQuery = new ActiveQuery(Order::class, $this->redisConnection);
 
-        $rows = $orderQuery->emulateExecution()->all();
+        $rows = $orderQuery
+            ->emulateExecution()
+            ->all();
         $this->assertSame([], $rows);
 
-        $row = $orderQuery->emulateExecution()->one();
+        $row = $orderQuery
+            ->emulateExecution()
+            ->one();
         $this->assertNull($row);
 
-        $exists = $orderQuery->emulateExecution()->exists();
+        $exists = $orderQuery
+            ->emulateExecution()
+            ->exists();
         $this->assertFalse($exists);
 
-        $count = $orderQuery->emulateExecution()->count();
+        $count = $orderQuery
+            ->emulateExecution()
+            ->count();
         $this->assertSame(0, $count);
 
-        $sum = $orderQuery->emulateExecution()->sum('id');
+        $sum = $orderQuery
+            ->emulateExecution()
+            ->sum('id');
         $this->assertSame(0, $sum);
 
-        $sum = $orderQuery->emulateExecution()->average('id');
+        $sum = $orderQuery
+            ->emulateExecution()
+            ->average('id');
         $this->assertSame(0, $sum);
 
-        $max = $orderQuery->emulateExecution()->max('id');
+        $max = $orderQuery
+            ->emulateExecution()
+            ->max('id');
         $this->assertNull($max);
 
-        $min = $orderQuery->emulateExecution()->min('id');
+        $min = $orderQuery
+            ->emulateExecution()
+            ->min('id');
         $this->assertNull($min);
 
         /** withAttribute() only needed for column() and scalar(). */
-        $scalar = $orderQuery->withAttribute('id')->emulateExecution()->scalar();
+        $scalar = $orderQuery
+            ->withAttribute('id')
+            ->emulateExecution()
+            ->scalar();
         $this->assertNull($scalar);
 
         /** withAttribute() only needed for column() and scalar(). */
-        $column = $orderQuery->withAttribute('id')->emulateExecution()->column();
+        $column = $orderQuery
+            ->withAttribute('id')
+            ->emulateExecution()
+            ->column();
         $this->assertSame([], $column);
     }
 
@@ -466,7 +499,9 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class, $this->redisConnection);
 
-        $orders = $orderQuery->where(['not', ['customer_id' => 2]])->all();
+        $orders = $orderQuery
+            ->where(['not', ['customer_id' => 2]])
+            ->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(1, $orders[0]['customer_id']);
     }
@@ -477,12 +512,16 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class, $this->redisConnection);
 
-        $orders = $orderQuery->where(['between', 'total', 30, 50])->all();
+        $orders = $orderQuery
+            ->where(['between', 'total', 30, 50])
+            ->all();
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]['customer_id']);
         $this->assertEquals(2, $orders[1]['customer_id']);
 
-        $orders = $orderQuery->where(['not between', 'total', 30, 50])->all();
+        $orders = $orderQuery
+            ->where(['not between', 'total', 30, 50])
+            ->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(1, $orders[0]['customer_id']);
     }
@@ -493,17 +532,25 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class, $this->redisConnection);
 
-        $orders = $orderQuery->where(['in', 'customer_id', [1, 2]])->all();
+        $orders = $orderQuery
+            ->where(['in', 'customer_id', [1, 2]])
+            ->all();
         $this->assertCount(3, $orders);
 
-        $orders = $orderQuery->where(['not in', 'customer_id', [1, 2]])->all();
+        $orders = $orderQuery
+            ->where(['not in', 'customer_id', [1, 2]])
+            ->all();
         $this->assertCount(0, $orders);
 
-        $orders = $orderQuery->where(['in', 'customer_id', [1]])->all();
+        $orders = $orderQuery
+            ->where(['in', 'customer_id', [1]])
+            ->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(1, $orders[0]['customer_id']);
 
-        $orders = $orderQuery->where(['in', 'customer_id', [2]])->all();
+        $orders = $orderQuery
+            ->where(['in', 'customer_id', [2]])
+            ->all();
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]['customer_id']);
         $this->assertEquals(2, $orders[1]['customer_id']);
@@ -521,7 +568,10 @@ abstract class RedisActiveQueryTest extends TestCase
         $this->assertEquals(2, $query->count());
 
         /** negative values deactivate limit and offset (in case they were set before) */
-        $query = $itemQuery->where(['category_id' => 1])->limit(-1)->offset(-1);
+        $query = $itemQuery
+            ->where(['category_id' => 1])
+            ->limit(-1)
+            ->offset(-1);
         $this->assertEquals(2, $query->count());
     }
 
@@ -616,14 +666,44 @@ abstract class RedisActiveQueryTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class, $this->redisConnection);
 
-        $this->assertTrue($customerQuery->where(['id' => 2])->exists());
-        $this->assertFalse($customerQuery->where(['id' => 5])->exists());
-        $this->assertTrue($customerQuery->where(['name' => 'user1'])->exists());
-        $this->assertFalse($customerQuery->where(['name' => 'user5'])->exists());
+        $this->assertTrue(
+            $customerQuery
+                ->where(['id' => 2])
+                ->exists()
+        );
+        $this->assertFalse(
+            $customerQuery
+                ->where(['id' => 5])
+                ->exists()
+        );
+        $this->assertTrue(
+            $customerQuery
+                ->where(['name' => 'user1'])
+                ->exists()
+        );
+        $this->assertFalse(
+            $customerQuery
+                ->where(['name' => 'user5'])
+                ->exists()
+        );
 
-        $this->assertTrue($customerQuery->where(['id' => [2, 3]])->exists());
-        $this->assertTrue($customerQuery->where(['id' => [2, 3]])->offset(1)->exists());
-        $this->assertFalse($customerQuery->where(['id' => [2, 3]])->offset(2)->exists());
+        $this->assertTrue(
+            $customerQuery
+                ->where(['id' => [2, 3]])
+                ->exists()
+        );
+        $this->assertTrue(
+            $customerQuery
+                ->where(['id' => [2, 3]])
+                ->offset(1)
+                ->exists()
+        );
+        $this->assertFalse(
+            $customerQuery
+                ->where(['id' => [2, 3]])
+                ->offset(2)
+                ->exists()
+        );
     }
 
     public function testUnlink(): void
@@ -890,10 +970,14 @@ abstract class RedisActiveQueryTest extends TestCase
         $this->assertEquals(0, $customer->status);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->redisConnection);
-        $customers = $customerQuery->where(['status' => true])->all();
+        $customers = $customerQuery
+            ->where(['status' => true])
+            ->all();
         $this->assertCount(2, $customers);
 
-        $customers = $customerQuery->where(['status' => false])->all();
+        $customers = $customerQuery
+            ->where(['status' => false])
+            ->all();
         $this->assertCount(1, $customers);
     }
 

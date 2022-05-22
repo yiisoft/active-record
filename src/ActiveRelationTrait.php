@@ -87,7 +87,9 @@ trait ActiveRelationTrait
      *    }
      *
      *    public function getItems() {
-     *        return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems');
+     *        return $this
+     *            ->hasMany(Item::class, ['id' => 'item_id'])
+     *            ->via('orderItems');
      *    }
      * }
      * ```
@@ -127,7 +129,9 @@ trait ActiveRelationTrait
      * ```php
      * public function getOrders()
      * {
-     *     return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer');
+     *     return $this
+     *         ->hasMany(Order::class, ['customer_id' => 'id'])
+     *         ->inverseOf('customer');
      * }
      * ```
      *
@@ -136,7 +140,9 @@ trait ActiveRelationTrait
      * ```php
      * public function getCustomer()
      * {
-     *     return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('orders');
+     *     return $this
+     *         ->hasOne(Customer::class, ['id' => 'customer_id'])
+     *         ->inverseOf('orders');
      * }
      * ```
      *
@@ -145,7 +151,9 @@ trait ActiveRelationTrait
      *
      * ```php
      * $orderQuery = new ActiveQuery(Order::class, $db);
-     * $orders = $orderQuery->where(['id' => 1])->all();
+     * $orders = $orderQuery
+     *     ->where(['id' => 1])
+     *     ->all();
      * $customerOrders = $orders[0]->customer->orders;
      * ```
      *
@@ -153,7 +161,10 @@ trait ActiveRelationTrait
      *
      * ```php
      * $orderQuery = new ActiveQuery(Order::class, $db);
-     * $orders = $orderQuery->with('customer')->where(['customer_id' => 1])->all();
+     * $orders = $orderQuery
+     *     ->with('customer')
+     *     ->where(['customer_id' => 1])
+     *     ->all();
      * $customerOrders = $orders[0]->customer->orders;
      * ```
      *
@@ -221,7 +232,9 @@ trait ActiveRelationTrait
                 );
             } else {
                 if (!isset($inverseRelation)) {
-                    $inverseRelation = $this->getARInstance()->getRelation($this->inverseOf);
+                    $inverseRelation = $this
+                        ->getARInstance()
+                        ->getRelation($this->inverseOf);
                 }
 
                 $result[$i][$this->inverseOf] = $inverseRelation->multiple
@@ -375,7 +388,9 @@ trait ActiveRelationTrait
         if ($model instanceof ActiveRecordInterface) {
             $relation = $model->getRelation($name);
         } else {
-            $relation = $this->getARInstance()->getRelation($name);
+            $relation = $this
+                ->getARInstance()
+                ->getRelation($name);
         }
 
         if ($relation->multiple) {
@@ -523,7 +538,9 @@ trait ActiveRelationTrait
     {
         if ($this instanceof ActiveQuery && (!empty($this->join) || !empty($this->joinWith))) {
             if (empty($this->from)) {
-                $alias = $this->getARInstance()->tableName();
+                $alias = $this
+                    ->getARInstance()
+                    ->tableName();
             } else {
                 foreach ($this->from as $alias => $table) {
                     if (!is_string($alias)) {
@@ -669,7 +686,9 @@ trait ActiveRelationTrait
             $primaryModel = $this->modelClass;
         }
 
-        return $this->asArray()->all();
+        return $this
+            ->asArray()
+            ->all();
     }
 
     /**

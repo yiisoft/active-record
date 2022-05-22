@@ -39,7 +39,10 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->where(['id' => 2])->asArray()->one();
+        $customer = $customerQuery
+            ->where(['id' => 2])
+            ->asArray()
+            ->one();
         $this->assertEquals([
             'id' => 2,
             'email' => 'user2@example.com',
@@ -52,7 +55,9 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 
         /** find all asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->asArray()->all();
+        $customers = $customerQuery
+            ->asArray()
+            ->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers[0]);
         $this->assertArrayHasKey('name', $customers[0]);

@@ -75,7 +75,9 @@ use Yiisoft\Strings\StringHelper;
  *
  * // the following will retrieve the user 'CeBe' from the database
  * $userQuery = new ActiveQuery(User::class, $db);
- * $user = $userQuery->where(['name' => 'CeBe'])->one();
+ * $user = $userQuery
+ *     ->where(['name' => 'CeBe'])
+ *     ->one();
  *
  * // this will get related records from orders table when relation is defined
  * $orders = $user->orders;
@@ -134,7 +136,9 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function loadDefaultValues(bool $skipIfSet = true): self
     {
-        foreach ($this->getTableSchema()->getColumns() as $column) {
+        foreach ($this
+                     ->getTableSchema()
+                     ->getColumns() as $column) {
             if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->{$column->getName()} === null)) {
                 $this->{$column->getName()} = $column->getDefaultValue();
             }
@@ -208,7 +212,9 @@ class ActiveRecord extends BaseActiveRecord
         $tableName = $this->tableName();
         $quotedTableName = $this->db->quoteTableName($tableName);
 
-        foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
+        foreach ($this
+                     ->getTableSchema()
+                     ->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
             $columnNames[] = $this->db->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
@@ -258,7 +264,9 @@ class ActiveRecord extends BaseActiveRecord
      *
      * ```php
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $aqClasses = $customerQuery->where('status = 2')->all();
+     * $aqClasses = $customerQuery
+     *     ->where('status = 2')
+     *     ->all();
      * foreach ($aqClasses as $aqClass) {
      *     $aqClass->status = 1;
      *     $aqClass->update();
@@ -338,7 +346,9 @@ class ActiveRecord extends BaseActiveRecord
      *
      * ```php
      * $customerQuery = new ActiveQuery(Customer::class, $this->db);
-     * $aqClasses = $customerQuery->where('status = 3')->all();
+     * $aqClasses = $customerQuery
+     *     ->where('status = 3')
+     *     ->all();
      * foreach ($aqClasses as $aqClass) {
      *     $aqClass->delete();
      * }
@@ -389,7 +399,9 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function getTableSchema(): TableSchema
     {
-        $tableSchema = $this->db->getSchema()->getTableSchema($this->tableName());
+        $tableSchema = $this->db
+            ->getSchema()
+            ->getTableSchema($this->tableName());
 
         if ($tableSchema === null) {
             throw new InvalidConfigException('The table does not exist: ' . $this->tableName());
@@ -416,7 +428,9 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function primaryKey(): array
     {
-        return $this->getTableSchema()->getPrimaryKey();
+        return $this
+            ->getTableSchema()
+            ->getPrimaryKey();
     }
 
     /**
@@ -431,7 +445,9 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function attributes(): array
     {
-        return array_keys($this->getTableSchema()->getColumns());
+        return array_keys($this
+            ->getTableSchema()
+            ->getColumns());
     }
 
     /**
@@ -478,7 +494,9 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function populateRecord($row): void
     {
-        $columns = $this->getTableSchema()->getColumns();
+        $columns = $this
+            ->getTableSchema()
+            ->getColumns();
 
         foreach ($row as $name => $value) {
             if (isset($columns[$name])) {
@@ -550,12 +568,17 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = $this->db->getSchema()->insert($this->tableName(), $values)) === false) {
+        if (($primaryKeys = $this->db
+                ->getSchema()
+                ->insert($this->tableName(), $values)) === false) {
             return false;
         }
 
         foreach ($primaryKeys as $name => $value) {
-            $id = $this->getTableSchema()->getColumn($name)->phpTypecast($value);
+            $id = $this
+                ->getTableSchema()
+                ->getColumn($name)
+                ->phpTypecast($value);
             $this->setAttribute($name, $id);
             $values[$name] = $id;
         }

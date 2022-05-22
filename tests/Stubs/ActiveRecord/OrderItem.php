@@ -50,7 +50,9 @@ final class OrderItem extends ActiveRecord
     public function getOrderItemCompositeWithJoin(): ActiveQuery
     {
         /** relations used by testFindCompositeWithJoin() */
-        return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
+        return $this
+            ->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])
+            ->joinWith('item');
     }
 
     public function getOrderItemCompositeNoJoin(): ActiveQuery

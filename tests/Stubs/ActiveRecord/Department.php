@@ -23,11 +23,13 @@ final class Department extends ActiveRecord
 
     public function getEmployees(): ActiveQuery
     {
-        return $this->hasMany(
-            Employee::class,
-            [
-                'department_id' => 'id',
-            ]
-        )->inverseOf('department');
+        return $this
+            ->hasMany(
+                Employee::class,
+                [
+                    'department_id' => 'id',
+                ]
+            )
+            ->inverseOf('department');
     }
 }

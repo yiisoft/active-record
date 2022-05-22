@@ -101,7 +101,9 @@ abstract class BatchQueryResultTest extends TestCase
         /** each with key */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
-        $query = $customerQuery->orderBy('id')->indexBy('name');
+        $query = $customerQuery
+            ->orderBy('id')
+            ->indexBy('name');
 
         $allRows = [];
 
@@ -122,7 +124,9 @@ abstract class BatchQueryResultTest extends TestCase
         /** batch with eager loading */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
-        $query = $customerQuery->with('orders')->orderBy('id');
+        $query = $customerQuery
+            ->with('orders')
+            ->orderBy('id');
 
         $customers = $this->getAllRowsFromBatch($query->batch(2));
 
@@ -142,7 +146,10 @@ abstract class BatchQueryResultTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
-        $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');
+        $query = $customerQuery
+            ->orderBy('id')
+            ->limit(3)
+            ->indexBy('id');
 
         $customers = $this->getAllRowsFromBatch($query->batch(2));
 
