@@ -62,9 +62,11 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
                 ->orderBy('{{@customer}}.id DESC, {{@order}}.id')
                 ->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->orderBy(
-                $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id')
-            )->all();
+            $orders = $query
+                ->orderBy(
+                    $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id')
+                )
+                ->all();
         }
 
         $this->assertCount(3, $orders);
@@ -384,14 +386,16 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
                     },
                 ],
                 false
-            )->joinWith(
+            )
+            ->joinWith(
                 [
                     'itemsIndexed movies' => static function ($q) {
                         $q->onCondition('{{movies}}.[[category_id]] = 2');
                     },
                 ],
                 false
-            )->where(['{{movies}}.[[name]]' => 'Toy Story']);
+            )
+            ->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -421,7 +425,8 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
                     },
                 ],
                 true
-            )->where(['{{movies}}.[[name]]' => 'Toy Story']);
+            )
+            ->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query
                 ->createCommand()

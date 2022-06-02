@@ -437,11 +437,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * // find all orders, eager loading "books", and sort the orders and books by the book names.
      * $orderQuery = new ActiveQuery(Order::class, $db);
-     * $orderQuery->joinWith([
-     *     'books' => function (ActiveQuery $query) {
-     *         $query->orderBy('item.name');
-     *     }
-     * ])->all();
+     * $orderQuery
+     *     ->joinWith([
+     *         'books' => function (ActiveQuery $query) {
+     *             $query->orderBy('item.name');
+     *         }
+     *     ])
+     *     ->all();
      *
      * // find all orders that contain books of the category 'Science fiction', using the alias "b" for the books table.
      * $order = new ActiveQuery(Order::class, $db);
