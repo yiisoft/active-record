@@ -104,10 +104,12 @@ class Customer extends ActiveRecord
     {
         $rel = $this->hasMany(Item::class, ['id' => 'item_id']);
 
-        return $rel->viaTable('order_item', ['order_id' => 'id'], function ($q) {
-            /* @var $q ActiveQuery */
-            $q->viaTable('order', ['customer_id' => 'id']);
-        })->orderBy('id');
+        return $rel
+            ->viaTable('order_item', ['order_id' => 'id'], function ($q) {
+                /* @var $q ActiveQuery */
+                $q->viaTable('order', ['customer_id' => 'id']);
+            })
+            ->orderBy('id');
     }
 
     public function setOrdersReadOnly(): void

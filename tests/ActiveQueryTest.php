@@ -914,9 +914,11 @@ abstract class ActiveQueryTest extends TestCase
                 ->orderBy('{{@customer}}.id DESC, {{@order}}.id')
                 ->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->orderBy(
-                $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id')
-            )->all();
+            $orders = $query
+                ->orderBy(
+                    $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id')
+                )
+                ->all();
         }
 
         $this->assertCount(3, $orders);
