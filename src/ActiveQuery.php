@@ -14,10 +14,10 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\Helper\QueryHelper;
+use Yiisoft\Db\QueryBuilder\QueryBuilder;
+use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Query\Query;
-use Yiisoft\Db\Query\QueryBuilder;
-use Yiisoft\Db\Query\QueryBuilderInterface;
-use Yiisoft\Db\Query\QueryHelper;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function array_merge;
@@ -1140,7 +1140,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private function createQueryHelper(): QueryHelper
     {
         if ($this->queryHelper === null) {
-            $this->queryHelper = new QueryHelper($this->db);
+            $this->queryHelper = new QueryHelper();
         }
 
         return $this->queryHelper;
