@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
-use Yiisoft\Db\Mysql\PDO\ConnectionPDOMysql;
+use Yiisoft\Db\Mysql\ConnectionPDO as ConnectionPDOMysql;
 
 /**
  * @group main
