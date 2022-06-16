@@ -16,7 +16,6 @@ use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
 
 use function array_diff;
-use function array_fill_keys;
 use function array_keys;
 use function array_map;
 use function array_values;
