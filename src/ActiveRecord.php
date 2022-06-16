@@ -16,7 +16,6 @@ use Yiisoft\Strings\Inflector;
 use Yiisoft\Strings\StringHelper;
 
 use function array_diff;
-use function array_fill_keys;
 use function array_keys;
 use function array_map;
 use function array_values;
@@ -559,9 +558,6 @@ class ActiveRecord extends BaseActiveRecord
             $this->setAttribute($name, $id);
             $values[$name] = $id;
         }
-
-        // @todo - $changedAttributes not used. More information about it - in git history
-        $changedAttributes = array_fill_keys(array_keys($values), null);
 
         $this->setOldAttributes($values);
 
