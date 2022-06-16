@@ -560,9 +560,6 @@ class ActiveRecord extends BaseActiveRecord
             $values[$name] = $id;
         }
 
-        // @todo - $changedAttributes not used. More information about it - in git history
-        $changedAttributes = array_fill_keys(array_keys($values), null);
-
         $this->setOldAttributes($values);
 
         return true;
