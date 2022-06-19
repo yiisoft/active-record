@@ -22,20 +22,22 @@
         "php": "^8.0",
         "ext-json": "*",
         "yiisoft/arrays": "^2.0",
-        "yiisoft/db": "dev-dev",
+        "yiisoft/db": "dev-master",
         "yiisoft/factory": "^1.0",
         "yiisoft/strings": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.4",
-        "roave/infection-static-analysis-plugin": "^1.14",
-        "vimeo/psalm": "^4.2",
+        "phpunit/phpunit": "^9.5",
+        "roave/infection-static-analysis-plugin": "^1.16",
+        "spatie/phpunit-watcher": "^1.23",
+        "vimeo/psalm": "^4.18",
         "yiisoft/aliases": "^2.0",
-        "yiisoft/db-mssql": "dev-dev",
-        "yiisoft/db-mysql": "dev-dev",
-        "yiisoft/db-oracle": "dev-dev",
-        "yiisoft/db-pgsql": "dev-dev",
-        "yiisoft/db-sqlite": "dev-dev",
+        "yiisoft/db-mssql": "dev-master",
+        "yiisoft/db-mysql": "dev-master",
+        "yiisoft/db-oracle": "dev-master",
+        "yiisoft/db-pgsql": "dev-master",
+        "yiisoft/db-redis": "dev-master",
+        "yiisoft/db-sqlite": "dev-master",
         "yiisoft/di": "^1.0",
         "yiisoft/event-dispatcher": "^1.0",
         "yiisoft/json": "^1.0",
@@ -59,8 +61,12 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "composer/package-versions-deprecated": true,
-            "infection/extension-installer": true
+            "infection/extension-installer": true,
+            "composer/package-versions-deprecated": true
         }
+    },
+    "scripts": {
+        "test": "phpunit --testdox --no-interaction",
+        "test-watch": "phpunit-watcher watch"
     }
 }
