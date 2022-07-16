@@ -36,12 +36,11 @@
         "yiisoft/db-mysql": "dev-master",
         "yiisoft/db-oracle": "dev-master",
         "yiisoft/db-pgsql": "dev-master",
-        "yiisoft/db-redis": "dev-master",
         "yiisoft/db-sqlite": "dev-master",
         "yiisoft/di": "^1.0",
         "yiisoft/event-dispatcher": "^1.0",
         "yiisoft/json": "^1.0",
-        "yiisoft/log": "^1.0"
+        "yiisoft/log": "^2.0"
     },
     "autoload": {
         "psr-4": {

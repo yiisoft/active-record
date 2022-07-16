@@ -362,15 +362,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
      * @throws Throwable
      *
-     * @return mixed a single row of query result. Depending on the setting of {@see asArray}, the
+     * @return array|object|null A single row of query result. Depending on the setting of {@see asArray}, the
      * query result may be either an array or an ActiveRecord object. `null` will be returned if the query results in
      * nothing.
      */
-    public function one(): mixed
+    public function one(): array|object|null
     {
         $row = parent::one();
 
-        if ($row !== false) {
+        if ($row !== null) {
             $models = $this->populate([$row]);
 
             return reset($models) ?: null;
