@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class DefaultPk extends ActiveRecord
 {
-    public function tableName(): string
+    public static function tableName(): string
     {
         return 'default_pk';
     }

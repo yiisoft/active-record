@@ -17,7 +17,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class NullValues extends ActiveRecord
 {
-    public function tableName(): string
+    public static function tableName(): string
     {
         return 'null_values';
     }

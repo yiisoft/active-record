@@ -25,7 +25,7 @@ final class ProfileWithConstructor extends ActiveRecord
         $this->aliases = $aliases;
     }
 
-    public function tableName(): string
+    public static function tableName(): string
     {
         return 'profile';
     }
