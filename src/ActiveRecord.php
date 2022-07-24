@@ -51,7 +51,7 @@ use function preg_replace;
  *
  * class Customer extends ActiveRecord
  * {
- *     public function tableName(): string
+ *     public static function tableName(): string
  *     {
  *         return 'customer';
  *     }
@@ -204,7 +204,7 @@ class ActiveRecord extends BaseActiveRecord
     protected function filterValidColumnNames(array $aliases): array
     {
         $columnNames = [];
-        $tableName = $this->tableName();
+        $tableName = static::tableName();
         $quotedTableName = $this->db->getQuoter()->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
@@ -279,7 +279,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $command = $this->db->createCommand();
 
-        $command->update($this->tableName(), $attributes, $condition, $params);
+        $command->update(static::tableName(), $attributes, $condition, $params);
 
         return $command->execute();
     }
@@ -318,7 +318,7 @@ class ActiveRecord extends BaseActiveRecord
         }
 
         $command = $this->db->createCommand();
-        $command->update($this->tableName(), $counters, $condition, $params);
+        $command->update(static::tableName(), $counters, $condition, $params);
 
         return $command->execute();
     }
@@ -356,7 +356,7 @@ class ActiveRecord extends BaseActiveRecord
     public function deleteAll(array $condition = [], array $params = []): int
     {
         $command = $this->db->createCommand();
-        $command->delete($this->tableName(), $condition, $params);
+        $command->delete(static::tableName(), $condition, $params);
 
         return $command->execute();
     }
@@ -371,7 +371,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return string the table name.
      */
-    public function tableName(): string
+    public static function tableName(): string
     {
         $inflector = new Inflector();
 
@@ -388,10 +388,10 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function getTableSchema(): TableSchemaInterface
     {
-        $tableSchema = $this->db->getSchema()->getTableSchema($this->tableName());
+        $tableSchema = $this->db->getSchema()->getTableSchema(static::tableName());
 
         if ($tableSchema === null) {
-            throw new InvalidConfigException('The table does not exist: ' . $this->tableName());
+            throw new InvalidConfigException('The table does not exist: ' . static::tableName());
         }
 
         return $tableSchema;
@@ -549,7 +549,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = $this->db->createCommand()->insertEx($this->tableName(), $values)) === false) {
+        if (($primaryKeys = $this->db->createCommand()->insertEx(static::tableName(), $values)) === false) {
             return false;
         }
 
@@ -706,7 +706,7 @@ class ActiveRecord extends BaseActiveRecord
             return false;
         }
 
-        return $this->tableName() === $record->tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return static::tableName() === $record::tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**

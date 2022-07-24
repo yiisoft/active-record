@@ -13,7 +13,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Alpha extends ActiveRecord
 {
-    public function tableName(): string
+    public static function tableName(): string
     {
         return 'alpha';
     }

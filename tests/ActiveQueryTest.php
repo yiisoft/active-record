@@ -270,7 +270,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Profile::class, $this->db);
 
-        $tableName = $query->getARInstance()->tableName();
+        $tableName = Profile::tableName();
 
         $this->assertEquals(
             [
@@ -1350,13 +1350,13 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertNull($query->getFrom());
 
         $query->alias('o');
-        $this->assertEquals(['o' => $order->tableName()], $query->getFrom());
+        $this->assertEquals(['o' => Order::tableName()], $query->getFrom());
 
         $query->alias('o')->alias('ord');
-        $this->assertEquals(['ord' => $order->tableName()], $query->getFrom());
+        $this->assertEquals(['ord' => Order::tableName()], $query->getFrom());
 
-        $query->from(['users', 'o' => $order->tableName()])->alias('ord');
-        $this->assertEquals(['users', 'ord' => $order->tableName()], $query->getFrom());
+        $query->from(['users', 'o' => Order::tableName()])->alias('ord');
+        $this->assertEquals(['users', 'ord' => Order::tableName()], $query->getFrom());
     }
 
     public function testInverseOf(): void

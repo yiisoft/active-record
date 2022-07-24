@@ -974,7 +974,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     protected function getPrimaryTableName(): string
     {
-        return $this->getARInstance()->tableName();
+        return $this->arClass::tableName();
     }
 
     /**
@@ -1066,7 +1066,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $pk = $primaryKey[0];
 
                 if (!empty($this->getJoin()) || !empty($this->getJoinWith())) {
-                    $pk = $arInstance->tableName() . '.' . $pk;
+                    $pk = $arInstance::tableName() . '.' . $pk;
                 }
 
                 /**
