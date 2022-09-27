@@ -78,7 +78,7 @@ trait ActiveQueryTrait
      *
      * @return static the query object itself.
      */
-    public function with(...$with): self
+    public function with(array|string ...$with): self
     {
         if (isset($with[0]) && is_array($with[0])) {
             /** the parameter is given as an array */
@@ -103,10 +103,6 @@ trait ActiveQueryTrait
 
     /**
      * Converts found rows into model instances.
-     *
-     * @param array $rows
-     *
-     * @return array|null
      */
     protected function createModels(array $rows): ?array
     {
@@ -161,12 +157,6 @@ trait ActiveQueryTrait
         }
     }
 
-    /**
-     * @param ActiveRecordInterface $model
-     * @param array $with
-     *
-     * @return array
-     */
     private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
         $relations = [];

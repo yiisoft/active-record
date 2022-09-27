@@ -315,9 +315,7 @@ abstract class ActiveQueryFindTest extends TestCase
         /** indexBy callable */
         $customer = new ActiveQuery(Customer::class, $this->db);
 
-        $customers = $customer->indexBy(function (Customer $customer) {
-            return $customer->id . '-' . $customer->name;
-        })->orderBy('id')->all();
+        $customers = $customer->indexBy(fn (Customer $customer) => $customer->id . '-' . $customer->name)->orderBy('id')->all();
 
         $this->assertCount(3, $customers);
         $this->assertInstanceOf(Customer::class, $customers['1-user1']);
@@ -350,9 +348,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         /** indexBy callable + asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->indexBy(function ($customer) {
-            return $customer['id'] . '-' . $customer['name'];
-        })->asArray()->all();
+        $customers = $customerQuery->indexBy(fn ($customer) => $customer['id'] . '-' . $customer['name'])->asArray()->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers['1-user1']);
         $this->assertArrayHasKey('name', $customers['1-user1']);

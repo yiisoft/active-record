@@ -16,13 +16,9 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ProfileWithConstructor extends ActiveRecord
 {
-    private Aliases $aliases;
-
-    public function __construct(ConnectionInterface $db, Aliases $aliases)
+    public function __construct(ConnectionInterface $db, private Aliases $aliases)
     {
         parent::__construct($db);
-
-        $this->aliases = $aliases;
     }
 
     public static function tableName(): string

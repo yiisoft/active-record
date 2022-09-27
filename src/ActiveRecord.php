@@ -145,11 +145,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Returns table aliases which are not the same as the name of the tables.
      *
-     * @param ActiveQuery $query
-     *
      * @throws InvalidArgumentException|InvalidConfigException
-     *
-     * @return array
      */
     public function filterValidAliases(ActiveQuery $query): array
     {
@@ -157,9 +153,7 @@ class ActiveRecord extends BaseActiveRecord
 
         $aliases = array_diff(array_keys($tables), $tables);
 
-        return array_map(static function ($alias) {
-            return preg_replace('/{{([\w]+)}}/', '$1', $alias);
-        }, array_values($aliases));
+        return array_map(static fn ($alias) => preg_replace('/{{([\w]+)}}/', '$1', $alias), array_values($aliases));
     }
 
     /**
@@ -195,11 +189,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Valid column names are table column names or column names prefixed with table name or table alias.
      *
-     * @param array $aliases
-     *
      * @throws Exception|InvalidConfigException
-     *
-     * @return array
      */
     protected function filterValidColumnNames(array $aliases): array
     {
@@ -599,7 +589,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return bool|int the number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
      * updating process.
      */
-    public function update(array $attributeNames = null)
+    public function update(array $attributeNames = null): bool|int
     {
         if (!$this->isTransactional(self::OP_UPDATE)) {
             return $this->updateInternal($attributeNames);
@@ -633,7 +623,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
      */
-    public function delete()
+    public function delete(): false|int
     {
         if (!$this->isTransactional(self::OP_DELETE)) {
             return $this->deleteInternal();
@@ -665,7 +655,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return false|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      */
-    protected function deleteInternal()
+    protected function deleteInternal(): false|int
     {
         /**
          * we do not check the return value of deleteAll() because it's possible the record is already deleted in the
@@ -717,7 +707,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return array|bool whether the specified operation is transactional in the current {@see scenario}.
      */
-    public function isTransactional(int $operation)
+    public function isTransactional(int $operation): array|bool
     {
         return $this->transactions();
     }

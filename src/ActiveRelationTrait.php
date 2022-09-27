@@ -19,7 +19,6 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
-use function get_class;
 use function is_array;
 use function is_object;
 use function is_scalar;
@@ -190,7 +189,7 @@ trait ActiveRelationTrait
             $realName = lcfirst(substr($method->getName(), 3));
             if ($realName !== $name) {
                 throw new InvalidArgumentException(
-                    'Relation names are case sensitive. ' . get_class($model)
+                    'Relation names are case sensitive. ' . $model::class
                     . " has a relation named \"$realName\" instead of \"$name\"."
                 );
             }
@@ -493,13 +492,10 @@ trait ActiveRelationTrait
     /**
      * Indexes buckets by column name.
      *
-     * @param array $buckets
      * @param callable|string $indexBy the name of the column by which the query results should be indexed by. This can
-     * also be a callable (e.g. anonymous function) that returns the index value based on the given row data.
-     *
-     * @return array
+     * also be a callable(e.g. anonymous function) that returns the index value based on the given row data.
      */
-    private function indexBuckets(array $buckets, $indexBy): array
+    private function indexBuckets(array $buckets, callable|string $indexBy): array
     {
         $result = [];
 
@@ -516,8 +512,6 @@ trait ActiveRelationTrait
 
     /**
      * @param array $attributes the attributes to prefix.
-     *
-     * @return array
      */
     private function prefixKeyColumns(array $attributes): array
     {
@@ -601,19 +595,13 @@ trait ActiveRelationTrait
             }
 
             $scalarValues = array_unique($scalarValues);
-            $values = array_merge($scalarValues, $nonScalarValues);
+            $values = [...$scalarValues, ...$nonScalarValues];
         }
 
         $this->andWhere(['in', $attributes, $values]);
     }
 
-    /**
-     * @param ActiveRecordInterface|array $model
-     * @param array $attributes
-     *
-     * @return false|int|string
-     */
-    private function getModelKey($model, array $attributes)
+    private function getModelKey(ActiveRecordInterface|array $model, array $attributes): false|int|string
     {
         $key = [];
 
@@ -635,7 +623,7 @@ trait ActiveRelationTrait
      *
      * @return int|string normalized key value.
      */
-    private function normalizeModelKey($value)
+    private function normalizeModelKey(mixed $value): int|string
     {
         if (is_object($value) && method_exists($value, '__toString')) {
             /**
@@ -650,8 +638,6 @@ trait ActiveRelationTrait
 
     /**
      * @param array $primaryModels either array of AR instances or arrays.
-     *
-     * @return array
      */
     private function findJunctionRows(array $primaryModels): array
     {
@@ -716,7 +702,7 @@ trait ActiveRelationTrait
      *
      * {@see via()}
      */
-    public function getVia()
+    public function getVia(): array|object
     {
         return $this->via;
     }
