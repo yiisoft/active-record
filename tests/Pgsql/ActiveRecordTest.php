@@ -311,7 +311,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $type->save();
 
-        $typeQuery = new ActiveQuery(get_class($type), $this->db);
+        $typeQuery = new ActiveQuery($type::class, $this->db);
 
         $type = $typeQuery->one();
 
