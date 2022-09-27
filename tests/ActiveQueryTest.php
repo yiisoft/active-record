@@ -1760,6 +1760,7 @@ abstract class ActiveQueryTest extends TestCase
      * @dataProvider filterTableNamesFromAliasesProvider
      *
      * @param $expectedAliases
+     *
      * @throws ReflectionException
      */
     public function testFilterTableNamesFromAliases(array|string $fromParams, array $expectedAliases): void
