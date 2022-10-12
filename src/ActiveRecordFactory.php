@@ -24,6 +24,7 @@ final class ActiveRecordFactory
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
+        $params = [];
         $params['class'] = $arClass;
 
         if ($db !== null) {
