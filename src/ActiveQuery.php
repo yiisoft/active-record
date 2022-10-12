@@ -99,8 +99,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 {
     use ActiveQueryTrait;
     use ActiveRelationTrait;
+
     private ?string $sql = null;
-    private $on;
+    private array|string|null $on;
     private array $joinWith = [];
     private ?ActiveRecordInterface $arInstance = null;
     private QueryHelper|null $queryHelper = null;
@@ -967,7 +968,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * @return array|string the join condition to be used when this query is used in a relational context.
+     * @return array|string|null the join condition to be used when this query is used in a relational context.
      *
      * The condition will be used in the ON part when {@see ActiveQuery::joinWith()} is called. Otherwise, the condition
      * will be used in the WHERE part of a query.
@@ -976,7 +977,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * {@see onCondition()}
      */
-    public function getOn(): array|string
+    public function getOn(): array|string|null
     {
         return $this->on;
     }
@@ -1098,7 +1099,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->sql($sql)->params($params);
     }
 
-    public function on($value): self
+    public function on(array|string|null $value): self
     {
         $this->on = $value;
         return $this;
