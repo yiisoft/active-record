@@ -50,6 +50,7 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
      */
     public function testJoinWithAlias(string $aliasMethod): void
     {
+        $orders = [];
         $this->checkFixture($this->db, 'order');
 
         /** left join and eager loading */

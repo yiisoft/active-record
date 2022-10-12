@@ -100,22 +100,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 {
     use ActiveQueryTrait;
     use ActiveRelationTrait;
-
-    protected string $arClass;
-    protected ConnectionInterface $db;
     private ?string $sql = null;
     private $on;
     private array $joinWith = [];
     private ?ActiveRecordInterface $arInstance = null;
-    private ?ActiveRecordFactory $arFactory;
     private QueryHelper|null $queryHelper = null;
 
-    public function __construct(string $modelClass, ConnectionInterface $db, ActiveRecordFactory $arFactory = null)
+    public function __construct(protected string $arClass, protected ConnectionInterface $db, private ?\Yiisoft\ActiveRecord\ActiveRecordFactory $arFactory = null)
     {
-        $this->arClass = $modelClass;
-        $this->arFactory = $arFactory;
-        $this->db = $db;
-
         parent::__construct($db);
     }
 
@@ -411,7 +403,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws Exception|InvalidConfigException|Throwable
      *
-     * @return false|float|int|string|null
      */
     protected function queryScalar(string|ExpressionInterface $selectExpression): false|float|int|string|null
     {
@@ -484,7 +475,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return $this the query object itself.
      */
-    public function joinWith($with, $eagerLoading = true, $joinType = 'LEFT JOIN'): self
+    public function joinWith(array|string $with, array|bool $eagerLoading = true, array|string $joinType = 'LEFT JOIN'): self
     {
         $relations = [];
 
@@ -594,7 +585,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * {@see joinWith()}
      */
-    public function innerJoinWith($with, $eagerLoading = true): self
+    public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): self
     {
         return $this->joinWith($with, $eagerLoading, 'INNER JOIN');
     }
@@ -606,7 +597,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param array $with the relations to be joined.
      * @param array|string $joinType the join type.
      */
-    private function joinWithRelations(ActiveRecordInterface $arClass, array $with, $joinType): void
+    private function joinWithRelations(ActiveRecordInterface $arClass, array $with, array|string $joinType): void
     {
         $relations = [];
 
@@ -665,7 +656,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return string the real join type.
      */
-    private function getJoinType($joinType, string $name): string
+    private function getJoinType(array|string $joinType, string $name): string
     {
         if (is_array($joinType) && isset($joinType[$name])) {
             return $joinType[$name];
@@ -737,11 +728,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         [$childTable, $childAlias] = $child->getTableNameAndAlias();
 
         if (!empty($child->link)) {
-            if (strpos($parentAlias, '{{') === false) {
+            if (!str_contains($parentAlias, '{{')) {
                 $parentAlias = '{{' . $parentAlias . '}}';
             }
 
-            if (strpos($childAlias, '{{') === false) {
+            if (!str_contains($childAlias, '{{')) {
                 $childAlias = '{{' . $childAlias . '}}';
             }
 
@@ -821,7 +812,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return $this the query object itself
      */
-    public function onCondition($condition, array $params = []): self
+    public function onCondition(array|string $condition, array $params = []): self
     {
         $this->on = $condition;
 
@@ -844,7 +835,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * {@see onCondition()}
      * {@see orOnCondition()}
      */
-    public function andOnCondition($condition, array $params = []): self
+    public function andOnCondition(array|string $condition, array $params = []): self
     {
         if ($this->on === null) {
             $this->on = $condition;
@@ -871,7 +862,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * {@see onCondition()}
      * {@see andOnCondition()}
      */
-    public function orOnCondition($condition, array $params = []): self
+    public function orOnCondition(array|string $condition, array $params = []): self
     {
         if ($this->on === null) {
             $this->on = $condition;
@@ -909,7 +900,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function viaTable(string $tableName, array $link, callable $callable = null): self
     {
-        $arClass = $this->primaryModel ? get_class($this->primaryModel) : $this->arClass;
+        $arClass = $this->primaryModel ? $this->primaryModel::class : $this->arClass;
 
         $arClassInstance = new self($arClass, $this->db);
 
@@ -987,7 +978,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * {@see onCondition()}
      */
-    public function getOn()
+    public function getOn(): array|string
     {
         return $this->on;
     }
@@ -1050,7 +1041,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return ActiveQueryInterface the newly created {@see QueryInterface} instance.
      */
-    protected function findByCondition($condition): ActiveQueryInterface
+    protected function findByCondition(mixed $condition): ActiveQueryInterface
     {
         $arInstance = $this->getARInstance();
 
@@ -1075,7 +1066,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                  */
                 $condition = [$pk => is_array($condition) ? array_values($condition) : $condition];
             } else {
-                throw new InvalidConfigException('"' . get_class($arInstance) . '" must have a primary key.');
+                throw new InvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
             }
         } elseif (is_array($condition)) {
             $aliases = $arInstance->filterValidAliases($this);

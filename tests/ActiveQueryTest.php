@@ -774,6 +774,7 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithAlias(string $aliasMethod): void
     {
+        $orders = [];
         $this->checkFixture($this->db, 'order');
 
         /** left join and eager loading */
@@ -1758,12 +1759,11 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @dataProvider filterTableNamesFromAliasesProvider
      *
-     * @param array|string $fromParams
      * @param $expectedAliases
      *
      * @throws ReflectionException
      */
-    public function testFilterTableNamesFromAliases($fromParams, array $expectedAliases): void
+    public function testFilterTableNamesFromAliases(array|string $fromParams, array $expectedAliases): void
     {
         $this->checkFixture($this->db, 'customer');
 
@@ -2043,6 +2043,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetAttributes(): void
     {
+        $attributesExpected = [];
         $this->checkFixture($this->db, 'customer');
 
         $attributesExpected['id'] = 1;
@@ -2114,6 +2115,8 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetOldAttributes(): void
     {
+        $attributes = [];
+        $attributesNew = [];
         $this->checkFixture($this->db, 'customer');
 
         $attributes['id'] = 1;

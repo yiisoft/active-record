@@ -10,14 +10,8 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordFactory
 {
-    /**
-     * @var Factory
-     */
-    private Factory $factory;
-
-    public function __construct(Factory $factory)
+    public function __construct(private Factory $factory)
     {
-        $this->factory = $factory;
     }
 
     /**
@@ -28,7 +22,6 @@ final class ActiveRecordFactory
      *
      * @throws InvalidConfigException
      *
-     * @return ActiveRecordInterface
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
@@ -52,7 +45,6 @@ final class ActiveRecordFactory
      *
      * @throws InvalidConfigException
      *
-     * @return ActiveQueryInterface
      */
     public function createQueryTo(
         string $arClass,

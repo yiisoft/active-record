@@ -56,13 +56,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private ?array $oldAttributes = null;
     private array $related = [];
     private array $relationsDependencies = [];
-    private ?ActiveRecordFactory $arFactory;
-    protected ConnectionInterface $db;
 
-    public function __construct(ConnectionInterface $db, ActiveRecordFactory $arFactory = null)
+    public function __construct(protected ConnectionInterface $db, private ?\Yiisoft\ActiveRecord\ActiveRecordFactory $arFactory = null)
     {
-        $this->arFactory = $arFactory;
-        $this->db = $db;
     }
 
     /**
@@ -397,7 +393,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * {@see hasAttribute()}
      */
-    public function setOldAttribute(string $name, $value): void
+    public function setOldAttribute(string $name, mixed $value): void
     {
         if (isset($this->oldAttributes[$name]) || $this->hasAttribute($name)) {
             $this->oldAttributes[$name] = $value;
@@ -803,7 +799,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return false;
         }
 
-        return static::class === get_class($record) && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return static::class === $record::class && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**
@@ -937,6 +933,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void
     {
+        $viaClass = null;
+        $viaTable = null;
         $relation = $this->getRelation($name);
 
         if ($relation->getVia() !== null) {
@@ -1042,6 +1040,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void
     {
+        $viaClass = null;
+        $viaTable = null;
         $relation = $this->getRelation($name);
 
         if ($relation->getVia() !== null) {
@@ -1145,6 +1145,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function unlinkAll(string $name, bool $delete = false): void
     {
+        $viaClass = null;
+        $viaTable = null;
         $relation = $this->getRelation($name);
 
         if ($relation->getVia() !== null) {
@@ -1237,7 +1239,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
             if ($value === null) {
                 throw new InvalidCallException(
-                    'Unable to link active record: the primary key of ' . get_class($primaryModel) . ' is null.'
+                    'Unable to link active record: the primary key of ' . $primaryModel::class . ' is null.'
                 );
             }
 

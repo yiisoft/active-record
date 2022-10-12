@@ -25,9 +25,8 @@ final class Cat extends Animal
      *
      * @throw DivisionByZeroError
      *
-     * @return float|int
      */
-    public function getThrowable()
+    public function getThrowable(): float|int
     {
         return 5/0;
     }

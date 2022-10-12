@@ -90,7 +90,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return $this the query object itself
      */
-    public function with(...$with): self;
+    public function with(array|string ...$with): self;
 
     /**
      * Specifies the relation associated with the junction table for use in relational query.
