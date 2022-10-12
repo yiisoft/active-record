@@ -57,8 +57,7 @@ trait ActiveRelationTrait
      * {@see inverseOf()}
      */
     private ?string $inverseOf = null;
-    /** @var array|object the query associated with the junction table. */
-    private $via;
+    private array|object|null $via = null;
 
     /**
      * Clones internal objects.
@@ -695,14 +694,14 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return array|object the query associated with the junction table. Please call {@see via()} to set this property
-     * instead of directly setting it.
+     * @return array|object|null the query associated with the junction table. Please call {@see via()} to set this
+     * property instead of directly setting it.
      *
      * This property is only used in relational context.
      *
      * {@see via()}
      */
-    public function getVia(): array|object
+    public function getVia(): array|object|null
     {
         return $this->via;
     }
