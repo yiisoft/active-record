@@ -106,8 +106,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private ?ActiveRecordInterface $arInstance = null;
     private QueryHelper|null $queryHelper = null;
 
-    public function __construct(protected string $arClass, protected ConnectionInterface $db, private ?ActiveRecordFactory $arFactory = null)
-    {
+    public function __construct(
+        protected string $arClass,
+        protected ConnectionInterface $db,
+        private ActiveRecordFactory|null $arFactory = null
+    ) {
         parent::__construct($db);
     }
 

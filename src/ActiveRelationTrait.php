@@ -620,9 +620,9 @@ trait ActiveRelationTrait
     /**
      * @param mixed $value raw key value.
      *
-     * @return int|string normalized key value.
+     * @return int|string|null normalized key value.
      */
-    private function normalizeModelKey(mixed $value): int|string
+    private function normalizeModelKey(mixed $value): int|string|null
     {
         if (is_object($value) && method_exists($value, '__toString')) {
             /**

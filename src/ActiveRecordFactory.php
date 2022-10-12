@@ -24,11 +24,9 @@ final class ActiveRecordFactory
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
-        $params = [
-            'class' => $arClass,
-        ];
+        $params['class'] = $arClass;
 
-        if ($db) {
+        if ($db !== null) {
             $params['__construct()']['db'] = $db;
         }
 
@@ -46,17 +44,17 @@ final class ActiveRecordFactory
      */
     public function createQueryTo(
         string $arClass,
-        string $queryClass = null,
+        string $queryClass = ActiveQuery::class,
         ConnectionInterface $db = null
     ): ActiveQueryInterface {
         $params = [
-            'class' => $queryClass ?? ActiveQuery::class,
+            'class' => $queryClass,
             '__construct()' => [
-                'modelClass' => $arClass,
+                'arClass' => $arClass,
             ],
         ];
 
-        if ($db) {
+        if ($db !== null) {
             $params['__construct()']['db'] = $db;
         }
 
