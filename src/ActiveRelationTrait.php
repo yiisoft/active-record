@@ -58,6 +58,7 @@ trait ActiveRelationTrait
      */
     private ?string $inverseOf = null;
     private array|object|null $via = null;
+    private array $viaMap = [];
 
     /**
      * Clones internal objects.
