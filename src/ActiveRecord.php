@@ -145,9 +145,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Returns table aliases which are not the same as the name of the tables.
      *
-     *
      * @throws InvalidArgumentException|InvalidConfigException
-     *
      */
     public function filterValidAliases(ActiveQuery $query): array
     {
@@ -155,7 +153,7 @@ class ActiveRecord extends BaseActiveRecord
 
         $aliases = array_diff(array_keys($tables), $tables);
 
-        return array_map(static fn($alias) => preg_replace('/{{([\w]+)}}/', '$1', $alias), array_values($aliases));
+        return array_map(static fn ($alias) => preg_replace('/{{([\w]+)}}/', '$1', $alias), array_values($aliases));
     }
 
     /**
@@ -191,9 +189,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Valid column names are table column names or column names prefixed with table name or table alias.
      *
-     *
      * @throws Exception|InvalidConfigException
-     *
      */
     protected function filterValidColumnNames(array $aliases): array
     {

@@ -277,7 +277,6 @@ abstract class ActiveRecordTest extends TestCase
     /**
      * @dataProvider legalValuesForFindByCondition
      *
-     *
      * @throws ReflectionException
      */
     public function testLegalValuesForFindByCondition(
@@ -333,7 +332,6 @@ abstract class ActiveRecordTest extends TestCase
 
     /**
      * @dataProvider illegalValuesForFindByCondition
-     *
      *
      * @throws ReflectionException
      */

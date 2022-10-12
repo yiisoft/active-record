@@ -103,8 +103,6 @@ trait ActiveQueryTrait
 
     /**
      * Converts found rows into model instances.
-     *
-     *
      */
     protected function createModels(array $rows): ?array
     {

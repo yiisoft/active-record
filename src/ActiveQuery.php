@@ -23,7 +23,6 @@ use Yiisoft\Db\Query\QueryInterface;
 use function array_merge;
 use function array_values;
 use function count;
-use function get_class;
 use function implode;
 use function in_array;
 use function is_array;
@@ -106,7 +105,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private ?ActiveRecordInterface $arInstance = null;
     private QueryHelper|null $queryHelper = null;
 
-    public function __construct(protected string $arClass, protected ConnectionInterface $db, private ?\Yiisoft\ActiveRecord\ActiveRecordFactory $arFactory = null)
+    public function __construct(protected string $arClass, protected ConnectionInterface $db, private ?ActiveRecordFactory $arFactory = null)
     {
         parent::__construct($db);
     }
@@ -402,7 +401,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ExpressionInterface|string $selectExpression
      *
      * @throws Exception|InvalidConfigException|Throwable
-     *
      */
     protected function queryScalar(string|ExpressionInterface $selectExpression): false|float|int|string|null
     {

@@ -25,7 +25,6 @@ use function array_keys;
 use function array_search;
 use function array_values;
 use function count;
-use function get_class;
 use function in_array;
 use function is_array;
 use function is_int;
@@ -57,7 +56,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private array $related = [];
     private array $relationsDependencies = [];
 
-    public function __construct(protected ConnectionInterface $db, private ?\Yiisoft\ActiveRecord\ActiveRecordFactory $arFactory = null)
+    public function __construct(protected ConnectionInterface $db, private ?ActiveRecordFactory $arFactory = null)
     {
     }
 

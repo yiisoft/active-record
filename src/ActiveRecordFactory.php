@@ -21,7 +21,6 @@ final class ActiveRecordFactory
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
      *
      * @throws InvalidConfigException
-     *
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
@@ -44,7 +43,6 @@ final class ActiveRecordFactory
      * @param ConnectionInterface $connection the database connection used for creating active query instances.
      *
      * @throws InvalidConfigException
-     *
      */
     public function createQueryTo(
         string $arClass,

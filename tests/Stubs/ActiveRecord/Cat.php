@@ -24,7 +24,6 @@ final class Cat extends Animal
      * This is to test if __isset catches the error.
      *
      * @throw DivisionByZeroError
-     *
      */
     public function getThrowable(): float|int
     {
