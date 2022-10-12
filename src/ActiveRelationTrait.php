@@ -19,7 +19,6 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
-use function get_class;
 use function is_array;
 use function is_object;
 use function is_scalar;
@@ -495,7 +494,6 @@ trait ActiveRelationTrait
      *
      * @param callable|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a callable(e.g. anonymous function) that returns the index value based on the given row data.
-     *
      */
     private function indexBuckets(array $buckets, callable|string $indexBy): array
     {
@@ -603,7 +601,7 @@ trait ActiveRelationTrait
         $this->andWhere(['in', $attributes, $values]);
     }
 
-    private function getModelKey(\Yiisoft\ActiveRecord\ActiveRecordInterface|array $model, array $attributes): false|int|string
+    private function getModelKey(ActiveRecordInterface|array $model, array $attributes): false|int|string
     {
         $key = [];
 
