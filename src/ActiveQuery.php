@@ -101,7 +101,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     use ActiveRelationTrait;
 
     private ?string $sql = null;
-    private array|string|null $on;
+    private array|string|null $on = null;
     private array $joinWith = [];
     private ?ActiveRecordInterface $arInstance = null;
     private QueryHelper|null $queryHelper = null;
