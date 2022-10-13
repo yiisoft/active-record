@@ -277,10 +277,6 @@ abstract class ActiveRecordTest extends TestCase
     /**
      * @dataProvider legalValuesForFindByCondition
      *
-     * @param string $modelClassName
-     * @param array $validFilter
-     * @param string|null $alias
-     *
      * @throws ReflectionException
      */
     public function testLegalValuesForFindByCondition(
@@ -337,9 +333,6 @@ abstract class ActiveRecordTest extends TestCase
     /**
      * @dataProvider illegalValuesForFindByCondition
      *
-     * @param string $modelClassName
-     * @param array $filterWithInjection
-     *
      * @throws ReflectionException
      */
     public function testValueEscapingInFindByCondition(string $modelClassName, array $filterWithInjection): void
@@ -381,7 +374,7 @@ abstract class ActiveRecordTest extends TestCase
         $order = new Order($this->db);
 
         $order->customer_id = 1;
-        $order->created_at = 1325502201;
+        $order->created_at = 1_325_502_201;
         $order->total = 0;
 
         $orderItem = new OrderItem($this->db);
@@ -415,6 +408,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetAttributes(): void
     {
+        $attributes = [];
         $this->checkFixture($this->db, 'customer');
 
         $attributes['email'] = 'samdark@mail.ru';

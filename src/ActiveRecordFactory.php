@@ -10,14 +10,8 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordFactory
 {
-    /**
-     * @var Factory
-     */
-    private Factory $factory;
-
-    public function __construct(Factory $factory)
+    public function __construct(private Factory $factory)
     {
-        $this->factory = $factory;
     }
 
     /**
@@ -27,16 +21,13 @@ final class ActiveRecordFactory
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
      *
      * @throws InvalidConfigException
-     *
-     * @return ActiveRecordInterface
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
-        $params = [
-            'class' => $arClass,
-        ];
+        $params = [];
+        $params['class'] = $arClass;
 
-        if ($db) {
+        if ($db !== null) {
             $params['__construct()']['db'] = $db;
         }
 
@@ -51,22 +42,20 @@ final class ActiveRecordFactory
      * @param ConnectionInterface $connection the database connection used for creating active query instances.
      *
      * @throws InvalidConfigException
-     *
-     * @return ActiveQueryInterface
      */
     public function createQueryTo(
         string $arClass,
-        string $queryClass = null,
+        string $queryClass = ActiveQuery::class,
         ConnectionInterface $db = null
     ): ActiveQueryInterface {
         $params = [
-            'class' => $queryClass ?? ActiveQuery::class,
+            'class' => $queryClass,
             '__construct()' => [
-                'modelClass' => $arClass,
+                'arClass' => $arClass,
             ],
         ];
 
-        if ($db) {
+        if ($db !== null) {
             $params['__construct()']['db'] = $db;
         }
 

@@ -25,7 +25,6 @@ use function array_keys;
 use function array_search;
 use function array_values;
 use function count;
-use function get_class;
 use function in_array;
 use function is_array;
 use function is_int;
@@ -53,16 +52,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     use BaseActiveRecordTrait;
 
     private array $attributes = [];
-    private ?array $oldAttributes = null;
+    private array|null $oldAttributes = null;
     private array $related = [];
     private array $relationsDependencies = [];
-    private ?ActiveRecordFactory $arFactory;
-    protected ConnectionInterface $db;
 
-    public function __construct(ConnectionInterface $db, ActiveRecordFactory $arFactory = null)
+    public function __construct(protected ConnectionInterface $db, private ActiveRecordFactory|null $arFactory = null)
     {
-        $this->arFactory = $arFactory;
-        $this->db = $db;
     }
 
     /**
@@ -158,7 +153,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @return string|null the column name that stores the lock version of a table row. If `null` is returned (default
      * implemented), optimistic locking will not be supported.
      */
-    public function optimisticLock(): ?string
+    public function optimisticLock(): string|null
     {
         return null;
     }
@@ -397,7 +392,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * {@see hasAttribute()}
      */
-    public function setOldAttribute(string $name, $value): void
+    public function setOldAttribute(string $name, mixed $value): void
     {
         if (isset($this->oldAttributes[$name]) || $this->hasAttribute($name)) {
             $this->oldAttributes[$name] = $value;
@@ -803,7 +798,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return false;
         }
 
-        return static::class === get_class($record) && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return static::class === $record::class && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**
@@ -937,6 +932,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void
     {
+        $viaClass = null;
+        $viaTable = null;
         $relation = $this->getRelation($name);
 
         if ($relation->getVia() !== null) {
@@ -1042,6 +1039,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void
     {
+        $viaClass = null;
+        $viaTable = null;
         $relation = $this->getRelation($name);
 
         if ($relation->getVia() !== null) {
@@ -1145,6 +1144,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function unlinkAll(string $name, bool $delete = false): void
     {
+        $viaClass = null;
+        $viaTable = null;
         $relation = $this->getRelation($name);
 
         if ($relation->getVia() !== null) {
@@ -1237,7 +1238,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
             if ($value === null) {
                 throw new InvalidCallException(
-                    'Unable to link active record: the primary key of ' . get_class($primaryModel) . ' is null.'
+                    'Unable to link active record: the primary key of ' . $primaryModel::class . ' is null.'
                 );
             }
 
@@ -1308,7 +1309,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private function setRelationDependencies(
         string $name,
         ActiveQuery $relation,
-        ?string $viaRelationName = null
+        string $viaRelationName = null
     ): void {
         if (empty($relation->getVia()) && $relation->getLink()) {
             foreach ($relation->getLink() as $attribute) {

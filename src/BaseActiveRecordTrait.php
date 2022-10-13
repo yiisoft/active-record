@@ -26,7 +26,7 @@ use function ucfirst;
 
 trait BaseActiveRecordTrait
 {
-    private static ?string $connectionId = null;
+    private static string|null $connectionId = null;
 
     /**
      * PHP getter magic method.
@@ -98,14 +98,14 @@ trait BaseActiveRecordTrait
      * @return ActiveQuery|null the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
-    public function getRelation(string $name, bool $throwException = true): ?ActiveQuery
+    public function getRelation(string $name, bool $throwException = true): ActiveQuery|null
     {
         $getter = 'get' . ucfirst($name);
 
         try {
             /** the relation could be defined in a behavior */
             $relation = $this->$getter();
-        } catch (Error $e) {
+        } catch (Error) {
             if ($throwException) {
                 throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
             }
@@ -154,7 +154,7 @@ trait BaseActiveRecordTrait
     {
         try {
             return $this->__get($name) !== null;
-        } catch (Throwable $t) {
+        } catch (Throwable) {
             return false;
         }
     }
@@ -188,7 +188,7 @@ trait BaseActiveRecordTrait
      *
      * @throws InvalidCallException
      */
-    public function __set(string $name, $value): void
+    public function __set(string $name, mixed $value): void
     {
         if ($this->hasAttribute($name)) {
             if (
@@ -230,7 +230,7 @@ trait BaseActiveRecordTrait
      *
      * @return bool whether or not an offset exists.
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->$offset);
     }
@@ -247,7 +247,7 @@ trait BaseActiveRecordTrait
      * @return mixed the element at the offset, null if no element is found at the offset
      */
     #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset)
     {
         return $this->$offset;
     }
@@ -262,7 +262,7 @@ trait BaseActiveRecordTrait
      * @param mixed $offset the offset to set element.
      * @param mixed $item the element value.
      */
-    public function offsetSet($offset, $item): void
+    public function offsetSet(mixed $offset, mixed $item): void
     {
         $this->$offset = $item;
     }
@@ -276,7 +276,7 @@ trait BaseActiveRecordTrait
      *
      * @param mixed $offset the offset to unset element
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         if (property_exists($this, $offset)) {
             $this->$offset = null;
@@ -317,7 +317,7 @@ trait BaseActiveRecordTrait
 
         try {
             return $this->hasAttribute($name);
-        } catch (Exception $e) {
+        } catch (Exception) {
             /** `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
             return false;
         }
@@ -331,7 +331,7 @@ trait BaseActiveRecordTrait
 
         try {
             return $this->hasAttribute($name);
-        } catch (Exception $e) {
+        } catch (Exception) {
             /** `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
             return false;
         }

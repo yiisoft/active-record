@@ -24,7 +24,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return static the query object itself.
      */
-    public function asArray(?bool $value = true): self;
+    public function asArray(bool|null $value = true): self;
 
     /**
      * Executes query and returns a single row of result.
@@ -90,7 +90,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return $this the query object itself
      */
-    public function with(...$with): self;
+    public function with(array|string ...$with): self;
 
     /**
      * Specifies the relation associated with the junction table for use in relational query.
@@ -193,7 +193,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
      */
-    public function findOne(mixed $condition): ?ActiveRecordInterface;
+    public function findOne(mixed $condition): ActiveRecordInterface|null;
 
     /**
      * Returns a list of active record that match the specified primary key value(s) or a set of column values.

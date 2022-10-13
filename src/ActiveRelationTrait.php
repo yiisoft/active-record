@@ -19,7 +19,6 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
-use function get_class;
 use function is_array;
 use function is_object;
 use function is_scalar;
@@ -41,7 +40,7 @@ use function serialize;
 trait ActiveRelationTrait
 {
     private bool $multiple = false;
-    private ?ActiveRecordInterface $primaryModel = null;
+    private ActiveRecordInterface|null $primaryModel = null;
     private array $link = [];
     /**
      * @var string|null the name of the relation that is the inverse of this relation.
@@ -57,9 +56,9 @@ trait ActiveRelationTrait
      *
      * {@see inverseOf()}
      */
-    private ?string $inverseOf = null;
-    /** @var array|object the query associated with the junction table. */
-    private $via;
+    private string|null $inverseOf = null;
+    private array|object|null $via = null;
+    private array $viaMap = [];
 
     /**
      * Clones internal objects.
@@ -190,7 +189,7 @@ trait ActiveRelationTrait
             $realName = lcfirst(substr($method->getName(), 3));
             if ($realName !== $name) {
                 throw new InvalidArgumentException(
-                    'Relation names are case sensitive. ' . get_class($model)
+                    'Relation names are case sensitive. ' . $model::class
                     . " has a relation named \"$realName\" instead of \"$name\"."
                 );
             }
@@ -423,7 +422,7 @@ trait ActiveRelationTrait
         array $models,
         array $link,
         array $viaModels = null,
-        ?self $viaQuery = null,
+        self $viaQuery = null,
         bool $checkMultiple = true
     ): array {
         if ($viaModels !== null) {
@@ -493,13 +492,10 @@ trait ActiveRelationTrait
     /**
      * Indexes buckets by column name.
      *
-     * @param array $buckets
      * @param callable|string $indexBy the name of the column by which the query results should be indexed by. This can
-     * also be a callable (e.g. anonymous function) that returns the index value based on the given row data.
-     *
-     * @return array
+     * also be a callable(e.g. anonymous function) that returns the index value based on the given row data.
      */
-    private function indexBuckets(array $buckets, $indexBy): array
+    private function indexBuckets(array $buckets, callable|string $indexBy): array
     {
         $result = [];
 
@@ -516,8 +512,6 @@ trait ActiveRelationTrait
 
     /**
      * @param array $attributes the attributes to prefix.
-     *
-     * @return array
      */
     private function prefixKeyColumns(array $attributes): array
     {
@@ -601,19 +595,13 @@ trait ActiveRelationTrait
             }
 
             $scalarValues = array_unique($scalarValues);
-            $values = array_merge($scalarValues, $nonScalarValues);
+            $values = [...$scalarValues, ...$nonScalarValues];
         }
 
         $this->andWhere(['in', $attributes, $values]);
     }
 
-    /**
-     * @param ActiveRecordInterface|array $model
-     * @param array $attributes
-     *
-     * @return false|int|string
-     */
-    private function getModelKey($model, array $attributes)
+    private function getModelKey(ActiveRecordInterface|array $model, array $attributes): false|int|string
     {
         $key = [];
 
@@ -633,9 +621,9 @@ trait ActiveRelationTrait
     /**
      * @param mixed $value raw key value.
      *
-     * @return int|string normalized key value.
+     * @return int|string|null normalized key value.
      */
-    private function normalizeModelKey($value)
+    private function normalizeModelKey(mixed $value): int|string|null
     {
         if (is_object($value) && method_exists($value, '__toString')) {
             /**
@@ -650,8 +638,6 @@ trait ActiveRelationTrait
 
     /**
      * @param array $primaryModels either array of AR instances or arrays.
-     *
-     * @return array
      */
     private function findJunctionRows(array $primaryModels): array
     {
@@ -685,11 +671,11 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return ActiveRecordInterface the primary model of a relational query.
+     * @return ActiveRecordInterface|null the primary model of a relational query.
      *
      * This is used only in lazy loading with dynamic query options.
      */
-    public function getPrimaryModel(): ?ActiveRecordInterface
+    public function getPrimaryModel(): ActiveRecordInterface|null
     {
         return $this->primaryModel;
     }
@@ -709,14 +695,14 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return array|object the query associated with the junction table. Please call {@see via()} to set this property
-     * instead of directly setting it.
+     * @return array|object|null the query associated with the junction table. Please call {@see via()} to set this
+     * property instead of directly setting it.
      *
      * This property is only used in relational context.
      *
      * {@see via()}
      */
-    public function getVia()
+    public function getVia(): array|object|null
     {
         return $this->via;
     }

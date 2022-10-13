@@ -88,8 +88,6 @@ class TestCase extends AbstractTestCase
     /**
      * Gets an inaccessible object property.
      *
-     * @param object $object
-     * @param string $propertyName
      * @param bool $revoke whether to make property inaccessible after getting.
      *
      * @return mixed
@@ -146,6 +144,7 @@ class TestCase extends AbstractTestCase
 
     protected function loadFixture(ConnectionInterface $db): void
     {
+        $fixture = null;
         switch ($this->driverName) {
             case 'mssql':
                 $fixture = $this->params()['yiisoft/db-mssql']['fixture'];
@@ -199,20 +198,13 @@ class TestCase extends AbstractTestCase
      */
     protected function replaceQuotes($sql)
     {
-        switch ($this->driverName) {
-            case 'mysql':
-            case 'sqlite':
-                return str_replace(['[[', ']]'], '`', $sql);
-            case 'oci':
-                return str_replace(['[[', ']]'], '"', $sql);
-            case 'pgsql':
-                // more complex replacement needed to not conflict with postgres array syntax
-                return str_replace(['\\[', '\\]'], ['[', ']'], preg_replace('/(\[\[)|((?<!(\[))]])/', '"', $sql));
-            case 'mssql':
-                return str_replace(['[[', ']]'], ['[', ']'], $sql);
-            default:
-                return $sql;
-        }
+        return match ($this->driverName) {
+            'mysql', 'sqlite' => str_replace(['[[', ']]'], '`', $sql),
+            'oci' => str_replace(['[[', ']]'], '"', $sql),
+            'pgsql' => str_replace(['\\[', '\\]'], ['[', ']'], preg_replace('/(\[\[)|((?<!(\[))]])/', '"', $sql)),
+            'mssql' => str_replace(['[[', ']]'], ['[', ']'], $sql),
+            default => $sql,
+        };
     }
 
     private function config(): array

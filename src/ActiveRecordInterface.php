@@ -179,7 +179,7 @@ interface ActiveRecordInterface
      *
      * @return bool whether the attributes are valid and the record is inserted successfully.
      */
-    public function insert(?array $attributes = null): bool;
+    public function insert(array $attributes = null): bool;
 
     /**
      * Saves the changes to this active record into the database.
@@ -243,7 +243,7 @@ interface ActiveRecordInterface
      *
      * @return ActiveQueryInterface|null the relational query object.
      */
-    public function getRelation(string $name, bool $throwException = true): ?ActiveQueryInterface;
+    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface|null;
 
     /**
      * Populates the named relation with the related records.
