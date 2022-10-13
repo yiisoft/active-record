@@ -40,7 +40,7 @@ use function serialize;
 trait ActiveRelationTrait
 {
     private bool $multiple = false;
-    private ?ActiveRecordInterface $primaryModel = null;
+    private ActiveRecordInterface|null $primaryModel = null;
     private array $link = [];
     /**
      * @var string|null the name of the relation that is the inverse of this relation.
@@ -56,7 +56,7 @@ trait ActiveRelationTrait
      *
      * {@see inverseOf()}
      */
-    private ?string $inverseOf = null;
+    private string|null $inverseOf = null;
     private array|object|null $via = null;
     private array $viaMap = [];
 
@@ -422,7 +422,7 @@ trait ActiveRelationTrait
         array $models,
         array $link,
         array $viaModels = null,
-        ?self $viaQuery = null,
+        self $viaQuery = null,
         bool $checkMultiple = true
     ): array {
         if ($viaModels !== null) {
@@ -671,11 +671,11 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return ActiveRecordInterface the primary model of a relational query.
+     * @return ActiveRecordInterface|null the primary model of a relational query.
      *
      * This is used only in lazy loading with dynamic query options.
      */
-    public function getPrimaryModel(): ?ActiveRecordInterface
+    public function getPrimaryModel(): ActiveRecordInterface|null
     {
         return $this->primaryModel;
     }

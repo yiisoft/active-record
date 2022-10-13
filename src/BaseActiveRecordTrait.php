@@ -26,7 +26,7 @@ use function ucfirst;
 
 trait BaseActiveRecordTrait
 {
-    private static ?string $connectionId = null;
+    private static string|null $connectionId = null;
 
     /**
      * PHP getter magic method.
@@ -98,7 +98,7 @@ trait BaseActiveRecordTrait
      * @return ActiveQuery|null the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
-    public function getRelation(string $name, bool $throwException = true): ?ActiveQuery
+    public function getRelation(string $name, bool $throwException = true): ActiveQuery|null
     {
         $getter = 'get' . ucfirst($name);
 

@@ -100,10 +100,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     use ActiveQueryTrait;
     use ActiveRelationTrait;
 
-    private ?string $sql = null;
+    private string|null $sql = null;
     private array|string|null $on = null;
     private array $joinWith = [];
-    private ?ActiveRecordInterface $arInstance = null;
+    private ActiveRecordInterface|null $arInstance = null;
     private QueryHelper|null $queryHelper = null;
 
     public function __construct(
@@ -998,12 +998,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * This is set by {@see ActiveRecord::findBySql()}.
      */
-    public function getSql(): ?string
+    public function getSql(): string|null
     {
         return $this->sql;
     }
 
-    public function getARClass(): ?string
+    public function getARClass(): string|null
     {
         return $this->arClass;
     }
@@ -1015,7 +1015,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
      */
-    public function findOne(mixed $condition): ?ActiveRecordInterface
+    public function findOne(mixed $condition): ActiveRecordInterface|null
     {
         return $this->findByCondition($condition)->one();
     }
@@ -1108,7 +1108,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function sql(?string $value): self
+    public function sql(string|null $value): self
     {
         $this->sql = $value;
         return $this;

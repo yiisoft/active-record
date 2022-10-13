@@ -20,7 +20,7 @@ use function substr;
 trait ActiveQueryTrait
 {
     private array $with = [];
-    private ?bool $asArray = null;
+    private bool|null $asArray = null;
 
     /**
      * Sets the {@see asArray} property.
@@ -29,7 +29,7 @@ trait ActiveQueryTrait
      *
      * @return static the query object itself.
      */
-    public function asArray(?bool $value = true): self
+    public function asArray(bool|null $value = true): self
     {
         $this->asArray = $value;
         return $this;
@@ -104,7 +104,7 @@ trait ActiveQueryTrait
     /**
      * Converts found rows into model instances.
      */
-    protected function createModels(array $rows): ?array
+    protected function createModels(array $rows): array|null
     {
         if ($this->asArray) {
             return $rows;
@@ -193,7 +193,7 @@ trait ActiveQueryTrait
         return $relations;
     }
 
-    public function isAsArray(): ?bool
+    public function isAsArray(): bool|null
     {
         return $this->asArray;
     }

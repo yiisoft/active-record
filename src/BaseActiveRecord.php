@@ -52,11 +52,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     use BaseActiveRecordTrait;
 
     private array $attributes = [];
-    private ?array $oldAttributes = null;
+    private array|null $oldAttributes = null;
     private array $related = [];
     private array $relationsDependencies = [];
 
-    public function __construct(protected ConnectionInterface $db, private ?ActiveRecordFactory $arFactory = null)
+    public function __construct(protected ConnectionInterface $db, private ActiveRecordFactory|null $arFactory = null)
     {
     }
 
@@ -153,7 +153,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @return string|null the column name that stores the lock version of a table row. If `null` is returned (default
      * implemented), optimistic locking will not be supported.
      */
-    public function optimisticLock(): ?string
+    public function optimisticLock(): string|null
     {
         return null;
     }
@@ -1309,7 +1309,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private function setRelationDependencies(
         string $name,
         ActiveQuery $relation,
-        ?string $viaRelationName = null
+        string $viaRelationName = null
     ): void {
         if (empty($relation->getVia()) && $relation->getLink()) {
             foreach ($relation->getLink() as $attribute) {
