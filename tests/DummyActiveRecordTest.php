@@ -9,6 +9,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 
 /**
  * @group main
+ * @group sqlite
  */
 final class DummyActiveRecordTest extends TestCase
 {
