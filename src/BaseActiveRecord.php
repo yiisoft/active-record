@@ -684,19 +684,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return false;
     }
 
-    /**
-     * Deletes the table row corresponding to this active record.
-     *
-     * This method performs the following steps in order:
-     *
-     * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being deleted is
-     * outdated.
-     * @throws Exception in case delete failed.
-     *
-     * @return bool|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
-     * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
-     */
-    public function delete()
+    public function delete(): false|int
     {
         /**
          * we do not check the return value of deleteAll() because it's possible the record is already deleted in
