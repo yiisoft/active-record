@@ -29,6 +29,11 @@ use Yiisoft\Db\Exception\NotSupportedException;
  */
 class DummyActiveRecord extends BaseActiveRecord
 {
+    public static function tableName(): string
+    {
+        return 'dummy';
+    }
+
     public function primaryKey(): array
     {
         throw new NotSupportedException(__METHOD__ . ' is not supported.');

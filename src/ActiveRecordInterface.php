@@ -4,73 +4,106 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-/**
- * ActiveRecordInterface.
- */
+use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\Strings\Inflector;
+
 interface ActiveRecordInterface
 {
     /**
-     * Returns the primary key **name(s)** for this AR class.
+     * Returns the list of all attribute names of the model.
      *
-     * Note that an array should be returned even when the record only has a single primary key.
+     * The default implementation will return all column names of the table associated with this AR class.
      *
-     * For the primary key **value** see {@see getPrimaryKey()} instead.
+     * @throws InvalidConfigException
+     * @throws Exception
      *
-     * @return array the primary key name(s) for this AR class.
-     */
-    public function primaryKey(): array;
-
-    /**
-     * Returns the list of all attribute names of the record.
-     *
-     * @return array list of attribute names.
+     * @return array List of attribute names.
      */
     public function attributes(): array;
+
+    /**
+     * Deletes the table row corresponding to this active record.
+     *
+     * @throws StaleObjectException If {@see optimisticLock|optimistic locking} is enabled and the data being deleted
+     * is outdated.
+     * @throws Throwable In case delete failed.
+     *
+     * @return false|int The number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     *
+     * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
+     */
+    public function delete(): false|int;
+
+    /**
+     * Deletes rows in the table using the provided conditions.
+     *
+     * For example, to delete all customers whose status is 3:
+     *
+     * ```php
+     * $customer = new Customer($this->db);
+     * $customer->deleteAll('status = 3');
+     * ```
+     *
+     * > Warning: If you do not specify any condition, this method will delete **all** rows in the table.
+     *
+     * ```php
+     * $customerQuery = new ActiveQuery(Customer::class, $this->db);
+     * $aqClasses = $customerQuery->where('status = 3')->all();
+     * foreach ($aqClasses as $aqClass) {
+     *     $aqClass->delete();
+     * }
+     * ```
+     *
+     * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
+     *
+     * @param array $condition The conditions that will be put in the WHERE part of the DELETE SQL. Please refer to
+     * {@see Query::where()} on how to specify this parameter.
+     * @param array $params The parameters (name => value) to be bound to the query.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     *
+     * @return int The number of rows deleted.
+     */
+    public function deleteAll(array $condition = []): int;
+
+    /**
+     * Returns a value indicating whether the given active record is the same as the current one.
+     *
+     * The comparison is made by comparing the table names and the primary key values of the two active records. If one
+     * of the records {@see isNewRecord|is new} they are also considered not equal.
+     *
+     * @param self $record Record to compare to.
+     *
+     * @return bool Whether the two active records refer to the same row in the same database table.
+     */
+    public function equals(self $record): bool;
 
     /**
      * Returns the named attribute value.
      *
      * If this record is the result of a query and the attribute is not loaded, `null` will be returned.
      *
-     * @param string $name the attribute name.
+     * @param string $name The attribute name.
      *
-     * @return mixed the attribute value. `null` if the attribute is not set or does not exist.
-     *
-     * {@see hasAttribute()}
-     */
-    public function getAttribute(string $name);
-
-    /**
-     * Sets the named attribute value.
-     *
-     * @param string $name the attribute name.
-     * @param mixed $value the attribute value.
+     * @return mixed The attribute value. `null` if the attribute is not set or does not exist.
      *
      * {@see hasAttribute()}
      */
-    public function setAttribute(string $name, $value): void;
+    public function getAttribute(string $name): mixed;
 
     /**
-     * Returns a value indicating whether the record has an attribute with the specified name.
+     * Returns a value indicating whether the current record is new (not saved in the database).
      *
-     * @param string $name the name of the attribute.
-     *
-     * @return bool whether the record has an attribute with the specified name.
+     * @return bool Whether the record is new and should be inserted when calling {@see save()}.
      */
-    public function hasAttribute(string $name): bool;
-
-    /**
-     * Returns the primary key value(s).
-     *
-     * @param bool $asArray whether to return the primary key value as an array. If true, the return value will be an
-     * array with attribute names as keys and attribute values as values. Note that for composite primary keys, an array
-     * will always be returned regardless of this parameter value.
-     *
-     * @return mixed the primary key value. An array (attribute name => attribute value) is returned if the primary key
-     * is composite or `$asArray` is true. A string is returned otherwise (`null` will be returned if the key value is
-     * `null`).
-     */
-    public function getPrimaryKey(bool $asArray = false);
+    public function getIsNewRecord(): bool;
 
     /**
      * Returns the old primary key value(s).
@@ -80,65 +113,138 @@ interface ActiveRecordInterface
      *
      * The value remains unchanged even if the primary key attribute is manually assigned with a different value.
      *
-     * @param bool $asArray whether to return the primary key value as an array. If true, the return value will be an
+     * @param bool $asArray Whether to return the primary key value as an array. If true, the return value will be an
      * array with column name as key and column value as value. If this is `false` (default), a scalar value will be
      * returned for non-composite primary key.
      *
-     * @return mixed the old primary key value. An array (column name => column value) is returned if the primary key
+     * @return mixed The old primary key value. An array (column name => column value) is returned if the primary key
      * is composite or `$asArray` is true. A string is returned otherwise (`null` will be returned if the key value is
      * `null`).
      */
-    public function getOldPrimaryKey(bool $asArray = false);
+    public function getOldPrimaryKey(bool $asArray = false): mixed;
+
+    /**
+     * Returns the primary key value(s).
+     *
+     * @param bool $asArray Whether to return the primary key value as an array. If true, the return value will be an
+     * array with attribute names as keys and attribute values as values. Note that for composite primary keys, an array
+     * will always be returned regardless of this parameter value.
+     *
+     * @return mixed The primary key value. An array (attribute name => attribute value) is returned if the primary key
+     * is composite or `$asArray` is true. A string is returned otherwise (`null` will be returned if the key value is
+     * `null`).
+     */
+    public function getPrimaryKey(bool $asArray = false): mixed;
+
+    /**
+     * Returns the relation object with the specified name.
+     *
+     * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
+     * (normally this would be a relational {@see ActiveQuery} object).
+     *
+     * @param string $name The relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * (case-sensitive).
+     * @param bool $throwException Whether to throw exception if the relation does not exist.
+     *
+     * @return ActiveQueryInterface|null The relational query object.
+     */
+    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface|null;
+
+    /**
+     * Returns a value indicating whether the record has an attribute with the specified name.
+     *
+     * @param string $name The name of the attribute.
+     *
+     * @return bool Whether the record has an attribute with the specified name.
+     */
+    public function hasAttribute(string $name): bool;
+
+    /**
+     * Inserts a row into the associated database table using the attribute values of this record.
+     *
+     * Only the {@see dirtyAttributes|changed attribute values} will be inserted into database.
+     *
+     * If the table's primary key is auto-incremental and is `null` during insertion, it will be populated with the
+     * actual value after insertion.
+     *
+     * For example, to insert a customer record:
+     *
+     * ```php
+     * $customer = new Customer($db);
+     * $customer->name = $name;
+     * $customer->email = $email;
+     * $customer->insert();
+     * ```
+     *
+     * @param array|null $attributes List of attributes that need to be saved. Defaults to `null`, meaning all
+     * attributes that are loaded from DB will be saved.
+     *
+     * @throws InvalidConfigException
+     * @throws Throwable In case insert failed.
+     *
+     * @return bool Whether the attributes are valid and the record is inserted successfully.
+     */
+    public function insert(array $attributes = null): bool;
 
     /**
      * Returns a value indicating whether the given set of attributes represents the primary key for this active record.
      *
-     * @param array $keys the set of attributes to check.
+     * @param array $keys The set of attributes to check.
      *
-     * @return bool whether the given set of attributes represents the primary key for this active record.
+     * @return bool whether The given set of attributes represents the primary key for this active record.
      */
     public function isPrimaryKey(array $keys): bool;
 
     /**
-     * Updates records using the provided attribute values and conditions.
+     * Establishes the relationship between two records.
      *
-     * For example, to change the status to be 1 for all customers whose status is 2:
+     * The relationship is established by setting the foreign key value(s) in one record to be the corresponding primary
+     * key value(s) in the other record.
      *
-     * ```php
-     * $customer = new Customer($db);
-     * $customer->updateAll(['status' => 1], ['status' => '2']);
-     * ```
+     * The record with the foreign key will be saved into database without performing validation.
      *
-     * @param array $attributes attribute values (name-value pairs) to be saved for the record. Unlike {@see update()}
-     * these are not going to be validated.
-     * @param array|string $condition the condition that matches the records that should get updated.
-     * Please refer to {@see QueryInterface::where()} on how to specify this parameter. An empty condition will match
-     * all records.
-     * @param array $params
+     * If the relationship involves a junction table, a new row will be inserted into the junction table which contains
+     * the primary key values from both records.
      *
-     * @return int the number of rows updated.
+     * This method requires that the primary key value is not `null`.
+     *
+     * @param string $name The case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * `getOrders()` method.
+     * @param self $arClass The record to be linked with the current one.
+     * @param array $extraColumns Additional column values to be saved into the junction table. This parameter is only
+     * meaningful for a relationship involving a junction table (i.e., a relation set with
+     * {@see ActiveQueryInterface::via()}).
      */
-    public function updateAll(array $attributes, $condition = [], array $params = []): int;
+    public function link(string $name, self $arClass, array $extraColumns = []): void;
 
     /**
-     * Deletes records using the provided conditions.
+     * Populates the named relation with the related records.
      *
-     * WARNING: If you do not specify any condition, this method will delete ALL rows in the table.
+     * Note that this method does not check if the relation exists or not.
      *
-     * For example, to delete all customers whose status is 3:
-     *
-     * ```php
-     * $customer = new Customer($this->db);
-     * $customer->deleteAll([status = 3]);
-     * ```
-     *
-     * @param array $condition the condition that matches the records that should get deleted.
-     * Please refer to {@see QueryInterface::where()} on how to specify this parameter.
-     * An empty condition will match all records.
-     *
-     * @return int the number of rows deleted.
+     * @param string $name The relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * (case-sensitive).
+     * @param array|self|null $records The related records to be populated into the relation.
      */
-    public function deleteAll(array $condition = []): int;
+    public function populateRelation(string $name, $records): void;
+
+    /**
+     * Returns the primary key name(s) for this AR class.
+     *
+     * The default implementation will return the primary key(s) as declared in the DB table that is associated with
+     * this AR class.
+     *
+     * If the DB table does not declare any primary key, you should override this method to return the attributes that
+     * you want to use as primary keys for this AR class.
+     *
+     * Note that an array should be returned even for a table with single primary key.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     *
+     * @psalm-return string[] The primary keys of the associated database table.
+     */
+    public function primaryKey(): array;
 
     /**
      * Saves the current record.
@@ -155,128 +261,95 @@ interface ActiveRecordInterface
      * $customer->save();
      * ```
      *
-     * @param array|null $attributeNames list of attribute names that need to be saved. Defaults to `null`,
+     * @param array|null $attributeNames List of attribute names that need to be saved. Defaults to `null`,
      * meaning all attributes that are loaded from DB will be saved.
      *
-     * @return bool whether the saving succeeded (i.e. no validation errors occurred).
+     * @return bool Whether the saving succeeded (i.e. no validation errors occurred).
      */
     public function save(array $attributeNames = null): bool;
 
     /**
-     * Inserts the record into the database using the attribute values of this record.
+     * Sets the named attribute value.
      *
-     * Usage example:
+     * @param string $name The attribute name.
+     * @param mixed $value The attribute value.
+     *
+     * @throws InvalidArgumentException If the named attribute does not exist.
+     */
+    public function setAttribute(string $name, mixed $value): void;
+
+    /**
+     * Saves the changes to this active record into the associated database table.
+     *
+     * Only the {@see dirtyAttributes|changed attribute values} will be saved into database.
+     *
+     * For example, to update a customer record:
      *
      * ```php
      * $customer = new Customer($db);
      * $customer->name = $name;
      * $customer->email = $email;
-     * $customer->insert();
-     * ```
-     *
-     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
-     * attributes that are loaded from DB will be saved.
-     *
-     * @return bool whether the attributes are valid and the record is inserted successfully.
-     */
-    public function insert(array $attributes = null): bool;
-
-    /**
-     * Saves the changes to this active record into the database.
-     *
-     * Usage example:
-     *
-     * ```php
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $customer = $customerQuery->findOne($id);
-     * $customer->name = $name;
-     * $customer->email = $email;
      * $customer->update();
      * ```
      *
-     * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all
+     * Note that it is possible the update does not affect any row in the table. In this case, this method will return
+     * 0. For this reason, you should use the following code to check if update() is successful or not:
+     *
+     * ```php
+     * if ($customer->update() !== false) {
+     *     // update successful
+     * } else {
+     *     // update failed
+     * }
+     * ```
+     *
+     * @param array|null $attributeNames List of attributes that need to be saved. Defaults to `null`, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @return bool|int the number of rows affected, or `false` if validation fails or updating process is stopped for
-     * other reasons.
+     * @throws StaleObjectException If {@see optimisticLock|optimistic locking} is enabled and the data being updated is
+     * outdated.
+     * @throws Throwable In case update failed.
      *
-     * Note that it is possible that the number of rows affected is 0, even though the update execution is successful.
+     * @return false|int The number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
+     * updating process.
      */
-    public function update(array $attributeNames = null);
+    public function update(array $attributeNames = null): false|int;
 
     /**
-     * Deletes the record from the database.
+     * Updates the whole table using the provided attribute values and conditions.
      *
-     * @return bool|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * For example, to change the status to be 1 for all customers whose status is 2:
      *
-     * Note that it is possible that the number of rows deleted is 0, even though the deletion execution is successful.
+     * ```php
+     * $customer = new Customer($db);
+     * $customer->updateAll(['status' => 1], 'status = 2');
+     * ```
+     *
+     * > Warning: If you do not specify any condition, this method will update **all** rows in the table.
+     *
+     * ```php
+     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $aqClasses = $customerQuery->where('status = 2')->all();
+     * foreach ($aqClasses as $aqClass) {
+     *     $aqClass->status = 1;
+     *     $aqClass->update();
+     * }
+     * ```
+     *
+     * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
+     *
+     * @param array $attributes Attribute values (name-value pairs) to be saved into the table.
+     * @param array|string $condition The conditions that will be put in the WHERE part of the UPDATE SQL.
+     * Please refer to {@see Query::where()} on how to specify this parameter.
+     * @param array $params The parameters (name => value) to be bound to the query.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable if the models cannot be unlinked.
+     *
+     * @return int The number of rows updated.
      */
-    public function delete();
-
-    /**
-     * Returns a value indicating whether the current record is new (not saved in the database).
-     *
-     * @return bool whether the record is new and should be inserted when calling {@see save()}.
-     */
-    public function getIsNewRecord(): bool;
-
-    /**
-     * Returns a value indicating whether the given active record is the same as the current one.
-     *
-     * Two {@see getIsNewRecord()|new} records are considered to be not equal.
-     *
-     * @param ActiveRecordInterface $record record to compare to.
-     *
-     * @return bool whether the two active records refer to the same row in the same database table.
-     */
-    public function equals(self $record): bool;
-
-    /**
-     * Returns the relation object with the specified name.
-     *
-     * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
-     * (normally this would be a relational {@see ActiveQuery} object).
-     *
-     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
-     * (case-sensitive).
-     * @param bool $throwException whether to throw exception if the relation does not exist.
-     *
-     * @return ActiveQueryInterface|null the relational query object.
-     */
-    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface|null;
-
-    /**
-     * Populates the named relation with the related records.
-     *
-     * Note that this method does not check if the relation exists or not.
-     *
-     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
-     * (case-sensitive).
-     * @param ActiveRecordInterface|array|null $records the related records to be populated into the relation.
-     */
-    public function populateRelation(string $name, $records): void;
-
-    /**
-     * Establishes the relationship between two records.
-     *
-     * The relationship is established by setting the foreign key value(s) in one record to be the corresponding primary
-     * key value(s) in the other record.
-     *
-     * The record with the foreign key will be saved into database without performing validation.
-     *
-     * If the relationship involves a junction table, a new row will be inserted into the junction table which contains
-     * the primary key values from both records.
-     *
-     * This method requires that the primary key value is not `null`.
-     *
-     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
-     * `getOrders()` method.
-     * @param ActiveRecordInterface $arClass the record to be linked with the current one.
-     * @param array $extraColumns additional column values to be saved into the junction table. This parameter is only
-     * meaningful for a relationship involving a junction table (i.e., a relation set with
-     * {@see ActiveQueryInterface::via()}).
-     */
-    public function link(string $name, self $arClass, array $extraColumns = []): void;
+    public function updateAll(array $attributes, $condition = [], array $params = []): int;
 
     /**
      * Destroys the relationship between two records.
@@ -285,12 +358,26 @@ interface ActiveRecordInterface
      *
      * Otherwise, the foreign key will be set `null` and the record will be saved without validation.
      *
-     * @param string $name the case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * @param string $name The case sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
-     * @param ActiveRecordInterface $arClass the active record to be unlinked from the current one.
-     * @param bool $delete whether to delete the active record that contains the foreign key.
+     * @param self $arClass The active record to be unlinked from the current one.
+     * @param bool $delete Whether to delete the active record that contains the foreign key.
      * If false, the active record's foreign key will be set `null` and saved.
      * If true, the active record containing the foreign key will be deleted.
      */
     public function unlink(string $name, self $arClass, bool $delete = false): void;
+
+    /**
+     * Declares the name of the database table associated with this active record class.
+     *
+     * By default this method returns the class name as the table name by calling {@see Inflector::pascalCaseToId()}
+     * with prefix {@see ConnectionInterface::setTablePrefix()}.
+     *
+     * For example if {@see ConnectionInterface::setTablePrefix()} is `tbl_`, `Customer` becomes `tbl_customer`, and
+     * `OrderItem` becomes `tbl_order_item`. You may override this method if the table is not named after this
+     * convention.
+     *
+     * @return string The table name.
+     */
+    public static function tableName(): string;
 }
