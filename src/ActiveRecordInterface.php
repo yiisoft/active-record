@@ -223,7 +223,7 @@ interface ActiveRecordInterface
      *
      * @param string $name The relation name, e.g. `orders` for a relation defined via `getOrders()` method
      * (case-sensitive).
-     * @param self|array|null $records The related records to be populated into the relation.
+     * @param array|self|null $records The related records to be populated into the relation.
      */
     public function populateRelation(string $name, $records): void;
 
