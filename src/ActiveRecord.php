@@ -113,47 +113,49 @@ class ActiveRecord extends BaseActiveRecord
      */
     public const OP_ALL = 0x07;
 
-    /**
-     * Loads default values from database table schema.
-     *
-     * You may call this method to load default values after creating a new instance:
-     *
-     * ```php
-     * // class Customer extends ActiveRecord
-     * $customer = new Customer($db);
-     * $customer->loadDefaultValues();
-     * ```
-     *
-     * @param bool $skipIfSet whether existing value should be preserved. This will only set defaults for attributes
-     * that are `null`.
-     *
-     * @throws Exception|InvalidConfigException
-     *
-     * @return $this the model instance itself.
-     */
-    public function loadDefaultValues(bool $skipIfSet = true): self
+    public function attributes(): array
     {
-        foreach ($this->getTableSchema()->getColumns() as $column) {
-            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->{$column->getName()} === null)) {
-                $this->{$column->getName()} = $column->getDefaultValue();
-            }
-        }
-
-        return $this;
+        return array_keys($this->getTableSchema()->getColumns());
     }
 
-    /**
-     * Returns table aliases which are not the same as the name of the tables.
-     *
-     * @throws InvalidArgumentException|InvalidConfigException
-     */
-    public function filterValidAliases(ActiveQuery $query): array
+    public function delete(): false|int
     {
-        $tables = $query->getTablesUsedInFrom();
+        if (!$this->isTransactional(self::OP_DELETE)) {
+            return $this->deleteInternal();
+        }
 
-        $aliases = array_diff(array_keys($tables), $tables);
+        $transaction = $this->db->beginTransaction();
 
-        return array_map(static fn ($alias) => preg_replace('/{{([\w]+)}}/', '$1', $alias), array_values($aliases));
+        try {
+            $result = $this->deleteInternal();
+            if ($result === false) {
+                $transaction->rollBack();
+            } else {
+                $transaction->commit();
+            }
+
+            return $result;
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    public function deleteAll(array $condition = [], array $params = []): int
+    {
+        $command = $this->db->createCommand();
+        $command->delete(static::tableName(), $condition, $params);
+
+        return $command->execute();
+    }
+
+    public function equals(ActiveRecordInterface $record): bool
+    {
+        if ($this->isNewRecord || $record->isNewRecord) {
+            return false;
+        }
+
+        return static::tableName() === $record::tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**
@@ -161,12 +163,14 @@ class ActiveRecord extends BaseActiveRecord
      *
      * This method will ensure that an array condition only filters on existing table columns.
      *
-     * @param array $condition condition to filter.
-     * @param array $aliases
+     * @param array $condition Condition to filter.
+     * @param array $aliases Aliases to be used for table names.
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException in case array contains unsafe values.
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException In case array contains unsafe values.
      *
-     * @return array filtered condition.
+     * @return array Filtered condition.
      */
     public function filterCondition(array $condition, array $aliases = []): array
     {
@@ -187,30 +191,132 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Valid column names are table column names or column names prefixed with table name or table alias.
+     * Returns table aliases which are not the same as the name of the tables.
      *
-     * @throws Exception|InvalidConfigException
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
      */
-    protected function filterValidColumnNames(array $aliases): array
+    public function filterValidAliases(ActiveQuery $query): array
     {
-        $columnNames = [];
-        $tableName = static::tableName();
-        $quotedTableName = $this->db->getQuoter()->quoteTableName($tableName);
+        $tables = $query->getTablesUsedInFrom();
 
-        foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
-            $columnNames[] = $columnName;
-            $columnNames[] = $this->db->getQuoter()->quoteColumnName($columnName);
-            $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableName.[[$columnName]]");
+        $aliases = array_diff(array_keys($tables), $tables);
 
-            foreach ($aliases as $tableAlias) {
-                $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $this->db->getQuoter()->quoteTableName($tableAlias);
-                $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableAlias.[[$columnName]]");
+        return array_map(static fn ($alias) => preg_replace('/{{([\w]+)}}/', '$1', $alias), array_values($aliases));
+    }
+
+    /**
+     * Returns the schema information of the DB table associated with this AR class.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException If the table for the AR class does not exist.
+     *
+     * @return TableSchemaInterface The schema information of the DB table associated with this AR class.
+     */
+    public function getTableSchema(): TableSchemaInterface
+    {
+        $tableSchema = $this->db->getSchema()->getTableSchema(static::tableName());
+
+        if ($tableSchema === null) {
+            throw new InvalidConfigException('The table does not exist: ' . static::tableName());
+        }
+
+        return $tableSchema;
+    }
+
+    public function insert(array $attributes = null): bool
+    {
+        if (!$this->isTransactional(self::OP_INSERT)) {
+            return $this->insertInternal($attributes);
+        }
+
+        $transaction = $this->db->beginTransaction();
+
+        try {
+            $result = $this->insertInternal($attributes);
+            if ($result === false) {
+                $transaction->rollBack();
+            } else {
+                $transaction->commit();
+            }
+
+            return $result;
+        } catch (Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Returns a value indicating whether the specified operation is transactional.
+     *
+     * @param int $operation The operation to check. Possible values are {@see OP_INSERT}, {@see OP_UPDATE} and
+     * {@see OP_DELETE}.
+     *
+     * @return array|bool Whether the specified operation is transactional.
+     */
+    public function isTransactional(int $operation): array|bool
+    {
+        return $this->transactions();
+    }
+
+    /**
+     * Loads default values from database table schema.
+     *
+     * You may call this method to load default values after creating a new instance:
+     *
+     * ```php
+     * // class Customer extends ActiveRecord
+     * $customer = new Customer($db);
+     * $customer->loadDefaultValues();
+     * ```
+     *
+     * @param bool $skipIfSet Whether existing value should be preserved. This will only set defaults for attributes
+     * that are `null`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     *
+     * @return self The active record instance itself.
+     */
+    public function loadDefaultValues(bool $skipIfSet = true): self
+    {
+        foreach ($this->getTableSchema()->getColumns() as $column) {
+            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->{$column->getName()} === null)) {
+                $this->{$column->getName()} = $column->getDefaultValue();
             }
         }
 
-        return $columnNames;
+        return $this;
+    }
+
+    /**
+     * Populates an active record object using a row of data from the database/storage.
+     *
+     * This is an internal method meant to be called to create active record objects after fetching data from the
+     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
+     *
+     * @param array|object $row Attribute values (name => value).
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function populateRecord($row): void
+    {
+        $columns = $this->getTableSchema()->getColumns();
+
+        foreach ($row as $name => $value) {
+            if (isset($columns[$name])) {
+                $row[$name] = $columns[$name]->phpTypecast($value);
+            }
+        }
+
+        parent::populateRecord($row);
+    }
+
+    public function primaryKey(): array
+    {
+        return $this->getTableSchema()->getPrimaryKey();
     }
 
     public function refresh(): bool
@@ -231,196 +337,6 @@ class ActiveRecord extends BaseActiveRecord
         $record = $query->one();
 
         return $this->refreshInternal($record);
-    }
-
-    /**
-     * Updates the whole table using the provided attribute values and conditions.
-     *
-     * For example, to change the status to be 1 for all customers whose status is 2:
-     *
-     * ```php
-     * $customer = new Customer($db);
-     * $customer->updateAll(['status' => 1], 'status = 2');
-     * ```
-     *
-     * > Warning: If you do not specify any condition, this method will update **all** rows in the table.
-     *
-     * ```php
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $aqClasses = $customerQuery->where('status = 2')->all();
-     * foreach ($aqClasses as $aqClass) {
-     *     $aqClass->status = 1;
-     *     $aqClass->update();
-     * }
-     * ```
-     *
-     * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
-     *
-     * @param array $attributes attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL.
-     * Please refer to {@see Query::where()} on how to specify this parameter.
-     * @param array $params the parameters (name => value) to be bound to the query.
-     *
-     * @throws Exception|InvalidConfigException|Throwable
-     *
-     * @return int the number of rows updated.
-     */
-    public function updateAll(array $attributes, $condition = [], array $params = []): int
-    {
-        $command = $this->db->createCommand();
-
-        $command->update(static::tableName(), $attributes, $condition, $params);
-
-        return $command->execute();
-    }
-
-    /**
-     * Updates the whole table using the provided counter changes and conditions.
-     *
-     * For example, to increment all customers' age by 1,
-     *
-     * ```php
-     * $customer = new Customer($db);
-     * $customer->updateAllCounters(['age' => 1]);
-     * ```
-     *
-     * Note that this method will not trigger any events.
-     *
-     * @param array $counters the counters to be updated (attribute name => increment value).
-     * Use negative values if you want to decrement the counters.
-     * @param array|string $condition the conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
-     * to {@see Query::where()} on how to specify this parameter.
-     * @param array $params the parameters (name => value) to be bound to the query.
-     *
-     * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
-     *
-     * @throws Exception|InvalidConfigException|Throwable
-     *
-     * @return int the number of rows updated.
-     */
-    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
-    {
-        $n = 0;
-
-        foreach ($counters as $name => $value) {
-            $counters[$name] = new Expression("[[$name]]+:bp{$n}", [":bp{$n}" => $value]);
-            $n++;
-        }
-
-        $command = $this->db->createCommand();
-        $command->update(static::tableName(), $counters, $condition, $params);
-
-        return $command->execute();
-    }
-
-    /**
-     * Deletes rows in the table using the provided conditions.
-     *
-     * For example, to delete all customers whose status is 3:
-     *
-     * ```php
-     * $customer = new Customer($this->db);
-     * $customer->deleteAll('status = 3');
-     * ```
-     *
-     * > Warning: If you do not specify any condition, this method will delete **all** rows in the table.
-     *
-     * ```php
-     * $customerQuery = new ActiveQuery(Customer::class, $this->db);
-     * $aqClasses = $customerQuery->where('status = 3')->all();
-     * foreach ($aqClasses as $aqClass) {
-     *     $aqClass->delete();
-     * }
-     * ```
-     *
-     * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
-     *
-     * @param array $condition the conditions that will be put in the WHERE part of the DELETE SQL. Please refer
-     * to {@see Query::where()} on how to specify this parameter.
-     * @param array $params the parameters (name => value) to be bound to the query.
-     *
-     * @throws Exception|InvalidConfigException|Throwable
-     *
-     * @return int the number of rows deleted.
-     */
-    public function deleteAll(array $condition = [], array $params = []): int
-    {
-        $command = $this->db->createCommand();
-        $command->delete(static::tableName(), $condition, $params);
-
-        return $command->execute();
-    }
-
-    /**
-     * Declares the name of the database table associated with this active record class.
-     *
-     * By default this method returns the class name as the table name by calling {@see Inflector::pascalCaseToId()}
-     * with prefix {@see Connection::tablePrefix}. For example if {@see Connection::tablePrefix} is `tbl_`, `Customer`
-     * becomes `tbl_customer`, and `OrderItem` becomes `tbl_order_item`. You may override this method if the table is
-     * not named after this convention.
-     *
-     * @return string the table name.
-     */
-    public static function tableName(): string
-    {
-        $inflector = new Inflector();
-
-        return '{{%' . $inflector->pascalCaseToId(StringHelper::baseName(static::class), '_') . '}}';
-    }
-
-    /**
-     * Returns the schema information of the DB table associated with this AR class.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException if the table for the AR class does not exist.
-     *
-     * @return TableSchemaInterface the schema information of the DB table associated with this AR class.
-     */
-    public function getTableSchema(): TableSchemaInterface
-    {
-        $tableSchema = $this->db->getSchema()->getTableSchema(static::tableName());
-
-        if ($tableSchema === null) {
-            throw new InvalidConfigException('The table does not exist: ' . static::tableName());
-        }
-
-        return $tableSchema;
-    }
-
-    /**
-     * Returns the primary key name(s) for this AR class.
-     *
-     * The default implementation will return the primary key(s) as declared  in the DB table that is associated with
-     * this AR class.
-     *
-     * If the DB table does not declare any primary key, you should override this method to return the attributes that
-     * you want to use as primary keys for this AR class.
-     *
-     * Note that an array should be returned even for a table with single primary key.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     *
-     * @return string[] the primary keys of the associated database table.
-     */
-    public function primaryKey(): array
-    {
-        return $this->getTableSchema()->getPrimaryKey();
-    }
-
-    /**
-     * Returns the list of all attribute names of the model.
-     *
-     * The default implementation will return all column names of the table associated with this AR class.
-     *
-     * @throws InvalidConfigException
-     * @throws Exception
-     *
-     * @return array list of attribute names.
-     */
-    public function attributes(): array
-    {
-        return array_keys($this->getTableSchema()->getColumns());
     }
 
     /**
@@ -447,7 +363,7 @@ class ActiveRecord extends BaseActiveRecord
      * The above declaration specifies that in the "admin" scenario, the insert operation ({@see insert()}) should be
      * done in a transaction; and in the "api" scenario, all the operations should be done in a transaction.
      *
-     * @return array the declarations of transactional operations. The array keys are scenarios names, and the array
+     * @return array The declarations of transactional operations. The array keys are scenarios names, and the array
      * values are the corresponding transaction operations.
      */
     public function transactions(): array
@@ -455,140 +371,6 @@ class ActiveRecord extends BaseActiveRecord
         return [];
     }
 
-    /**
-     * Populates an active record object using a row of data from the database/storage.
-     *
-     * This is an internal method meant to be called to create active record objects after fetching data from the
-     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
-     *
-     * @param array|object $row attribute values (name => value).
-     *
-     * @throws Exception|InvalidConfigException
-     */
-    public function populateRecord($row): void
-    {
-        $columns = $this->getTableSchema()->getColumns();
-
-        foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $row[$name] = $columns[$name]->phpTypecast($value);
-            }
-        }
-
-        parent::populateRecord($row);
-    }
-
-    /**
-     * Inserts a row into the associated database table using the attribute values of this record.
-     *
-     * Only the {@see dirtyAttributes|changed attribute values} will be inserted into database.
-     *
-     * If the table's primary key is auto-incremental and is `null` during insertion, it will be populated with the
-     * actual value after insertion.
-     *
-     * For example, to insert a customer record:
-     *
-     * ```php
-     * $customer = new Customer($db);
-     * $customer->name = $name;
-     * $customer->email = $email;
-     * $customer->insert();
-     * ```
-     *
-     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
-     * attributes that are loaded from DB will be saved.
-     *
-     * @throws InvalidConfigException|Throwable in case insert failed.
-     *
-     * @return bool whether the attributes are valid and the record is inserted successfully.
-     */
-    public function insert(array $attributes = null): bool
-    {
-        if (!$this->isTransactional(self::OP_INSERT)) {
-            return $this->insertInternal($attributes);
-        }
-
-        $transaction = $this->db->beginTransaction();
-
-        try {
-            $result = $this->insertInternal($attributes);
-            if ($result === false) {
-                $transaction->rollBack();
-            } else {
-                $transaction->commit();
-            }
-
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * Inserts an ActiveRecord into DB without considering transaction.
-     *
-     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`, meaning all
-     * attributes that are loaded from DB will be saved.
-     *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException
-     *
-     * @return bool whether the record is inserted successfully.
-     */
-    protected function insertInternal(array $attributes = null): bool
-    {
-        $values = $this->getDirtyAttributes($attributes);
-
-        if (($primaryKeys = $this->db->createCommand()->insertEx(static::tableName(), $values)) === false) {
-            return false;
-        }
-
-        foreach ($primaryKeys as $name => $value) {
-            $id = $this->getTableSchema()->getColumn($name)?->phpTypecast($value);
-            $this->setAttribute($name, $id);
-            $values[$name] = $id;
-        }
-
-        $this->setOldAttributes($values);
-
-        return true;
-    }
-
-    /**
-     * Saves the changes to this active record into the associated database table.
-     *
-     * Only the {@see dirtyAttributes|changed attribute values} will be saved into database.
-     *
-     * For example, to update a customer record:
-     *
-     * ```php
-     * $customer = new Customer($db);
-     * $customer->name = $name;
-     * $customer->email = $email;
-     * $customer->update();
-     * ```
-     *
-     * Note that it is possible the update does not affect any row in the table. In this case, this method will return
-     * 0. For this reason, you should use the following code to check if update() is successful or not:
-     *
-     * ```php
-     * if ($customer->update() !== false) {
-     *     // update successful
-     * } else {
-     *     // update failed
-     * }
-     * ```
-     *
-     * @param array|null $attributeNames list of attributes that need to be saved. Defaults to `null`, meaning all
-     * attributes that are loaded from DB will be saved.
-     *
-     * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being updated is
-     * outdated.
-     * @throws Throwable in case update failed.
-     *
-     * @return bool|int the number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
-     * updating process.
-     */
     public function update(array $attributeNames = null): bool|int
     {
         if (!$this->isTransactional(self::OP_UPDATE)) {
@@ -612,38 +394,61 @@ class ActiveRecord extends BaseActiveRecord
         }
     }
 
-    /**
-     * Deletes the table row corresponding to this active record.
-     *
-     * @throws StaleObjectException if {@see optimisticLock|optimistic locking} is enabled and the data being deleted
-     * is outdated.
-     * @throws Throwable in case delete failed.
-     *
-     * @return false|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
-     *
-     * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
-     */
-    public function delete(): false|int
+    public function updateAll(array $attributes, $condition = [], array $params = []): int
     {
-        if (!$this->isTransactional(self::OP_DELETE)) {
-            return $this->deleteInternal();
+        $command = $this->db->createCommand();
+
+        $command->update(static::tableName(), $attributes, $condition, $params);
+
+        return $command->execute();
+    }
+
+    /**
+     * Updates the whole table using the provided counter changes and conditions.
+     *
+     * For example, to increment all customers' age by 1,
+     *
+     * ```php
+     * $customer = new Customer($db);
+     * $customer->updateAllCounters(['age' => 1]);
+     * ```
+     *
+     * Note that this method will not trigger any events.
+     *
+     * @param array $counters The counters to be updated (attribute name => increment value).
+     * Use negative values if you want to decrement the counters.
+     * @param array|string $condition The conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
+     * to {@see Query::where()} on how to specify this parameter.
+     * @param array $params The parameters (name => value) to be bound to the query.
+     *
+     * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     *
+     * @return int The number of rows updated.
+     */
+    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    {
+        $n = 0;
+
+        foreach ($counters as $name => $value) {
+            $counters[$name] = new Expression("[[$name]]+:bp{$n}", [":bp{$n}" => $value]);
+            $n++;
         }
 
-        $transaction = $this->db->beginTransaction();
+        $command = $this->db->createCommand();
+        $command->update(static::tableName(), $counters, $condition, $params);
 
-        try {
-            $result = $this->deleteInternal();
-            if ($result === false) {
-                $transaction->rollBack();
-            } else {
-                $transaction->commit();
-            }
+        return $command->execute();
+    }
 
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
+    public static function tableName(): string
+    {
+        $inflector = new Inflector();
+
+        return '{{%' . $inflector->pascalCaseToId(StringHelper::baseName(static::class), '_') . '}}';
     }
 
     /**
@@ -651,14 +456,16 @@ class ActiveRecord extends BaseActiveRecord
      *
      * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
      *
-     * @throws Exception|StaleObjectException|Throwable
+     * @throws Exception
+     * @throws StaleObjectException
+     * @throws Throwable
      *
-     * @return false|int the number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * @return false|int The number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
      */
     protected function deleteInternal(): false|int
     {
         /**
-         * we do not check the return value of deleteAll() because it's possible the record is already deleted in the
+         * We do not check the return value of deleteAll() because it's possible the record is already deleted in the
          * database and thus the method will return 0.
          */
         $condition = $this->getOldPrimaryKey(true);
@@ -681,34 +488,61 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Returns a value indicating whether the given active record is the same as the current one.
+     * Valid column names are table column names or column names prefixed with table name or table alias.
      *
-     * The comparison is made by comparing the table names and the primary key values of the two active records. If one
-     * of the records {@see isNewRecord|is new} they are also considered not equal.
-     *
-     * @param ActiveRecordInterface $record record to compare to.
-     *
-     * @return bool whether the two active records refer to the same row in the same database table.
+     * @throws Exception
+     * @throws InvalidConfigException
      */
-    public function equals(ActiveRecordInterface $record): bool
+    protected function filterValidColumnNames(array $aliases): array
     {
-        if ($this->isNewRecord || $record->isNewRecord) {
-            return false;
+        $columnNames = [];
+        $tableName = static::tableName();
+        $quotedTableName = $this->db->getQuoter()->quoteTableName($tableName);
+
+        foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
+            $columnNames[] = $columnName;
+            $columnNames[] = $this->db->getQuoter()->quoteColumnName($columnName);
+            $columnNames[] = "$tableName.$columnName";
+            $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableName.[[$columnName]]");
+
+            foreach ($aliases as $tableAlias) {
+                $columnNames[] = "$tableAlias.$columnName";
+                $quotedTableAlias = $this->db->getQuoter()->quoteTableName($tableAlias);
+                $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableAlias.[[$columnName]]");
+            }
         }
 
-        return static::tableName() === $record::tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return $columnNames;
     }
 
     /**
-     * Returns a value indicating whether the specified operation is transactional in the current {@see $scenario}.
+     * Inserts an ActiveRecord into DB without considering transaction.
      *
-     * @param int $operation the operation to check. Possible values are {@see OP_INSERT}, {@see OP_UPDATE} and
-     * {@see OP_DELETE}.
+     * @param array|null $attributes List of attributes that need to be saved. Defaults to `null`, meaning all
+     * attributes that are loaded from DB will be saved.
      *
-     * @return array|bool whether the specified operation is transactional in the current {@see scenario}.
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     *
+     * @return bool Whether the record is inserted successfully.
      */
-    public function isTransactional(int $operation): array|bool
+    protected function insertInternal(array $attributes = null): bool
     {
-        return $this->transactions();
+        $values = $this->getDirtyAttributes($attributes);
+
+        if (($primaryKeys = $this->db->createCommand()->insertEx(static::tableName(), $values)) === false) {
+            return false;
+        }
+
+        foreach ($primaryKeys as $name => $value) {
+            $id = $this->getTableSchema()->getColumn($name)?->phpTypecast($value);
+            $this->setAttribute($name, $id);
+            $values[$name] = $id;
+        }
+
+        $this->setOldAttributes($values);
+
+        return true;
     }
 }
