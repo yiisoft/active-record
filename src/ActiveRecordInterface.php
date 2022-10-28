@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Strings\Inflector;
@@ -273,9 +274,9 @@ interface ActiveRecordInterface
      * @param string $name The attribute name.
      * @param mixed $value The attribute value.
      *
-     * {@see hasAttribute()}
+     * @throws InvalidArgumentException If the named attribute does not exist.
      */
-    public function setAttribute(string $name, $value): void;
+    public function setAttribute(string $name, mixed $value): void;
 
     /**
      * Saves the changes to this active record into the associated database table.
@@ -309,10 +310,10 @@ interface ActiveRecordInterface
      * outdated.
      * @throws Throwable In case update failed.
      *
-     * @return bool|int The number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
+     * @return false|int The number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
      * updating process.
      */
-    public function update(array $attributeNames = null): bool|int;
+    public function update(array $attributeNames = null): false|int;
 
     /**
      * Updates the whole table using the provided attribute values and conditions.
@@ -344,7 +345,7 @@ interface ActiveRecordInterface
      *
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws Throwable
+     * @throws Throwable if the models cannot be unlinked.
      *
      * @return int The number of rows updated.
      */

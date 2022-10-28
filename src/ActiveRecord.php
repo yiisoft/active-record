@@ -371,7 +371,7 @@ class ActiveRecord extends BaseActiveRecord
         return [];
     }
 
-    public function update(array $attributeNames = null): bool|int
+    public function update(array $attributeNames = null): false|int
     {
         if (!$this->isTransactional(self::OP_UPDATE)) {
             return $this->updateInternal($attributeNames);
