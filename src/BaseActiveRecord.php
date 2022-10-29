@@ -486,7 +486,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         } elseif (isset($this->related[$name])) {
             if ($relation->getIndexBy() !== null) {
                 if ($relation->getIndexBy() instanceof Closure) {
-                    $index = $relation->indexBy($arClass);
+                    $index = $relation->indexBy(get_class($arClass));
                 } else {
                     $index = $arClass->{$relation->getIndexBy()};
                 }
@@ -1019,17 +1019,19 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         ActiveQuery $relation,
         string $viaRelationName = null
     ): void {
-        if (empty($relation->getVia()) && $relation->getLink()) {
+        $via = $relation->getVia();
+
+        if (empty($via) && $relation->getLink()) {
             foreach ($relation->getLink() as $attribute) {
                 $this->relationsDependencies[$attribute][$name] = $name;
                 if ($viaRelationName !== null) {
                     $this->relationsDependencies[$attribute][] = $viaRelationName;
                 }
             }
-        } elseif ($relation->getVia() instanceof ActiveQueryInterface) {
-            $this->setRelationDependencies($name, $relation->getVia());
-        } elseif (is_array($relation->getVia())) {
-            [$viaRelationName, $viaQuery] = $relation->getVia();
+        } elseif ($via instanceof ActiveQueryInterface) {
+            $this->setRelationDependencies($name, $via);
+        } elseif (is_array($via)) {
+            [$viaRelationName, $viaQuery] = $via;
             $this->setRelationDependencies($name, $viaQuery, $viaRelationName);
         }
     }

@@ -57,7 +57,7 @@ trait ActiveRelationTrait
      * {@see inverseOf()}
      */
     private string|null $inverseOf = null;
-    private array|object|null $via = null;
+    private array|ActiveQueryInterface|null $via = null;
     private array $viaMap = [];
 
     /**
@@ -652,7 +652,7 @@ trait ActiveRelationTrait
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
             /** when primaryModels are array of arrays (asArray case) */
-            $primaryModel = $this->modelClass;
+            $primaryModel = $this->arClass;
         }
 
         return $this->asArray()->all();
@@ -695,14 +695,14 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return array|object|null the query associated with the junction table. Please call {@see via()} to set this
-     * property instead of directly setting it.
+     * @return array|ActiveQueryInterface|null the query associated with the junction table. Please call {@see via()} to
+     * set this property instead of directly setting it.
      *
      * This property is only used in relational context.
      *
      * {@see via()}
      */
-    public function getVia(): array|object|null
+    public function getVia(): array|ActiveQueryInterface|null
     {
         return $this->via;
     }
