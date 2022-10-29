@@ -57,7 +57,7 @@ trait ActiveRelationTrait
      * {@see inverseOf()}
      */
     private string|null $inverseOf = null;
-    private array|ActiveQueryInterface|null $via = null;
+    private array|ActiveQuery|null $via = null;
     private array $viaMap = [];
 
     /**
@@ -702,7 +702,7 @@ trait ActiveRelationTrait
      *
      * {@see via()}
      */
-    public function getVia(): array|ActiveQueryInterface|null
+    public function getVia(): array|ActiveQuery|null
     {
         return $this->via;
     }

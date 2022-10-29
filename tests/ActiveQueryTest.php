@@ -286,11 +286,11 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Profile::class, $this->db);
 
-        $this->assertEquals($query->getFrom(), null);
+        $this->assertSame([], $query->getFrom());
 
         $query->getTablesUsedInFrom();
 
-        $this->assertEquals($query->getFrom(), null);
+        $this->assertSame([], $query->getFrom());
     }
 
     /**
@@ -1348,7 +1348,7 @@ abstract class ActiveQueryTest extends TestCase
         $order = new Order($this->db);
 
         $query = new ActiveQuery(Order::class, $this->db);
-        $this->assertNull($query->getFrom());
+        $this->assertSame([], $query->getFrom());
 
         $query->alias('o');
         $this->assertEquals(['o' => Order::tableName()], $query->getFrom());

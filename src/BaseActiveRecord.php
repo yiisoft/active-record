@@ -411,24 +411,25 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $viaClass = null;
         $viaTable = null;
         $relation = $this->getRelation($name);
+        $via = $relation->getVia();
 
-        if ($relation->getVia() !== null) {
+        if ($via !== null) {
             if ($this->getIsNewRecord() || $arClass->getIsNewRecord()) {
                 throw new InvalidCallException(
                     'Unable to link models: the models being linked cannot be newly created.'
                 );
             }
 
-            if (is_array($relation->getVia())) {
+            if (is_array($via)) {
                 /** @var $viaRelation ActiveQuery */
-                [$viaName, $viaRelation] = $relation->getVia();
+                [$viaName, $viaRelation] = $via;
                 $viaClass = $viaRelation->getARInstance();
                 /** unset $viaName so that it can be reloaded to reflect the change */
                 unset($this->related[$viaName]);
             } else {
-                $viaRelation = $relation->getVia();
-                $from = $relation->getVia()->getFrom();
-                $viaTable = reset($from);
+                $viaRelation = $via;
+                $from = $via->getFrom();
+                $viaTable = $from !== null ? reset($from) : $via->getARInstance()->tableName();
             }
 
             $columns = [];
@@ -445,7 +446,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $columns[$k] = $v;
             }
 
-            if (is_array($relation->getVia())) {
+            if (is_array($via)) {
                 foreach ($columns as $column => $value) {
                     $viaClass->$column = $value;
                 }
