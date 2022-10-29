@@ -486,7 +486,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         } elseif (isset($this->related[$name])) {
             if ($relation->getIndexBy() !== null) {
                 if ($relation->getIndexBy() instanceof Closure) {
-                    $index = $relation->indexBy(get_class($arClass));
+                    $index = $relation->indexBy($arClass::class);
                 } else {
                     $index = $arClass->{$relation->getIndexBy()};
                 }
