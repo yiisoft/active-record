@@ -429,7 +429,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             } else {
                 $viaRelation = $via;
                 $from = $via->getFrom();
-                $viaTable = $from !== null ? reset($from) : $via->getARInstance()->tableName();
+                $viaTable = reset($from);
             }
 
             $columns = [];
