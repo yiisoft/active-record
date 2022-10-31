@@ -411,23 +411,24 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $viaClass = null;
         $viaTable = null;
         $relation = $this->getRelation($name);
+        $via = $relation->getVia();
 
-        if ($relation->getVia() !== null) {
+        if ($via !== null) {
             if ($this->getIsNewRecord() || $arClass->getIsNewRecord()) {
                 throw new InvalidCallException(
                     'Unable to link models: the models being linked cannot be newly created.'
                 );
             }
 
-            if (is_array($relation->getVia())) {
+            if (is_array($via)) {
                 /** @var $viaRelation ActiveQuery */
-                [$viaName, $viaRelation] = $relation->getVia();
+                [$viaName, $viaRelation] = $via;
                 $viaClass = $viaRelation->getARInstance();
                 /** unset $viaName so that it can be reloaded to reflect the change */
                 unset($this->related[$viaName]);
             } else {
-                $viaRelation = $relation->getVia();
-                $from = $relation->getVia()->getFrom();
+                $viaRelation = $via;
+                $from = $via->getFrom();
                 $viaTable = reset($from);
             }
 
@@ -445,7 +446,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $columns[$k] = $v;
             }
 
-            if (is_array($relation->getVia())) {
+            if (is_array($via)) {
                 foreach ($columns as $column => $value) {
                     $viaClass->$column = $value;
                 }
@@ -486,7 +487,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         } elseif (isset($this->related[$name])) {
             if ($relation->getIndexBy() !== null) {
                 if ($relation->getIndexBy() instanceof Closure) {
-                    $index = $relation->indexBy($arClass);
+                    $index = $relation->indexBy($arClass::class);
                 } else {
                     $index = $arClass->{$relation->getIndexBy()};
                 }
@@ -1019,17 +1020,19 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         ActiveQuery $relation,
         string $viaRelationName = null
     ): void {
-        if (empty($relation->getVia()) && $relation->getLink()) {
+        $via = $relation->getVia();
+
+        if (empty($via) && $relation->getLink()) {
             foreach ($relation->getLink() as $attribute) {
                 $this->relationsDependencies[$attribute][$name] = $name;
                 if ($viaRelationName !== null) {
                     $this->relationsDependencies[$attribute][] = $viaRelationName;
                 }
             }
-        } elseif ($relation->getVia() instanceof ActiveQueryInterface) {
-            $this->setRelationDependencies($name, $relation->getVia());
-        } elseif (is_array($relation->getVia())) {
-            [$viaRelationName, $viaQuery] = $relation->getVia();
+        } elseif ($via instanceof ActiveQueryInterface) {
+            $this->setRelationDependencies($name, $via);
+        } elseif (is_array($via)) {
+            [$viaRelationName, $viaQuery] = $via;
             $this->setRelationDependencies($name, $viaQuery, $viaRelationName);
         }
     }

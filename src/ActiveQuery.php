@@ -327,7 +327,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 }
             }
         } elseif (empty($pks)) {
-            throw new InvalidConfigException("Primary key of '{$this->getARInstance()}' can not be empty.");
+            throw new InvalidConfigException("Primary key of '{$this->arClass}' can not be empty.");
         } else {
             /** single column primary key */
             $pk = reset($pks);
@@ -405,6 +405,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ExpressionInterface|string $selectExpression
      *
      * @throws Exception|InvalidConfigException|Throwable
+     *
+     * @psalm-return null|scalar
      */
     protected function queryScalar(string|ExpressionInterface $selectExpression): false|float|int|string|null
     {
