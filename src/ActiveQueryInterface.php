@@ -92,7 +92,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @param callable|null $callable a PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
      *
-     * @return $this the relation object itself.
+     * @return self the relation object itself.
      */
     public function via(string $relationName, callable $callable = null): self;
 

@@ -13,8 +13,10 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\Db\Expression\Expression;
 
 use function array_combine;
 use function array_flip;
@@ -81,6 +83,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $this->oldAttributes = null;
 
         return $result;
+    }
+
+    public function deleteAll(array $condition = [], array $params = []): int
+    {
+        $command = $this->db->createCommand();
+        $command->delete(static::tableName(), $condition, $params);
+
+        return $command->execute();
     }
 
     public function equals(ActiveRecordInterface $record): bool
@@ -678,6 +688,15 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $this->updateInternal($attributeNames);
     }
 
+    public function updateAll(array $attributes, array|string $condition = [], array $params = []): int
+    {
+        $command = $this->db->createCommand();
+
+        $command->update(static::tableName(), $attributes, $condition, $params);
+
+        return $command->execute();
+    }
+
     /**
      * Updates the specified attributes.
      *
@@ -724,6 +743,47 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return $rows;
+    }
+
+    /**
+     * Updates the whole table using the provided counter changes and conditions.
+     *
+     * For example, to increment all customers' age by 1,
+     *
+     * ```php
+     * $customer = new Customer($db);
+     * $customer->updateAllCounters(['age' => 1]);
+     * ```
+     *
+     * Note that this method will not trigger any events.
+     *
+     * @param array $counters The counters to be updated (attribute name => increment value).
+     * Use negative values if you want to decrement the counters.
+     * @param array|string $condition The conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
+     * to {@see Query::where()} on how to specify this parameter.
+     * @param array $params The parameters (name => value) to be bound to the query.
+     *
+     * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     *
+     * @return int The number of rows updated.
+     */
+    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    {
+        $n = 0;
+
+        foreach ($counters as $name => $value) {
+            $counters[$name] = new Expression("[[$name]]+:bp{$n}", [":bp{$n}" => $value]);
+            $n++;
+        }
+
+        $command = $this->db->createCommand();
+        $command->update(static::tableName(), $counters, $condition, $params);
+
+        return $command->execute();
     }
 
     /**

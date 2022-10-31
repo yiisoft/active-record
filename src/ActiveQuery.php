@@ -11,7 +11,7 @@ use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException as DbInvalidConfigException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Helper\QueryHelper;
@@ -19,8 +19,10 @@ use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilder;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
-use Yiisoft\Definitions\Exception\InvalidConfigException;
 
+use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\NotInstantiableException;
+use Yiisoft\Factory\NotFoundException;
 use function array_merge;
 use function array_values;
 use function count;
@@ -302,8 +304,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param array $models the models to be checked.
      *
+     * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      *
      * @return array the distinctive models.
      */
@@ -519,7 +525,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
+     * @throws CircularReferenceException
      * @throws InvalidConfigException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     private function buildJoinWith(): void
     {
@@ -605,7 +615,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param array $with the relations to be joined.
      * @param array|string $joinType the join type.
      *
+     * @throws CircularReferenceException
      * @throws InvalidConfigException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     private function joinWithRelations(ActiveRecordInterface $arClass, array $with, array|string $joinType): void
     {
@@ -678,9 +692,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Returns the table name and the table alias for {@see arClass}.
      *
-     * @throws InvalidConfigException
-     *
-     * @return array the table name and the table alias.
+     * @throws CircularReferenceException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     private function getTableNameAndAlias(): array
     {
@@ -715,7 +730,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveQuery $child
      * @param string $joinType
      *
-     * @throws InvalidConfigException
+     * @throws CircularReferenceException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
     {
@@ -937,9 +955,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param string $alias the table alias.
      *
-     * @throws InvalidConfigException
-     *
-     * @return $this the query object itself.
+     * @throws CircularReferenceException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     public function alias(string $alias): self
     {
@@ -965,10 +984,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * Both aliases and names are enclosed into {{ and }}.
      *
-     * @throws InvalidArgumentException if {@see from} is invalid.
-     * @throws InvalidConfigException
-     *
-     * @return array table names indexed by aliases.
+     * @throws CircularReferenceException
+     * @throws InvalidArgumentException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     public function getTablesUsedInFrom(): array
     {
@@ -983,7 +1003,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws CircularReferenceException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     protected function getPrimaryTableName(): string
     {
@@ -1061,11 +1084,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
      *
+     * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidArgumentException
-     * @throws InvalidConfigException if there is no primary key defined.
-     *
-     * @return ActiveQueryInterface the newly created {@see QueryInterface} instance.
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException if there is no primary key defined.
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     protected function findByCondition(mixed $condition): QueryInterface
     {
@@ -1092,7 +1116,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                  */
                 $condition = [$pk => array_values($condition)];
             } else {
-                throw new DbInvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
+                throw new InvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
             }
         } else {
             $aliases = $arInstance->filterValidAliases($this);
@@ -1139,7 +1163,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws CircularReferenceException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
      */
     public function getARInstance(): ActiveRecordInterface
     {
@@ -1153,7 +1180,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * @throws InvalidConfigException
+     * @throws CircularReferenceException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws NotInstantiableException
+     * @throws NotFoundException
      */
     public function getARInstanceFactory(): ActiveRecordInterface
     {
