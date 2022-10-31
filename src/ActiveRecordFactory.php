@@ -27,8 +27,6 @@ final class ActiveRecordFactory
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
-     *
-     * @return ActiveRecordInterface
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
@@ -53,8 +51,6 @@ final class ActiveRecordFactory
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
-     *
-     * @return ActiveQueryInterface
      */
     public function createQueryTo(
         string $arClass,

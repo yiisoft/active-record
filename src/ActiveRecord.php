@@ -403,7 +403,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return int The number of rows updated.
      */
-    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    public function updateAllCounters(array $counters, array|string $condition = '', array $params = []): int
     {
         $n = 0;
 
