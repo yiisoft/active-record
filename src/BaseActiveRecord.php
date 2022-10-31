@@ -1006,7 +1006,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Repopulates this active record with the latest data from a newly fetched instance.
      *
-     * @param array|ActiveRecord|null $record The record to take attributes from.
+     * @param ActiveRecord|array|null $record The record to take attributes from.
      *
      * @return bool Whether refresh was successful.
      *

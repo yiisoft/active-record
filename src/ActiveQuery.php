@@ -302,10 +302,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param array $models the models to be checked.
      *
-     * @return array the distinctive models.
-     *
      * @throws Exception
      * @throws InvalidConfigException
+     *
+     * @return array the distinctive models.
      */
     private function removeDuplicatedModels(array $models): array
     {
@@ -497,7 +497,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 $name = $relation;
 
-                $callback = static function (ActiveQuery $query) use ($callback, $alias) {
+                $callback = static function (self $query) use ($callback, $alias) {
                     $query->alias($alias);
 
                     if ($callback !== null) {

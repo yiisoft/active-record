@@ -185,7 +185,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @throws InvalidConfigException
      *
-     * @return array|ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
+     * @return ActiveRecordInterface|array|null instance matching the condition, or `null` if nothing matches.
      */
     public function findOne(mixed $condition): array|ActiveRecordInterface|null;
 
