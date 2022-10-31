@@ -9,8 +9,8 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
-
 use Yiisoft\Definitions\Exception\InvalidConfigException;
+
 use function is_array;
 use function is_int;
 use function reset;
