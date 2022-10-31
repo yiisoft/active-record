@@ -22,7 +22,7 @@
         "php": "^8.0",
         "ext-json": "*",
         "yiisoft/arrays": "^2.0",
-        "yiisoft/db": "dev-fix-query-from as 3.0@dev",
+        "yiisoft/db": "^3.0@dev",
         "yiisoft/factory": "^1.0",
         "yiisoft/strings": "^2.0"
     },
