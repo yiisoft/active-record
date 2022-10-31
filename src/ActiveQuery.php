@@ -11,14 +11,15 @@ use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\InvalidConfigException as DbInvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Helper\QueryHelper;
-use Yiisoft\Db\QueryBuilder\QueryBuilder;
-use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Db\QueryBuilder\QueryBuilder;
+use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 use function array_merge;
 use function array_values;
@@ -119,7 +120,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * If null, the DB connection returned by {@see arClass} will be used.
      *
-     * @throws Exception|InvalidConfigException|Throwable
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      *
      * @return array the query results. If the query results in nothing, an empty array will be returned.
      *
@@ -137,9 +140,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * You may override this method to do some final preparation work when converting a query into a SQL statement.
      *
-     * @param QueryBuilder $builder
+     * @param QueryBuilderInterface $builder
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ReflectionException
      * @throws Throwable
      *
      * @return QueryInterface a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
@@ -195,11 +202,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 $this->filterByModels($viaModels);
             } elseif (is_array($this->via)) {
-                /**
-                 * via relation
-                 *
-                 * @var $viaQuery ActiveQuery
-                 */
                 [$viaName, $viaQuery, $viaCallableUsed] = $this->via;
 
                 if ($viaQuery->getMultiple()) {
@@ -261,7 +263,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param array $rows the raw query result from database.
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ReflectionException
      * @throws Throwable
      *
      * @return array the converted query result.
@@ -296,9 +302,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param array $models the models to be checked.
      *
-     * @throws Exception|InvalidConfigException
-     *
      * @return array the distinctive models.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
      */
     private function removeDuplicatedModels(array $models): array
     {
@@ -327,7 +334,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 }
             }
         } elseif (empty($pks)) {
-            throw new InvalidConfigException("Primary key of '{$this->arClass}' can not be empty.");
+            throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
         } else {
             /** single column primary key */
             $pk = reset($pks);
@@ -342,7 +349,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 if (isset($hash[$key])) {
                     unset($models[$i]);
-                } elseif ($key !== null) {
+                } else {
                     $hash[$key] = true;
                 }
             }
@@ -352,32 +359,24 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * Executes query and returns a single row of result.
-     *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
-     * @throws Throwable
-     *
-     * @return array|object|null A single row of query result. Depending on the setting of {@see asArray}, the
-     * query result may be either an array or an ActiveRecord object. `null` will be returned if the query results in
-     * nothing.
+     * @psalm-suppress NullableReturnStatement
      */
-    public function one(): array|object|null
+    public function one(): array|null|object
     {
         $row = parent::one();
 
         if ($row !== null) {
-            $models = $this->populate([$row]);
-
-            return reset($models) ?: null;
+            $activeRecord = $this->populate([$row]);
+            $row = reset($activeRecord) ?: null;
         }
 
-        return null;
+        return $row;
     }
 
     /**
      * Creates a DB command that can be used to execute this query.
      *
-     * @throws Exception|InvalidConfigException
+     * @throws Exception
      *
      * @return CommandInterface the created DB command instance.
      */
@@ -404,18 +403,18 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param ExpressionInterface|string $selectExpression
      *
-     * @throws Exception|InvalidConfigException|Throwable
-     *
-     * @psalm-return null|scalar
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
-    protected function queryScalar(string|ExpressionInterface $selectExpression): false|float|int|string|null
+    protected function queryScalar(string|ExpressionInterface $selectExpression): bool|string|null|int|float
     {
         if ($this->sql === null) {
             return parent::queryScalar($selectExpression);
         }
 
         $command = (new Query($this->db))->select([$selectExpression])
-            ->from(['c' => "({$this->sql})"])
+            ->from(['c' => "($this->sql)"])
             ->params($this->params)
             ->createCommand();
 
@@ -479,8 +478,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return $this the query object itself.
      */
-    public function joinWith(array|string $with, array|bool $eagerLoading = true, array|string $joinType = 'LEFT JOIN'): self
-    {
+    public function joinWith(
+        array|string $with,
+        array|bool $eagerLoading = true,
+        array|string $joinType = 'LEFT JOIN'
+    ): self {
         $relations = [];
 
         foreach ((array) $with as $name => $callback) {
@@ -495,8 +497,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 $name = $relation;
 
-                $callback = static function ($query) use ($callback, $alias) {
-                    /** @var $query ActiveQuery */
+                $callback = static function (ActiveQuery $query) use ($callback, $alias) {
                     $query->alias($alias);
 
                     if ($callback !== null) {
@@ -517,6 +518,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     private function buildJoinWith(): void
     {
         $join = $this->join;
@@ -600,6 +604,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveRecordInterface $arClass the primary model.
      * @param array $with the relations to be joined.
      * @param array|string $joinType the join type.
+     *
+     * @throws InvalidConfigException
      */
     private function joinWithRelations(ActiveRecordInterface $arClass, array $with, array|string $joinType): void
     {
@@ -672,6 +678,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Returns the table name and the table alias for {@see arClass}.
      *
+     * @throws InvalidConfigException
+     *
      * @return array the table name and the table alias.
      */
     private function getTableNameAndAlias(): array
@@ -706,8 +714,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveQuery $parent
      * @param ActiveQuery $child
      * @param string $joinType
+     *
+     * @throws InvalidConfigException
      */
-    private function joinWithRelation(self $parent, self $child, string $joinType): void
+    private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
     {
         $via = $child->via;
         $child->via = null;
@@ -826,7 +836,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * Adds an additional ON condition to the existing one.
+     * Adds ON condition to the existing one.
      *
      * The new condition and the existing one will be joined using the 'AND' operator.
      *
@@ -853,7 +863,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * Adds an additional ON condition to the existing one.
+     * Adds ON condition to the existing one.
      *
      * The new condition and the existing one will be joined using the 'OR' operator.
      *
@@ -927,6 +937,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param string $alias the table alias.
      *
+     * @throws InvalidConfigException
+     *
      * @return $this the query object itself.
      */
     public function alias(string $alias): self
@@ -953,23 +965,29 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * Both aliases and names are enclosed into {{ and }}.
      *
-     * @throws InvalidArgumentException|InvalidConfigException
+     * @throws InvalidArgumentException if {@see from} is invalid.
+     * @throws InvalidConfigException
      *
      * @return array table names indexed by aliases.
      */
     public function getTablesUsedInFrom(): array
     {
         if (empty($this->from)) {
-            return $this->createQueryHelper()
-                ->cleanUpTableNames([$this->getPrimaryTableName()], $this->db->getQuoter());
+            return $this->createQueryHelper()->cleanUpTableNames(
+                [$this->getPrimaryTableName()],
+                $this->db->getQuoter(),
+            );
         }
 
         return parent::getTablesUsedInFrom();
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     protected function getPrimaryTableName(): string
     {
-        return $this->arClass::tableName();
+        return $this->getARInstance()::tableName();
     }
 
     /**
@@ -1011,13 +1029,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * @param mixed $condition primary key value or a set of column values.
-     *
-     *@throws InvalidConfigException
-     *
-     * @return ActiveRecordInterface|null ActiveRecord instance matching the condition, or `null` if nothing matches.
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws Throwable
      */
-    public function findOne(mixed $condition): ActiveRecordInterface|null
+    public function findOne(mixed $condition): array|ActiveRecordInterface|null
     {
         return $this->findByCondition($condition)->one();
     }
@@ -1025,7 +1042,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @param mixed $condition primary key value or a set of column values.
      *
+     * @throws Exception
+     * @throws InvalidArgumentException
      * @throws InvalidConfigException
+     * @throws Throwable
      *
      * @return array of ActiveRecord instance, or an empty array if nothing matches.
      */
@@ -1041,11 +1061,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param mixed $condition please refer to {@see findOne()} for the explanation of this parameter.
      *
+     * @throws Exception
+     * @throws InvalidArgumentException
      * @throws InvalidConfigException if there is no primary key defined.
      *
      * @return ActiveQueryInterface the newly created {@see QueryInterface} instance.
      */
-    protected function findByCondition(mixed $condition): ActiveQueryInterface
+    protected function findByCondition(mixed $condition): QueryInterface
     {
         $arInstance = $this->getARInstance();
 
@@ -1068,11 +1090,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                  * if condition is scalar, search for a single primary key, if it is array, search for multiple primary
                  * key values
                  */
-                $condition = [$pk => is_array($condition) ? array_values($condition) : $condition];
+                $condition = [$pk => array_values($condition)];
             } else {
-                throw new InvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
+                throw new DbInvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
             }
-        } elseif (is_array($condition)) {
+        } else {
             $aliases = $arInstance->filterValidAliases($this);
             $condition = $arInstance->filterCondition($condition, $aliases);
         }
@@ -1116,6 +1138,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function getARInstance(): ActiveRecordInterface
     {
         if ($this->arFactory !== null) {
@@ -1127,6 +1152,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return new $class($this->db);
     }
 
+    /**
+     * @throws InvalidConfigException
+     */
     public function getARInstanceFactory(): ActiveRecordInterface
     {
         return $this->arFactory->createAR($this->arClass, $this->db);

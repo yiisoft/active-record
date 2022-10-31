@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Factory\Factory;
+use Yiisoft\Factory\NotFoundException;
 
 final class ActiveRecordFactory
 {
@@ -20,7 +23,12 @@ final class ActiveRecordFactory
      * @param string $arClass active record class.
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
      *
+     * @throws CircularReferenceException
      * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     *
+     * @return ActiveRecordInterface
      */
     public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
     {
@@ -38,10 +46,15 @@ final class ActiveRecordFactory
      * Allows you to create an active query instance through the factory.
      *
      * @param string $arClass active record class.
-     * @param string|null $queryClass custom query active query class.
-     * @param ConnectionInterface $connection the database connection used for creating active query instances.
+     * @param string $queryClass custom query active query class.
+     * @param ConnectionInterface|null $db the database connection used for creating active query instances.
      *
+     * @throws CircularReferenceException
      * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     *
+     * @return ActiveQueryInterface
      */
     public function createQueryTo(
         string $arClass,

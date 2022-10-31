@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
 
 /**
@@ -25,15 +26,6 @@ interface ActiveQueryInterface extends QueryInterface
      * @return static the query object itself.
      */
     public function asArray(bool|null $value = true): self;
-
-    /**
-     * Executes query and returns a single row of result.
-     *
-     * @return mixed A single row of query result. Depending on the setting of {@see asArray}
-     * the query result may be either an array or an ActiveRecord object. `null` will be returned if the query results
-     * in nothing.
-     */
-    public function one(): array|object|null;
 
     /**
      * Sets the {@see indexBy} property.
@@ -117,7 +109,7 @@ interface ActiveQueryInterface extends QueryInterface
     public function findFor(string $name, ActiveRecordInterface $model): mixed;
 
     /**
-     * Returns a single active record active record instance by a primary key or an array of column values.
+     * Returns a single active record instance by a primary key or an array of column values.
      *
      * The method accepts:
      *
@@ -129,13 +121,13 @@ interface ActiveQueryInterface extends QueryInterface
      *    matching all of them (or `null` if not found). Note that `['id' => 1, 2]` is treated as a non-associative
      *    array.
      *
-     * Column names are limited to current records table columns for SQL DBMS, or filtered otherwise to be limited to
+     * Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited to
      * simple filter conditions.
      *
      * That this method will automatically call the `one()` method and return an
      * {@see ActiveRecordInterface|ActiveRecord} instance.
      *
-     * > Note: As this is a short-hand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
+     * > Note: As this is a shorthand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
      * > If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()|where()} instead.
      *
      * See the following code for usage examples:
@@ -191,9 +183,11 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param mixed $condition primary key value or a set of column values.
      *
-     * @return ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
+     * @throws InvalidConfigException
+     *
+     * @return array|ActiveRecordInterface|null instance matching the condition, or `null` if nothing matches.
      */
-    public function findOne(mixed $condition): ActiveRecordInterface|null;
+    public function findOne(mixed $condition): array|ActiveRecordInterface|null;
 
     /**
      * Returns a list of active record that match the specified primary key value(s) or a set of column values.
@@ -209,13 +203,13 @@ interface ActiveQueryInterface extends QueryInterface
      *  - an associative array of name-value pairs: query by a set of attribute values and return an array of records
      *    matching all of them (or an empty array if none was found). Note that `['id' => 1, 2]` is treated as
      *    a non-associative array.
-     *    Column names are limited to current records table columns for SQL DBMS, or filtered otherwise to be limted to
-     *    simple filter conditions.
+     *    Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited
+     *    to simple filter conditions.
      *
      * This method will automatically call the `all()` method and return an array of
      * {@see ActiveRecordInterface|ActiveRecord} instances.
      *
-     * > Note: As this is a short-hand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
+     * > Note: As this is a shorthand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
      * > If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()|where()} instead.
      *
      * See the following code for usage examples:
@@ -273,4 +267,30 @@ interface ActiveQueryInterface extends QueryInterface
      * @return array an array of ActiveRecord instance, or an empty array if nothing matches.
      */
     public function findAll(mixed $condition): array;
+
+    /**
+     * It is used to set the query options for the query.
+     */
+    public function primaryModel(ActiveRecordInterface $value): self;
+
+    /**
+     * It is used to set the query options for the query.
+     *
+     * @param array $value The columns of the primary and foreign tables that establish a relation.
+     * The array keys must be columns of the table for this relation, and the array values must be the corresponding
+     * columns from the primary table.
+     * Do not prefix or quote the column names as this will be done automatically by Yii.
+     * This property is only used in relational context.
+     */
+    public function link(array $value): self;
+
+    /**
+     * It is used to set the query options for the query.
+     *
+     * @param bool $value Whether this query represents a relation to more than one record.
+     * This property is only used in relational context. If true, this relation will populate all query results into AR
+     * instances using {@see Query::all()|all()}.
+     * If false, only the first row of the results will be retrieved using {@see Query::one()|one()}.
+     */
+    public function multiple(bool $value): self;
 }

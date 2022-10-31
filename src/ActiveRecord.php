@@ -149,29 +149,6 @@ class ActiveRecord extends BaseActiveRecord
         return $command->execute();
     }
 
-    public function equals(ActiveRecordInterface $record): bool
-    {
-        if ($this->isNewRecord || $record->isNewRecord) {
-            return false;
-        }
-
-        return static::tableName() === $record::tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
-    }
-
-    /**
-     * Filters array condition before it is assigned to a Query filter.
-     *
-     * This method will ensure that an array condition only filters on existing table columns.
-     *
-     * @param array $condition Condition to filter.
-     * @param array $aliases Aliases to be used for table names.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException In case array contains unsafe values.
-     *
-     * @return array Filtered condition.
-     */
     public function filterCondition(array $condition, array $aliases = []): array
     {
         $result = [];
@@ -190,12 +167,6 @@ class ActiveRecord extends BaseActiveRecord
         return $result;
     }
 
-    /**
-     * Returns table aliases which are not the same as the name of the tables.
-     *
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     */
     public function filterValidAliases(ActiveQuery $query): array
     {
         $tables = $query->getTablesUsedInFrom();
@@ -301,7 +272,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws Exception
      * @throws InvalidConfigException
      */
-    public function populateRecord($row): void
+    public function populateRecord(array|object $row): void
     {
         $columns = $this->getTableSchema()->getColumns();
 
@@ -319,6 +290,12 @@ class ActiveRecord extends BaseActiveRecord
         return $this->getTableSchema()->getPrimaryKey();
     }
 
+    /**
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
     public function refresh(): bool
     {
         $query = $this->instantiateQuery(static::class);
@@ -333,10 +310,7 @@ class ActiveRecord extends BaseActiveRecord
 
         $query->where($pk);
 
-        /** @var $record BaseActiveRecord */
-        $record = $query->one();
-
-        return $this->refreshInternal($record);
+        return $this->refreshInternal($query->one());
     }
 
     /**
@@ -381,7 +355,7 @@ class ActiveRecord extends BaseActiveRecord
 
         try {
             $result = $this->updateInternal($attributeNames);
-            if ($result === false) {
+            if ($result === 0) {
                 $transaction->rollBack();
             } else {
                 $transaction->commit();
@@ -394,7 +368,7 @@ class ActiveRecord extends BaseActiveRecord
         }
     }
 
-    public function updateAll(array $attributes, $condition = [], array $params = []): int
+    public function updateAll(array $attributes, array|string $condition = [], array $params = []): int
     {
         $command = $this->db->createCommand();
 
@@ -482,7 +456,7 @@ class ActiveRecord extends BaseActiveRecord
             throw new StaleObjectException('The object being deleted is outdated.');
         }
 
-        $this->setOldAttributes(null);
+        $this->setOldAttributes();
 
         return $result;
     }
@@ -524,6 +498,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws Exception
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
+     * @throws Throwable
      *
      * @return bool Whether the record is inserted successfully.
      */
