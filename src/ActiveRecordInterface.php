@@ -63,7 +63,6 @@ interface ActiveRecordInterface
      *
      * @param array $condition The conditions that will be put in the WHERE part of the DELETE SQL. Please refer to
      * {@see Query::where()} on how to specify this parameter.
-     * @param array $params The parameters (name => value) to be bound to the query.
      *
      * @throws Exception
      * @throws InvalidConfigException
@@ -84,6 +83,30 @@ interface ActiveRecordInterface
      * @return bool Whether the two active records refer to the same row in the same database table.
      */
     public function equals(self $record): bool;
+
+    /**
+     * Filters array condition before it is assigned to a Query filter.
+     *
+     * This method will ensure that an array condition only filters on existing table columns.
+     *
+     * @param array $condition Condition to filter.
+     * @param array $aliases Aliases to be used for table names.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException In case array contains unsafe values.
+     *
+     * @return array Filtered condition.
+     */
+    public function filterCondition(array $condition, array $aliases = []): array;
+
+    /**
+     * Returns table aliases which are not the same as the name of the tables.
+     *
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     */
+    public function filterValidAliases(ActiveQuery $query): array;
 
     /**
      * Returns the named attribute value.
@@ -196,6 +219,18 @@ interface ActiveRecordInterface
     public function isPrimaryKey(array $keys): bool;
 
     /**
+     * Check whether the named relation has been populated with records.
+     *
+     * @param string $name The relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * (case-sensitive).
+     *
+     * @return bool Whether relation has been populated with records.
+     *
+     * {@see getRelation()}
+     */
+    public function isRelationPopulated(string $name): bool;
+
+    /**
      * Establishes the relationship between two records.
      *
      * The relationship is established by setting the foreign key value(s) in one record to be the corresponding primary
@@ -208,7 +243,7 @@ interface ActiveRecordInterface
      *
      * This method requires that the primary key value is not `null`.
      *
-     * @param string $name The case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * @param string $name The case-sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
      * @param self $arClass The record to be linked with the current one.
      * @param array $extraColumns Additional column values to be saved into the junction table. This parameter is only
@@ -216,6 +251,19 @@ interface ActiveRecordInterface
      * {@see ActiveQueryInterface::via()}).
      */
     public function link(string $name, self $arClass, array $extraColumns = []): void;
+
+    /**
+     * Returns the element at the specified offset.
+     *
+     * This method is required by the SPL interface {@see ArrayAccess}.
+     *
+     * It is implicitly called when you use something like `$value = $model[$offset];`.
+     *
+     * @param mixed $offset the offset to retrieve element.
+     *
+     * @return mixed the element at the offset, null if no element is found at the offset
+     */
+    public function offsetGet(mixed $offset): mixed;
 
     /**
      * Populates the named relation with the related records.
@@ -226,7 +274,7 @@ interface ActiveRecordInterface
      * (case-sensitive).
      * @param array|self|null $records The related records to be populated into the relation.
      */
-    public function populateRelation(string $name, $records): void;
+    public function populateRelation(string $name, array|self|null $records): void;
 
     /**
      * Returns the primary key name(s) for this AR class.
@@ -343,13 +391,13 @@ interface ActiveRecordInterface
      * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      *
-     * @throws Exception
      * @throws InvalidConfigException
      * @throws Throwable if the models cannot be unlinked.
+     * @throws Exception
      *
      * @return int The number of rows updated.
      */
-    public function updateAll(array $attributes, $condition = [], array $params = []): int;
+    public function updateAll(array $attributes, array|string $condition = [], array $params = []): int;
 
     /**
      * Destroys the relationship between two records.
@@ -358,7 +406,7 @@ interface ActiveRecordInterface
      *
      * Otherwise, the foreign key will be set `null` and the record will be saved without validation.
      *
-     * @param string $name The case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * @param string $name The case-sensitive name of the relationship, e.g. `orders` for a relation defined via
      * `getOrders()` method.
      * @param self $arClass The active record to be unlinked from the current one.
      * @param bool $delete Whether to delete the active record that contains the foreign key.
@@ -370,7 +418,7 @@ interface ActiveRecordInterface
     /**
      * Declares the name of the database table associated with this active record class.
      *
-     * By default this method returns the class name as the table name by calling {@see Inflector::pascalCaseToId()}
+     * By default, this method returns the class name as the table name by calling {@see Inflector::pascalCaseToId()}
      * with prefix {@see ConnectionInterface::setTablePrefix()}.
      *
      * For example if {@see ConnectionInterface::setTablePrefix()} is `tbl_`, `Customer` becomes `tbl_customer`, and

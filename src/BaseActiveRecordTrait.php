@@ -235,19 +235,7 @@ trait BaseActiveRecordTrait
         return isset($this->$offset);
     }
 
-    /**
-     * Returns the element at the specified offset.
-     *
-     * This method is required by the SPL interface {@see ArrayAccess}.
-     *
-     * It is implicitly called when you use something like `$value = $model[$offset];`.
-     *
-     * @param mixed $offset the offset to retrieve element.
-     *
-     * @return mixed the element at the offset, null if no element is found at the offset
-     */
-    #[\ReturnTypeWillChange]
-    public function offsetGet(mixed $offset)
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->$offset;
     }

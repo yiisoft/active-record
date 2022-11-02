@@ -13,8 +13,10 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\Db\Expression\Expression;
 
 use function array_combine;
 use function array_flip;
@@ -83,18 +85,21 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $result;
     }
 
-    public function deleteAll(array $condition = []): int
+    public function deleteAll(array $condition = [], array $params = []): int
     {
-        throw new NotSupportedException(__METHOD__ . ' is not supported.');
+        $command = $this->db->createCommand();
+        $command->delete(static::tableName(), $condition, $params);
+
+        return $command->execute();
     }
 
     public function equals(ActiveRecordInterface $record): bool
     {
-        if ($this->getIsNewRecord() || $record->getIsNewRecord()) {
+        if ($this->getIsNewRecord() || ($record->getIsNewRecord())) {
             return false;
         }
 
-        return static::class === $record::class && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return static::tableName() === $record::tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**
@@ -391,16 +396,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return false;
     }
 
-    /**
-     * Check whether the named relation has been populated with records.
-     *
-     * @param string $name The relation name, e.g. `orders` for a relation defined via `getOrders()` method
-     * (case-sensitive).
-     *
-     * @return bool Whether relation has been populated with records.
-     *
-     * {@see getRelation()}
-     */
     public function isRelationPopulated(string $name): bool
     {
         return array_key_exists($name, $this->related);
@@ -421,7 +416,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             if (is_array($via)) {
-                /** @var $viaRelation ActiveQuery */
                 [$viaName, $viaRelation] = $via;
                 $viaClass = $viaRelation->getARInstance();
                 /** unset $viaName so that it can be reloaded to reflect the change */
@@ -453,7 +447,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
                 $viaClass->insert();
             } else {
-                /** @var $viaTable string */
                 $this->db->createCommand()->insert($viaTable, $columns)->execute();
             }
         } else {
@@ -562,7 +555,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $this->relationsDependencies = [];
     }
 
-    public function populateRelation(string $name, $records): void
+    public function populateRelation(string $name, array|ActiveRecordInterface|null $records): void
     {
         foreach ($this->relationsDependencies as &$relationNames) {
             unset($relationNames[$name]);
@@ -579,7 +572,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function refresh(): bool
     {
-        /** @var $record BaseActiveRecord */
         $record = $this->instantiateQuery(static::class)->findOne($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
@@ -696,32 +688,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $this->updateInternal($attributeNames);
     }
 
-    public function updateAll(array $attributes, $condition = [], array $params = []): int
+    public function updateAll(array $attributes, array|string $condition = [], array $params = []): int
     {
-        throw new NotSupportedException(__METHOD__ . ' is not supported.');
-    }
+        $command = $this->db->createCommand();
 
-    /**
-     * Updates the whole table using the provided counter changes and conditions.
-     *
-     * For example, to increment all customers' age by 1,
-     *
-     * ```php
-     * Customer::updateAllCounters(['age' => 1]);
-     * ```
-     *
-     * @param array $counters The counters to be updated (attribute name => increment value). Use negative values if you
-     * want to decrement the counters.
-     * @param array|string $condition The conditions that will be put in the WHERE part of the UPDATE SQL.
-     * Please refer to {@see Query::where()} on how to specify this parameter.
-     *
-     * @throws NotSupportedException If not override.
-     *
-     * @return int The number of rows updated.
-     */
-    public function updateAllCounters(array $counters, $condition = ''): int
-    {
-        throw new NotSupportedException(__METHOD__ . ' is not supported.');
+        $command->update(static::tableName(), $attributes, $condition, $params);
+
+        return $command->execute();
     }
 
     /**
@@ -770,6 +743,47 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return $rows;
+    }
+
+    /**
+     * Updates the whole table using the provided counter changes and conditions.
+     *
+     * For example, to increment all customers' age by 1,
+     *
+     * ```php
+     * $customer = new Customer($db);
+     * $customer->updateAllCounters(['age' => 1]);
+     * ```
+     *
+     * Note that this method will not trigger any events.
+     *
+     * @param array $counters The counters to be updated (attribute name => increment value).
+     * Use negative values if you want to decrement the counters.
+     * @param array|string $condition The conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
+     * to {@see Query::where()} on how to specify this parameter.
+     * @param array $params The parameters (name => value) to be bound to the query.
+     *
+     * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     *
+     * @return int The number of rows updated.
+     */
+    public function updateAllCounters(array $counters, $condition = '', array $params = []): int
+    {
+        $n = 0;
+
+        foreach ($counters as $name => $value) {
+            $counters[$name] = new Expression("[[$name]]+:bp{$n}", [":bp{$n}" => $value]);
+            $n++;
+        }
+
+        $command = $this->db->createCommand();
+        $command->update(static::tableName(), $counters, $condition, $params);
+
+        return $command->execute();
     }
 
     /**
@@ -822,7 +836,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         if ($relation->getVia() !== null) {
             if (is_array($relation->getVia())) {
-                /** @var $viaRelation ActiveQuery */
                 [$viaName, $viaRelation] = $relation->getVia();
                 $viaClass = $viaRelation->getARInstance();
                 unset($this->related[$viaName]);
@@ -847,14 +860,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             if (is_array($relation->getVia())) {
-                /** @var $viaClass ActiveRecordInterface */
                 if ($delete) {
                     $viaClass->deleteAll($columns);
                 } else {
                     $viaClass->updateAll($nulls, $columns);
                 }
             } else {
-                /** @var $viaTable string */
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $columns)->execute();
@@ -896,7 +907,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         if (!$relation->getMultiple()) {
             unset($this->related[$name]);
         } elseif (isset($this->related[$name])) {
-            /** @var $b ActiveRecordInterface */
+            /** @var ActiveRecordInterface $b */
             foreach ($this->related[$name] as $a => $b) {
                 if ($arClass->getPrimaryKey() === $b->getPrimaryKey()) {
                     unset($this->related[$name][$a]);
@@ -957,14 +968,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
 
             if (is_array($relation->getVia())) {
-                /** @var $viaClass ActiveRecordInterface */
                 if ($delete) {
                     $viaClass->deleteAll($condition);
                 } else {
                     $viaClass->updateAll($nulls, $condition);
                 }
             } else {
-                /** @var $viaTable string */
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $condition)->execute();
@@ -1057,15 +1066,15 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Repopulates this active record with the latest data from a newly fetched instance.
      *
-     * @param BaseActiveRecord|null $record The record to take attributes from.
+     * @param ActiveRecord|array|null $record The record to take attributes from.
      *
      * @return bool Whether refresh was successful.
      *
      * {@see refresh()}
      */
-    protected function refreshInternal(self $record = null): bool
+    protected function refreshInternal(array|ActiveRecord $record = null): bool
     {
-        if ($record === null) {
+        if ($record === null || $record === []) {
             return false;
         }
 

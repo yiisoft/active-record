@@ -8,8 +8,8 @@ use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
-use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 use function is_array;
 use function is_int;
@@ -29,7 +29,7 @@ trait ActiveQueryTrait
      *
      * @return static the query object itself.
      */
-    public function asArray(bool|null $value = true): self
+    public function asArray(bool|null $value = true): static
     {
         $this->asArray = $value;
         return $this;
@@ -78,7 +78,7 @@ trait ActiveQueryTrait
      *
      * @return static the query object itself.
      */
-    public function with(array|string ...$with): self
+    public function with(array|string ...$with): static
     {
         if (isset($with[0]) && is_array($with[0])) {
             /** the parameter is given as an array */
@@ -103,6 +103,8 @@ trait ActiveQueryTrait
 
     /**
      * Converts found rows into model instances.
+     *
+     * @throws InvalidConfigException
      */
     protected function createModels(array $rows): array|null
     {
@@ -134,7 +136,10 @@ trait ActiveQueryTrait
      * for details about specifying this parameter.
      * @param ActiveRecord[]|array $models the primary models (can be either AR instances or arrays)
      *
-     * @throws Exception|InvalidArgumentException|InvalidConfigException|NotSupportedException|ReflectionException
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws ReflectionException
      * @throws Throwable
      */
     public function findWith(array $with, array &$models): void
@@ -176,6 +181,7 @@ trait ActiveQueryTrait
             }
 
             if (!isset($relations[$name])) {
+                /** @var ActiveQuery $relation */
                 $relation = $model->getRelation($name);
                 $relation->primaryModel = null;
                 $relations[$name] = $relation;
