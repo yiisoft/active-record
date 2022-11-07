@@ -1177,7 +1177,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $class = $this->arClass;
 
-        return new $class(db: $this->db, tableName: $this->tableName);
+        return new $class($this->db, null, $this->tableName);
     }
 
     /**
