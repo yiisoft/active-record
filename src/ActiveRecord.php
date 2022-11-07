@@ -178,10 +178,10 @@ class ActiveRecord extends BaseActiveRecord
      */
     public function getTableSchema(): TableSchemaInterface
     {
-        $tableSchema = $this->db->getSchema()->getTableSchema(static::tableName());
+        $tableSchema = $this->db->getSchema()->getTableSchema($this->getTableName());
 
         if ($tableSchema === null) {
-            throw new InvalidConfigException('The table does not exist: ' . static::tableName());
+            throw new InvalidConfigException('The table does not exist: ' . $this->getTableName());
         }
 
         return $tableSchema;
@@ -412,7 +412,7 @@ class ActiveRecord extends BaseActiveRecord
     protected function filterValidColumnNames(array $aliases): array
     {
         $columnNames = [];
-        $tableName = static::tableName();
+        $tableName = $this->getTableName();
         $quotedTableName = $this->db->getQuoter()->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
@@ -448,7 +448,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = $this->db->createCommand()->insertEx(static::tableName(), $values)) === false) {
+        if (($primaryKeys = $this->db->createCommand()->insertEx($this->getTableName(), $values)) === false) {
             return false;
         }
 

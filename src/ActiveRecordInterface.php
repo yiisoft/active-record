@@ -174,6 +174,11 @@ interface ActiveRecordInterface
     public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface|null;
 
     /**
+     * Return the name of the table associated with this AR class.
+     */
+    public function getTableName(): string;
+
+    /**
      * Returns a value indicating whether the record has an attribute with the specified name.
      *
      * @param string $name The name of the attribute.

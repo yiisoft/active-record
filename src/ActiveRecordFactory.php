@@ -28,10 +28,17 @@ final class ActiveRecordFactory
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
-    {
+    public function createAR(
+        string $arClass,
+        string|null $tableName = null,
+        ConnectionInterface $db = null
+    ): ActiveRecordInterface {
         $params = [];
         $params['class'] = $arClass;
+
+        if ($tableName !== null) {
+            $params['__construct()']['tableName'] = $tableName;
+        }
 
         if ($db !== null) {
             $params['__construct()']['db'] = $db;
@@ -55,7 +62,8 @@ final class ActiveRecordFactory
     public function createQueryTo(
         string $arClass,
         string $queryClass = ActiveQuery::class,
-        ConnectionInterface $db = null
+        ConnectionInterface $db = null,
+        string|null $tableName = null
     ): ActiveQueryInterface {
         $params = [
             'class' => $queryClass,
@@ -66,6 +74,10 @@ final class ActiveRecordFactory
 
         if ($db !== null) {
             $params['__construct()']['db'] = $db;
+        }
+
+        if ($tableName !== null) {
+            $params['__construct()']['tableName'] = $tableName;
         }
 
         return $this->factory->create($params);

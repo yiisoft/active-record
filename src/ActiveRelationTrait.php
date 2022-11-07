@@ -517,7 +517,7 @@ trait ActiveRelationTrait
     {
         if ((!empty($this->join) || !empty($this->joinWith))) {
             if (empty($this->from)) {
-                $alias = $this->getARInstance()::tableName();
+                $alias = $this->getARInstance()->getTableName();
             } else {
                 foreach ($this->from as $alias => $table) {
                     if (!is_string($alias)) {

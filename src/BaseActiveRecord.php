@@ -57,8 +57,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private array $related = [];
     private array $relationsDependencies = [];
 
-    public function __construct(protected ConnectionInterface $db, private ActiveRecordFactory|null $arFactory = null)
-    {
+    public function __construct(
+        protected ConnectionInterface $db,
+        private ActiveRecordFactory|null $arFactory = null,
+        private string|null $tableName = null
+    ) {
+        $this->tableName ??= static::tableName();
     }
 
     public function delete(): false|int
@@ -88,7 +92,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function deleteAll(array $condition = [], array $params = []): int
     {
         $command = $this->db->createCommand();
-        $command->delete(static::tableName(), $condition, $params);
+        $command->delete($this->tableName, $condition, $params);
 
         return $command->execute();
     }
@@ -99,7 +103,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return false;
         }
 
-        return static::tableName() === $record::tableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
+        return $this->tableName === $record->getTableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
     /**
@@ -692,7 +696,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $command = $this->db->createCommand();
 
-        $command->update(static::tableName(), $attributes, $condition, $params);
+        $command->update($this->tableName, $attributes, $condition, $params);
 
         return $command->execute();
     }
@@ -781,7 +785,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         $command = $this->db->createCommand();
-        $command->update(static::tableName(), $counters, $condition, $params);
+        $command->update($this->tableName, $counters, $condition, $params);
 
         return $command->execute();
     }
@@ -1177,5 +1181,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         unset($this->relationsDependencies[$attribute]);
+    }
+
+    public function getTableName(): string
+    {
+        if ($this->tableName === null) {
+            throw new InvalidConfigException('The "tableName" property must be set.');
+        }
+
+        return $this->tableName;
     }
 }
