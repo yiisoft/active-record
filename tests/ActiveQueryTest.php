@@ -1355,7 +1355,7 @@ abstract class ActiveQueryTest extends TestCase
         $query->alias('o')->alias('ord');
         $this->assertEquals(['ord' => Order::TABLE_NAME], $query->getFrom());
 
-        $query->from(['users', 'o' =>Order::TABLE_NAME])->alias('ord');
+        $query->from(['users', 'o' => Order::TABLE_NAME])->alias('ord');
         $this->assertEquals(['users', 'ord' => Order::TABLE_NAME], $query->getFrom());
     }
 
