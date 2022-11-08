@@ -26,7 +26,7 @@ final class ActiveRecordFactoryTest extends TestCase
 
     public function testCreateARWithConnection(): void
     {
-        $customerAR = $this->arFactory->createAR(Customer::class, null, $this->mysqlConnection);
+        $customerAR = $this->arFactory->createAR(arClass: Customer::class, db: $this->mysqlConnection);
         $db = $this->getInaccessibleProperty($customerAR, 'db', true);
 
         $this->assertInstanceOf(ConnectionPDOMysql::class, $db);
@@ -50,7 +50,7 @@ final class ActiveRecordFactoryTest extends TestCase
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
 
         /** example create active query custom */
-        $customerQuery = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class);
+        $customerQuery = $this->arFactory->createQueryTo(arClass: Customer::class, queryClass: CustomerQuery::class);
 
         $this->assertInstanceOf(CustomerQuery::class, $customerQuery);
     }
@@ -58,7 +58,11 @@ final class ActiveRecordFactoryTest extends TestCase
     public function testCreateQueryToWithConnection(): void
     {
         /** example create active query */
-        $customerQuery = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class, $this->mysqlConnection);
+        $customerQuery = $this->arFactory->createQueryTo(
+            arClass: Customer::class,
+            queryClass: CustomerQuery::class,
+            db: $this->mysqlConnection
+        );
         $db = $this->getInaccessibleProperty($customerQuery, 'db', true);
 
         $this->assertInstanceOf(ConnectionPDOMysql::class, $db);
