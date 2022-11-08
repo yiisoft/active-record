@@ -12,8 +12,6 @@ use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Schema\TableSchemaInterface;
-use Yiisoft\Strings\Inflector;
-use Yiisoft\Strings\StringHelper;
 
 use function array_diff;
 use function array_keys;
@@ -358,13 +356,6 @@ class ActiveRecord extends BaseActiveRecord
             $transaction->rollBack();
             throw $e;
         }
-    }
-
-    public static function tableName(): string
-    {
-        $inflector = new Inflector();
-
-        return '{{%' . $inflector->pascalCaseToId(StringHelper::baseName(static::class), '_') . '}}';
     }
 
     /**

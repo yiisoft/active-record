@@ -25,7 +25,7 @@ final class CustomerWithAlias extends ActiveRecord
     public int $status2;
     public float $sumTotal;
 
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'customer';
     }

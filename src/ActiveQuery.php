@@ -113,7 +113,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         protected string $arClass,
         protected ConnectionInterface $db,
         private ActiveRecordFactory|null $arFactory = null,
-        private string|null $tableName = null
+        private string $tableName = ''
     ) {
         parent::__construct($db);
     }

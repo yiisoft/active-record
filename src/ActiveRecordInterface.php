@@ -175,6 +175,19 @@ interface ActiveRecordInterface
 
     /**
      * Return the name of the table associated with this AR class.
+     *
+     * Example static method:
+     *
+     * ```php
+     * final class User extends ActiveRecord
+     * {
+     *     public string const TABLE_NAME = 'user';
+     *
+     *     public function getTableName(): string
+     *     {
+     *          return $this->generateTableName(self::TABLE_NAME);
+     *     }
+     * }
      */
     public function getTableName(): string;
 
@@ -419,18 +432,4 @@ interface ActiveRecordInterface
      * If true, the active record containing the foreign key will be deleted.
      */
     public function unlink(string $name, self $arClass, bool $delete = false): void;
-
-    /**
-     * Declares the name of the database table associated with this active record class.
-     *
-     * By default, this method returns the class name as the table name by calling {@see Inflector::pascalCaseToId()}
-     * with prefix {@see ConnectionInterface::setTablePrefix()}.
-     *
-     * For example if {@see ConnectionInterface::setTablePrefix()} is `tbl_`, `Customer` becomes `tbl_customer`, and
-     * `OrderItem` becomes `tbl_order_item`. You may override this method if the table is not named after this
-     * convention.
-     *
-     * @return string The table name.
-     */
-    public static function tableName(): string;
 }

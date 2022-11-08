@@ -17,9 +17,11 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 class Order extends ActiveRecord
 {
-    public static function tableName(): string
+    public const TABLE_NAME = 'order';
+
+    public function getTableName(): string
     {
-        return 'order';
+        return self::TABLE_NAME;
     }
 
     public function getCustomer(): ActiveQuery

@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Category extends ActiveRecord
 {
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'category';
     }

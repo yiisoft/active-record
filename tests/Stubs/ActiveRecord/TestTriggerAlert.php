@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class TestTriggerAlert extends ActiveRecord
 {
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'test_trigger_alert';
     }

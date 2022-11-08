@@ -14,8 +14,10 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Profile extends ActiveRecord
 {
-    public static function tableName(): string
+    public const TABLE_NAME = 'profile';
+
+    public function getTableName(): string
     {
-        return 'profile';
+        return self::TABLE_NAME;
     }
 }

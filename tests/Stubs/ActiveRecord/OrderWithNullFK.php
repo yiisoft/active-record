@@ -16,7 +16,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class OrderWithNullFK extends ActiveRecord
 {
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'order_with_null_fk';
     }
