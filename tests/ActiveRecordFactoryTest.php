@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
@@ -29,17 +30,18 @@ final class ActiveRecordFactoryTest extends TestCase
         $customerAR = $this->arFactory->createAR(arClass: Customer::class, db: $this->mysqlConnection);
         $db = $this->getInaccessibleProperty($customerAR, 'db', true);
 
+        $this->assertSame('customer', $customerAR->getTableName());
         $this->assertInstanceOf(ConnectionPDOMysql::class, $db);
         $this->assertInstanceOf(Customer::class, $customerAR);
     }
 
     public function testCreateARWithTableName(): void
     {
-        $customerAR = $this->arFactory->createAR(Customer::class, 'customer');
+        $customerAR = $this->arFactory->createAR(ArrayAndJsonTypes::class, 'array_and_json_types');
         $tableName = $customerAR->getTableName();
 
-        $this->assertSame('customer', $tableName);
-        $this->assertInstanceOf(Customer::class, $customerAR);
+        $this->assertSame('array_and_json_types', $tableName);
+        $this->assertInstanceOf(ArrayAndJsonTypes::class, $customerAR);
     }
 
     public function testCreateQueryTo(): void
@@ -72,10 +74,13 @@ final class ActiveRecordFactoryTest extends TestCase
     public function testCreateQueryToWithTableName(): void
     {
         /** example create active query */
-        $customerQuery = $this->arFactory->createQueryTo(arClass: Customer::class, tableName: 'customer');
+        $customerQuery = $this->arFactory->createQueryTo(
+            arClass: ArrayAndJsonTypes::class,
+            tableName: 'array_and_json_types',
+        );
         $tableName = $customerQuery->getARInstance()->getTableName();
 
-        $this->assertSame('customer', $tableName);
+        $this->assertSame('array_and_json_types', $tableName);
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
     }
 

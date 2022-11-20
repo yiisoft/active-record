@@ -174,8 +174,6 @@ interface ActiveRecordInterface
     /**
      * Return the name of the table associated with this AR class.
      *
-     * Example static method:
-     *
      * ```php
      * final class User extends ActiveRecord
      * {
@@ -183,7 +181,7 @@ interface ActiveRecordInterface
      *
      *     public function getTableName(): string
      *     {
-     *          return $this->generateTableName(self::TABLE_NAME);
+     *          return self::TABLE_NAME;
      *     }
      * }
      */
