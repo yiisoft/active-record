@@ -13,9 +13,11 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Alpha extends ActiveRecord
 {
-    public static function tableName(): string
+    public const TABLE_NAME = 'alpha';
+
+    public function getTableName(): string
     {
-        return 'alpha';
+        return self::TABLE_NAME;
     }
 
     public function getBetas(): ActiveQuery

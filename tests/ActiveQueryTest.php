@@ -269,8 +269,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'profile');
 
         $query = new ActiveQuery(Profile::class, $this->db);
-
-        $tableName = Profile::tableName();
+        $tableName = Profile::TABLE_NAME;
 
         $this->assertEquals(
             [
@@ -1351,13 +1350,13 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([], $query->getFrom());
 
         $query->alias('o');
-        $this->assertEquals(['o' => Order::tableName()], $query->getFrom());
+        $this->assertEquals(['o' => Order::TABLE_NAME], $query->getFrom());
 
         $query->alias('o')->alias('ord');
-        $this->assertEquals(['ord' => Order::tableName()], $query->getFrom());
+        $this->assertEquals(['ord' => Order::TABLE_NAME], $query->getFrom());
 
-        $query->from(['users', 'o' => Order::tableName()])->alias('ord');
-        $this->assertEquals(['users', 'ord' => Order::tableName()], $query->getFrom());
+        $query->from(['users', 'o' => Order::TABLE_NAME])->alias('ord');
+        $this->assertEquals(['users', 'ord' => Order::TABLE_NAME], $query->getFrom());
     }
 
     public function testInverseOf(): void
@@ -1815,11 +1814,8 @@ abstract class ActiveQueryTest extends TestCase
     {
         $this->checkFixture($this->db, 'order');
 
-        $order = new Order($this->db);
-        $orderItem = new OrderItem($this->db);
-
-        $order->setTableName($orderTableName);
-        $orderItem->setTableName($orderItemTableName);
+        $order = new Order(db: $this->db, tableName: $orderTableName);
+        $orderItem = new OrderItem(db: $this->db, tableName: $orderItemTableName);
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
@@ -1834,9 +1830,6 @@ abstract class ActiveQueryTest extends TestCase
             'ON [[order_item]].[[item_id]] = [[item]].[[id]] WHERE [[order_item]].[[order_id]]=1'
         );
         $this->assertEquals($expectedSQL, $itemsSQL);
-
-        $order->setTableName(null);
-        $orderItem->setTableName(null);
     }
 
     public function testOutdatedRelationsAreResetForExistingRecords(): void

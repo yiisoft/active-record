@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class BoolAR extends ActiveRecord
 {
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'bool_values';
     }

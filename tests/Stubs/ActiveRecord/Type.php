@@ -25,7 +25,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Type extends ActiveRecord
 {
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'type';
     }

@@ -112,7 +112,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function __construct(
         protected string $arClass,
         protected ConnectionInterface $db,
-        private ActiveRecordFactory|null $arFactory = null
+        private ActiveRecordFactory|null $arFactory = null,
+        private string $tableName = ''
     ) {
         parent::__construct($db);
     }
@@ -1010,7 +1011,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     protected function getPrimaryTableName(): string
     {
-        return $this->getARInstance()::tableName();
+        return $this->getARInstance()->getTableName();
     }
 
     /**
@@ -1107,7 +1108,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $pk = $primaryKey[0];
 
                 if (!empty($this->getJoin()) || !empty($this->getJoinWith())) {
-                    $pk = $arInstance::tableName() . '.' . $pk;
+                    $pk = $arInstance->getTableName() . '.' . $pk;
                 }
 
                 /**
@@ -1176,7 +1177,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $class = $this->arClass;
 
-        return new $class($this->db);
+        return new $class($this->db, null, $this->tableName);
     }
 
     /**
@@ -1187,7 +1188,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function getARInstanceFactory(): ActiveRecordInterface
     {
-        return $this->arFactory->createAR($this->arClass, $this->db);
+        return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
     }
 
     private function createQueryHelper(): QueryHelper

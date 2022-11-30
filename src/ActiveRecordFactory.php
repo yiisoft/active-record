@@ -21,6 +21,8 @@ final class ActiveRecordFactory
      * Allows you to create an active record instance through the factory.
      *
      * @param string $arClass active record class.
+     * @param string $tableName The name of the table associated with this ActiveRecord class, if its empty string the
+     * name will be generated automatically by calling {@see getTableName()} in the active record class.
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
      *
      * @throws CircularReferenceException
@@ -28,10 +30,17 @@ final class ActiveRecordFactory
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    public function createAR(string $arClass, ConnectionInterface $db = null): ActiveRecordInterface
-    {
+    public function createAR(
+        string $arClass,
+        string $tableName = '',
+        ConnectionInterface $db = null
+    ): ActiveRecordInterface {
         $params = [];
         $params['class'] = $arClass;
+
+        if ($tableName !== '') {
+            $params['__construct()']['tableName'] = $tableName;
+        }
 
         if ($db !== null) {
             $params['__construct()']['db'] = $db;
@@ -44,6 +53,8 @@ final class ActiveRecordFactory
      * Allows you to create an active query instance through the factory.
      *
      * @param string $arClass active record class.
+     * @param string $tableName The name of the table associated with this ActiveRecord class, if its empty string the
+     * name will be generated automatically by calling {@see getTableName()} in the active record class.
      * @param string $queryClass custom query active query class.
      * @param ConnectionInterface|null $db the database connection used for creating active query instances.
      *
@@ -54,6 +65,7 @@ final class ActiveRecordFactory
      */
     public function createQueryTo(
         string $arClass,
+        string $tableName = '',
         string $queryClass = ActiveQuery::class,
         ConnectionInterface $db = null
     ): ActiveQueryInterface {
@@ -63,6 +75,10 @@ final class ActiveRecordFactory
                 'arClass' => $arClass,
             ],
         ];
+
+        if ($tableName !== '') {
+            $params['__construct()']['tableName'] = $tableName;
+        }
 
         if ($db !== null) {
             $params['__construct()']['db'] = $db;

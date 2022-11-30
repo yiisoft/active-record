@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
@@ -26,11 +27,21 @@ final class ActiveRecordFactoryTest extends TestCase
 
     public function testCreateARWithConnection(): void
     {
-        $customerAR = $this->arFactory->createAR(Customer::class, $this->mysqlConnection);
+        $customerAR = $this->arFactory->createAR(arClass: Customer::class, db: $this->mysqlConnection);
         $db = $this->getInaccessibleProperty($customerAR, 'db', true);
 
+        $this->assertSame('customer', $customerAR->getTableName());
         $this->assertInstanceOf(ConnectionPDOMysql::class, $db);
         $this->assertInstanceOf(Customer::class, $customerAR);
+    }
+
+    public function testCreateARWithTableName(): void
+    {
+        $customerAR = $this->arFactory->createAR(ArrayAndJsonTypes::class, 'array_and_json_types');
+        $tableName = $customerAR->getTableName();
+
+        $this->assertSame('array_and_json_types', $tableName);
+        $this->assertInstanceOf(ArrayAndJsonTypes::class, $customerAR);
     }
 
     public function testCreateQueryTo(): void
@@ -41,7 +52,7 @@ final class ActiveRecordFactoryTest extends TestCase
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
 
         /** example create active query custom */
-        $customerQuery = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class);
+        $customerQuery = $this->arFactory->createQueryTo(arClass: Customer::class, queryClass: CustomerQuery::class);
 
         $this->assertInstanceOf(CustomerQuery::class, $customerQuery);
     }
@@ -49,10 +60,27 @@ final class ActiveRecordFactoryTest extends TestCase
     public function testCreateQueryToWithConnection(): void
     {
         /** example create active query */
-        $customerQuery = $this->arFactory->createQueryTo(Customer::class, CustomerQuery::class, $this->mysqlConnection);
+        $customerQuery = $this->arFactory->createQueryTo(
+            arClass: Customer::class,
+            queryClass: CustomerQuery::class,
+            db: $this->mysqlConnection
+        );
         $db = $this->getInaccessibleProperty($customerQuery, 'db', true);
 
         $this->assertInstanceOf(ConnectionPDOMysql::class, $db);
+        $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
+    }
+
+    public function testCreateQueryToWithTableName(): void
+    {
+        /** example create active query */
+        $customerQuery = $this->arFactory->createQueryTo(
+            arClass: ArrayAndJsonTypes::class,
+            tableName: 'array_and_json_types',
+        );
+        $tableName = $customerQuery->getARInstance()->getTableName();
+
+        $this->assertSame('array_and_json_types', $tableName);
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
     }
 

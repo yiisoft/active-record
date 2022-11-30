@@ -12,7 +12,7 @@ final class UserAR extends ActiveRecord
     public const STATUS_ACTIVE = 10;
     public const ROLE_USER = 10;
 
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return '{{%bool_user}}';
     }

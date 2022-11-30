@@ -21,7 +21,7 @@ final class ProfileWithConstructor extends ActiveRecord
         parent::__construct($db);
     }
 
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'profile';
     }

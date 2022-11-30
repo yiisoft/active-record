@@ -16,7 +16,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Department extends ActiveRecord
 {
-    public static function tableName(): string
+    public function getTableName(): string
     {
         return 'department';
     }
