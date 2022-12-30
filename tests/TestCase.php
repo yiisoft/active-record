@@ -303,14 +303,14 @@ class TestCase extends AbstractTestCase
             ],
             'yiisoft/db-oracle' => [
                 'driver' => new OraclePDODriver(
-                    (new OracleDsn('oci', 'localhost', 'XE', ['charset' => 'AL32UTF8']))->asString(),
+                    (new OracleDsn('oci', 'localhost', 'XE', '1521', ['charset' => 'AL32UTF8']))->asString(),
                     'system',
-                    'oracle',
+                    'root',
                 ),
                 'fixture' => __DIR__ . '/Data/oci.sql',
             ],
             'yiisoft/db-sqlite' => [
-                'driver' => new SqlitePDODriver(new SqliteDsn('sqlite', 'memory')),
+                'driver' => new SqlitePDODriver((new SqliteDsn('sqlite', 'memory'))->asString()),
                 'fixture' => __DIR__ . '/Data/sqlite.sql',
             ],
         ];
