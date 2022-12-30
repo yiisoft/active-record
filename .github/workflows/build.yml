@@ -70,7 +70,7 @@ jobs:
               - 1433:1433
           options: --name=mssql --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
       oci:
-        image: gvenzl/oracle-xe:lastest
+        image: gvenzl/oracle-xe:latest
         ports:
           - 1521:1521
         env:
