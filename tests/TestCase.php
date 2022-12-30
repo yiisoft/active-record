@@ -17,18 +17,21 @@ use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Cache\Cache;
 use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Connection\Dsn;
-use Yiisoft\Db\Mssql\PDODriver as MssqlPDODriver;
-use Yiisoft\Db\Mysql\PDODriver as MysqlPDODriver;
-use Yiisoft\Db\Oracle\PDODriver as OraclePDODriver;
-use Yiisoft\Db\Pgsql\PDODriver as PgsqlPDODriver;
-use Yiisoft\Db\Sqlite\PDODriver as SqlitePDODriver;
-use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
 use Yiisoft\Db\Mssql\ConnectionPDO as ConnectionPDOMssql;
+use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
+use Yiisoft\Db\Mssql\PDODriver as MssqlPDODriver;
 use Yiisoft\Db\Mysql\ConnectionPDO as ConnectionPDOMysql;
+use Yiisoft\Db\Mysql\Dsn as MysqlDsn;
+use Yiisoft\Db\Mysql\PDODriver as MysqlPDODriver;
 use Yiisoft\Db\Oracle\ConnectionPDO as ConnectionPDOOracle;
+use Yiisoft\Db\Oracle\Dsn as OracleDsn;
+use Yiisoft\Db\Oracle\PDODriver as OraclePDODriver;
 use Yiisoft\Db\Pgsql\ConnectionPDO as ConnectionPDOPgsql;
+use Yiisoft\Db\Pgsql\Dsn as PgsqlDsn;
+use Yiisoft\Db\Pgsql\PDODriver as PgsqlPDODriver;
 use Yiisoft\Db\Sqlite\ConnectionPDO as ConnectionPDOSqlite;
+use Yiisoft\Db\Sqlite\Dsn as SqliteDsn;
+use Yiisoft\Db\Sqlite\PDODriver as SqlitePDODriver;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
@@ -276,7 +279,7 @@ class TestCase extends AbstractTestCase
         return [
             'yiisoft/db-mssql' => [
                 'driver' => new MssqlPDODriver(
-                    (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest', '1433'))->asString(),
+                    (new MssqlDsn('sqlsrv', '127.0.0.1', 'yiitest'))->asString(),
                     'SA',
                     'YourStrong!Passw0rd',
                 ),
@@ -284,7 +287,7 @@ class TestCase extends AbstractTestCase
             ],
             'yiisoft/db-mysql' => [
                 'driver' => new MysqlPDODriver(
-                    (new Dsn('mysql', '127.0.0.1', 'yiitest', '3306'))->asString(),
+                    (new MysqlDsn('mysql', '127.0.0.1', 'yiitest'))->asString(),
                     'root',
                     '',
                 ),
@@ -292,7 +295,7 @@ class TestCase extends AbstractTestCase
             ],
             'yiisoft/db-pgsql' => [
                 'driver' => new PgsqlPDODriver(
-                    (new Dsn('pgsql', '127.0.0.1', 'yiitest', '5432'))->asString(),
+                    (new PgsqlDsn('pgsql', '127.0.0.1', 'yiitest'))->asString(),
                     'root',
                     'root'
                 ),
@@ -300,14 +303,14 @@ class TestCase extends AbstractTestCase
             ],
             'yiisoft/db-oracle' => [
                 'driver' => new OraclePDODriver(
-                    'oci:dbname=localhost/XE;charset=AL32UTF8;',
+                    (new OracleDsn('oci', 'localhost', 'XE', '1521', ['charset' => 'AL32UTF8']))->asString(),
                     'system',
-                    'oracle',
+                    'root',
                 ),
                 'fixture' => __DIR__ . '/Data/oci.sql',
             ],
             'yiisoft/db-sqlite' => [
-                'driver' => new SqlitePDODriver('sqlite:' . __DIR__ . '/Data/Runtime/yiitest.sq3'),
+                'driver' => new SqlitePDODriver((new SqliteDsn('sqlite', 'memory'))->asString()),
                 'fixture' => __DIR__ . '/Data/sqlite.sql',
             ],
         ];
