@@ -136,25 +136,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::all();
     }
 
-    /**
-     * Prepares for building SQL.
-     *
-     * This method is called by {@see QueryBuilder} when it starts to build SQL from a query object.
-     *
-     * You may override this method to do some final preparation work when converting a query into a SQL statement.
-     *
-     * @param QueryBuilderInterface $builder
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
-     * @throws Throwable
-     *
-     * @return static a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
-     */
-    public function prepare(QueryBuilderInterface $builder): static
+    public function prepare(QueryBuilderInterface $builder): QueryInterface
     {
         /**
          * NOTE: because the same ActiveQuery may be used to build different SQL statements, one for count query, the
