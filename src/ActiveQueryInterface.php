@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
 
@@ -26,27 +25,6 @@ interface ActiveQueryInterface extends QueryInterface
      * @return static the query object itself.
      */
     public function asArray(bool|null $value = true): self;
-
-    /**
-     * Sets the {@see indexBy} property.
-     *
-     * @param Closure|string|null $column the name of the column by which the query results should be indexed by.
-     *
-     * This can also be a callable (e.g. anonymous function) that returns the index value based on the given row or
-     * model data. The signature of the callable should be:
-     *
-     * ```php
-     * // $model is an AR instance when `asArray` is false,
-     * // or an array of column values when `asArray` is true.
-     * function ($model)
-     * {
-     *     // return the index value corresponding to $model
-     * }
-     * ```
-     *
-     * @return QueryInterface the query object itself
-     */
-    public function indexBy(string|Closure|null $column): QueryInterface;
 
     /**
      * Specifies the relations with which this query should be performed.

@@ -20,7 +20,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\Arrays\ArrayHelper;
-use Yiisoft\Db\Command\Command;
+use Yiisoft\Db\Command\AbstractCommand;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -85,7 +85,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-        $this->assertInstanceOf(Command::class, $query->createCommand());
+        $this->assertInstanceOf(AbstractCommand::class, $query->createCommand());
     }
 
     public function testQueryScalar(): void

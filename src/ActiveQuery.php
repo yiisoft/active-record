@@ -17,7 +17,6 @@ use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\Helper\QueryHelper;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
-use Yiisoft\Db\QueryBuilder\QueryBuilder;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
@@ -136,24 +135,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::all();
     }
 
-    /**
-     * Prepares for building SQL.
-     *
-     * This method is called by {@see QueryBuilder} when it starts to build SQL from a query object.
-     *
-     * You may override this method to do some final preparation work when converting a query into a SQL statement.
-     *
-     * @param QueryBuilderInterface $builder
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
-     * @throws Throwable
-     *
-     * @return QueryInterface a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
-     */
     public function prepare(QueryBuilderInterface $builder): QueryInterface
     {
         /**
