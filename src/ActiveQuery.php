@@ -152,9 +152,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @return QueryInterface a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
+     * @return static a prepared query instance which will be used by {@see QueryBuilder} to build the SQL.
      */
-    public function prepare(QueryBuilderInterface $builder): QueryInterface
+    public function prepare(QueryBuilderInterface $builder): static
     {
         /**
          * NOTE: because the same ActiveQuery may be used to build different SQL statements, one for count query, the
