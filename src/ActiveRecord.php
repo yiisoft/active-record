@@ -439,7 +439,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $values = $this->getDirtyAttributes($attributes);
 
-        if (($primaryKeys = $this->db->createCommand()->insertEx($this->getTableName(), $values)) === false) {
+        if (($primaryKeys = $this->db->createCommand()->insertWithReturningPks($this->getTableName(), $values)) === false) {
             return false;
         }
 
