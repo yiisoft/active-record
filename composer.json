@@ -22,7 +22,8 @@
         "php": "^8.0",
         "ext-json": "*",
         "yiisoft/db": "^3.0@dev",
-        "yiisoft/factory": "^1.0"
+        "yiisoft/factory": "^1.0",
+        "yiisoft/strings": "^2.0"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
