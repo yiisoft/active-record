@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
 use Throwable;
-use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
@@ -14,6 +13,7 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Helper\ArrayHelper;
 use Yiisoft\Db\Query\Helper\QueryHelper;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;

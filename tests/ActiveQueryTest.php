@@ -19,7 +19,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
-use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Command\AbstractCommand;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -27,6 +26,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
+use Yiisoft\Db\Helper\ArrayHelper;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function sort;
