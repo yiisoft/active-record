@@ -616,9 +616,7 @@ trait ActiveRelationTrait
             return serialize($key);
         }
 
-        $key = reset($key);
-
-        return is_scalar($key) ? $key : serialize($key);
+        return reset($key);
     }
 
     /**
@@ -628,15 +626,11 @@ trait ActiveRelationTrait
      */
     private function normalizeModelKey(mixed $value): int|string|null
     {
-        if (is_object($value) && method_exists($value, '__toString')) {
-            /**
-             * ensure matching to special objects, which are convertible to string, for cross-DBMS relations,
-             * for example: `|MongoId`
-             */
-            $value = $value->__toString();
+        try {
+            return (string)$value;
+        } catch (Throwable $e) {
+            throw new InvalidConfigException('Value must be convertable to string.');
         }
-
-        return $value;
     }
 
     /**
