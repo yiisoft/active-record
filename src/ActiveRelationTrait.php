@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
 use ReflectionMethod;
+use Stringable;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -616,7 +617,9 @@ trait ActiveRelationTrait
             return serialize($key);
         }
 
-        return reset($key);
+        $key = reset($key);
+
+        return is_scalar($key) ? $key : serialize($key);
     }
 
     /**
@@ -626,11 +629,15 @@ trait ActiveRelationTrait
      */
     private function normalizeModelKey(mixed $value): int|string|null
     {
-        try {
-            return (string)$value;
-        } catch (Throwable $e) {
-            throw new InvalidConfigException('Value must be convertable to string.');
+        if ($value instanceof Stringable) {
+            /**
+             * ensure matching to special objects, which are convertible to string, for cross-DBMS relations,
+             * for example: `|MongoId`
+             */
+            $value = (string) $value;
         }
+
+        return $value;
     }
 
     /**
