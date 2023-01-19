@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
 use ReflectionMethod;
+use Stringable;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -628,12 +629,12 @@ trait ActiveRelationTrait
      */
     private function normalizeModelKey(mixed $value): int|string|null
     {
-        if (is_object($value) && method_exists($value, '__toString')) {
+        if ($value instanceof Stringable) {
             /**
              * ensure matching to special objects, which are convertible to string, for cross-DBMS relations,
              * for example: `|MongoId`
              */
-            $value = $value->__toString();
+            $value = (string) $value;
         }
 
         return $value;
