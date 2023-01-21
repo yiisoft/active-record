@@ -2325,17 +2325,11 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $order->orderItems);
 
         /** via model without delete */
-//        $this->assertCount(3, $order->itemsWithNullFK);
-//        $order->unlink('itemsWithNullFK', $order->itemsWithNullFK[2], false);
-//        $this->assertCount(2, $order->itemsWithNullFK);
-//        $this->assertCount(2, $order->orderItems);
-
         $this->assertCount(2, $order->itemsWithNullFK);
         $order->unlink('itemsWithNullFK', $order->itemsWithNullFK[1], false);
 
         $this->assertCount(1, $order->itemsWithNullFK);
         $this->assertCount(2, $order->orderItems);
-
     }
 
     public function testUnlinkAllAndConditionSetNull(): void

@@ -654,8 +654,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($customerA->equals($customerB));
     }
 
-
-
     public function providerForUnlinkDelete()
     {
         return [
@@ -666,6 +664,7 @@ abstract class ActiveRecordTest extends TestCase
 
     /**
      * @dataProvider providerForUnlinkDelete
+     *
      * @see https://github.com/yiisoft/yii2/issues/17174
      */
     public function testUnlinkWithViaOnCondition($delete, $count)
