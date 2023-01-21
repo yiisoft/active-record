@@ -507,7 +507,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    private function buildJoinWith(): void
+    public function buildJoinWith(): void
     {
         $join = $this->join;
 
@@ -639,7 +639,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     $callback($relation);
                 }
 
-                if (!empty($relation->joinWith)) {
+                if (!empty($relation->getJoinWith())) {
                     $relation->buildJoinWith();
                 }
 
