@@ -17,6 +17,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -651,5 +652,45 @@ abstract class ActiveRecordTest extends TestCase
         $customerA = new Customer($this->db);
         $customerB = new Item($this->db);
         $this->assertFalse($customerA->equals($customerB));
+    }
+
+
+
+    public function providerForUnlinkDelete()
+    {
+        return [
+            'with delete' => [true, 0],
+            'without delete' => [false, 1],
+        ];
+    }
+
+    /**
+     * @dataProvider providerForUnlinkDelete
+     * @see https://github.com/yiisoft/yii2/issues/17174
+     */
+    public function testUnlinkWithViaOnCondition($delete, $count)
+    {
+        $this->checkFixture($this->db, 'order', true);
+        $this->checkFixture($this->db, 'order_item_with_null_fk', true);
+
+        $orderQuery = new ActiveQuery(Order::class, $this->db);
+        $order = $orderQuery->findOne(2);
+
+        $this->assertCount(1, $order->itemsFor8);
+        $order->unlink('itemsFor8', $order->itemsFor8[0], $delete);
+
+        $order = $orderQuery->findOne(2);
+        $this->assertCount(0, $order->itemsFor8);
+        $this->assertCount(2, $order->orderItemsWithNullFK);
+
+        $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class, $this->db);
+        $this->assertCount(1, $orderItemQuery->findAll([
+            'order_id' => 2,
+            'item_id' => 5,
+        ]));
+        $this->assertCount($count, $orderItemQuery->findAll([
+            'order_id' => null,
+            'item_id' => null,
+        ]));
     }
 }

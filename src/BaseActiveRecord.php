@@ -863,6 +863,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $nulls[$a] = null;
             }
 
+            if ($viaRelation->getOn() !== null) {
+                $columns = ['and', $columns, $viaRelation->getOn()];
+            }
+
             if (is_array($relation->getVia())) {
                 if ($delete) {
                     $viaClass->deleteAll($columns);

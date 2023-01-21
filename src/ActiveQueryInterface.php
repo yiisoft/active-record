@@ -74,6 +74,12 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function via(string $relationName, callable $callable = null): self;
 
+    public function getOn(): array|string|null;
+
+    public function getJoinWith(): array;
+
+    public function buildJoinWith(): void;
+
     /**
      * Finds the related records for the specified primary record.
      *

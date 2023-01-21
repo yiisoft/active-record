@@ -36,7 +36,7 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 
     public function testFindEager(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db, 'customer', true);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customers = $customerQuery->with('orders')->indexBy('id')->all();
