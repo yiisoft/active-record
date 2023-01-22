@@ -1552,6 +1552,30 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertEquals($expected, $aggregation);
 
+        // tests with single pk asArray with eager loading
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $aggregation = $customerQuery
+            ->select(['{{customer}}.[[status]]', 'SUM({{order}}.[[total]]) AS [[sumtotal]]'])
+            ->joinWith('ordersPlain')
+            ->groupBy('{{customer}}.[[status]]')
+            ->orderBy('status')
+            ->asArray()
+            ->all();
+
+        $expected = [
+            [
+                'status' => 1,
+                'sumtotal' => 183,
+                'ordersPlain' => [],
+            ],
+            [
+                'status' => 2,
+                'sumtotal' => 0,
+                'ordersPlain' => [],
+            ],
+        ];
+        $this->assertEquals($expected, $aggregation);
+
         /** tests with single pk with Models */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $aggregation = $customerQuery
