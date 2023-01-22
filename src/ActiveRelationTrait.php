@@ -323,7 +323,7 @@ trait ActiveRelationTrait
             $keys = null;
             if ($this->multiple && count($link) === 1) {
                 $primaryModelKey = reset($link);
-                $keys = isset($primaryModel[$primaryModelKey]) ? $primaryModel[$primaryModelKey] : null;
+                $keys = $primaryModel[$primaryModelKey] ?? null;
             }
             if (is_array($keys)) {
                 $value = [];
