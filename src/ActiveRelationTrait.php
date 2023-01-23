@@ -557,7 +557,7 @@ trait ActiveRelationTrait
             /** single key */
             $attribute = reset($this->link);
             foreach ($models as $model) {
-                $value = $model[$attribute] ?? null;
+                $value = isset($model[$attribute]) || (is_object($model) && property_exists($model, $attribute)) ? $model[$attribute] : null;
                 if ($value !== null) {
                     if (is_array($value)) {
                         $values = array_merge($values, $value);
@@ -616,7 +616,7 @@ trait ActiveRelationTrait
         $key = [];
 
         foreach ($attributes as $attribute) {
-            if (isset($activeRecord[$attribute])) {
+            if (isset($activeRecord[$attribute]) || (is_object($activeRecord) && property_exists($activeRecord, $attribute))) {
                 $key[] = $this->normalizeModelKey($activeRecord[$attribute]);
             }
         }

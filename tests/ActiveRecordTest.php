@@ -692,4 +692,16 @@ abstract class ActiveRecordTest extends TestCase
             'item_id' => null,
         ]));
     }
+
+    public function testVirtualRelation()
+    {
+        $this->checkFixture($this->db, 'order', true);
+
+        $orderQuery = new ActiveQuery(Order::class, $this->db);
+        /** @var Order $order */
+        $order = $orderQuery->findOne(2);
+
+        $order->setVirtualCustomerId($order->customer_id);
+        $this->assertNotNull($order->getVirtualCustomer());
+    }
 }
