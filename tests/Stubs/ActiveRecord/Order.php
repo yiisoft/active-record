@@ -19,9 +19,21 @@ class Order extends ActiveRecord
 {
     public const TABLE_NAME = 'order';
 
+    private $virtualCustomerId = null;
+
     public function getTableName(): string
     {
         return self::TABLE_NAME;
+    }
+
+    public function setVirtualCustomerId(string|int|null $virtualCustomerId = null): void
+    {
+        $this->virtualCustomerId = $virtualCustomerId;
+    }
+
+    public function getVirtualCustomer()
+    {
+        return $this->hasOne(Customer::class, ['id' => 'virtualCustomerId']);
     }
 
     public function getCustomer(): ActiveQuery
