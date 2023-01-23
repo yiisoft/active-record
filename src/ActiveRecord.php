@@ -113,7 +113,7 @@ class ActiveRecord extends BaseActiveRecord
 
     public function attributes(): array
     {
-        return array_keys($this->getTableSchema()->getColumns());
+        return $this->getTableSchema()->getColumnNames();
     }
 
     public function delete(): false|int
