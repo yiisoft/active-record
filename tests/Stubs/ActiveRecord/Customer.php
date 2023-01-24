@@ -49,7 +49,7 @@ class Customer extends ActiveRecord
 
     public function getOrders(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('{{order}}.[[id]]');
+        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
     public function getOrdersNoOrder(): ActiveQuery
