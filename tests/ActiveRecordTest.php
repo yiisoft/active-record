@@ -718,14 +718,14 @@ abstract class ActiveRecordTest extends TestCase
         $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
         $eagerItemsCount = 0;
         foreach ($eagerCustomers as $customer) {
-            $eagerItemsCount += count($customer->items2);
+            $eagerItemsCount += is_countable($customer->items2) ? count($customer->items2) : 0;
         }
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $lazyCustomers = $customerQuery->all();
         $lazyItemsCount = 0;
         foreach ($lazyCustomers as $customer) {
-            $lazyItemsCount += count($customer->items2);
+            $lazyItemsCount += is_countable($customer->items2) ? count($customer->items2) : 0;
         }
 
         $this->assertEquals($eagerItemsCount, $lazyItemsCount);
