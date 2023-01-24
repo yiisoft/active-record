@@ -110,7 +110,7 @@ class Customer extends ActiveRecord
             ->via('ordersNoOrder');
     }
 
-    public function getItems()
+    public function getItems2()
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItems2');
