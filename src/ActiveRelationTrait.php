@@ -485,8 +485,9 @@ trait ActiveRelationTrait
         $resultMap = [];
 
         foreach ($map as $key => $linkKeys) {
+            $resultMap[$key] = [];
             foreach (array_keys($linkKeys) as $linkKey) {
-                $resultMap[$key] = $viaMap[$linkKey];
+                $resultMap[$key] += $viaMap[$linkKey];
             }
         }
 

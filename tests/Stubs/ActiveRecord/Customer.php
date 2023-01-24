@@ -52,6 +52,11 @@ class Customer extends ActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
+    public function getOrdersNoOrder(): ActiveQuery
+    {
+        return $this->hasMany(Order::class, ['customer_id' => 'id']);
+    }
+
     public function getExpensiveOrders(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
@@ -97,5 +102,17 @@ class Customer extends ActiveRecord
 
     public function setOrdersReadOnly(): void
     {
+    }
+
+    public function getOrderItems2()
+    {
+        return $this->hasMany(OrderItem::class, ['order_id' => 'id'])
+            ->via('ordersNoOrder');
+    }
+
+    public function getItems2()
+    {
+        return $this->hasMany(Item::class, ['id' => 'item_id'])
+            ->via('orderItems2');
     }
 }

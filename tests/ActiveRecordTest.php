@@ -704,4 +704,30 @@ abstract class ActiveRecordTest extends TestCase
         $order->setVirtualCustomerId($order->customer_id);
         $this->assertNotNull($order->getVirtualCustomer());
     }
+
+    /**
+     * Test joinWith eager loads via relation
+     *
+     * @see https://github.com/yiisoft/yii2/issues/19507
+     */
+    public function testJoinWithEager()
+    {
+        $this->checkFixture($this->db, 'customer', true);
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
+        $eagerItemsCount = 0;
+        foreach ($eagerCustomers as $customer) {
+            $eagerItemsCount += count($customer->items2);
+        }
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $lazyCustomers = $customerQuery->all();
+        $lazyItemsCount = 0;
+        foreach ($lazyCustomers as $customer) {
+            $lazyItemsCount += count($customer->items2);
+        }
+
+        $this->assertEquals($eagerItemsCount, $lazyItemsCount);
+    }
 }
