@@ -14,7 +14,6 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Helper\ArrayHelper;
-use Yiisoft\Db\Query\Helper\QueryHelper;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
@@ -106,7 +105,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array|string|null $on = null;
     private array $joinWith = [];
     private ActiveRecordInterface|null $arInstance = null;
-    private QueryHelper|null $queryHelper = null;
 
     public function __construct(
         protected string $arClass,
@@ -969,10 +967,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function getTablesUsedInFrom(): array
     {
         if (empty($this->from)) {
-            return $this->createQueryHelper()->cleanUpTableNames(
-                [$this->getPrimaryTableName()],
-                $this->db->getQuoter(),
-            );
+            return $this->db->getQuoter()->cleanUpTableNames([$this->getPrimaryTableName()]);
         }
 
         return parent::getTablesUsedInFrom();
@@ -1164,14 +1159,5 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function getARInstanceFactory(): ActiveRecordInterface
     {
         return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
-    }
-
-    private function createQueryHelper(): QueryHelper
-    {
-        if ($this->queryHelper === null) {
-            $this->queryHelper = new QueryHelper();
-        }
-
-        return $this->queryHelper;
     }
 }
