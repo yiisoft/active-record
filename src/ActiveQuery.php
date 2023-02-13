@@ -130,7 +130,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function all(): array
     {
-        return parent::all();
+        return $this->populate(parent::all());
     }
 
     public function prepare(QueryBuilderInterface $builder): QueryInterface
@@ -274,7 +274,18 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return parent::populate($models);
+        if ($this->getIndexBy() === null) {
+            return $models;
+        }
+
+        $result = [];
+
+        /** @psalm-var array[][] $row */
+        foreach ($models as $model) {
+            $result[ArrayHelper::getValueByPath($model, $this->getIndexBy())] = $model;
+        }
+
+        return $result;
     }
 
     /**
