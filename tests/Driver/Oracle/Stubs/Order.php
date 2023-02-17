@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Oracle\Stubs;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order as AbstractOrder;

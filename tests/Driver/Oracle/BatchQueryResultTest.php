@@ -2,32 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Pgsql;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
- * @group pgsql
+ * @group oci
  */
 final class BatchQueryResultTest extends AbstractBatchQueryResultTest
 {
-    protected string $driverName = 'pgsql';
+    protected string $driverName = 'oci';
     protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->pgsqlConnection;
+        $this->db = $this->ociConnection;
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->pgsqlConnection->close();
+        $this->ociConnection->close();
 
-        unset($this->pgsqlConnection);
+        unset($this->ociConnection);
     }
 }

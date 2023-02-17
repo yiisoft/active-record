@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Mysql;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 
-use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
+use Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest as AbstractActiveQueryFindTest;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group mysql
  */
-final class BatchQueryResultTest extends AbstractBatchQueryResultTest
+final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 {
     protected string $driverName = 'mysql';
     protected ConnectionInterface $db;

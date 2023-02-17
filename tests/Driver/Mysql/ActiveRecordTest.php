@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Sqlite;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
@@ -11,32 +11,32 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
- * @group sqlite
+ * @group mysql
  */
-class ActiveRecordTest extends AbstractActiveRecordTest
+final class ActiveRecordTest extends AbstractActiveRecordTest
 {
-    protected string $driverName = 'sqlite';
+    protected string $driverName = 'mysql';
     protected ConnectionInterface $db;
 
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->sqliteConnection;
+        $this->db = $this->mysqlConnection;
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->sqliteConnection->close();
+        $this->mysqlConnection->close();
 
-        unset($this->sqliteConnection);
+        unset($this->mysqlConnection);
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'customer');
 
         $customer = new Customer($this->db);
 
@@ -46,6 +46,7 @@ class ActiveRecordTest extends AbstractActiveRecordTest
         $customer->address = 'address1337';
 
         $this->assertTrue($customer->isNewRecord);
+
         $customer->save();
 
         $this->assertEquals(1337, $customer->id);

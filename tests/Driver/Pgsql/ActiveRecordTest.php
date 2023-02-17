@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Pgsql;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
 use ArrayAccess;
 use Traversable;

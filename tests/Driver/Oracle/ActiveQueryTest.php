@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Oracle;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
