@@ -297,7 +297,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
     }
 
     /**
-     * @dataProvider arrayValuesProvider $attributes
+     * @dataProvider arrayValuesProvider
      */
     public function testArrayValues($attributes): void
     {

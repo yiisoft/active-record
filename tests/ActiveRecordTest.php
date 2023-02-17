@@ -257,7 +257,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals('Some {{%updated}} address', $customer->address);
     }
 
-    public function legalValuesForFindByCondition(): array
+    public static function legalValuesForFindByCondition(): array
     {
         return [
             [Customer::class, ['id' => 1]],
@@ -302,7 +302,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function illegalValuesForFindByCondition(): array
+    public static function illegalValuesForFindByCondition(): array
     {
         return [
             [Customer::class, [['`id`=`id` and 1' => 1]]],
@@ -654,7 +654,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($customerA->equals($customerB));
     }
 
-    public function providerForUnlinkDelete()
+    public static function providerForUnlinkDelete()
     {
         return [
             'with delete' => [true, 0],

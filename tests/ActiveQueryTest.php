@@ -753,7 +753,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertNotEmpty($rows);
     }
 
-    public function aliasMethodProvider(): array
+    public static function aliasMethodProvider(): array
     {
         return [
             ['explicit'],
@@ -1767,7 +1767,7 @@ abstract class ActiveQueryTest extends TestCase
         }
     }
 
-    public function filterTableNamesFromAliasesProvider(): array
+    public static function filterTableNamesFromAliasesProvider(): array
     {
         return [
             'table name as string' => ['customer', []],
@@ -1812,7 +1812,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertContains('orders2', $query->extraFields());
     }
 
-    public function tableNameProvider(): array
+    public static function tableNameProvider(): array
     {
         return [
             ['order', 'order_item'],
