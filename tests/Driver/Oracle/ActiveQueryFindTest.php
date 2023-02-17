@@ -6,8 +6,8 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest as AbstractActiveQueryFindTest;
-use Yiisoft\ActiveRecord\Tests\Driver\Stubs\ActiveRecord\Customer;
-use Yiisoft\ActiveRecord\Tests\Driver\Stubs\ActiveRecord\Order;
+use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\ActiveRecord\Customer;
+use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\ActiveRecord\Order;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
