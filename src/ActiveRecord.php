@@ -24,7 +24,7 @@ use function preg_replace;
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
  *
- * Active Record implements the [Active Record design pattern](http://en.wikipedia.org/wiki/Active_record).
+ * Active Record implements the [Active Record design pattern](https://en.wikipedia.org/wiki/Active_record).
  *
  * The premise behind Active Record is that an individual {@see ActiveRecord} object is associated with a specific row
  * in a database table. The object's attributes are mapped to the columns of the corresponding table.
