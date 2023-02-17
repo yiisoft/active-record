@@ -8,7 +8,7 @@ use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as AbstractActiveQueryTest;
 use Yiisoft\ActiveRecord\Tests\Oracle\Stubs\Order;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
+use Yiisoft\ActiveRecord\Tests\Driver\Stubs\ActiveRecord\BitValues;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
