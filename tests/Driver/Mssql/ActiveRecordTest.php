@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Mssql;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;

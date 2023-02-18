@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Pgsql;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
-use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as AbstractActiveQueryTest;
+use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group pgsql
  */
-final class ActiveQueryTest extends AbstractActiveQueryTest
+final class BatchQueryResultTest extends AbstractBatchQueryResultTest
 {
     protected string $driverName = 'pgsql';
     protected ConnectionInterface $db;

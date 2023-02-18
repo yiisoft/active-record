@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Sqlite;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Sqlite;
 
-use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
+use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as BaseActiveQueryTest;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group sqlite
  */
-final class BatchQueryResultTest extends AbstractBatchQueryResultTest
+final class ActiveQueryTest extends BaseActiveQueryTest
 {
     protected string $driverName = 'sqlite';
     protected ConnectionInterface $db;

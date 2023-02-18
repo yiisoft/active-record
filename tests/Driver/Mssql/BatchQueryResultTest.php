@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord\Tests\Mssql;
+namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 
-use Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest as AbstractActiveQueryFindTest;
+use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group mssql
  */
-final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
+final class BatchQueryResultTest extends AbstractBatchQueryResultTest
 {
     protected string $driverName = 'mssql';
     protected ConnectionInterface $db;
