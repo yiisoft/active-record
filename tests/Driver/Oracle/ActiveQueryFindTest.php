@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest as AbstractActiveQueryFindTest;
-use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
-use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * @group oci
  */
-final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
+final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
 {
     protected string $driverName = 'oci';
     protected ConnectionInterface $db;

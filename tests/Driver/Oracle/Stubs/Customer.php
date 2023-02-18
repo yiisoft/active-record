@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer as AbstractCustomer;
 
 /**
  * Class Customer.
@@ -18,7 +17,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer as AbstractCustomer;
  *
  * @method CustomerQuery findBySql($sql, $params = []) static.
  */
-final class Customer extends AbstractCustomer
+final class Customer extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer
 {
     public function getOrders(): ActiveQuery
     {

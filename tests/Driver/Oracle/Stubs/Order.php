@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order as AbstractOrder;
 
 /**
  * Class Order.
@@ -15,7 +14,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order as AbstractOrder;
  * @property int $created_at
  * @property string $total
  */
-final class Order extends AbstractOrder
+final class Order extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order
 {
     public function getCustomer(): ActiveQuery
     {
