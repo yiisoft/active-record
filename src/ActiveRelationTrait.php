@@ -460,6 +460,7 @@ trait ActiveRelationTrait
                 $key = $this->getModelKey($model, $linkKeys);
                 if (isset($map[$key])) {
                     foreach (array_keys($map[$key]) as $key2) {
+                        /** @psalm-suppress InvalidArrayOffset */
                         $buckets[$key2][] = $model;
                     }
                 }
@@ -487,6 +488,7 @@ trait ActiveRelationTrait
         foreach ($map as $key => $linkKeys) {
             $resultMap[$key] = [];
             foreach (array_keys($linkKeys) as $linkKey) {
+                /** @psalm-suppress InvalidArrayOffset */
                 $resultMap[$key] += $viaMap[$linkKey];
             }
         }
