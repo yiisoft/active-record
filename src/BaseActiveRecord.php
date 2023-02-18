@@ -48,6 +48,9 @@ use function reset;
  * key is composite. A string is returned otherwise (null will be returned if the key value is null).
  * This property is read-only.
  * @property array $relatedRecords An array of related records indexed by relation names. This property is read-only.
+ *
+ * @template-implements ArrayAccess<int, mixed>
+ * @template-implements IteratorAggregate<int>
  */
 abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess
 {

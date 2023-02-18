@@ -204,7 +204,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $this->assertEquals(5, $record->primaryKey);
     }
 
-    public function arrayValuesProvider(): array
+    public static function arrayValuesProvider(): array
     {
         return [
             'simple arrays values' => [[

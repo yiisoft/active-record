@@ -910,6 +910,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $arClassInstance = new self($arClass, $this->db);
 
+        /** @psalm-suppress UndefinedMethod */
         $relation = $arClassInstance->from([$tableName])->link($link)->multiple(true)->asArray(true);
 
         $this->via = $relation;

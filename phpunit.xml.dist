@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit bootstrap="vendor/autoload.php"
-         colors="true"
-         verbose="true"
-         failOnRisky="true"
-         failOnWarning="true"
-         stopOnFailure="false"
-         executionOrder="default"
-         resolveDependencies="true">
-
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" bootstrap="vendor/autoload.php" failOnRisky="true" failOnWarning="true" executionOrder="default" resolveDependencies="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd">
   <coverage>
     <include>
       <directory>./src</directory>
@@ -18,14 +9,12 @@
       <directory>./vendor</directory>
     </exclude>
   </coverage>
-
   <php>
     <ini name="error_reporting" value="-1"/>
   </php>
-
   <testsuites>
     <testsuite name="ActiveRecord">
-      <directory>./tests</directory>
+      <directory>./tests/Driver</directory>
     </testsuite>
   </testsuites>
 </phpunit>
