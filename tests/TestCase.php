@@ -9,13 +9,12 @@ use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\Log\LoggerInterface;
+use Psr\SimpleCache\CacheInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionObject;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\Cache\ArrayCache;
-use Yiisoft\Cache\Cache;
-use Yiisoft\Cache\CacheInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Mssql\ConnectionPDO as ConnectionPDOMssql;
 use Yiisoft\Db\Mssql\Dsn as MssqlDsn;
@@ -213,12 +212,7 @@ class TestCase extends AbstractTestCase
         $params = $this->params();
 
         return [
-            CacheInterface::class => [
-                'class' => Cache::class,
-                '__construct()' => [
-                    Reference::to(ArrayCache::class),
-                ],
-            ],
+            CacheInterface::class => ArrayCache::class,
 
             LoggerInterface::class => Logger::class,
 
