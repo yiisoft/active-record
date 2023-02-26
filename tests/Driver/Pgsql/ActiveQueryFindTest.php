@@ -39,7 +39,7 @@ final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->where(['id' => 2])->asArray()->one();
+        $customer = $customerQuery->where(['id' => 2])->asArray()->onePopulate();
         $this->assertEquals([
             'id' => 2,
             'email' => 'user2@example.com',

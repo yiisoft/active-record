@@ -277,4 +277,9 @@ interface ActiveQueryInterface extends QueryInterface
      * If false, only the first row of the results will be retrieved using {@see Query::one()|one()}.
      */
     public function multiple(bool $value): self;
+
+    /**
+     * Executes the query and returns ActiveRecord instances populated with the query result.
+     */
+    public function onePopulate(): array|ActiveRecordInterface|null;
 }

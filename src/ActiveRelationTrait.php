@@ -199,7 +199,7 @@ trait ActiveRelationTrait
             }
         }
 
-        return $this->multiple ? $this->all() : $this->one();
+        return $this->multiple ? $this->all() : $this->onePopulate();
     }
 
     /**
@@ -271,7 +271,7 @@ trait ActiveRelationTrait
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
-            $model = $this->one();
+            $model = $this->onePopulate();
             $primaryModel = reset($primaryModels);
 
             if ($primaryModel instanceof ActiveRecordInterface) {

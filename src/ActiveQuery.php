@@ -197,11 +197,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     }
                 } else {
                     if ($viaCallableUsed) {
-                        $model = $viaQuery->one();
+                        $model = $viaQuery->onePopulate();
                     } elseif ($this->primaryModel->isRelationPopulated($viaName)) {
                         $model = $this->primaryModel->$viaName;
                     } else {
-                        $model = $viaQuery->one();
+                        $model = $viaQuery->onePopulate();
                         $this->primaryModel->populateRelation($viaName, $model);
                     }
                     $viaModels = $model === null ? [] : [$model];
@@ -344,12 +344,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return array_values($models);
     }
 
-    /**
-     * @psalm-suppress NullableReturnStatement
-     */
-    public function one(): array|null|object
+    public function onePopulate(): array|ActiveRecordInterface|null
     {
-        $row = parent::one();
+        $row = $this->one();
 
         if ($row !== null) {
             $activeRecord = $this->populate([$row]);
@@ -1031,7 +1028,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function findOne(mixed $condition): array|ActiveRecordInterface|null
     {
-        return $this->findByCondition($condition)->one();
+        return $this->findByCondition($condition)->onePopulate();
     }
 
     /**
@@ -1063,7 +1060,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws NotFoundException
      * @throws NotInstantiableException
      */
-    protected function findByCondition(mixed $condition): QueryInterface
+    protected function findByCondition(mixed $condition): static
     {
         $arInstance = $this->getARInstance();
 

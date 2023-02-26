@@ -77,7 +77,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-        $this->assertInstanceOf(Customer::class, $query->one());
+        $this->assertInstanceOf(Customer::class, $query->onePopulate());
     }
 
     public function testCreateCommand(): void
@@ -350,11 +350,11 @@ abstract class ActiveQueryTest extends TestCase
         if ($this->driverName === 'oci') {
             $customers = $customerQuery
                 ->select(['{{customer}}.*', '([[status]]*2) AS [[status2]]'])
-                ->where(['name' => 'user3'])->one();
+                ->where(['name' => 'user3'])->onePopulate();
         } else {
             $customers = $customerQuery
                 ->select(['*', '([[status]]*2) AS [[status2]]'])
-                ->where(['name' => 'user3'])->one();
+                ->where(['name' => 'user3'])->onePopulate();
         }
 
         $this->assertEquals(3, $customers->getAttribute('id'));
@@ -423,7 +423,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $categoryQuery = new ActiveQuery(Category::class, $this->db);
 
-        $categories = $categoryQuery->where(['id' => 1])->one();
+        $categories = $categoryQuery->where(['id' => 1])->onePopulate();
         $this->assertNotNull($categories);
 
         $orders = $categories->orders;
@@ -435,7 +435,7 @@ abstract class ActiveQueryTest extends TestCase
         sort($ids);
         $this->assertEquals([1, 3], $ids);
 
-        $categories = $categoryQuery->where(['id' => 2])->one();
+        $categories = $categoryQuery->where(['id' => 2])->onePopulate();
         $this->assertNotNull($categories);
 
         $orders = $categories->orders;
@@ -653,7 +653,7 @@ abstract class ActiveQueryTest extends TestCase
                     $q->orderBy([]);
                 },
             ]
-        )->one();
+        )->onePopulate();
         $this->assertEquals(1, $customer->id);
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -968,11 +968,11 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = $order->getCustomer()->innerJoinWith(['orders o'], false);
 
         if ($aliasMethod === 'explicit') {
-            $customer = $customerQuery->where(['o.id' => 1])->one();
+            $customer = $customerQuery->where(['o.id' => 1])->onePopulate();
         } elseif ($aliasMethod === 'querysyntax') {
-            $customer = $customerQuery->where(['{{@order}}.id' => 1])->one();
+            $customer = $customerQuery->where(['{{@order}}.id' => 1])->onePopulate();
         } elseif ($aliasMethod === 'applyAlias') {
-            $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->one();
+            $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->onePopulate();
         }
 
         $this->assertEquals(1, $customer->id);
@@ -1365,7 +1365,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** eager loading: find one and all */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->with('orders2')->where(['id' => 1])->one();
+        $customer = $customerQuery->with('orders2')->where(['id' => 1])->onePopulate();
         $this->assertSame($customer->orders2[0]->customer2, $customer);
 
         //$customerQuery = new ActiveQuery(Customer::class, $this->db);
@@ -1399,7 +1399,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** the other way around */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->with('orders2')->where(['id' => 1])->asArray()->one();
+        $customer = $customerQuery->with('orders2')->where(['id' => 1])->asArray()->onePopulate();
         $this->assertSame($customer['orders2'][0]['customer2']['id'], $customer['id']);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
@@ -1412,7 +1412,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($orders[0]->customer2->orders2, [$orders[0]]);
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
-        $order = $orderQuery->with('customer2')->where(['id' => 1])->one();
+        $order = $orderQuery->with('customer2')->where(['id' => 1])->onePopulate();
         $this->assertSame($order->customer2->orders2, [$order]);
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1420,7 +1420,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($orders[0]['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
-        $order = $orderQuery->with('customer2')->where(['id' => 1])->asArray()->one();
+        $order = $orderQuery->with('customer2')->where(['id' => 1])->asArray()->onePopulate();
         $this->assertSame($order['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1650,7 +1650,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'order');
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
-        $order = $orderQuery->with('orderItems2')->where(['id' => 1])->one();
+        $order = $orderQuery->with('orderItems2')->where(['id' => 1])->onePopulate();
 
         $orderItem = new OrderItem($this->db);
 
@@ -1700,7 +1700,7 @@ abstract class ActiveQueryTest extends TestCase
         /**
          * Ensure that limitedItems relation returns only one item (category_id = 2 and id in (1,2,3))
          */
-        $category = $categoryQuery->one();
+        $category = $categoryQuery->onePopulate();
         $this->assertCount(1, $category->limitedItems);
 
         /** Unlink all items in the limitedItems relation */
@@ -1711,7 +1711,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $itemsCount);
 
         /** Call $categoryQuery again to ensure no items were found */
-        $this->assertCount(0, $categoryQuery->one()->limitedItems);
+        $this->assertCount(0, $categoryQuery->onePopulate()->limitedItems);
     }
 
     /**
@@ -1732,14 +1732,14 @@ abstract class ActiveQueryTest extends TestCase
         /**
          * Ensure that limitedItems relation returns only one item (category_id = 2 and id in (4, 5)).
          */
-        $category = $orderQuery->one();
+        $category = $orderQuery->onePopulate();
         $this->assertCount(2, $category->limitedItems);
 
         /** Unlink all items in the limitedItems relation */
         $category->unlinkAll('limitedItems', true);
 
         /** Call $orderQuery again to ensure that links are removed */
-        $this->assertCount(0, $orderQuery->one()->limitedItems);
+        $this->assertCount(0, $orderQuery->onePopulate()->limitedItems);
 
         /** Make sure that only links were removed, the items were not removed */
         $this->assertEquals(3, $itemQuery->where(['category_id' => 2])->count());
@@ -1805,7 +1805,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
-        $query = $customerQuery->with('orders2')->where(['id' => 1])->one();
+        $query = $customerQuery->with('orders2')->where(['id' => 1])->onePopulate();
         $this->assertCount(1, $query->getRelatedRecords());
         $this->assertCount(1, $query->extraFields());
         $this->assertArrayHasKey('orders2', $query->getRelatedRecords());
@@ -1948,7 +1948,7 @@ abstract class ActiveQueryTest extends TestCase
         $orders2 = $customer->getOrders2()->all();
         $this->assertSame($customer, $orders2[0]->customer2);
 
-        $orders2 = $customer->getOrders2()->one();
+        $orders2 = $customer->getOrders2()->onePopulate();
         $this->assertSame($customer, $orders2->customer2);
 
         /**
@@ -1958,14 +1958,14 @@ abstract class ActiveQueryTest extends TestCase
         $orders2 = $customer->getOrders2()->with('customer2')->all();
         $this->assertSame($customer, $orders2[0]->customer2);
 
-        $orders2 = $customer->getOrders2()->with('customer2')->one();
+        $orders2 = $customer->getOrders2()->with('customer2')->onePopulate();
         $this->assertSame($customer, $orders2->customer2);
 
         /** request the inverseOf relation as array */
         $orders2 = $customer->getOrders2()->asArray()->all();
         $this->assertEquals($customer['id'], $orders2[0]['customer2']['id']);
 
-        $orders2 = $customer->getOrders2()->asArray()->one();
+        $orders2 = $customer->getOrders2()->asArray()->onePopulate();
         $this->assertEquals($customer['id'], $orders2['customer2']['id']);
     }
 
