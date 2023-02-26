@@ -115,24 +115,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         parent::__construct($db);
     }
 
-    /**
-     * Executes query and returns all results as an array.
-     *
-     * If null, the DB connection returned by {@see arClass} will be used.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     *
-     * @return array the query results. If the query results in nothing, an empty array will be returned.
-     *
-     * @psalm-return ActiveRecord[]|array
-     */
-    public function all(): array
-    {
-        return parent::all();
-    }
-
     public function prepare(QueryBuilderInterface $builder): QueryInterface
     {
         /**
@@ -342,6 +324,17 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return array_values($models);
+    }
+
+    public function allPopulate(): array
+    {
+        $rows = $this->all();
+
+        if ($rows !== []) {
+            $rows = $this->populate($rows);
+        }
+
+        return $rows;
     }
 
     public function onePopulate(): array|ActiveRecordInterface|null
@@ -1111,10 +1104,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @param string $sql the SQL statement to be executed.
      * @param array $params parameters to be bound to the SQL statement during execution.
-     *
-     * @return QueryInterface the newly created {@see ActiveQuery} instance
      */
-    public function findBySql(string $sql, array $params = []): QueryInterface
+    public function findBySql(string $sql, array $params = []): self
     {
         return $this->sql($sql)->params($params);
     }

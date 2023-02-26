@@ -72,7 +72,20 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals($rows, $result);
     }
 
-    public function testOne(): void
+    public function testAllPopulate(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $query = new ActiveQuery(Customer::class, $this->db);
+
+        foreach ($query->allPopulate() as $customer) {
+            $this->assertInstanceOf(Customer::class, $customer);
+        }
+
+        $this->assertCount(3, $query->allPopulate());
+    }
+
+    public function testOnePopulate(): void
     {
         $this->checkFixture($this->db, 'customer');
 

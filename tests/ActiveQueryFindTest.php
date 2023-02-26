@@ -77,13 +77,13 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
-        /** find one */
+        /** find onePopulate */
         $customers = $customerQuery->findBySql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC')->onePopulate();
         $this->assertInstanceOf(Customer::class, $customers);
         $this->assertEquals('user3', $customers->getAttribute('name'));
 
-        /** find all */
-        $customers = $customerQuery->findBySql('SELECT * FROM {{customer}}')->all();
+        /** find allPopulate */
+        $customers = $customerQuery->findBySql('SELECT * FROM {{customer}}')->allPopulate();
         $this->assertCount(3, $customers);
 
         /** find with parameter binding */
@@ -215,7 +215,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         /** find all */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->all();
+        $customers = $customerQuery->allPopulate();
         $this->assertCount(3, $customers);
         $this->assertInstanceOf(Customer::class, $customers[0]);
         $this->assertInstanceOf(Customer::class, $customers[1]);
@@ -260,7 +260,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         /** scope */
         $customerQuery = new CustomerQuery(Customer::class, $this->db);
-        $this->assertCount(2, $customerQuery->active()->all());
+        $this->assertCount(2, $customerQuery->active()->allPopulate());
         $this->assertEquals(2, $customerQuery->active()->count());
     }
 
@@ -398,29 +398,29 @@ abstract class ActiveQueryFindTest extends TestCase
 
         /** all */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->all();
+        $customers = $customerQuery->allPopulate();
         $this->assertCount(3, $customers);
 
         /** limit */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->orderBy('id')->limit(1)->all();
+        $customers = $customerQuery->orderBy('id')->limit(1)->allPopulate();
         $this->assertCount(1, $customers);
         $this->assertEquals('user1', $customers[0]->name);
 
-        $customers = $customerQuery->orderBy('id')->limit(1)->offset(1)->all();
+        $customers = $customerQuery->orderBy('id')->limit(1)->offset(1)->allPopulate();
         $this->assertCount(1, $customers);
         $this->assertEquals('user2', $customers[0]->name);
 
-        $customers = $customerQuery->orderBy('id')->limit(1)->offset(2)->all();
+        $customers = $customerQuery->orderBy('id')->limit(1)->offset(2)->allPopulate();
         $this->assertCount(1, $customers);
         $this->assertEquals('user3', $customers[0]->name);
 
-        $customers = $customerQuery->orderBy('id')->limit(2)->offset(1)->all();
+        $customers = $customerQuery->orderBy('id')->limit(2)->offset(1)->allPopulate();
         $this->assertCount(2, $customers);
         $this->assertEquals('user2', $customers[0]->name);
         $this->assertEquals('user3', $customers[1]->name);
 
-        $customers = $customerQuery->limit(2)->offset(3)->all();
+        $customers = $customerQuery->limit(2)->offset(3)->allPopulate();
         $this->assertCount(0, $customers);
 
         /** offset */
@@ -434,7 +434,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer = $customerQuery->orderBy('id')->offset(2)->onePopulate();
         $this->assertEquals('user3', $customer->name);
 
-        $customer = $customerQuery->offset(3)->one();
+        $customer = $customerQuery->offset(3)->onePopulate();
         $this->assertNull($customer);
     }
 
