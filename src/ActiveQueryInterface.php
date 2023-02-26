@@ -277,4 +277,6 @@ interface ActiveQueryInterface extends QueryInterface
      * If false, only the first row of the results will be retrieved using {@see Query::one()|one()}.
      */
     public function multiple(bool $value): self;
+
+    public function populate(array $rows): array;
 }
