@@ -245,11 +245,11 @@ final class ActiveQueryTest extends AbstractActiveQueryTest
         $customerQuery = $order->getCustomer()->innerJoinWith(['orders o'], false);
 
         if ($aliasMethod === 'explicit') {
-            $customer = $customerQuery->where(['{{o}}.[[id]]' => 1])->one();
+            $customer = $customerQuery->where(['{{o}}.[[id]]' => 1])->onePopulate();
         } elseif ($aliasMethod === 'querysyntax') {
-            $customer = $customerQuery->where(['{{@order}}.id' => 1])->one();
+            $customer = $customerQuery->where(['{{@order}}.id' => 1])->onePopulate();
         } elseif ($aliasMethod === 'applyAlias') {
-            $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->one();
+            $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->onePopulate();
         }
 
         $this->assertEquals(1, $customer->id);

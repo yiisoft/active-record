@@ -199,7 +199,7 @@ trait ActiveRelationTrait
             }
         }
 
-        return $this->multiple ? $this->all() : $this->one();
+        return $this->multiple ? $this->all() : $this->onePopulate();
     }
 
     /**
@@ -271,7 +271,7 @@ trait ActiveRelationTrait
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
-            $model = $this->one();
+            $model = $this->onePopulate();
             $primaryModel = reset($primaryModels);
 
             if ($primaryModel instanceof ActiveRecordInterface) {
@@ -714,8 +714,8 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return ActiveQueryInterface|array|null the query associated with the junction table. Please call {@see (via)()} to
-     * set this property instead of directly setting it.
+     * @return ActiveQueryInterface|array|null the query associated with the junction table.
+     * Please call {@see (via)()} to set this property instead of directly setting it.
      *
      * This property is only used in relational context.
      *
