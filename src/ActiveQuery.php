@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
@@ -14,6 +15,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Helper\ArrayHelper;
+use Yiisoft\Db\Query\BatchQueryResultInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
@@ -130,7 +132,23 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function all(): array
     {
-        return parent::all();
+        if ($this->shouldEmulateExecution()) {
+            return [];
+        }
+
+        return $this->populate($this->createCommand()->queryAll(), $this->indexBy);
+    }
+
+    public function batch(int $batchSize = 100): BatchQueryResultInterface
+    {
+        return parent::batch($batchSize)
+            ->setPopulatedMethod(fn($rows, $indexBy) => $this->populate($rows, $indexBy));
+    }
+
+    public function each(int $batchSize = 100): BatchQueryResultInterface
+    {
+        return parent::each($batchSize)
+            ->setPopulatedMethod(fn($rows, $indexBy) => $this->populate($rows, $indexBy));
     }
 
     public function prepare(QueryBuilderInterface $builder): QueryInterface
@@ -254,7 +272,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return array the converted query result.
      */
-    public function populate(array $rows): array
+    public function populate(array $rows, Closure|string|null $indexBy = null): array
     {
         if (empty($rows)) {
             return [];
@@ -274,7 +292,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return ArrayHelper::populate($models, $this->indexBy);
+        return ArrayHelper::populate($models, $indexBy);
     }
 
     /**
@@ -352,7 +370,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $row = parent::one();
 
         if ($row !== null) {
-            $activeRecord = $this->populate([$row]);
+            $activeRecord = $this->populate([$row], $this->indexBy);
             $row = reset($activeRecord) ?: null;
         }
 
