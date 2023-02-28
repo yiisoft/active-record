@@ -55,7 +55,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $arClass->save();
 
         $aqClass = new ActiveQuery(Type::class, $this->ociConnection);
-        $query = $aqClass->one();
+        $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
         $this->assertSame(456, $query->int_col2);

@@ -52,7 +52,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         unset($customers[1]->orders);
         $this->assertFalse($customers[1]->isRelationPopulated('orders'));
 
-        $customer = $customerQuery->where(['id' => 1])->with('orders')->one();
+        $customer = $customerQuery->where(['id' => 1])->with('orders')->onePopulate();
         $this->assertTrue($customer->isRelationPopulated('orders'));
         $this->assertCount(1, $customer->orders);
         $this->assertCount(1, $customer->relatedRecords);
@@ -76,7 +76,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->where(['[[id]]' => 2])->asArray()->one();
+        $customer = $customerQuery->where(['[[id]]' => 2])->asArray()->onePopulate();
         $this->assertEquals([
             'id' => 2,
             'email' => 'user2@example.com',

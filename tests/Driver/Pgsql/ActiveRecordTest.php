@@ -116,8 +116,8 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
         $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
 
-        $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
-        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
+        $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
+        $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
 
         $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
         $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
@@ -313,7 +313,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         $typeQuery = new ActiveQuery($type::class, $this->db);
 
-        $type = $typeQuery->one();
+        $type = $typeQuery->onePopulate();
 
         foreach ($attributes as $attribute => $expected) {
             $expected = $expected[1] ?? $expected[0];

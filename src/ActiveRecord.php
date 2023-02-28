@@ -298,7 +298,7 @@ class ActiveRecord extends BaseActiveRecord
 
         $query->where($pk);
 
-        return $this->refreshInternal($query->one());
+        return $this->refreshInternal($query->onePopulate());
     }
 
     /**

@@ -278,5 +278,15 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function multiple(bool $value): self;
 
-    public function populate(array $rows): array;
+    /**
+     * Executes the query and returns ActiveRecord instances populated with the query result.
+     *
+     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     */
+    public function allPopulate(): array|ActiveRecordInterface|null;
+
+    /**
+     * Executes the query and returns ActiveRecord instances populated with the query result.
+     */
+    public function onePopulate(): array|ActiveRecordInterface|null;
 }
