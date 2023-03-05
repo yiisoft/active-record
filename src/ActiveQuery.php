@@ -146,7 +146,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function each(int $batchSize = 100): BatchQueryResultInterface
     {
-        return parent::each($batchSize)->setPopulatedMethod(fn( $rows, $indexBy) => $this->populate($rows, $indexBy));
+        return parent::each($batchSize)->setPopulatedMethod(fn ($rows, $indexBy) => $this->populate($rows, $indexBy));
     }
 
     public function prepare(QueryBuilderInterface $builder): QueryInterface
