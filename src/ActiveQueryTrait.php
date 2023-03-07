@@ -19,7 +19,6 @@ use function substr;
 
 trait ActiveQueryTrait
 {
-    private array $with = [];
     private bool|null $asArray = null;
 
     /**
