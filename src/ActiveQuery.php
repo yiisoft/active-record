@@ -1173,9 +1173,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
     }
 
-    private function createInstance(): self
+    private function createInstance(): static
     {
-        return (new self($this->arClass, $this->db))
+        return (new static($this->arClass, $this->db))
             ->where($this->getWhere())
             ->limit($this->getLimit())
             ->offset($this->getOffset())
