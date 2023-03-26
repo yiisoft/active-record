@@ -1198,4 +1198,17 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         return $this->tableName;
     }
+    
+    /**
+     * Serializes the Active record into its array implementation with attribute name as key and it value as... value of course
+     */
+    public function toArray(): array
+    {
+        $data = [];
+
+        foreach ($this as $key => $value) {
+            $data[$key] = $value;
+        }
+        return $data;
+    }
 }
