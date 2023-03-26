@@ -201,7 +201,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  **/
 final class User extends ActiveRecord
 {
-    public function tableName(): string
+    public function getTableName(): string
     {
         return '{{%user}}';
     }
