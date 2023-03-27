@@ -1206,8 +1206,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $data = [];
 
-        foreach ($this as $key => $value) {
-            $data[$key] = $value;
+        foreach ($this->fields() as $key => $value) {
+            //is it a closure?
+            if ($value instanceof \Closure) {
+                $data[$key] = $value($this);
+            } else {
+                $data[$value] = $this[$value];
+            }
         }
         return $data;
     }
