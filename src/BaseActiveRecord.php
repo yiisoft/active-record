@@ -102,7 +102,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function equals(ActiveRecordInterface $record): bool
     {
-        if ($this->getIsNewRecord() || ($record->getIsNewRecord())) {
+        if ($this->getIsNewRecord() || $record->getIsNewRecord()) {
             return false;
         }
 

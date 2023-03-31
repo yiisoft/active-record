@@ -524,7 +524,7 @@ trait ActiveRelationTrait
      */
     private function prefixKeyColumns(array $attributes): array
     {
-        if ((!empty($this->join) || !empty($this->joinWith))) {
+        if (!empty($this->join) || !empty($this->joinWith)) {
             if (empty($this->from)) {
                 $alias = $this->getARInstance()->getTableName();
             } else {
