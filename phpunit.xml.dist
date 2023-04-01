@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" bootstrap="vendor/autoload.php" failOnRisky="true" failOnWarning="true" executionOrder="default" resolveDependencies="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  backupGlobals="false"
+  colors="true"
+  bootstrap="vendor/autoload.php"
+  failOnRisky="true"
+  failOnWarning="true"
+  executionOrder="default"
+  resolveDependencies="true"
+  xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
+>
   <coverage>
     <include>
       <directory>./src</directory>
@@ -15,6 +24,21 @@
   <testsuites>
     <testsuite name="ActiveRecord">
       <directory>./tests/Driver</directory>
+    </testsuite>
+    <testsuite name="Mssql">
+      <directory>./tests/Driver/Mssql</directory>
+    </testsuite>
+    <testsuite name="Mysql">
+      <directory>./tests/Driver/Mysql</directory>
+    </testsuite>
+    <testsuite name="Oracle">
+      <directory>./tests/Driver/Oracle</directory>
+    </testsuite>
+    <testsuite name="Pgsql">
+      <directory>./tests/Driver/Pgsql</directory>
+    </testsuite>
+    <testsuite name="Sqlite">
+      <directory>./tests/Driver/Sqlite</directory>
     </testsuite>
   </testsuites>
 </phpunit>
