@@ -44,6 +44,8 @@ final class Assert extends \PHPUnit\Framework\TestCase
         if ($propertyName !== '') {
             $property = $class->getProperty($propertyName);
 
+            $property->setAccessible(true);
+
             /** @psalm-var mixed $result */
             $result = $property->getValue($object);
         }
