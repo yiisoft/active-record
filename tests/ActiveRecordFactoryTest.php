@@ -24,7 +24,7 @@ abstract class ActiveRecordFactoryTest extends TestCase
     public function testCreateARWithConnection(): void
     {
         $customerAR = $this->arFactory->createAR(arClass: Customer::class, db: $this->db);
-        $db = Assert::inaccessibleProperty($customerAR, 'db', true);
+        $db = Assert::inaccessibleProperty($customerAR, 'db');
 
         $this->assertSame('customer', $customerAR->getTableName());
         $this->assertInstanceOf(Customer::class, $customerAR);
@@ -60,7 +60,7 @@ abstract class ActiveRecordFactoryTest extends TestCase
             queryClass: CustomerQuery::class,
             db: $this->db,
         );
-        $db = Assert::inaccessibleProperty($customerQuery, 'db', true);
+        $db = Assert::inaccessibleProperty($customerQuery, 'db');
 
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
     }
