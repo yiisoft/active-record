@@ -29,8 +29,6 @@ abstract class ConnectionHelper
     private function createFactory(ConnectionInterface $db): Factory
     {
         $container = new Container(ContainerConfig::create()->withDefinitions([ConnectionInterface::class => $db]));
-        $factory = new Factory($container, [ConnectionInterface::class => $db]);
-
-        return $factory;
+        return new Factory($container, [ConnectionInterface::class => $db]);
     }
 }

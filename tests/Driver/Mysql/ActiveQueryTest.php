@@ -25,4 +25,3 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         unset($this->db);
     }
 }
-

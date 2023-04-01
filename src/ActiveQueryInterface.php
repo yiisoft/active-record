@@ -289,7 +289,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Executes the query and returns ActiveRecord instances populated with the query result.
      *
-     * @return array|ActiveRecordInterface|null The query results. If the query results in nothing, an empty array will
+     * @return ActiveRecordInterface|array|null The query results. If the query results in nothing, an empty array will
      * be returned.
      */
     public function allPopulate(): array|ActiveRecordInterface|null;

@@ -1857,7 +1857,8 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
         $itemsSQL = $order->getOrderitems()->createCommand()->getRawSql();
-        $expectedSQL = DbHelper::replaceQuotes(<<<SQL
+        $expectedSQL = DbHelper::replaceQuotes(
+            <<<SQL
             SELECT * FROM [[order_item]] WHERE [[order_id]]=1
             SQL,
             $driverName,
