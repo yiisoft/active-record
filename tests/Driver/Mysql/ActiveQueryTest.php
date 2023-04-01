@@ -4,30 +4,25 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 
-use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as AbstractActiveQueryTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Support\MysqlHelper;
 
-/**
- * @group mysql
- */
-final class ActiveQueryTest extends AbstractActiveQueryTest
+final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    protected string $driverName = 'mysql';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->mysqlConnection;
+        $mysqlHelper = new MysqlHelper();
+        $this->db = $mysqlHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->mysqlConnection->close();
+        $this->db->close();
 
-        unset($this->mysqlConnection);
+        unset($this->db);
     }
 }
+

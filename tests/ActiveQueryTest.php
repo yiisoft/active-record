@@ -19,6 +19,8 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
+use Yiisoft\ActiveRecord\Tests\Support\Assert;
+use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Command\AbstractCommand;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -106,7 +108,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-        $this->assertEquals('user1', $this->invokeMethod($query, 'queryScalar', ['name']));
+        $this->assertEquals('user1', Assert::invokeMethod($query, 'queryScalar', ['name']));
     }
 
     public function testGetJoinWith(): void
@@ -133,7 +135,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Customer::class, $this->db);
         $query->innerJoinWith('orders')->joinWith('orders.orderItems');
-        $this->invokeMethod($query, 'buildJoinWith');
+        Assert::invokeMethod($query, 'buildJoinWith');
         $this->assertEquals([
             [
                 'INNER JOIN',
@@ -153,7 +155,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db, 'customer');
 
         $query = new ActiveQuery(Customer::class, $this->db);
-        $this->assertEquals(['customer', 'customer'], $this->invokeMethod($query, 'getTableNameAndAlias'));
+        $this->assertEquals(['customer', 'customer'], Assert::invokeMethod($query, 'getTableNameAndAlias'));
     }
 
     public function testGetQueryTableNameFromSet(): void
@@ -162,7 +164,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Customer::class, $this->db);
         $query->from(['alias' => 'customer']);
-        $this->assertEquals(['customer', 'alias'], $this->invokeMethod($query, 'getTableNameAndAlias'));
+        $this->assertEquals(['customer', 'alias'], Assert::invokeMethod($query, 'getTableNameAndAlias'));
     }
 
     public function testOnCondition(): void
@@ -313,9 +315,7 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testDeeplyNestedTableRelationWith(): void
     {
-        $this->checkFixture($this->db, 'category');
-
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'category', true);
 
         /** @var $category Category */
         $categoriesQuery = new ActiveQuery(Category::class, $this->db);
@@ -360,7 +360,7 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
         /** find custom column */
-        if ($this->driverName === 'oci') {
+        if ($this->db->getName() === 'oci') {
             $customers = $customerQuery
                 ->select(['{{customer}}.*', '([[status]]*2) AS [[status2]]'])
                 ->where(['name' => 'user3'])->onePopulate();
@@ -1456,9 +1456,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUnlinkAllViaTable(): void
     {
-        $this->checkFixture($this->db, 'order');
-
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'order', true);
 
         /** via table with delete. */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1807,7 +1805,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = $customerQuery->from($fromParams);
 
-        $aliases = $this->invokeMethod(new Customer($this->db), 'filterValidAliases', [$query]);
+        $aliases = Assert::invokeMethod(new Customer($this->db), 'filterValidAliases', [$query]);
 
         $this->assertEquals($expectedAliases, $aliases);
     }
@@ -1849,6 +1847,8 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
     {
+        $driverName = $this->db->getName();
+
         $this->checkFixture($this->db, 'order');
 
         $order = new Order(db: $this->db, tableName: $orderTableName);
@@ -1857,14 +1857,20 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
         $itemsSQL = $order->getOrderitems()->createCommand()->getRawSql();
-        $expectedSQL = $this->replaceQuotes('SELECT * FROM [[order_item]] WHERE [[order_id]]=1');
+        $expectedSQL = DbHelper::replaceQuotes(<<<SQL
+            SELECT * FROM [[order_item]] WHERE [[order_id]]=1
+            SQL,
+            $driverName,
+        );
         $this->assertEquals($expectedSQL, $itemsSQL);
 
         $order = $orderQuery->findOne(1);
         $itemsSQL = $order->getOrderItems()->joinWith('item')->createCommand()->getRawSql();
-        $expectedSQL = $this->replaceQuotes(
-            'SELECT [[order_item]].* FROM [[order_item]] LEFT JOIN [[item]] ' .
-            'ON [[order_item]].[[item_id]] = [[item]].[[id]] WHERE [[order_item]].[[order_id]]=1'
+        $expectedSQL = DbHelper::replaceQuotes(
+            <<<SQL
+            SELECT [[order_item]].* FROM [[order_item]] LEFT JOIN [[item]] ON [[order_item]].[[item_id]] = [[item]].[[id]] WHERE [[order_item]].[[order_id]]=1
+            SQL,
+            $driverName,
         );
         $this->assertEquals($expectedSQL, $itemsSQL);
     }
@@ -1922,9 +1928,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOutdatedViaTableRelationsAreReset(): void
     {
-        $this->checkFixture($this->db, 'order');
-
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'order', true);
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
 
@@ -2082,11 +2086,11 @@ abstract class ActiveQueryTest extends TestCase
         $attributesExpected['address'] = 'address1';
         $attributesExpected['status'] = 1;
 
-        if ($this->driverName === 'pgsql') {
+        if ($this->db->getName() === 'pgsql') {
             $attributesExpected['bool_status'] = true;
         }
 
-        if ($this->driverName === 'oci') {
+        if ($this->db->getName() === 'oci') {
             $attributesExpected['bool_status'] = '1';
         }
 
@@ -2155,11 +2159,11 @@ abstract class ActiveQueryTest extends TestCase
         $attributes['address'] = 'address1';
         $attributes['status'] = 1;
 
-        if ($this->driverName === 'pgsql') {
+        if ($this->db->getName() === 'pgsql') {
             $attributes['bool_status'] = true;
         }
 
-        if ($this->driverName === 'oci') {
+        if ($this->db->getName() === 'oci') {
             $attributes['bool_status'] = '1';
         }
 
@@ -2178,11 +2182,11 @@ abstract class ActiveQueryTest extends TestCase
         $attributesNew['address'] = 'address1';
         $attributesNew['status'] = 1;
 
-        if ($this->driverName === 'pgsql') {
+        if ($this->db->getName() === 'pgsql') {
             $attributesNew['bool_status'] = true;
         }
 
-        if ($this->driverName === 'oci') {
+        if ($this->db->getName() === 'oci') {
             $attributesNew['bool_status'] = '1';
         }
 

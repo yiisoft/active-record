@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 
 use Yiisoft\ActiveRecord\Tests\Support\MysqlHelper;
 
-final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
+final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest
 {
     public function setUp(): void
     {
@@ -14,6 +14,7 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
 
         $mysqlHelper = new MysqlHelper();
         $this->db = $mysqlHelper->createConnection();
+        $this->arFactory = $mysqlHelper->createARFactory($this->db);
     }
 
     protected function tearDown(): void
@@ -22,6 +23,6 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
 
         $this->db->close();
 
-        unset($this->db);
+        unset($this->arFactory, $this->db);
     }
 }

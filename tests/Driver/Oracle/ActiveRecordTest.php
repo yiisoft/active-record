@@ -5,42 +5,36 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 
-/**
- * @group oci
- */
-final class ActiveRecordTest extends AbstractActiveRecordTest
+final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected string $driverName = 'oci';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->ociConnection;
+        $oracleHelper = new OracleHelper();
+        $this->db = $oracleHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->ociConnection->close();
+        $this->db->close();
 
-        unset($this->ociConnection);
+        unset($this->db);
     }
 
     public function testCastValues(): void
     {
         $this->markTestSkipped('Cant bind floats without support from a custom PDO driver.');
 
-        $this->checkFixture($this->ociConnection, 'customer');
+        $this->checkFixture($this->db, 'customer');
 
-        $arClass = new Type($this->ociConnection);
+        $arClass = new Type($this->db);
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
         $arClass->smallint_col = 42;
@@ -54,7 +48,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
         $arClass->bool_col2 = 0;
         $arClass->save();
 
-        $aqClass = new ActiveQuery(Type::class, $this->ociConnection);
+        $aqClass = new ActiveQuery(Type::class, $this->db);
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -71,9 +65,9 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->ociConnection, 'customer');
+        $this->checkFixture($this->db, 'customer');
 
-        $arClass = new Type($this->ociConnection);
+        $arClass = new Type($this->db);
         $arClass->loadDefaultValues();
         $this->assertEquals(1, $arClass->int_col2);
         $this->assertEquals('something', $arClass->char_col2);
@@ -83,13 +77,13 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
 
         // not testing $arClass->time, because oci\Schema can't read default value
 
-        $arClass = new Type($this->ociConnection);
+        $arClass = new Type($this->db);
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
         $this->assertEquals('not something', $arClass->char_col2);
 
-        $arClass = new Type($this->ociConnection);
+        $arClass = new Type($this->db);
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
@@ -103,9 +97,7 @@ final class ActiveRecordTest extends AbstractActiveRecordTest
      */
     public function testBooleanAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer');
-
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'customer', true);
 
         $customer = new Customer($this->db);
 

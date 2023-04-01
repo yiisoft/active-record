@@ -7,39 +7,35 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 use ArrayAccess;
 use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\ActiveRecordTest as AbstractActiveRecordTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BoolAR;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
 use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
-/**
- * @group pgsql
- */
-final class ActiveRecordTest extends AbstractActiveRecordTest
+final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected string $driverName = 'pgsql';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->pgsqlConnection;
+        $pgsqlHelper = new PgsqlHelper();
+        $this->db = $pgsqlHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
-        $this->pgsqlConnection->close();
-        unset($this->pgsqlConnection);
+
+        $this->db->close();
+
+        unset($this->db);
     }
 
     public function testExplicitPkOnAutoIncrement(): void
