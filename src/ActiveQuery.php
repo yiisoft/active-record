@@ -1167,8 +1167,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
         }
 
+        /** @psalm-var class-string<ActiveRecordInterface> $class */
         $class = $this->arClass;
-        /** @var ActiveRecordInterface $arClass */
+
         return new $class($this->db, null, $this->tableName);
     }
 
