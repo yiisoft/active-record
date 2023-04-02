@@ -428,4 +428,24 @@ interface ActiveRecordInterface
      * If true, the active record containing the foreign key will be deleted.
      */
     public function unlink(string $name, self $arClass, bool $delete = false): void;
+
+    /**
+     * Returns the old attribute values.
+     *
+     * @return array The old attribute values (name-value pairs).
+     */
+    public function getOldAttributes(): array;
+
+        /**
+     * Populates an active record object using a row of data from the database/storage.
+     *
+     * This is an internal method meant to be called to create active record objects after fetching data from the
+     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
+     *
+     * @param array|object $row Attribute values (name => value).
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     */
+    public function populateRecord(array|object $row): void;
 }

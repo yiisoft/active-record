@@ -256,6 +256,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $models = $this->createModels($rows);
 
+        if (empty($models)) {
+            return [];
+        }
+
         if (!empty($this->join) && $this->getIndexBy() === null) {
             $models = $this->removeDuplicatedModels($models);
         }
@@ -636,14 +640,18 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 if (!isset($relations[$fullName])) {
                     $relations[$fullName] = $relation = $primaryModel->getRelation($name);
-                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
+                    if ($relation instanceof ActiveQueryInterface) {
+                        $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
+                    }
                 } else {
                     $relation = $relations[$fullName];
                 }
 
-                $primaryModel = $relation->getARInstance();
+                if ($relation instanceof ActiveQueryInterface) {
+                    $primaryModel = $relation->getARInstance();
+                    $parent = $relation;
+                }
 
-                $parent = $relation;
                 $prefix = $fullName;
                 $name = $childName;
             }
@@ -657,11 +665,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     $callback($relation);
                 }
 
-                if (!empty($relation->getJoinWith())) {
+                if ($relation instanceof ActiveQueryInterface && !empty($relation->getJoinWith())) {
                     $relation->buildJoinWith();
                 }
 
-                $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
+                if ($relation instanceof ActiveQueryInterface) {
+                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
+                }
             }
         }
     }
@@ -687,9 +697,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * Returns the table name and the table alias for {@see arClass}.
      *
      * @throws CircularReferenceException
+     * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
     private function getTableNameAndAlias(): array
     {
@@ -720,8 +730,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * The current query object will be modified so.
      *
-     * @param ActiveQuery $parent The parent query.
-     * @param ActiveQuery $child The child query.
+     * @param ActiveQueryInterface $parent The parent query.
+     * @param ActiveQueryInterface $child The child query.
      * @param string $joinType The join type.
      *
      * @throws CircularReferenceException
@@ -731,7 +741,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
     {
-        $via = $child->via;
+        $via = $child->getVia();
+        /** @var ActiveQuery $child */
         $child->via = null;
 
         if ($via instanceof self) {
@@ -750,10 +761,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return;
         }
 
+        /** @var ActiveQuery $parent */
         [$parentTable, $parentAlias] = $parent->getTableNameAndAlias();
         [$childTable, $childAlias] = $child->getTableNameAndAlias();
 
-        if (!empty($child->link)) {
+        if (!empty($child->getLink())) {
             if (!str_contains($parentAlias, '{{')) {
                 $parentAlias = '{{' . $parentAlias . '}}';
             }
@@ -764,27 +776,31 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
             $on = [];
 
-            foreach ($child->link as $childColumn => $parentColumn) {
+            foreach ($child->getLink() as $childColumn => $parentColumn) {
                 $on[] = "$parentAlias.[[$parentColumn]] = $childAlias.[[$childColumn]]";
             }
 
             $on = implode(' AND ', $on);
 
-            if (!empty($child->on)) {
-                $on = ['and', $on, $child->on];
+            if (!empty($child->getOn())) {
+                $on = ['and', $on, $child->getOn()];
             }
         } else {
-            $on = $child->on;
+            $on = $child->getOn();
         }
 
-        $this->join($joinType, empty($child->getFrom()) ? $childTable : $child->getFrom(), $on);
+        $this->join($joinType, empty($child->getFrom()) ? $childTable : $child->getFrom(), $on ?? '');
 
-        if (!empty($child->getWhere())) {
-            $this->andWhere($child->getWhere());
+        $where = $child->getWhere();
+
+        if (!empty($where)) {
+            $this->andWhere($where);
         }
 
-        if (!empty($child->getHaving())) {
-            $this->andHaving($child->getHaving());
+        $having = $child->getHaving();
+
+        if (!empty($having)) {
+            $this->andHaving($having);
         }
 
         if (!empty($child->getOrderBy())) {
@@ -1145,32 +1161,17 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    /**
-     * @throws CircularReferenceException
-     * @throws NotFoundException
-     * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
     public function getARInstance(): ActiveRecordInterface
     {
         if ($this->arFactory !== null) {
-            return $this->getARInstanceFactory();
+            return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
         }
 
         $class = $this->arClass;
+        /** @var ActiveRecordInterface $arClass */
+        $arClass = new $class($this->db, null, $this->tableName);
 
-        return new $class($this->db, null, $this->tableName);
-    }
-
-    /**
-     * @throws CircularReferenceException
-     * @throws NotFoundException
-     * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
-    public function getARInstanceFactory(): ActiveRecordInterface
-    {
-        return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
+        return $arClass;
     }
 
     private function createInstance(): static

@@ -6,6 +6,9 @@ namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\NotInstantiableException;
+use Yiisoft\Factory\NotFoundException;
 
 /**
  * Defines the common interface to be implemented by active record query classes.
@@ -298,4 +301,47 @@ interface ActiveQueryInterface extends QueryInterface
      * Executes the query and returns ActiveRecord instances populated with the query result.
      */
     public function onePopulate(): array|ActiveRecordInterface|null;
+
+    /**
+     * @return ActiveQueryInterface|array|null The query associated with the junction table.
+     * Please call {@see Actiquery::via} to set this property instead of directly setting it.
+     *
+     * This property is only used in relational context.
+     *
+     * @see Actiquery::via
+     */
+    public function getVia(): array|ActiveQueryInterface|null;
+
+    /**
+     * @return array The columns of the primary and foreign tables that establish a relation.
+     *
+     * The array keys must be columns of the table for this relation, and the array values must be the corresponding
+     * columns from the primary table.
+     *
+     * Do not prefix or quote the column names as this will be done automatically by Yii. This property is only used in
+     * relational context.
+     */
+    public function getLink(): array;
+
+    /**
+     * @return ActiveRecordInterface The model instance associated with this query.
+     *
+     * @throws CircularReferenceException
+     * @throws InvalidConfigException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     */
+    public function getARInstance(): ActiveRecordInterface;
+
+    /**
+     * @return bool Whether this query represents a relation to more than one record.
+     *
+     * This property is only used in relational context.
+     *
+     * If `true`, this relation will populate all query results into active record instances using
+     * {@see ActiveQuery::all()}.
+     *
+     * If `false`, only the first row of the results will be retrieved using {@see ActiveQuery::one()}.
+     */
+    public function getMultiple(): bool;
 }

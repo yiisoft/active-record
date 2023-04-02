@@ -249,21 +249,11 @@ class ActiveRecord extends BaseActiveRecord
         return $this;
     }
 
-    /**
-     * Populates an active record object using a row of data from the database/storage.
-     *
-     * This is an internal method meant to be called to create active record objects after fetching data from the
-     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
-     *
-     * @param array|object $row Attribute values (name => value).
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     */
     public function populateRecord(array|object $row): void
     {
         $columns = $this->getTableSchema()->getColumns();
 
+        /** @psalm-var array[][] $row */
         foreach ($row as $name => $value) {
             if (isset($columns[$name])) {
                 $row[$name] = $columns[$name]->phpTypecast($value);

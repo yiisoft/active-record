@@ -32,11 +32,6 @@ use function serialize;
 
 /**
  * ActiveRelationTrait implements the common methods and properties for active record relational queries.
- *
- * @method ActiveRecordInterface one()
- * @method ActiveRecordInterface[] all()
- *
- * @property ActiveRecord $modelClass
  */
 trait ActiveRelationTrait
 {
@@ -101,7 +96,7 @@ trait ActiveRelationTrait
      */
     public function via(string $relationName, callable $callable = null): static
     {
-        $relation = $this->primaryModel->getRelation($relationName);
+        $relation = $this->primaryModel?->getRelation($relationName);
         $callableUsed = $callable !== null;
         $this->via = [$relationName, $relation, $callableUsed];
 
@@ -304,8 +299,10 @@ trait ActiveRelationTrait
 
         $this->indexBy($indexBy);
 
-        if ($this->getIndexBy() !== null && $this->multiple) {
-            $buckets = $this->indexBuckets($buckets, $this->getIndexBy());
+        $indexBy = $this->getIndexBy();
+
+        if ($indexBy !== null && $this->multiple) {
+            $buckets = $this->indexBuckets($buckets, $indexBy);
         }
 
         $link = array_values($this->link);
@@ -330,7 +327,7 @@ trait ActiveRelationTrait
                 foreach ($keys as $key) {
                     $key = $this->normalizeModelKey($key);
                     if (isset($buckets[$key])) {
-                        if ($this->getIndexBy() !== null) {
+                        if ($indexBy !== null) {
                             /** if indexBy is set, array_merge will cause renumbering of numeric array */
                             foreach ($buckets[$key] as $bucketKey => $bucketValue) {
                                 $value[$bucketKey] = $bucketValue;
@@ -381,22 +378,24 @@ trait ActiveRelationTrait
             $relation = $this->getARInstance()->getRelation($name);
         }
 
-        if ($relation->multiple) {
-            $buckets = $this->buildBuckets($primaryModels, $relation->link, null, null, false);
+        if ($relation->getMultiple()) {
+            $buckets = $this->buildBuckets($primaryModels, $relation->getLink(), null, null, false);
             if ($model instanceof ActiveRecordInterface) {
                 foreach ($models as $model) {
-                    $key = $this->getModelKey($model, $relation->link);
-                    $model->populateRelation($name, $buckets[$key] ?? []);
+                    $key = $this->getModelKey($model, $relation->getLink());
+                    if ($model instanceof ActiveRecordInterface) {
+                        $model->populateRelation($name, $buckets[$key] ?? []);
+                    }
                 }
             } else {
                 foreach ($primaryModels as $i => $primaryModel) {
                     if ($this->multiple) {
                         foreach ($primaryModel as $j => $m) {
-                            $key = $this->getModelKey($m, $relation->link);
+                            $key = $this->getModelKey($m, $relation->getLink());
                             $primaryModels[$i][$j][$name] = $buckets[$key] ?? [];
                         }
                     } elseif (!empty($primaryModel[$primaryName])) {
-                        $key = $this->getModelKey($primaryModel[$primaryName], $relation->link);
+                        $key = $this->getModelKey($primaryModel[$primaryName], $relation->getLink());
                         $primaryModels[$i][$primaryName][$name] = $buckets[$key] ?? [];
                     }
                 }
@@ -431,9 +430,10 @@ trait ActiveRelationTrait
     ): array {
         if ($viaModels !== null) {
             $map = [];
-            $viaLink = $viaQuery->link;
-            $viaLinkKeys = array_keys($viaLink);
             $linkValues = array_values($link);
+            $viaLink = $viaQuery->link ?? [];
+            $viaLinkKeys = array_keys($viaLink);
+            $viaVia = null;
 
             foreach ($viaModels as $viaModel) {
                 $key1 = $this->getModelKey($viaModel, $viaLinkKeys);
@@ -441,14 +441,21 @@ trait ActiveRelationTrait
                 $map[$key2][$key1] = true;
             }
 
-            $viaQuery->viaMap = $map;
+            if ($viaQuery !== null) {
+                $viaQuery->viaMap = $map;
+                $viaVia = $viaQuery->getVia();
+            }
 
-            $viaVia = $viaQuery->via;
             while ($viaVia) {
+                /**
+                 * @var ActiveQuery $viaViaQuery
+                 *
+                 * @psalm-suppress RedundantCondition
+                 */
                 $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
                 $map = $this->mapVia($map, $viaViaQuery->viaMap);
 
-                $viaVia = $viaViaQuery->via;
+                $viaVia = $viaViaQuery->getVia();
             }
         }
 
@@ -677,13 +684,6 @@ trait ActiveRelationTrait
         return $this->asArray()->all();
     }
 
-    /**
-     * @return bool whether this query represents a relation to more than one record.
-     *
-     * This property is only used in relational context. If true, this relation will populate all query results into
-     * active record instances using {@see Query::all()|all()}. If false, only the first row of the results will be
-     * retrieved using {@see Query::one()|one()}.
-     */
     public function getMultiple(): bool
     {
         return $this->multiple;
@@ -699,28 +699,11 @@ trait ActiveRelationTrait
         return $this->primaryModel;
     }
 
-    /**
-     * @return array the columns of the primary and foreign tables that establish a relation.
-     *
-     * The array keys must be columns of the table for this relation, and the array values must be the corresponding
-     * columns from the primary table.
-     *
-     * Do not prefix or quote the column names as this will be done automatically by Yii. This property is only used in
-     * relational context.
-     */
     public function getLink(): array
     {
         return $this->link;
     }
 
-    /**
-     * @return ActiveQueryInterface|array|null the query associated with the junction table.
-     * Please call {@see (via)()} to set this property instead of directly setting it.
-     *
-     * This property is only used in relational context.
-     *
-     * {@see via()}
-     */
     public function getVia(): array|ActiveQueryInterface|null
     {
         return $this->via;
