@@ -1169,9 +1169,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $class = $this->arClass;
         /** @var ActiveRecordInterface $arClass */
-        $arClass = new $class($this->db, null, $this->tableName);
-
-        return $arClass;
+        return new $class($this->db, null, $this->tableName);
     }
 
     private function createInstance(): static

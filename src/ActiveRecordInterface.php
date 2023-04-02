@@ -436,7 +436,7 @@ interface ActiveRecordInterface
      */
     public function getOldAttributes(): array;
 
-        /**
+    /**
      * Populates an active record object using a row of data from the database/storage.
      *
      * This is an internal method meant to be called to create active record objects after fetching data from the

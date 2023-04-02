@@ -324,12 +324,11 @@ interface ActiveQueryInterface extends QueryInterface
     public function getLink(): array;
 
     /**
-     * @return ActiveRecordInterface The model instance associated with this query.
-     *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
+     * @return ActiveRecordInterface The model instance associated with this query.
      */
     public function getARInstance(): ActiveRecordInterface;
 
