@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 
-final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
+final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest
 {
     public function setUp(): void
     {
@@ -14,6 +14,7 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
 
         $oracleHelper = new OracleHelper();
         $this->db = $oracleHelper->createConnection();
+        $this->arFactory = $oracleHelper->createARFactory($this->db);
     }
 
     protected function tearDown(): void
@@ -22,6 +23,6 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
 
         $this->db->close();
 
-        unset($this->db);
+        unset($this->arFactory, $this->db);
     }
 }

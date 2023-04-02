@@ -5,33 +5,28 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithConstructor;
-use Yiisoft\Db\Mysql\ConnectionPDO as ConnectionPDOMysql;
+use Yiisoft\ActiveRecord\Tests\Support\Assert;
 
-/**
- * @group main
- */
-final class ActiveRecordFactoryTest extends TestCase
+abstract class ActiveRecordFactoryTest extends TestCase
 {
-    protected string $driverName = 'sqlite';
+    protected ActiveRecordFactory $arFactory;
 
     public function testCreateAR(): void
     {
-        $customerAR = $this->arFactory->createAR(Customer::class);
-
-        $this->assertInstanceOf(Customer::class, $customerAR);
+        $this->assertInstanceOf(Customer::class, $this->arFactory->createAR(Customer::class));
     }
 
     public function testCreateARWithConnection(): void
     {
-        $customerAR = $this->arFactory->createAR(arClass: Customer::class, db: $this->mysqlConnection);
-        $db = $this->getInaccessibleProperty($customerAR, 'db', true);
+        $customerAR = $this->arFactory->createAR(arClass: Customer::class, db: $this->db);
+        $db = Assert::inaccessibleProperty($customerAR, 'db');
 
         $this->assertSame('customer', $customerAR->getTableName());
-        $this->assertInstanceOf(ConnectionPDOMysql::class, $db);
         $this->assertInstanceOf(Customer::class, $customerAR);
     }
 
@@ -63,11 +58,10 @@ final class ActiveRecordFactoryTest extends TestCase
         $customerQuery = $this->arFactory->createQueryTo(
             arClass: Customer::class,
             queryClass: CustomerQuery::class,
-            db: $this->mysqlConnection
+            db: $this->db,
         );
-        $db = $this->getInaccessibleProperty($customerQuery, 'db', true);
+        $db = Assert::inaccessibleProperty($customerQuery, 'db');
 
-        $this->assertInstanceOf(ConnectionPDOMysql::class, $db);
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
     }
 
@@ -86,10 +80,10 @@ final class ActiveRecordFactoryTest extends TestCase
 
     public function testGetArInstanceWithConstructor(): void
     {
-        $this->checkFixture($this->sqliteConnection, 'customer', true);
+        $this->checkFixture($this->db, 'customer', true);
 
         $query = $this->arFactory->createQueryTo(CustomerWithConstructor::class);
-        $customer = $query->one();
+        $customer = $query->onePopulate();
 
         $this->assertNotNull($customer->profile);
     }

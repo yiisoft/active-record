@@ -8,9 +8,9 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
 
 /**
- * ActiveQueryInterface defines the common interface to be implemented by active record query classes.
+ * Defines the common interface to be implemented by active record query classes.
  *
- * That are methods for either normal queries that return active records but also relational queries in which the query
+ * That are methods for all normal queries that return active records but also relational queries in which the query
  * represents a relation between two active record classes and will return related records only.
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
@@ -20,9 +20,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Sets the {@see asArray} property.
      *
-     * @param bool|null $value whether to return the query results in terms of arrays instead of Active Records.
-     *
-     * @return static the query object itself.
+     * @param bool|null $value Whether to return the query results in terms of arrays instead of Active Records.
      */
     public function asArray(bool|null $value = true): self;
 
@@ -56,21 +54,19 @@ interface ActiveQueryInterface extends QueryInterface
      * ])->all();
      * ```
      *
-     * @param array|string $with
-     *
-     * @return $this the query object itself
+     * @param array|string $with The relations to be eagerly loaded. This can be either an array of relations, or a
+     * variable number of strings representing the relations.
      */
     public function with(array|string ...$with): self;
 
     /**
-     * Specifies the relation associated with the junction table for use in relational query.
+     * Specifies the relation associated with the junction table for use in a relational query.
      *
-     * @param string $relationName the relation name. This refers to a relation declared in the
-     * {@see ActiveRelationTrait::primaryModel|primaryModel} of the relation.
-     * @param callable|null $callable a PHP callback for customizing the relation associated with the junction table.
+     * @param string $relationName The relation name.
+     * This refers to a relation declared in the
+     * {@see ActiveRelationTrait::primaryModel} of the relation.
+     * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
-     *
-     * @return self the relation object itself.
      */
     public function via(string $relationName, callable $callable = null): self;
 
@@ -85,10 +81,10 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.
      *
-     * @param string $name the relation name.
-     * @param ActiveRecordInterface $model the primary model.
+     * @param string $name The relation name.
+     * @param ActiveRecordInterface $model The primary model.
      *
-     * @return mixed the related record(s).
+     * @return mixed The related record(s).
      */
     public function findFor(string $name, ActiveRecordInterface $model): mixed;
 
@@ -97,22 +93,22 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * The method accepts:
      *
-     *  - a scalar value (integer or string): query by a single primary key value and return the corresponding record
+     *  - A scalar value (integer or string): query by a single primary key value and return the corresponding record
      *    (or `null` if not found).
-     *  - a non-associative array: query by a list of primary key values and return the first record (or `null` if not
+     *  - A non-associative array: query by a list of primary key values and return the first record (or `null` if not
      *    found).
-     *  - an associative array of name-value pairs: query by a set of attribute values and return a single record
-     *    matching all of them (or `null` if not found). Note that `['id' => 1, 2]` is treated as a non-associative
-     *    array.
+     *  - An associative array of name-value pairs: query by a set of attribute values and return a single record
+     *    matching all them (or `null` if not found).
+     *
+     * Note that `['id' => 1, 2]` is treated as a non-associative array.
      *
      * Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited to
      * simple filter conditions.
      *
-     * That this method will automatically call the `one()` method and return an
-     * {@see ActiveRecordInterface|ActiveRecord} instance.
+     * That this method will automatically call the `one()` method and return an {@see ActiveRecordInterface} instance.
      *
-     * > Note: As this is a shorthand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
-     * > If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()|where()} instead.
+     * Note: As this is a shorthand method only, using more complex conditions, `like ['!=', 'id', 1]` will not work.
+     * If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()} instead.
      *
      * See the following code for usage examples:
      *
@@ -121,7 +117,7 @@ interface ActiveQueryInterface extends QueryInterface
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $query = $customerQuery->findOne(10);
      *
-     * // the above code is equivalent to:
+     * // the above code is equal to:
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $query = $customerQuery->where(['id' => 10])->one();
      *
@@ -129,7 +125,7 @@ interface ActiveQueryInterface extends QueryInterface
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $query = $customerQuery->findOne([10, 11, 12]);
      *
-     * // the above code is equivalent to:
+     * // the above code is equal to:
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $query = $customerQuery->where(['id' => [10, 11, 12]])->one();
      *
@@ -137,13 +133,13 @@ interface ActiveQueryInterface extends QueryInterface
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $query = $customerQuery->findOne(['age' => 30, 'status' => 1]);
      *
-     * // the above code is equivalent to:
+     * // the above code is equal to:
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $query = $customerQuery->where(['age' => 30, 'status' => 1])->one();
      * ```
      *
      * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
-     * make sure the array structure can not be changed from the outside:
+     * make sure the array structure can't be changed from the outside:
      *
      * ```php
      * public function actionView(ServerRequestInterface $request)
@@ -156,45 +152,51 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * - Explicitly specifying the column to search, passing a scalar or array here will always result in finding a
      * single record:
+     *
+     * ```php
      * $aqClass = new ActiveQuery(Post::class, $db);
      * $query = $aqClass->findOne(['id' => $id);
+     * ```
      *
-     * Do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column
-     * values!:
+     * Do NOT use the following code!, it's possible to inject an array condition to filter by arbitrary column values!:
+     *
+     * ```php
      * $aqClass = new ActiveQuery(Post::class, $db);
      * $query = $aqClass->findOne($id);
      * ```
      *
-     * @param mixed $condition primary key value or a set of column values.
+     * @param mixed $condition The primary key value or a set of column values.
      *
      * @throws InvalidConfigException
      *
-     * @return ActiveRecordInterface|array|null instance matching the condition, or `null` if nothing matches.
+     * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
     public function findOne(mixed $condition): array|ActiveRecordInterface|null;
 
     /**
-     * Returns a list of active record that match the specified primary key value(s) or a set of column values.
+     * Returns a list of active record that matches the specified primary key value(s) or a set of column values.
      *
      * The method accepts:
      *
-     *  - a scalar value (integer or string): query by a single primary key value and return an array containing the
+     *  - A scalar value (integer or string): query by a single primary key value and return an array containing the
      *    corresponding record (or an empty array if not found).
-     *  - a non-associative array: query by a list of primary key values and return the corresponding records (or an
+     *  - A non-associative array: query by a list of primary key values and return the corresponding records (or an
      *    empty array if none was found).
      *    Note that an empty condition will result in an empty result as it will be interpreted as a search for
      *    primary keys and not an empty `WHERE` condition.
-     *  - an associative array of name-value pairs: query by a set of attribute values and return an array of records
-     *    matching all of them (or an empty array if none was found). Note that `['id' => 1, 2]` is treated as
-     *    a non-associative array.
-     *    Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited
-     *    to simple filter conditions.
+     *  - An associative array of name-value pairs: query by a set of attribute values and return an array of records
+     *    matching all them (or an empty array if none was found).
      *
-     * This method will automatically call the `all()` method and return an array of
-     * {@see ActiveRecordInterface|ActiveRecord} instances.
+     * Note that `['id' => 1, 2]` is treated as a non-associative array.
      *
-     * > Note: As this is a shorthand method only, using more complex conditions, like ['!=', 'id', 1] will not work.
-     * > If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()|where()} instead.
+     * Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited
+     * to simple filter conditions.
+     *
+     * This method will automatically call the `all()` method and return an array of {@see ActiveRecordInterface}
+     * instances.
+     *
+     * Note: As this is a shorthand method only, using more complex conditions, `like ['!=', 'id', 1]` will not work.
+     * If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()} instead.
      *
      * See the following code for usage examples:
      *
@@ -203,7 +205,7 @@ interface ActiveQueryInterface extends QueryInterface
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $customers = $customerQuery->findAll(10);
      *
-     * // the above code is equivalent to.
+     * // the above code is equal to.
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $customers = $customerQuery->where(['id' => 10])->all();
      *
@@ -211,7 +213,7 @@ interface ActiveQueryInterface extends QueryInterface
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $customers = $customerQuery->findAll([10, 11, 12]);
      *
-     * // the above code is equivalent to,
+     * // the above code is equal to,
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $customers = $customerQuery->where(['id' => [10, 11, 12]])->all();
      *
@@ -219,13 +221,13 @@ interface ActiveQueryInterface extends QueryInterface
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $customers = $customerQuery->findAll(['age' => 30, 'status' => 1]);
      *
-     * // the above code is equivalent to.
+     * // the above code is equal to.
      * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $customers = $customerQuery->where(['age' => 30, 'status' => 1])->all();
      * ```
      *
      * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
-     * make sure the array structure can not be changed from the outside:
+     * make sure the array structure can't be changed from the outside:
      *
      * ```php
      * public function actionView(ServerRequestInterface $request)
@@ -235,41 +237,47 @@ interface ActiveQueryInterface extends QueryInterface
      *     $aqClass = new ActiveQuery(Post::class, $db);
      *     $query = $aqClass->findOne($id);
      * }
+     * ```
      *
      * Explicitly specifying the column to search, passing a scalar or array here will always result in finding a single
      * record:
+     *
+     * ```php
      * $aqClass = new ActiveQuery(Post::class, $db);
      * $aqCLass = $aqClass->findOne(['id' => $id]);
+     * ```
      *
-     * Do NOT use the following code! it is possible to inject an array condition to filter by arbitrary column values!:
+     * Do NOT use the following code! It's possible to inject an array condition to filter by arbitrary column values!:
+     *
+     * ```php
      * $aqClass = new ActiveQuery(Post::class, $db);
      * $aqClass = $aqClass->findOne($id);
      * ```
      *
-     * @param mixed $condition primary key value or a set of column values.
+     * @param mixed $condition The primary key value or a set of column values.
      *
-     * @return array an array of ActiveRecord instance, or an empty array if nothing matches.
+     * @return array An array of ActiveRecord instance, or an empty array if nothing matches.
      */
     public function findAll(mixed $condition): array;
 
     /**
-     * It is used to set the query options for the query.
+     * It's used to set the query options for the query.
      */
     public function primaryModel(ActiveRecordInterface $value): self;
 
     /**
-     * It is used to set the query options for the query.
+     * It's used to set the query options for the query.
      *
      * @param array $value The columns of the primary and foreign tables that establish a relation.
      * The array keys must be columns of the table for this relation, and the array values must be the corresponding
      * columns from the primary table.
-     * Do not prefix or quote the column names as this will be done automatically by Yii.
+     * Don't prefix or quote the column names as Yii will do this automatically.
      * This property is only used in relational context.
      */
     public function link(array $value): self;
 
     /**
-     * It is used to set the query options for the query.
+     * It's used to set the query options for the query.
      *
      * @param bool $value Whether this query represents a relation to more than one record.
      * This property is only used in relational context. If true, this relation will populate all query results into AR
@@ -281,7 +289,8 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Executes the query and returns ActiveRecord instances populated with the query result.
      *
-     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     * @return ActiveRecordInterface|array|null The query results. If the query results in nothing, an empty array will
+     * be returned.
      */
     public function allPopulate(): array|ActiveRecordInterface|null;
 

@@ -19,7 +19,7 @@ class Order extends ActiveRecord
 {
     public const TABLE_NAME = 'order';
 
-    private $virtualCustomerId = null;
+    private string|int|null $virtualCustomerId = null;
 
     public function getTableName(): string
     {

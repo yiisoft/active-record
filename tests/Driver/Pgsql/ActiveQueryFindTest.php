@@ -5,37 +5,31 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest as AbstractActiveQueryFindTest;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
 
-/**
- * @group pgsql
- */
-final class ActiveQueryFindTest extends AbstractActiveQueryFindTest
+final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
 {
-    protected string $driverName = 'pgsql';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->pgsqlConnection;
+        $pgsqlHelper = new PgsqlHelper();
+        $this->db = $pgsqlHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->pgsqlConnection->close();
+        $this->db->close();
 
-        unset($this->pgsqlConnection);
+        unset($this->db);
     }
 
     public function testFindAsArray(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db, 'customer', true);
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);

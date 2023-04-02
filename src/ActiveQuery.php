@@ -38,7 +38,7 @@ use function strpos;
 use function substr;
 
 /**
- * ActiveQuery represents a db query associated with an Active Record class.
+ * Represents a db query associated with an Active Record class.
  *
  * An ActiveQuery can be a normal query or be used in a relational context.
  *
