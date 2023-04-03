@@ -26,6 +26,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
+      COMPOSER_ROOT_VERSION: dev-master
       extensions: pdo, pdo_mysql, pdo_oci, pdo_pgsql, pdo_sqlite, pdo_sqlsrv-5.10.1
       key: cache-v1
 
@@ -101,11 +102,53 @@ jobs:
       - name: Update composer
         run: composer self-update
 
-      - name: Install dependencies with composer
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+      - name: Set environment variables pull request linux.
+        uses: yiisoft/actions/db/environment-linux@master
 
-      - name: Run tests with phpunit
-        run: vendor/bin/phpunit --coverage-clover=coverage.xml --colors=always
+      - name: Install db-mssql.
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
+          CURRENT_PACKAGE: db-mssql
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+
+      - name: Install db-mysql.
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
+          CURRENT_PACKAGE: db-mysql
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+
+      - name: Install db-pgsql.
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
+          CURRENT_PACKAGE: db-pgsql
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+
+      - name: Install db-oracle.
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
+          CURRENT_PACKAGE: db-oracle
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+
+      - name: Install db-sqlite.
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
+          CURRENT_PACKAGE: db-sqlite
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
