@@ -24,7 +24,7 @@ final class DbHelper
      */
     public static function loadFixture(ConnectionPDOInterface $db): void
     {
-        $driverName = $db->getName();
+        $driverName = $db->getDriverName();
 
         $fixture = match ($driverName) {
             'mysql' => dirname(__DIR__) . '/data/mysql.sql',

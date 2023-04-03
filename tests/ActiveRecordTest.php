@@ -411,7 +411,7 @@ abstract class ActiveRecordTest extends TestCase
         $attributes['address'] = 'rusia';
         $attributes['status'] = 1;
 
-        if ($this->db->getName() === 'pgsql') {
+        if ($this->db->getDriverName() === 'pgsql') {
             $attributes['bool_status'] = true;
         }
 
