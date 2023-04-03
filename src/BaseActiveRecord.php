@@ -37,18 +37,6 @@ use function reset;
  *
  * See {@see ActiveRecord} for a concrete implementation.
  *
- * @property array $dirtyAttributes The changed attribute values (name-value pairs). This property is read-only.
- * @property bool $isNewRecord Whether the record is new and should be inserted when calling {@see save()}.
- * @property array $oldAttributes The old attribute values (name-value pairs). Note that the type of this property
- * differs in getter and setter. See {@see getOldAttributes()} and {@see setOldAttributes()} for details.
- * @property mixed $oldPrimaryKey The old primary key value. An array (column name => column value) is returned if the
- * primary key is composite. A string is returned otherwise (null will be returned if the key value is null).
- * This property is read-only.
- * @property mixed $primaryKey The primary key value. An array (column name => column value) is returned if the primary
- * key is composite. A string is returned otherwise (null will be returned if the key value is null).
- * This property is read-only.
- * @property array $relatedRecords An array of related records indexed by relation names. This property is read-only.
- *
  * @template-implements ArrayAccess<int, mixed>
  * @template-implements IteratorAggregate<int>
  */
@@ -225,11 +213,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $attributes;
     }
 
-    /**
-     * Returns the old attribute values.
-     *
-     * @return array The old attribute values (name-value pairs).
-     */
     public function getOldAttributes(): array
     {
         return $this->oldAttributes ?? [];
@@ -413,7 +396,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $viaClass = null;
         $viaTable = null;
         $relation = $this->getRelation($name);
-        $via = $relation->getVia();
+        $via = $relation?->getVia();
 
         if ($via !== null) {
             if ($this->getIsNewRecord() || $arClass->getIsNewRecord()) {
@@ -439,7 +422,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $columns[$a] = $this->$b;
             }
 
-            foreach ($relation->getLink() as $a => $b) {
+            $link = $relation?->getLink() ?? [];
+
+            foreach ($link as $a => $b) {
                 $columns[$b] = $arClass->$a;
             }
 
@@ -447,18 +432,19 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $columns[$k] = $v;
             }
 
-            if (is_array($via)) {
+            if ($viaClass instanceof ActiveRecordInterface && is_array($via)) {
                 foreach ($columns as $column => $value) {
                     $viaClass->$column = $value;
                 }
 
                 $viaClass->insert();
-            } else {
+            } elseif ($viaTable !== null) {
                 $this->db->createCommand()->insert($viaTable, $columns)->execute();
             }
-        } else {
-            $p1 = $arClass->isPrimaryKey(array_keys($relation->getLink()));
-            $p2 = $this->isPrimaryKey(array_values($relation->getLink()));
+        } elseif ($relation instanceof ActiveQueryInterface) {
+            $link = $relation->getLink();
+            $p1 = $arClass->isPrimaryKey(array_keys($link));
+            $p2 = $this->isPrimaryKey(array_values($link));
 
             if ($p1 && $p2) {
                 if ($this->getIsNewRecord() && $arClass->getIsNewRecord()) {
@@ -466,14 +452,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
 
                 if ($this->getIsNewRecord()) {
-                    $this->bindModels(array_flip($relation->getLink()), $this, $arClass);
+                    $this->bindModels(array_flip($link), $this, $arClass);
                 } else {
-                    $this->bindModels($relation->getLink(), $arClass, $this);
+                    $this->bindModels($link, $arClass, $this);
                 }
             } elseif ($p1) {
-                $this->bindModels(array_flip($relation->getLink()), $this, $arClass);
+                $this->bindModels(array_flip($link), $this, $arClass);
             } elseif ($p2) {
-                $this->bindModels($relation->getLink(), $arClass, $this);
+                $this->bindModels($link, $arClass, $this);
             } else {
                 throw new InvalidCallException(
                     'Unable to link models: the link defining the relation does not involve any primary key.'
@@ -481,17 +467,21 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
         }
 
-        /** update lazily loaded related objects */
-        if (!$relation->getMultiple()) {
+        // update lazily loaded related objects
+        if ($relation instanceof ActiveRecordInterface && !$relation->getMultiple()) {
             $this->related[$name] = $arClass;
         } elseif (isset($this->related[$name])) {
-            if ($relation->getIndexBy() !== null) {
-                if ($relation->getIndexBy() instanceof Closure) {
-                    $index = $relation->indexBy($arClass::class);
+            $indexBy = $relation?->getIndexBy();
+            if ($indexBy !== null) {
+                if ($indexBy instanceof Closure) {
+                    $index = $relation?->indexBy($arClass::class);
                 } else {
-                    $index = $arClass->{$relation->getIndexBy()};
+                    $index = $arClass->{$indexBy};
                 }
-                $this->related[$name][$index] = $arClass;
+
+                if ($index !== null) {
+                    $this->related[$name][$index] = $arClass;
+                }
             } else {
                 $this->related[$name][] = $arClass;
             }
@@ -508,7 +498,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function markAttributeDirty(string $name): void
     {
-        unset($this->oldAttributes[$name]);
+        if ($this->oldAttributes !== null && $name !== '') {
+            unset($this->oldAttributes[$name]);
+        }
     }
 
     /**
@@ -840,26 +832,30 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $viaClass = null;
         $viaTable = null;
         $relation = $this->getRelation($name);
+        $viaRelation = $relation?->getVia();
 
-        if ($relation->getVia() !== null) {
-            if (is_array($relation->getVia())) {
-                [$viaName, $viaRelation] = $relation->getVia();
+        if ($viaRelation !== null) {
+            if (is_array($viaRelation)) {
+                [$viaName, $viaRelation] = $viaRelation;
                 $viaClass = $viaRelation->getARInstance();
                 unset($this->related[$viaName]);
             } else {
-                $viaRelation = $relation->getVia();
-                $from = $relation->getVia()->getFrom();
+                $from = $viaRelation->getFrom();
                 $viaTable = reset($from);
             }
 
             $columns = [];
+
             foreach ($viaRelation->getLink() as $a => $b) {
                 $columns[$a] = $this->$b;
             }
 
-            foreach ($relation->getLink() as $a => $b) {
+            $link = $relation?->getLink() ?? [];
+
+            foreach ($link as $a => $b) {
                 $columns[$b] = $arClass->$a;
             }
+
             $nulls = [];
 
             foreach (array_keys($columns) as $a) {
@@ -870,13 +866,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 $columns = ['and', $columns, $viaRelation->getOn()];
             }
 
-            if (is_array($relation->getVia())) {
+            if ($viaClass instanceof ActiveRecordInterface && is_array($relation?->getVia())) {
                 if ($delete) {
                     $viaClass->deleteAll($columns);
                 } else {
                     $viaClass->updateAll($nulls, $columns);
                 }
-            } else {
+            } elseif ($viaTable !== null) {
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $columns)->execute();
@@ -884,7 +880,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                     $command->update($viaTable, $nulls, $columns)->execute();
                 }
             }
-        } else {
+        } elseif ($relation instanceof ActiveQueryInterface) {
             $p1 = $arClass->isPrimaryKey(array_keys($relation->getLink()));
             $p2 = $this->isPrimaryKey(array_values($relation->getLink()));
             if ($p2) {
@@ -915,7 +911,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
         }
 
-        if (!$relation->getMultiple()) {
+        if ($relation instanceof ActiveQueryInterface && !$relation->getMultiple()) {
             unset($this->related[$name]);
         } elseif (isset($this->related[$name])) {
             /** @var ActiveRecordInterface $b */
@@ -949,42 +945,44 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $viaClass = null;
         $viaTable = null;
         $relation = $this->getRelation($name);
+        $viaRelation = $relation?->getVia();
 
-        if ($relation->getVia() !== null) {
-            if (is_array($relation->getVia())) {
+        if ($relation instanceof ActiveQueryInterface && $viaRelation !== null) {
+            if (is_array($viaRelation)) {
                 /* @var $viaRelation ActiveQuery */
-                [$viaName, $viaRelation] = $relation->getVia();
+                [$viaName, $viaRelation] = $viaRelation;
                 $viaClass = $viaRelation->getARInstance();
                 unset($this->related[$viaName]);
             } else {
-                $viaRelation = $relation->getVia();
-                $from = $relation->getVia()->getFrom();
+                $from = $viaRelation->getFrom();
                 $viaTable = reset($from);
             }
 
             $condition = [];
             $nulls = [];
 
-            foreach ($viaRelation->getLink() as $a => $b) {
-                $nulls[$a] = null;
-                $condition[$a] = $this->$b;
+            if ($viaRelation instanceof ActiveQueryInterface) {
+                foreach ($viaRelation->getLink() as $a => $b) {
+                    $nulls[$a] = null;
+                    $condition[$a] = $this->$b;
+                }
+
+                if (!empty($viaRelation->getWhere())) {
+                    $condition = ['and', $condition, $viaRelation->getWhere()];
+                }
+
+                if (!empty($viaRelation->getOn())) {
+                    $condition = ['and', $condition, $viaRelation->getOn()];
+                }
             }
 
-            if (!empty($viaRelation->getWhere())) {
-                $condition = ['and', $condition, $viaRelation->getWhere()];
-            }
-
-            if (!empty($viaRelation->getOn())) {
-                $condition = ['and', $condition, $viaRelation->getOn()];
-            }
-
-            if (is_array($relation->getVia())) {
+            if ($viaClass instanceof ActiveRecordInterface && is_array($relation->getVia())) {
                 if ($delete) {
                     $viaClass->deleteAll($condition);
                 } else {
                     $viaClass->updateAll($nulls, $condition);
                 }
-            } else {
+            } elseif ($viaTable !== null) {
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $condition)->execute();
@@ -992,7 +990,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                     $command->update($viaTable, $nulls, $condition)->execute();
                 }
             }
-        } else {
+        } elseif ($relation instanceof ActiveQueryInterface) {
             $relatedModel = $relation->getARInstance();
 
             $link = $relation->getLink();
@@ -1032,12 +1030,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * Sets relation dependencies for a property.
      *
      * @param string $name property name.
-     * @param ActiveQuery $relation relation instance.
+     * @param ActiveQueryInterface $relation relation instance.
      * @param string|null $viaRelationName intermediate relation.
      */
     private function setRelationDependencies(
         string $name,
-        ActiveQuery $relation,
+        ActiveQueryInterface $relation,
         string $viaRelationName = null
     ): void {
         $via = $relation->getVia();
@@ -1077,23 +1075,23 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Repopulates this active record with the latest data from a newly fetched instance.
      *
-     * @param ActiveRecord|array|null $record The record to take attributes from.
+     * @param ActiveRecordInterface|array|null $record The record to take attributes from.
      *
      * @return bool Whether refresh was successful.
      *
      * {@see refresh()}
      */
-    protected function refreshInternal(array|ActiveRecord $record = null): bool
+    protected function refreshInternal(array|ActiveRecordInterface $record = null): bool
     {
-        if ($record === null || $record === []) {
+        if ($record === null || is_array($record)) {
             return false;
         }
 
         foreach ($this->attributes() as $name) {
-            $this->attributes[$name] = $record->attributes[$name] ?? null;
+            $this->attributes[$name] = $record->getAttribute($name);
         }
 
-        $this->oldAttributes = $record->oldAttributes;
+        $this->oldAttributes = $record->getOldAttributes();
         $this->related = [];
         $this->relationsDependencies = [];
 

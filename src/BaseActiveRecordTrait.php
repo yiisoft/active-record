@@ -93,12 +93,13 @@ trait BaseActiveRecordTrait
      * (case-sensitive).
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
-     * @throws InvalidArgumentException|ReflectionException if the named relation does not exist.
+     * @throws InvalidArgumentException if the named relation does not exist.
+     * @throws ReflectionException
      *
-     * @return ActiveQuery|null the relational query object. If the relation does not exist and
+     * @return ActiveQueryInterface|null the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
-    public function getRelation(string $name, bool $throwException = true): ActiveQuery|null
+    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface|null
     {
         $getter = 'get' . ucfirst($name);
 
