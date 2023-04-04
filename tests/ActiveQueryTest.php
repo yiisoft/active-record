@@ -360,7 +360,7 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
         /** find custom column */
-        if ($this->db->getName() === 'oci') {
+        if ($this->db->getDriverName() === 'oci') {
             $customers = $customerQuery
                 ->select(['{{customer}}.*', '([[status]]*2) AS [[status2]]'])
                 ->where(['name' => 'user3'])->onePopulate();
@@ -1847,7 +1847,7 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
     {
-        $driverName = $this->db->getName();
+        $driverName = $this->db->getDriverName();
 
         $this->checkFixture($this->db, 'order');
 
@@ -2087,11 +2087,11 @@ abstract class ActiveQueryTest extends TestCase
         $attributesExpected['address'] = 'address1';
         $attributesExpected['status'] = 1;
 
-        if ($this->db->getName() === 'pgsql') {
+        if ($this->db->getDriverName() === 'pgsql') {
             $attributesExpected['bool_status'] = true;
         }
 
-        if ($this->db->getName() === 'oci') {
+        if ($this->db->getDriverName() === 'oci') {
             $attributesExpected['bool_status'] = '1';
         }
 
@@ -2160,11 +2160,11 @@ abstract class ActiveQueryTest extends TestCase
         $attributes['address'] = 'address1';
         $attributes['status'] = 1;
 
-        if ($this->db->getName() === 'pgsql') {
+        if ($this->db->getDriverName() === 'pgsql') {
             $attributes['bool_status'] = true;
         }
 
-        if ($this->db->getName() === 'oci') {
+        if ($this->db->getDriverName() === 'oci') {
             $attributes['bool_status'] = '1';
         }
 
@@ -2183,11 +2183,11 @@ abstract class ActiveQueryTest extends TestCase
         $attributesNew['address'] = 'address1';
         $attributesNew['status'] = 1;
 
-        if ($this->db->getName() === 'pgsql') {
+        if ($this->db->getDriverName() === 'pgsql') {
             $attributesNew['bool_status'] = true;
         }
 
-        if ($this->db->getName() === 'oci') {
+        if ($this->db->getDriverName() === 'oci') {
             $attributesNew['bool_status'] = '1';
         }
 
