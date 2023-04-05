@@ -6,8 +6,8 @@ namespace Yiisoft\ActiveRecord\Tests\Support;
 
 use PDO;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Oracle\PdoConnection;
-use Yiisoft\Db\Oracle\PdoDriver;
+use Yiisoft\Db\Oracle\Connection;
+use Yiisoft\Db\Oracle\Driver;
 
 final class OracleHelper extends ConnectionHelper
 {
@@ -18,10 +18,10 @@ final class OracleHelper extends ConnectionHelper
 
     public function createConnection(): ConnectionInterface
     {
-        $pdoDriver = new PdoDriver($this->dsn, $this->username, $this->password);
+        $pdoDriver = new Driver($this->dsn, $this->username, $this->password);
         $pdoDriver->charset($this->charset);
         $pdoDriver->attributes([PDO::ATTR_STRINGIFY_FETCHES => true]);
 
-        return new PdoConnection($pdoDriver, $this->createSchemaCache());
+        return new Connection($pdoDriver, $this->createSchemaCache());
     }
 }

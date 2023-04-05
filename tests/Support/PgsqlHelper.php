@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Support;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Pgsql\PdoConnection;
-use Yiisoft\Db\Pgsql\PdoDriver;
+use Yiisoft\Db\Pgsql\Connection;
+use Yiisoft\Db\Pgsql\Driver;
 
 final class PgsqlHelper extends ConnectionHelper
 {
@@ -17,9 +17,9 @@ final class PgsqlHelper extends ConnectionHelper
 
     public function createConnection(): ConnectionInterface
     {
-        $pdoDriver = new PdoDriver($this->dsn, $this->username, $this->password);
+        $pdoDriver = new Driver($this->dsn, $this->username, $this->password);
         $pdoDriver->charset($this->charset);
 
-        return new PdoConnection($pdoDriver, $this->createSchemaCache());
+        return new Connection($pdoDriver, $this->createSchemaCache());
     }
 }

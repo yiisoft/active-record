@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Support;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Sqlite\PdoConnection;
-use Yiisoft\Db\Sqlite\PdoDriver;
+use Yiisoft\Db\Sqlite\Connection;
+use Yiisoft\Db\Sqlite\Driver;
 
 final class SqliteHelper extends ConnectionHelper
 {
@@ -14,9 +14,9 @@ final class SqliteHelper extends ConnectionHelper
 
     public function createConnection(): ConnectionInterface
     {
-        $pdoDriver = new PdoDriver('sqlite::memory:');
+        $pdoDriver = new Driver('sqlite::memory:');
         $pdoDriver->charset($this->charset);
 
-        return new PdoConnection($pdoDriver, $this->createSchemaCache());
+        return new Connection($pdoDriver, $this->createSchemaCache());
     }
 }
