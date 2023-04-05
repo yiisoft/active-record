@@ -14,7 +14,7 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
-use Yiisoft\Db\Helper\ArrayHelper;
+use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Query\BatchQueryResultInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
@@ -272,7 +272,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return ArrayHelper::populate($models, $indexBy);
+        return DbArrayHelper::populate($models, $indexBy);
     }
 
     /**
@@ -1099,7 +1099,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $condition = [$condition];
         }
 
-        if (!ArrayHelper::isAssociative($condition) && !$condition instanceof ExpressionInterface) {
+        if (!DbArrayHelper::isAssociative($condition) && !$condition instanceof ExpressionInterface) {
             /** query by primary key */
             $primaryKey = $arInstance->primaryKey();
 

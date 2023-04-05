@@ -17,7 +17,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Helper\StringHelper;
+use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_combine;
 use function array_flip;
@@ -1191,7 +1191,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function getTableName(): string
     {
         if ($this->tableName === '') {
-            $this->tableName = '{{%' . StringHelper::pascalCaseToId(StringHelper::baseName(static::class)) . '}}';
+            $this->tableName = '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
         }
 
         return $this->tableName;
