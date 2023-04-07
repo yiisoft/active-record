@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Support;
 
-use Yiisoft\Db\Driver\PDO\ConnectionPDOInterface;
+use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
@@ -22,7 +22,7 @@ final class DbHelper
      * @throws Exception
      * @throws InvalidConfigException
      */
-    public static function loadFixture(ConnectionPDOInterface $db): void
+    public static function loadFixture(PdoConnectionInterface $db): void
     {
         $driverName = $db->getDriverName();
 
