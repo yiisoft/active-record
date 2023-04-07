@@ -1175,21 +1175,24 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     private function createInstance(): static
     {
-        return (new static($this->arClass, $this->db))
-            ->where($this->getWhere())
-            ->limit($this->getLimit())
-            ->offset($this->getOffset())
-            ->orderBy($this->getOrderBy())
-            ->indexBy($this->getIndexBy())
-            ->select($this->select)
-            ->selectOption($this->selectOption)
-            ->distinct($this->distinct)
-            ->from($this->from)
-            ->groupBy($this->groupBy)
-            ->setJoin($this->join)
-            ->having($this->having)
-            ->setUnion($this->union)
-            ->params($this->params)
-            ->withQueries($this->withQueries);
+        $query = new static($this->arClass, $this->db);
+
+        $query->where = $this->getWhere();
+        $query->limit = $this->getLimit();
+        $query->offset = $this->getOffset();
+        $query->orderBy = $this->getOrderBy();
+        $query->indexBy = $this->getIndexBy();
+        $query->select = $this->select;
+        $query->selectOption = $this->selectOption;
+        $query->distinct = $this->distinct;
+        $query->from = $this->from;
+        $query->groupBy = $this->groupBy;
+        $query->join = $this->join;
+        $query->having = $this->having;
+        $query->union = $this->union;
+        $query->params = $this->params;
+        $query->withQueries = $this->withQueries;
+
+        return $query;
     }
 }
