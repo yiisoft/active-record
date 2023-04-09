@@ -147,7 +147,7 @@ abstract class ActiveQueryTest extends TestCase
                 'order_item',
                 '{{order}}.[[id]] = {{order_item}}.[[order_id]]',
             ],
-        ], $query->getJoin());
+        ], $query->getJoins());
     }
 
     public function testGetQueryTableNameFromNotSet(): void
