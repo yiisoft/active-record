@@ -176,7 +176,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->from = [$this->getPrimaryTableName()];
         }
 
-        if (empty($this->getSelect()) && !empty($this->getJoin())) {
+        if (empty($this->getSelect()) && !empty($this->getJoins())) {
             [, $alias] = $this->getTableNameAndAlias();
 
             $this->select(["$alias.*"]);
@@ -815,14 +815,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addParams($child->getParams());
         }
 
-        if (!empty($child->getJoin())) {
-            foreach ($child->getJoin() as $join) {
+        if (!empty($child->getJoins())) {
+            foreach ($child->getJoins() as $join) {
                 $this->join[] = $join;
             }
         }
 
-        if (!empty($child->getUnion())) {
-            foreach ($child->getUnion() as $union) {
+        if (!empty($child->getUnions())) {
+            foreach ($child->getUnions() as $union) {
                 $this->union[] = $union;
             }
         }
@@ -1106,7 +1106,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             if (isset($primaryKey[0])) {
                 $pk = $primaryKey[0];
 
-                if (!empty($this->getJoin()) || !empty($this->getJoinWith())) {
+                if (!empty($this->getJoins()) || !empty($this->getJoinWith())) {
                     $pk = $arInstance->getTableName() . '.' . $pk;
                 }
 
@@ -1186,9 +1186,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->distinct($this->distinct)
             ->from($this->from)
             ->groupBy($this->groupBy)
-            ->setJoin($this->join)
+            ->setJoins($this->join)
             ->having($this->having)
-            ->setUnion($this->union)
+            ->setUnions($this->union)
             ->params($this->params)
             ->withQueries($this->withQueries);
     }
