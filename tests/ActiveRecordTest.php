@@ -758,6 +758,7 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 'active',
+                'bool_status' => $this->db->getDriverName() === 'pgsql' ? true : 1,
                 'profile_id' => 1,
             ],
             $customer->toArray(),
