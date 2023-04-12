@@ -728,19 +728,15 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db, 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->findOne(1);
+        $animalQuery = new ActiveQuery(Animal::class, $this->db);
+        $animal = $animalQuery->findOne(1);
 
         $this->assertSame(
             [
+                'type' => 'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat',
                 'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 1,
-                'profile_id' => 1,
             ],
-            $customer->toArray(),
+            $animal->toArray(),
         );
     }
 
@@ -758,7 +754,6 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 'active',
-                'bool_status' => $this->db->getDriverName() === 'pgsql' ? true : 1,
                 'profile_id' => 1,
             ],
             $customer->toArray(),
