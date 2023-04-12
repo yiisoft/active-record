@@ -6,35 +6,29 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as AbstractActiveQueryTest;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
-/**
- * @group oci
- */
-final class ActiveQueryTest extends AbstractActiveQueryTest
+final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    protected string $driverName = 'oci';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->ociConnection;
+        $oracleHelper = new OracleHelper();
+        $this->db = $oracleHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->ociConnection->close();
+        $this->db->close();
 
-        unset($this->ociConnection);
+        unset($this->db);
     }
 
     /**

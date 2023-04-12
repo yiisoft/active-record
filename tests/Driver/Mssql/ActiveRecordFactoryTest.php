@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 
 use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
 
-final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
+final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest
 {
     public function setUp(): void
     {
@@ -14,6 +14,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 
         $mssqlHelper = new MssqlHelper();
         $this->db = $mssqlHelper->createConnection();
+        $this->arFactory = $mssqlHelper->createARFactory($this->db);
     }
 
     protected function tearDown(): void
@@ -22,6 +23,6 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 
         $this->db->close();
 
-        unset($this->db);
+        unset($this->arFactory, $this->db);
     }
 }

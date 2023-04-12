@@ -4,30 +4,24 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Sqlite;
 
-use Yiisoft\ActiveRecord\Tests\ActiveQueryTest as BaseActiveQueryTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
 
-/**
- * @group sqlite
- */
-final class ActiveQueryTest extends BaseActiveQueryTest
+final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    protected string $driverName = 'sqlite';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->sqliteConnection;
+        $pgsqlHelper = new SqliteHelper();
+        $this->db = $pgsqlHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->sqliteConnection->close();
+        $this->db->close();
 
-        unset($this->sqliteConnection);
+        unset($this->db);
     }
 }

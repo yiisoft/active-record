@@ -5,32 +5,27 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
+use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 
-/**
- * @group oci
- */
 final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
 {
-    protected string $driverName = 'oci';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->ociConnection;
+        $oracleHelper = new OracleHelper();
+        $this->db = $oracleHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->ociConnection->close();
+        $this->db->close();
 
-        unset($this->ociConnection);
+        unset($this->db);
     }
 
     public function testFindEager(): void

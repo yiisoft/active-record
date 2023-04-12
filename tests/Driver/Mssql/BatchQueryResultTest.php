@@ -4,30 +4,24 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 
-use Yiisoft\ActiveRecord\Tests\BatchQueryResultTest as AbstractBatchQueryResultTest;
-use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
 
-/**
- * @group mssql
- */
-final class BatchQueryResultTest extends AbstractBatchQueryResultTest
+final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
 {
-    protected string $driverName = 'mssql';
-    protected ConnectionInterface $db;
-
     public function setUp(): void
     {
         parent::setUp();
 
-        $this->db = $this->mssqlConnection;
+        $mssqlHelper = new MssqlHelper();
+        $this->db = $mssqlHelper->createConnection();
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->mssqlConnection->close();
+        $this->db->close();
 
-        unset($this->mssqlConnection);
+        unset($this->db);
     }
 }

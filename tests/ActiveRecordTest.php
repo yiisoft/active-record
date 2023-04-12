@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -19,6 +18,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
+use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -221,9 +221,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSaveEmpty(): void
     {
-        $this->checkFixture($this->db, 'null_values');
-
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'null_values', true);
 
         $record = new NullValues($this->db);
 
@@ -294,7 +292,7 @@ abstract class ActiveRecordTest extends TestCase
         }
 
         /** @var Query $query */
-        $query = $this->invokeMethod($activeQuery, 'findByCondition', [$validFilter]);
+        $query = Assert::invokeMethod($activeQuery, 'findByCondition', [$validFilter]);
 
 
         $this->db->getQueryBuilder()->build($query);
@@ -347,11 +345,7 @@ abstract class ActiveRecordTest extends TestCase
         $query = new ActiveQuery($modelClassName, $this->db);
 
         /** @var Query $query */
-        $query = $this->invokeMethod(
-            $query,
-            'findByCondition',
-            $filterWithInjection
-        );
+        $query = Assert::invokeMethod($query, 'findByCondition', $filterWithInjection);
 
         $this->db->getQueryBuilder()->build($query);
     }
@@ -417,7 +411,7 @@ abstract class ActiveRecordTest extends TestCase
         $attributes['address'] = 'rusia';
         $attributes['status'] = 1;
 
-        if ($this->driverName === 'pgsql') {
+        if ($this->db->getDriverName() === 'pgsql') {
             $attributes['bool_status'] = true;
         }
 
@@ -518,9 +512,7 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testBooleanAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer');
-
-        $this->loadFixture($this->db);
+        $this->checkFixture($this->db, 'customer', true);
 
         $customer = new Customer($this->db);
 
