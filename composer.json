@@ -21,7 +21,7 @@
     "require": {
         "php": "^8.0",
         "ext-json": "*",
-        "yiisoft/db": "@dev",
+        "yiisoft/db": "^1.0",
         "yiisoft/factory": "^1.0"
     },
     "require-dev": {
