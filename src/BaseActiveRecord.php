@@ -108,10 +108,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return array_combine($fields, $fields);
     }
 
-    /**
-     * @return array The default implementation returns the names of the columns whose values have been populated into
-     * this record.
-     */
     public function fields(): array
     {
         $fields = array_keys($this->attributes);
@@ -1196,17 +1192,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         return $this->tableName;
     }
-    
-    /**
-     * Serializes the Active record into its array implementation with attribute name as key and it value as... value of course
-     */
+
     public function toArray(): array
     {
         $data = [];
 
         foreach ($this->fields() as $key => $value) {
-            //is it a closure?
-            if ($value instanceof \Closure) {
+            if ($value instanceof Closure) {
                 $data[$key] = $value($this);
             } else {
                 $data[$value] = $this[$value];
