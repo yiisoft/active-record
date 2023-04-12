@@ -728,15 +728,19 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db, 'customer', true);
 
-        $animalQuery = new ActiveQuery(Animal::class, $this->db);
-        $animal = $animalQuery->findOne(1);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
             [
-                'type' => 'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat',
                 'id' => 1,
+                'email' => 'user1@example.com',
+                'name' => 'user1',
+                'address' => 'address1',
+                'status' => 1,
+                'profile_id' => 1,
             ],
-            $animal->toArray(),
+            $customer->toArray(),
         );
     }
 
