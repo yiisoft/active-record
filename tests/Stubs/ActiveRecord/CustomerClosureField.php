@@ -26,9 +26,7 @@ final class CustomerClosureField extends ActiveRecord
     {
         $fields = parent::fields();
 
-        $fields['status'] = static function (self $customer) {
-            return $customer->status === 1 ? 'active' : 'inactive';
-        };
+        $fields['status'] = static fn(self $customer) => $customer->status === 1 ? 'active' : 'inactive';
 
         return $fields;
     }
