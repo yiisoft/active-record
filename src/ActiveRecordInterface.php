@@ -83,6 +83,12 @@ interface ActiveRecordInterface
     public function equals(self $record): bool;
 
     /**
+     * @return array The default implementation returns the names of the columns whose values have been populated into
+     * this record.
+     */
+    public function fields(): array;
+
+    /**
      * Filters array condition before it is assigned to a Query filter.
      *
      * This method will ensure that an array condition only filters on existing table columns.
@@ -448,4 +454,9 @@ interface ActiveRecordInterface
      * @throws InvalidConfigException
      */
     public function populateRecord(array|object $row): void;
+
+    /**
+     * Serializes the active record into its array implementation with attribute name as key and it value as... value.
+     */
+    public function toArray(): array;
 }
