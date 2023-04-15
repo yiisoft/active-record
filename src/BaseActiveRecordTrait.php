@@ -66,7 +66,7 @@ trait BaseActiveRecordTrait
         return $value;
     }
 
-    public function checkRelation(string $name)
+    public function checkRelation(string $name): mixed
     {
         $getter = 'get' . ucfirst($name);
 

@@ -107,7 +107,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array $joinWith = [];
     private ActiveRecordInterface|null $arInstance = null;
 
-    public function __construct(
+    final public function __construct(
         protected string $arClass,
         protected ConnectionInterface $db,
         private ActiveRecordFactory|null $arFactory = null,
@@ -140,12 +140,16 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function batch(int $batchSize = 100): BatchQueryResultInterface
     {
-        return parent::batch($batchSize)->setPopulatedMethod(fn ($rows, $indexBy) => $this->populate($rows, $indexBy));
+        return parent::batch($batchSize)->setPopulatedMethod(
+            fn (array $rows, null|Closure|string $indexBy) => $this->populate($rows, $indexBy)
+        );
     }
 
     public function each(int $batchSize = 100): BatchQueryResultInterface
     {
-        return parent::each($batchSize)->setPopulatedMethod(fn ($rows, $indexBy) => $this->populate($rows, $indexBy));
+        return parent::each($batchSize)->setPopulatedMethod(
+            fn (array $rows, null|Closure|string $indexBy) => $this->populate($rows, $indexBy)
+        );
     }
 
     /**
@@ -498,7 +502,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 $name = $relation;
 
-                $callback = static function (self $query) use ($callback, $alias) {
+                $callback = static function (self $query) use ($callback, $alias): void {
                     $query->alias($alias);
 
                     if ($callback !== null) {
