@@ -320,6 +320,8 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * Do not prefix or quote the column names as this will be done automatically by Yii. This property is only used in
      * relational context.
+     *
+     * @psalm-return string[]
      */
     public function getLink(): array;
 

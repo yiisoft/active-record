@@ -47,6 +47,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private array $attributes = [];
     private array|null $oldAttributes = null;
     private array $related = [];
+    /** @psalm-var string[][] $relationDependencies */
     private array $relationsDependencies = [];
 
     public function __construct(
@@ -108,6 +109,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return array_combine($fields, $fields);
     }
 
+    /**
+     * @psalm-return array<string, string|Closure>
+     */
     public function fields(): array
     {
         $fields = array_keys($this->attributes);
@@ -733,6 +737,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         $rows = $this->updateAll($values, $this->getOldPrimaryKey(true));
 
+        /** @psalm-var array<string, mixed> $value */
         foreach ($values as $name => $value) {
             $this->oldAttributes[$name] = $this->attributes[$name];
         }
@@ -868,7 +873,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 } else {
                     $viaClass->updateAll($nulls, $columns);
                 }
-            } elseif ($viaTable !== null) {
+            } elseif (is_string($viaTable)) {
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $columns)->execute();
@@ -890,10 +895,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
             } elseif ($p1) {
                 foreach ($relation->getLink() as $a => $b) {
+                    /** @psalm-var mixed $values */
+                    $values = $this->$b;
                     /** relation via array valued attribute */
-                    if (is_array($this->$b)) {
-                        if (($key = array_search($arClass->$a, $this->$b, false)) !== false) {
-                            $values = $this->$b;
+                    if (is_array($values)) {
+                        if (($key = array_search($arClass->$a, $values, false)) !== false) {
                             unset($values[$key]);
                             $this->$b = array_values($values);
                         }
@@ -910,8 +916,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         if ($relation instanceof ActiveQueryInterface && !$relation->getMultiple()) {
             unset($this->related[$name]);
         } elseif (isset($this->related[$name])) {
-            /** @var ActiveRecordInterface $b */
-            foreach ($this->related[$name] as $a => $b) {
+            /** @psalm-var array<array-key, ActiveRecordInterface> $related */
+            $related = $this->related[$name];
+            foreach ($related as $a => $b) {
                 if ($arClass->getPrimaryKey() === $b->getPrimaryKey()) {
                     unset($this->related[$name][$a]);
                 }
@@ -945,12 +952,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         if ($relation instanceof ActiveQueryInterface && $viaRelation !== null) {
             if (is_array($viaRelation)) {
-                /* @var $viaRelation ActiveQuery */
                 [$viaName, $viaRelation] = $viaRelation;
+                /** @psalm-var ActiveQueryInterface $viaRelation */
                 $viaClass = $viaRelation->getARInstance();
+                /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             } else {
                 $from = $viaRelation->getFrom();
+                /** @psalm-var mixed $viaTable */
                 $viaTable = reset($from);
             }
 
@@ -960,6 +969,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             if ($viaRelation instanceof ActiveQueryInterface) {
                 foreach ($viaRelation->getLink() as $a => $b) {
                     $nulls[$a] = null;
+                    /** @psalm-var mixed */
                     $condition[$a] = $this->$b;
                 }
 
@@ -978,7 +988,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 } else {
                     $viaClass->updateAll($nulls, $condition);
                 }
-            } elseif ($viaTable !== null) {
+            } elseif (is_string($viaTable)) {
                 $command = $this->db->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $condition)->execute();
@@ -1000,6 +1010,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
                 foreach ($relation->getLink() as $a => $b) {
                     $nulls[$a] = null;
+                    /** @psalm-var mixed */
                     $condition[$a] = $this->$b;
                 }
 
@@ -1046,6 +1057,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         } elseif ($via instanceof ActiveQueryInterface) {
             $this->setRelationDependencies($name, $via);
         } elseif (is_array($via)) {
+            /**
+             * @psalm-var string|null $viaRelationName
+             * @psalm-var ActiveQueryInterface $viaQuery
+             */
             [$viaRelationName, $viaQuery] = $via;
             $this->setRelationDependencies($name, $viaQuery, $viaRelationName);
         }
@@ -1113,17 +1128,21 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return 0;
         }
 
+        /** @psalm-var mixed $condition */
         $condition = $this->getOldPrimaryKey(true);
         $lock = $this->optimisticLock();
 
-        if ($lock !== null) {
-            $values[$lock] = $this->$lock + 1;
+        if ($lock !== null && is_array($condition)) {
+            $values[$lock] = (int) $this->$lock + 1;
+            /** @psalm-var array<array-key, mixed>|string */
             $condition[$lock] = $this->$lock;
         }
 
         /**
          * We do not check the return value of updateAll() because it's possible that the UPDATE statement doesn't
          * change anything and thus returns 0.
+         *
+         * @psalm-var array<array-key, mixed>|string $condition
          */
         $rows = $this->updateAll($values, $condition);
 
@@ -1137,7 +1156,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         $changedAttributes = [];
 
+        /**
+         * @psalm-var string $name
+         * @psalm-var mixed $value
+         */
         foreach ($values as $name => $value) {
+            /** @psalm-var mixed */
             $changedAttributes[$name] = $this->oldAttributes[$name] ?? null;
             $this->oldAttributes[$name] = $value;
         }
@@ -1150,7 +1174,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         ActiveRecordInterface $foreignModel,
         ActiveRecordInterface $primaryModel
     ): void {
+        /** @psalm-var string[] $link */
         foreach ($link as $fk => $pk) {
+            /** @psalm-var mixed $value */
             $value = $primaryModel->$pk;
 
             if ($value === null) {
@@ -1159,8 +1185,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 );
             }
 
-            /** relation via array valued attribute */
+            /**
+             * relation via array valued attribute
+             *
+             * @psalm-suppress MixedArrayAssignment
+             */
             if (is_array($foreignModel->$fk)) {
+                /** @psalm-var mixed */
                 $foreignModel->{$fk}[] = $value;
             } else {
                 $foreignModel->{$fk} = $value;
@@ -1199,8 +1230,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         foreach ($this->fields() as $key => $value) {
             if ($value instanceof Closure) {
+                /** @var mixed */
                 $data[$key] = $value($this);
             } else {
+                /** @var mixed */
                 $data[$value] = $this[$value];
             }
         }
