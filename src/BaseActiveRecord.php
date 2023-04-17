@@ -47,7 +47,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private array $attributes = [];
     private array|null $oldAttributes = null;
     private array $related = [];
-    /** @psalm-var string[][] $relationDependencies */
+    /** @psalm-var string[][] */
     private array $relationsDependencies = [];
 
     public function __construct(
@@ -838,7 +838,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         if ($viaRelation !== null) {
             if (is_array($viaRelation)) {
                 [$viaName, $viaRelation] = $viaRelation;
+                /** @psalm-var ActiveQueryInterface $viaRelation */
                 $viaClass = $viaRelation->getARInstance();
+                /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             }
 
@@ -847,15 +849,18 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
             if ($viaRelation instanceof ActiveQueryInterface) {
                 $from = $viaRelation->getFrom();
+                /** @psalm-var mixed $viaTable */
                 $viaTable = reset($from);
 
                 foreach ($viaRelation->getLink() as $a => $b) {
+                    /** @psalm-var mixed */
                     $columns[$a] = $this->$b;
                 }
 
                 $link = $relation?->getLink() ?? [];
 
                 foreach ($link as $a => $b) {
+                    /** @psalm-var mixed */
                     $columns[$b] = $arClass->$a;
                 }
 
