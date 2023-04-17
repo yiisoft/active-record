@@ -33,11 +33,6 @@
         "vimeo/psalm": "^4.8|^5.8",
         "yiisoft/aliases": "^2.0",
         "yiisoft/cache": "^3.0",
-        "yiisoft/db-mssql": "^1.0",
-        "yiisoft/db-mysql": "^1.0",
-        "yiisoft/db-oracle": "^1.0",
-        "yiisoft/db-pgsql": "^1.0",
-        "yiisoft/db-sqlite": "^1.0",
         "yiisoft/di": "^1.0",
         "yiisoft/json": "^1.0"
     },

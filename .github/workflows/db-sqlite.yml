@@ -1,0 +1,89 @@
+on:
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
+  push:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'CHANGELOG.md'
+      - '.gitignore'
+      - '.gitattributes'
+      - 'infection.json.dist'
+      - 'psalm.xml'
+
+name: db-sqlite
+
+jobs:
+  build:
+    name: PHP ${{ matrix.php }}-sqlite-${{ matrix.os }}
+
+    env:
+      COMPOSER_ROOT_VERSION: dev-master
+      extensions: pdo, pdo_sqlite
+      key: cache-v1
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+        php:
+          - 8.0
+          - 8.1
+          - 8.2
+
+    steps:
+      - name: Checkout.
+        uses: actions/checkout@v3
+
+      - name: Install PHP with extensions.
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: ${{ env.extensions }}
+          ini-values: date.timezone='UTC'
+          coverage: pcov
+          tools: composer:v2, pecl
+
+      - name: Update composer.
+        run: composer self-update
+
+      - name: Set environment variables pull request linux.
+        if: matrix.os == 'ubuntu-latest'
+        uses: yiisoft/actions/db/environment-linux@master
+
+      - name: Set environment variables pull request windows.
+        if: matrix.os == 'windows-latest'
+        uses: yiisoft/actions/db/environment-windows@master
+
+      - name: Install db-sqlite.
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
+          CURRENT_PACKAGE: db-sqlite
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+
+      - name: Install dependencies with composer.
+        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+
+      - name: Run tests with phpunit.
+        run: vendor/bin/phpunit --testsuite=Sqlite --coverage-clover=coverage.xml --colors=always
+
+      - name: Upload coverage to Codecov.
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
