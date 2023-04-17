@@ -700,6 +700,9 @@ trait ActiveRelationTrait
         return $this->primaryModel;
     }
 
+    /**
+     * @psalm-return string[]
+     */
     public function getLink(): array
     {
         return $this->link;
