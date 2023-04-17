@@ -840,31 +840,32 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 [$viaName, $viaRelation] = $viaRelation;
                 $viaClass = $viaRelation->getARInstance();
                 unset($this->related[$viaName]);
-            } else {
-                $from = $viaRelation->getFrom();
-                $viaTable = reset($from);
             }
 
             $columns = [];
-
-            foreach ($viaRelation->getLink() as $a => $b) {
-                $columns[$a] = $this->$b;
-            }
-
-            $link = $relation?->getLink() ?? [];
-
-            foreach ($link as $a => $b) {
-                $columns[$b] = $arClass->$a;
-            }
-
             $nulls = [];
 
-            foreach (array_keys($columns) as $a) {
-                $nulls[$a] = null;
-            }
+            if ($viaRelation instanceof ActiveQueryInterface) {
+                $from = $viaRelation->getFrom();
+                $viaTable = reset($from);
 
-            if ($viaRelation->getOn() !== null) {
-                $columns = ['and', $columns, $viaRelation->getOn()];
+                foreach ($viaRelation->getLink() as $a => $b) {
+                    $columns[$a] = $this->$b;
+                }
+
+                $link = $relation?->getLink() ?? [];
+
+                foreach ($link as $a => $b) {
+                    $columns[$b] = $arClass->$a;
+                }
+
+                foreach (array_keys($columns) as $a) {
+                    $nulls[$a] = null;
+                }
+
+                if ($viaRelation->getOn() !== null) {
+                    $columns = ['and', $columns, $viaRelation->getOn()];
+                }
             }
 
             if ($viaClass instanceof ActiveRecordInterface && is_array($relation?->getVia())) {
@@ -884,6 +885,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         } elseif ($relation instanceof ActiveQueryInterface) {
             $p1 = $arClass->isPrimaryKey(array_keys($relation->getLink()));
             $p2 = $this->isPrimaryKey(array_values($relation->getLink()));
+
             if ($p2) {
                 if ($delete) {
                     $arClass->delete();
@@ -915,7 +917,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         if ($relation instanceof ActiveQueryInterface && !$relation->getMultiple()) {
             unset($this->related[$name]);
-        } elseif (isset($this->related[$name])) {
+        } elseif (isset($this->related[$name]) && is_array($this->related[$name])) {
             /** @psalm-var array<array-key, ActiveRecordInterface> $related */
             $related = $this->related[$name];
             foreach ($related as $a => $b) {
