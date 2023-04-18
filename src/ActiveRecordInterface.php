@@ -21,6 +21,8 @@ interface ActiveRecordInterface
      * @throws Exception
      *
      * @return array List of attribute names.
+     *
+     * @psalm-return string[]
      */
     public function attributes(): array;
 

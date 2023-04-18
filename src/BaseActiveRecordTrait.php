@@ -56,6 +56,7 @@ trait BaseActiveRecordTrait
             return $this->related[$name];
         }
 
+        /** @var mixed $value */
         $value = $this->checkRelation($name);
 
         if ($value instanceof ActiveQuery) {
@@ -267,7 +268,7 @@ trait BaseActiveRecordTrait
      */
     public function offsetUnset(mixed $offset): void
     {
-        if (property_exists($this, $offset)) {
+        if (is_string($offset) && property_exists($this, $offset)) {
             $this->$offset = null;
         } else {
             unset($this->$offset);

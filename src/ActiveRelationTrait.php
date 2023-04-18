@@ -37,6 +37,7 @@ trait ActiveRelationTrait
 {
     private bool $multiple = false;
     private ActiveRecordInterface|null $primaryModel = null;
+    /** @psalm-var string[] */
     private array $link = [];
     /**
      * @var string|null the name of the relation that is the inverse of this relation.
@@ -699,6 +700,9 @@ trait ActiveRelationTrait
         return $this->primaryModel;
     }
 
+    /**
+     * @psalm-return string[]
+     */
     public function getLink(): array
     {
         return $this->link;
