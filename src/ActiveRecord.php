@@ -359,19 +359,22 @@ class ActiveRecord extends BaseActiveRecord
      */
     protected function deleteInternal(): false|int
     {
+        $result = false;
+
         /**
          * We do not check the return value of deleteAll() because it's possible the record is already deleted in the
          * database and thus the method will return 0.
          */
         $condition = $this->getOldPrimaryKey(true);
-
         $lock = $this->optimisticLock();
 
-        if ($lock !== null) {
+        if ($lock !== null && is_array($condition)) {
             $condition[$lock] = $this->$lock;
         }
 
-        $result = $this->deleteAll($condition);
+        if ($condition !== null && is_array($condition) && count($condition) > 0) {
+            $result = $this->deleteAll($condition);
+        }
 
         if ($lock !== null && !$result) {
             throw new StaleObjectException('The object being deleted is outdated.');
