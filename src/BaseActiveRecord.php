@@ -59,10 +59,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function delete(): false|int
     {
-       /**
-         * We do not check the return value of deleteAll() because it's possible the record is already deleted in
-         * the database and thus the method will return 0
-         */
+        /**
+          * We do not check the return value of deleteAll() because it's possible the record is already deleted in
+          * the database and thus the method will return 0
+          */
         $condition = $this->getOldPrimaryKey(true);
 
         if (is_array($condition) === false) {
