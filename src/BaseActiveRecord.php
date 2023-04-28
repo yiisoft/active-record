@@ -59,22 +59,23 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function delete(): false|int
     {
-        $result = false;
-
-        /**
+       /**
          * We do not check the return value of deleteAll() because it's possible the record is already deleted in
          * the database and thus the method will return 0
          */
         $condition = $this->getOldPrimaryKey(true);
+
+        if (is_array($condition) === false) {
+            return false;
+        }
+
         $lock = $this->optimisticLock();
 
-        if ($lock !== null && is_array($condition)) {
+        if ($lock !== null) {
             $condition[$lock] = $lock;
         }
 
-        if ($condition !== null && is_array($condition) && count($condition) > 0) {
-            $result = $this->deleteAll($condition);
-        }
+        $result = $this->deleteAll($condition);
 
         if ($lock !== null && !$result) {
             throw new StaleObjectException('The object being deleted is outdated.');
@@ -774,6 +775,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $attrs = [];
 
+        $condition = $this->getOldPrimaryKey(true);
+
+        if ($condition === null || $condition === []) {
+            return 0;
+        }
 
         /** @psalm-var mixed $value */
         foreach ($attributes as $name => $value) {
@@ -792,7 +798,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return 0;
         }
 
-        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true) ?? '');
+        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true) ?? []);
 
         /** @psalm-var array<string, mixed> $value */
         foreach ($values as $name => $value) {
