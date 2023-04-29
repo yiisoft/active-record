@@ -364,8 +364,11 @@ class ActiveRecord extends BaseActiveRecord
          * database and thus the method will return 0.
          */
         $condition = $this->getOldPrimaryKey(true);
-
         $lock = $this->optimisticLock();
+
+        if (is_array($condition) === false) {
+            return false;
+        }
 
         if ($lock !== null) {
             $condition[$lock] = $this->$lock;

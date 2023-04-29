@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -87,6 +88,8 @@ interface ActiveRecordInterface
     /**
      * @return array The default implementation returns the names of the columns whose values have been populated into
      * this record.
+     *
+     * @psalm-return array<string, string|Closure>
      */
     public function fields(): array;
 
