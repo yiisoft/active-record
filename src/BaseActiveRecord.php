@@ -129,16 +129,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $this->attributes[$name] ?? null;
     }
 
-    /**
-     * Returns attribute values.
-     *
-     * @param array|null $names List of attributes whose value needs to be returned. Defaults to null, meaning all
-     * attributes listed in {@see attributes()} will be returned. If it is an array, only the attributes in the array
-     * will be returned.
-     * @param array $except List of attributes whose value should NOT be returned.
-     *
-     * @return array Attribute values (name => value).
-     */
     public function getAttributes(array $names = null, array $except = []): array
     {
         $values = [];
@@ -236,6 +226,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $this->oldAttributes ?? [];
     }
 
+    /**
+     * @throws InvalidConfigException
+     * @throws Exception
+     */
     public function getOldPrimaryKey(bool $asArray = false): array|string|null
     {
         $keys = $this->primaryKey();
@@ -751,26 +745,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $command->execute();
     }
 
-    /**
-     * Updates the specified attributes.
-     *
-     * This method is a shortcut to {@see update()} when data validation is not needed and only a small set attributes
-     * need to be updated.
-     *
-     * You may specify the attributes to be updated as name list or name-value pairs. If the latter, the corresponding
-     * attribute values will be modified accordingly.
-     *
-     * The method will then save the specified attributes into database.
-     *
-     * Note that this method will **not** perform data validation and will **not** trigger events.
-     *
-     * @param array $attributes The attributes (names or name-value pairs) to be updated.
-     *
-     * @throws Exception
-     * @throws NotSupportedException
-     *
-     * @return int The number of rows affected.
-     */
     public function updateAttributes(array $attributes): int
     {
         $attrs = [];
