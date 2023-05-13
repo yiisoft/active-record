@@ -522,7 +522,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
 
                 if ($index !== null) {
-                    $this->activeRelation->set($name, [$index => $arClass]);
+                    $this->activeRelation->set($name . '.' . $index, $arClass);
                 }
             } else {
                 $this->activeRelation->add($name, $arClass);
