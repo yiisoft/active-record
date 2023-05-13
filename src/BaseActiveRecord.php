@@ -46,7 +46,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     private array $attributes = [];
     private array|null $oldAttributes = null;
-    private array $related = [];
+    private ActiveRelation $activeRelation;
     /** @psalm-var string[][] */
     private array $relationsDependencies = [];
 
@@ -55,6 +55,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         private ActiveRecordFactory|null $arFactory = null,
         private string $tableName = ''
     ) {
+        $this->activeRelation = new ActiveRelation();
     }
 
     public function delete(): false|int
@@ -109,9 +110,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function extraFields(): array
     {
-        $fields = array_keys($this->getRelatedRecords());
-
-        return array_combine($fields, $fields);
+        return $this->activeRelation->keys();
     }
 
     /**
@@ -285,7 +284,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function getRelatedRecords(): array
     {
-        return $this->related;
+        return $this->activeRelation->toArray();
     }
 
     public function hasAttribute($name): bool
@@ -405,7 +404,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function isRelationPopulated(string $name): bool
     {
-        return array_key_exists($name, $this->related);
+        return $this->activeRelation->has($name);
     }
 
     public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void
@@ -427,8 +426,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 /** @psalm-var ActiveQueryInterface $viaRelation */
                 $viaClass = $viaRelation->getARInstance();
                 // unset $viaName so that it can be reloaded to reflect the change.
-                /** @psalm-var string $viaName */
-                unset($this->related[$viaName]);
+                $this->activeRelation->remove($viaName);
             }
 
             if ($via instanceof ActiveQueryInterface) {
@@ -513,8 +511,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         // update lazily loaded related objects
         if ($relation instanceof ActiveRecordInterface && !$relation->getMultiple()) {
-            $this->related[$name] = $arClass;
-        } elseif (isset($this->related[$name])) {
+            $this->activeRelation->set($name, $arClass);
+        } elseif ($this->activeRelation->has($name)) {
             $indexBy = $relation?->getIndexBy();
             if ($indexBy !== null) {
                 if ($indexBy instanceof Closure) {
@@ -524,10 +522,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 }
 
                 if ($index !== null) {
-                    $this->related[$name][$index] = $arClass;
+                    $this->activeRelation->set($name, [$index => $arClass]);
                 }
             } else {
-                $this->related[$name][] = $arClass;
+                $this->activeRelation->add($name, $arClass);
             }
         }
     }
@@ -598,7 +596,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         $this->oldAttributes = $this->attributes;
-        $this->related = [];
+        $this->activeRelation->clear();
         $this->relationsDependencies = [];
     }
 
@@ -608,7 +606,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             unset($relationNames[$name]);
         }
 
-        $this->related[$name] = $records;
+        $this->activeRelation->set($name, $records);
     }
 
     /**
@@ -875,8 +873,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 [$viaName, $viaRelation] = $viaRelation;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
                 $viaClass = $viaRelation->getARInstance();
-                /** @psalm-var string $viaName */
-                unset($this->related[$viaName]);
+                $this->activeRelation->remove($viaName);
             }
 
             $columns = [];
@@ -956,13 +953,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         if ($relation instanceof ActiveQueryInterface && !$relation->getMultiple()) {
-            unset($this->related[$name]);
-        } elseif (isset($this->related[$name]) && is_array($this->related[$name])) {
-            /** @psalm-var array<array-key, ActiveRecordInterface> $related */
-            $related = $this->related[$name];
-            foreach ($related as $a => $b) {
+            $this->activeRelation->remove($name);
+        } elseif ($this->activeRelation->has($name) && is_array($this->activeRelation->get($name))) {
+            foreach ($this->activeRelation->get($name) as $a => $b) {
                 if ($arClass->getPrimaryKey() === $b->getPrimaryKey()) {
-                    unset($this->related[$name][$a]);
+                    $this->activeRelation->remove("$name.$a");
                 }
             }
         }
@@ -997,8 +992,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 [$viaName, $viaRelation] = $viaRelation;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
                 $viaClass = $viaRelation->getARInstance();
-                /** @psalm-var string $viaName */
-                unset($this->related[$viaName]);
+                $this->activeRelation->remove($viaName);
             } else {
                 $from = $viaRelation->getFrom();
                 /** @psalm-var mixed $viaTable */
@@ -1072,7 +1066,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
         }
 
-        unset($this->related[$name]);
+        $this->activeRelation->remove($name);
     }
 
     /**
@@ -1145,7 +1139,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         $this->oldAttributes = $record->getOldAttributes();
-        $this->related = [];
+        $this->activeRelation->clear();
         $this->relationsDependencies = [];
 
         return true;
@@ -1251,7 +1245,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     private function resetDependentRelations(string $attribute): void
     {
         foreach ($this->relationsDependencies[$attribute] as $relation) {
-            unset($this->related[$relation]);
+            $this->activeRelation->remove($relation);
         }
 
         unset($this->relationsDependencies[$attribute]);
