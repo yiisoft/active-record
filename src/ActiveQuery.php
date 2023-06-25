@@ -796,7 +796,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function viaTable(string $tableName, array $link, callable $callable = null): self
     {
-        $arClass = $this->primaryModel::class ?? $this->arClass;
+        $arClass = $this->primaryModel ? $this->primaryModel::class : $this->arClass;
         $arClassInstance = new self($arClass, $this->db);
 
         /** @psalm-suppress UndefinedMethod */
