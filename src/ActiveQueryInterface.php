@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
+use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
@@ -73,11 +75,253 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function via(string $relationName, callable $callable = null): self;
 
+    /**
+     * @return array|string|null the join condition to be used when this query is used in a relational context.
+     *
+     * The condition will be used in the ON part when {@see joinWith()} is called. Otherwise, the condition will be used
+     * in the WHERE part of a query.
+     *
+     * Please refer to {@see Query::where()} on how to specify this parameter.
+     *
+     * @see onCondition()
+     */
     public function getOn(): array|string|null;
 
+    /**
+     * @return array $value A list of relations that this query should be joined with.
+     */
     public function getJoinWith(): array;
 
     public function buildJoinWith(): void;
+
+    /**
+     * Joins with the specified relations.
+     *
+     * This method allows you to reuse existing relation definitions to perform JOIN queries. Based on the definition of
+     * the specified relation(s), the method will append one or many JOIN statements to the current query.
+     *
+     * If the `$eagerLoading` parameter is true, the method will also perform eager loading for the specified relations,
+     * which is equal to calling {@see with()} using the specified relations.
+     *
+     * Note: That because a JOIN query will be performed, you're responsible for disambiguated column names.
+     *
+     * This method differs from {@see with()} in that it will build up and execute a JOIN SQL statement for the primary
+     * table. And when `$eagerLoading` is true, it will call {@see with()} in addition with the specified relations.
+     *
+     * @param array|string $with The relations to be joined. This can either be a string, representing a relation name
+     * or an array with the following semantics:
+     *
+     * - Each array element represents a single relation.
+     * - You may specify the relation name as the array key and give anonymous functions that can be used to change the
+     *   relation queries on-the-fly as the array value.
+     * - If a relation query doesn't need modification, you may use the relation name as the array value.
+     *
+     * The relation name may optionally contain an alias for the relation table (e.g. `books b`).
+     *
+     * Sub-relations can also be specified, see {@see with()} for the syntax.
+     *
+     * In the following you find some examples:
+     *
+     * ```php
+     * // Find all orders that contain books, and eager loading "books".
+     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orderQuery->joinWith('books', true, 'INNER JOIN')->all();
+     *
+     * // find all orders, eager loading "books", and sort the orders and books by the book names.
+     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orderQuery->joinWith([
+     *     'books' => function (ActiveQuery $query) {
+     *         $query->orderBy('item.name');
+     *     }
+     * ])->all();
+     *
+     * // Find all orders that contain books of the category 'Science fiction', using the alias "b" for the book table.
+     * $order = new ActiveQuery(Order::class, $db);
+     * $orderQuery->joinWith(['books b'], true, 'INNER JOIN')->where(['b.category' => 'Science fiction'])->all();
+     * ```
+     * @param array|bool $eagerLoading Whether to eager load the relations specified in `$with`. When this is boolean.
+     * It applies to all relations specified in `$with`. Use an array to explicitly list which relations in `$with` a
+     * need to be eagerly loaded.
+     * Note: That this doesn't mean that the relations are populated from the query result. An
+     * extra query will still be performed to bring in the related data. Defaults to `true`.
+     * @param array|string $joinType The join type of the relations specified in `$with`.  When this is a string, it
+     * applies to all relations specified in `$with`. Use an array in the format of `relationName => joinType` to
+     * specify different join types for different relations.
+     */
+    public function joinWith(
+        array|string $with,
+        array|bool $eagerLoading = true,
+        array|string $joinType = 'LEFT JOIN'
+    ): self;
+
+    public function resetJoinWith(): void;
+
+    /**
+     * Inner joins with the specified relations.
+     *
+     * This is a shortcut method to {@see joinWith()} with the join type set as "INNER JOIN".
+     *
+     * Please refer to {@see joinWith()} for detailed usage of this method.
+     *
+     * @param array|string $with The relations to be joined with.
+     * @param array|bool $eagerLoading Whether to eager load the relations.
+     * Note: That this doesn't mean that the relations are populated from the query result.
+     * An extra query will still be performed to bring in the related data.
+     *
+     * @see joinWith()
+     */
+    public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): self;
+
+    /**
+     * Sets the ON condition for a relational query.
+     *
+     * The condition will be used in the ON part when {@see joinWith()} is called.
+     *
+     * Otherwise, the condition will be used in the WHERE part of a query.
+     *
+     * Use this method to specify more conditions when declaring a relation in the {@see ActiveRecord} class:
+     *
+     * ```php
+     * public function getActiveUsers(): ActiveQuery
+     * {
+     *     return $this->hasMany(User::class, ['id' => 'user_id'])->onCondition(['active' => true]);
+     * }
+     * ```
+     *
+     * Note that this condition is applied in case of a join as well as when fetching the related records.
+     * These only fields of the related table can be used in the condition.
+     * Trying to access fields of the primary record will cause an error in a non-join-query.
+     *
+     * @param array|string $condition The ON condition. Please refer to {@see Query::where()} on how to specify this
+     * parameter.
+     * @param array $params The parameters (name => value) to be bound to the query.
+     */
+    public function onCondition(array|string $condition, array $params = []): self;
+
+    /**
+     * Adds ON condition to the existing one.
+     *
+     * The new condition and the existing one will be joined using the 'AND' operator.
+     *
+     * @param array|string $condition The new ON condition.
+     * Please refer to {@see where()} on how to specify this parameter.
+     * @param array $params the parameters (name => value) to be bound to the query.
+     *
+     * @see onCondition()
+     * @see orOnCondition()
+     */
+    public function andOnCondition(array|string $condition, array $params = []): self;
+
+    /**
+     * Adds ON condition to the existing one.
+     *
+     * The new condition and the existing one will be joined using the 'OR' operator.
+     *
+     * @param array|string $condition The new ON condition.
+     * Please refer to {@see where()} on how to specify this parameter.
+     * @param array $params The parameters (name => value) to be bound to the query.
+     *
+     * @see onCondition()
+     * @see andOnCondition()
+     */
+    public function orOnCondition(array|string $condition, array $params = []): self;
+
+    /**
+     * Specifies the junction table for a relational query.
+     *
+     * Use this method to specify a junction table when declaring a relation in the {@see ActiveRecord} class:
+     *
+     * ```php
+     * public function getItems()
+     * {
+     *     return $this->hasMany(Item::class, ['id' => 'item_id'])->viaTable('order_item', ['order_id' => 'id']);
+     * }
+     * ```
+     *
+     * @param string $tableName The name of the junction table.
+     * @param array $link The link between the junction table and the table associated with {@see primaryModel}.
+     * The keys of the array represent the columns in the junction table, and the values represent the columns in the
+     * {@see primaryModel} table.
+     * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
+     * Its signature should be `function($query)`, where `$query` is the query to be customized.
+     *
+     * @see via()
+     */
+    public function viaTable(string $tableName, array $link, callable $callable = null): self;
+
+    /**
+     * Define an alias for the table defined in {@see arClass}.
+     *
+     * This method will adjust {@see from()} so that an already defined alias will be overwritten.
+     *
+     * If none was defined, {@see from()} will be populated with the given alias.
+     *
+     * @param string $alias The table alias.
+     *
+     * @throws CircularReferenceException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     */
+    public function alias(string $alias): self;
+
+    /**
+     * Returns table names used in {@see from} indexed by aliases.
+     *
+     * Both aliases and names are enclosed into {{ and }}.
+     *
+     * @throws CircularReferenceException
+     * @throws InvalidArgumentException
+     * @throws NotFoundException
+     * @throws NotInstantiableException
+     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     */
+    public function getTablesUsedInFrom(): array;
+
+    /**
+     * @return string|null The SQL statement to be executed for retrieving AR records.
+     *
+     * This is set by {@see ActiveRecord::findBySql()}.
+     */
+    public function getSql(): string|null;
+
+    public function getARClass(): string|null;
+
+    /**
+     * Creates an {@see ActiveQuery} instance with a given SQL statement.
+     *
+     * Note: That because the SQL statement is already specified, calling more query modification methods
+     * (such as {@see where()}, {@see order()) on the created {@see ActiveQuery} instance will have no effect.
+     *
+     * However, calling {@see with()}, {@see asArray()} or {@see indexBy()} is still fine.
+     *
+     * Below is an example:
+     *
+     * ```php
+     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customers = $customerQuery->findBySql('SELECT * FROM customer')->all();
+     * ```
+     *
+     * @param string $sql The SQL statement to be executed.
+     * @param array $params The parameters to be bound to the SQL statement during execution.
+     */
+    public function findBySql(string $sql, array $params = []): self;
+
+    public function on(array|string|null $value): self;
+
+    public function sql(string|null $value): self;
+
+    /**
+     * Converts the raw query results into the format as specified by this query.
+     *
+     * This method is internally used to convert the data fetched from a database into the format as required by this
+     * query.
+     *
+     * @param array $rows The raw query result from a database.
+     *
+     * @return array The converted query result.
+     */
+    public function populate(array $rows, Closure|string|null $indexBy = null): array;
 
     /**
      * Finds the related records for the specified primary record.
