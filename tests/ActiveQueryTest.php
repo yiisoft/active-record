@@ -46,6 +46,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals($query->getARClass(), Customer::class);
         $this->assertEquals($query->getOn(), ['a' => 'b']);
         $this->assertEquals($query->getJoinWith(), [[['profile'], true, 'LEFT JOIN']]);
+        $customerQuery->resetJoinWith();
+        $this->assertEquals($query->getJoinWith(), []);
     }
 
     public function testPrepare(): void
