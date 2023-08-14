@@ -554,7 +554,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @see Actiquery::via
      */
-    public function getVia(): array|ActiveQueryInterface|null;
+    public function getVia(): array|self|null;
 
     /**
      * @return array The columns of the primary and foreign tables that establish a relation.

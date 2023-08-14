@@ -464,7 +464,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $this->joinWith = [];
     }
 
-        /**
+    /**
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
