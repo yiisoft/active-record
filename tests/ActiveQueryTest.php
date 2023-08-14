@@ -1842,8 +1842,6 @@ abstract class ActiveQueryTest extends TestCase
      *
      * @dataProvider tableNameProvider
      *
-     * @param string $orderTableName
-     * @param string $orderItemTableName
      *
      * @throws Exception|InvalidConfigException
      */
