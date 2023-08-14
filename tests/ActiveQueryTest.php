@@ -1842,7 +1842,6 @@ abstract class ActiveQueryTest extends TestCase
      *
      * @dataProvider tableNameProvider
      *
-     *
      * @throws Exception|InvalidConfigException
      */
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
