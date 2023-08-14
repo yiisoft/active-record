@@ -45,7 +45,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
     public function testJoinWithAlias(string $aliasMethod): void
     {
         $orders = [];
-        $this->checkFixture($this->db, 'order');
+        $this->checkFixture($this->db, 'order', true);
 
         /** left join and eager loading */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
