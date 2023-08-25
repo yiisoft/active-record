@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
+use DateTimeImmutable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
@@ -75,8 +76,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertEquals(1.23, $arClass->float_col2);
         $this->assertEquals(33.22, $arClass->numeric_col);
         $this->assertEquals('1', $arClass->bool_col2);
-
-        // not testing $arClass->time, because oci\Schema can't read default value
+        $this->assertEquals(new DateTimeImmutable('2002-01-01 00:00:00'), $arClass->time);
 
         $arClass = new Type($this->db);
         $arClass->char_col2 = 'not something';

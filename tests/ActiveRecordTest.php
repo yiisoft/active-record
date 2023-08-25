@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use DateTimeImmutable;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
@@ -155,7 +156,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(1.23, $arClass->float_col2);
         $this->assertEquals(33.22, $arClass->numeric_col);
         $this->assertEquals(true, $arClass->bool_col2);
-        $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
+        $this->assertEquals(new DateTimeImmutable('2002-01-01 00:00:00'), $arClass->time);
 
         $arClass = new Type($this->db);
         $arClass->char_col2 = 'not something';
