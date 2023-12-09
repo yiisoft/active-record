@@ -1278,7 +1278,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $data = [];
 
         foreach ($this->resolveFields($fields, $expand) as $field => $definition) {
-            $attribute = $definition instanceof Closure ? $definition($this, $field) : $definition;
+            $attribute = $definition instanceof Closure ? $definition($this, $field) : $this[$definition];
 
             if ($recursive) {
                 $nestedFields = $this->extractFieldsFor($fields, $field);
