@@ -21,7 +21,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
-use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -802,7 +801,7 @@ abstract class ActiveRecordTest extends TestCase
                         'email' => 'user3@example.com',
                         'status' => 'inactive',
                     ],
-                ]
+                ],
             ],
             $customer->toArray([
                 'id',
