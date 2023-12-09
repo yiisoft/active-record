@@ -10,7 +10,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
-use Yiisoft\Arrays\ArrayHelper;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
@@ -205,7 +204,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                         'email' => 'user3@example.com',
                         'status' => 'inactive',
                     ],
-                ]
+                ],
             ],
             $customer->toArray([
                 'id',
