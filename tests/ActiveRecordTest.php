@@ -785,8 +785,8 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(
             [
                 'id' => 1,
-                'email' => 'user1@example.com',
                 'name' => 'user1',
+                'email' => 'user1@example.com',
                 'address' => 'address1',
                 'status' => 'active',
                 'item' => [
@@ -798,8 +798,8 @@ abstract class ActiveRecordTest extends TestCase
                 'items' => [
                     [
                         'id' => 3,
-                        'email' => 'user3@example.com',
                         'name' => 'user3',
+                        'email' => 'user3@example.com',
                         'status' => 'inactive',
                     ],
                 ]
