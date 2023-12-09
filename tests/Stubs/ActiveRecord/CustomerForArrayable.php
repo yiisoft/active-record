@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
@@ -15,9 +17,32 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 class CustomerForArrayable extends ActiveRecord
 {
+    public array $items = [];
+
+    public ?CustomerForArrayable $item = null;
+
     public function getTableName(): string
     {
         return 'customer';
+    }
+
+    public function fields(): array
+    {
+        $fields = parent::fields();
+
+        $fields['item'] = 'item';
+        $fields['items'] = 'items';
+
+        return $fields;
+    }
+
+    public function setItem(CustomerForArrayable $item) {
+        $this->item = $item;
+    }
+
+    public function setItems(CustomerForArrayable ...$items)
+    {
+        $this->items = $items;
     }
 
     public function toArray(array $fields = [], array $expand = [], bool $recursive = true): array

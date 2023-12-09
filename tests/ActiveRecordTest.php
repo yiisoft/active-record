@@ -771,7 +771,16 @@ abstract class ActiveRecordTest extends TestCase
         $this->checkFixture($this->db, 'customer', true);
 
         $customerQuery = new ActiveQuery(CustomerForArrayable::class, $this->db);
+
+        /** @var CustomerForArrayable $customer */
         $customer = $customerQuery->findOne(1);
+        /** @var CustomerForArrayable $customer2 */
+        $customer2 = $customerQuery->findOne(2);
+        /** @var CustomerForArrayable $customer3 */
+        $customer3 = $customerQuery->findOne(3);
+
+        $customer->setItem($customer2);
+        $customer->setItems($customer3);
 
         $this->assertSame(
             [
@@ -780,9 +789,34 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 'active',
-                'profile_id' => 1,
+                'item' => [
+                    'id' => 2,
+                    'name' => 'user2',
+                    'email' => 'user2@example.com',
+                    'status' => 'active',
+                ],
+                'items' => [
+                    [
+                        'id' => 3,
+                        'email' => 'user3@example.com',
+                        'name' => 'user3',
+                        'status' => 'inactive',
+                    ],
+                ]
             ],
-            ArrayHelper::toArray($customer),
+            $customer->toArray([
+                'id',
+                'name',
+                'email',
+                'address',
+                'status',
+                'item.id',
+                'item.name',
+                'item.email',
+                'items.0.id',
+                'items.0.name',
+                'items.0.email',
+            ]),
         );
     }
 }

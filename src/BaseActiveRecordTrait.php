@@ -250,11 +250,11 @@ trait BaseActiveRecordTrait
      * It is implicitly called when you use something like `$model[$offset] = $item;`.
      *
      * @param mixed $offset the offset to set element.
-     * @param mixed $item the element value.
+     * @param mixed $value the element value.
      */
-    public function offsetSet(mixed $offset, mixed $item): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->$offset = $item;
+        $this->$offset = $value;
     }
 
     /**
