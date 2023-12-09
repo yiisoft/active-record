@@ -183,6 +183,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 'active',
+                'bool_status' => '1',
                 'profile_id' => 1,
             ],
             ArrayHelper::toArray($customer),
