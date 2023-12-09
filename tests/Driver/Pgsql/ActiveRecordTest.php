@@ -403,8 +403,8 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame(
             [
                 'id' => 1,
-                'email' => 'user1@example.com',
                 'name' => 'user1',
+                'email' => 'user1@example.com',
                 'address' => 'address1',
                 'status' => 'active',
                 'item' => [
@@ -416,8 +416,8 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 'items' => [
                     [
                         'id' => 3,
-                        'email' => 'user3@example.com',
                         'name' => 'user3',
+                        'email' => 'user3@example.com',
                         'status' => 'inactive',
                     ],
                 ]
@@ -429,11 +429,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 'address',
                 'status',
                 'item.id',
-                'item.name',
                 'item.email',
+                'item.name',
                 'items.0.id',
-                'items.0.name',
                 'items.0.email',
+                'items.0.name',
             ]),
         );
     }
