@@ -36,7 +36,8 @@ class CustomerForArrayable extends ActiveRecord
         return $fields;
     }
 
-    public function setItem(self $item) {
+    public function setItem(self $item)
+    {
         $this->item = $item;
     }
 
