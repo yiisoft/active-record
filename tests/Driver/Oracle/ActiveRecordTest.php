@@ -7,8 +7,10 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
+use Yiisoft\Arrays\ArrayHelper;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
@@ -164,6 +166,26 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 'profile_id' => 1,
             ],
             $customer->toArray(),
+        );
+    }
+
+    public function testToArrayForArrayable(): void
+    {
+        $this->checkFixture($this->db, 'customer', true);
+
+        $customerQuery = new ActiveQuery(CustomerForArrayable::class, $this->db);
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame(
+            [
+                'id' => 1,
+                'email' => 'user1@example.com',
+                'name' => 'user1',
+                'address' => 'address1',
+                'status' => 'active',
+                'profile_id' => 1,
+            ],
+            ArrayHelper::toArray($customer),
         );
     }
 }

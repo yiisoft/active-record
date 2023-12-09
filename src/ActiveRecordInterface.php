@@ -502,6 +502,16 @@ interface ActiveRecordInterface
 
     /**
      * Serializes the active record into its array implementation with attribute name as a key, and it values as value.
+     *
+     * @param array $fields the fields that the output array should contain. Fields not specified
+     * in {@see fields()} will be ignored. If this parameter is empty, all fields as specified
+     * in {@see fields()} will be returned.
+     * @param array $expand the additional fields that the output array should contain.
+     * Fields not specified in {@see extraFields()} will be ignored. If this parameter is empty, no extra fields
+     * will be returned.
+     * @param bool $recursive Whether to recursively return array representation of embedded objects.
+     *
+     * @return array The array representation of the object.
      */
-    public function toArray(): array;
+    public function toArray(array $fields = [], array $expand = [], bool $recursive = true): array;
 }

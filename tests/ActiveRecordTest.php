@@ -10,6 +10,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
@@ -20,6 +21,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -761,6 +763,26 @@ abstract class ActiveRecordTest extends TestCase
                 'profile_id' => 1,
             ],
             $customer->toArray(),
+        );
+    }
+
+    public function testToArrayForArrayable(): void
+    {
+        $this->checkFixture($this->db, 'customer', true);
+
+        $customerQuery = new ActiveQuery(CustomerForArrayable::class, $this->db);
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame(
+            [
+                'id' => 1,
+                'email' => 'user1@example.com',
+                'name' => 'user1',
+                'address' => 'address1',
+                'status' => 'active',
+                'profile_id' => 1,
+            ],
+            ArrayHelper::toArray($customer),
         );
     }
 }

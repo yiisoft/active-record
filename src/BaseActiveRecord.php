@@ -9,6 +9,9 @@ use Closure;
 use IteratorAggregate;
 use ReflectionException;
 use Throwable;
+use Yiisoft\Arrays\ArrayableInterface;
+use Yiisoft\Arrays\ArrayableTrait;
+use Yiisoft\Arrays\ArrayHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -40,8 +43,9 @@ use function reset;
  * @template-implements ArrayAccess<int, mixed>
  * @template-implements IteratorAggregate<int>
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess
+abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess, ArrayableInterface
 {
+    use ArrayableTrait;
     use BaseActiveRecordTrait;
 
     private array $attributes = [];
@@ -1266,19 +1270,28 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         return $this->tableName;
     }
 
-    public function toArray(): array
+    /**
+     * @inheritDoc
+     */
+    public function toArray(array $fields = [], array $expand = [], bool $recursive = true): array
     {
         $data = [];
 
-        foreach ($this->fields() as $key => $value) {
-            if ($value instanceof Closure) {
-                /** @var mixed */
-                $data[$key] = $value($this);
-            } else {
-                /** @var mixed */
-                $data[$value] = $this[$value];
+        foreach ($this->resolveFields($fields, $expand) as $field => $definition) {
+            $attribute = $definition instanceof Closure ? $definition($this, $field) : $definition;
+
+            if ($recursive) {
+                $nestedFields = $this->extractFieldsFor($fields, $field);
+                $nestedExpand = $this->extractFieldsFor($expand, $field);
+                if ($attribute instanceof ArrayableInterface) {
+                    $attribute = $attribute->toArray($nestedFields, $nestedExpand);
+                } elseif (is_array($attribute) && ($nestedExpand || $nestedFields)) {
+                    $attribute = $this->filterAndExpand($attribute, $nestedFields, $nestedExpand);
+                }
             }
+            $data[$field] = $attribute;
         }
-        return $data;
+
+        return $recursive ? ArrayHelper::toArray($data) : $data;
     }
 }
