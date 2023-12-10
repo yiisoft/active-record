@@ -1273,6 +1273,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * @inheritDoc
      */
+    public function toArray(array $fields = [], array $expand = [], bool $recursive = true): array
     {
         $data = [];
 
