@@ -513,5 +513,4 @@ interface ActiveRecordInterface
      *
      * @return array The array representation of the object.
      */
-    public function toArray(array $fields = [], array $expand = [], bool $recursive = true): array;
 }
