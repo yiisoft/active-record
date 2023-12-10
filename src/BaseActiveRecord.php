@@ -43,7 +43,7 @@ use function reset;
  * @template-implements ArrayAccess<int, mixed>
  * @template-implements IteratorAggregate<int>
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess, ArrayableInterface
+abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess
 {
     use ArrayableTrait;
     use BaseActiveRecordTrait;
@@ -1268,30 +1268,5 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return $this->tableName;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function toArray(array $fields = [], array $expand = [], bool $recursive = true): array
-    {
-        $data = [];
-
-        foreach ($this->resolveFields($fields, $expand) as $field => $definition) {
-            $attribute = $definition instanceof Closure ? $definition($this, $field) : $this[$definition];
-
-            if ($recursive) {
-                $nestedFields = $this->extractFieldsFor($fields, $field);
-                $nestedExpand = $this->extractFieldsFor($expand, $field);
-                if ($attribute instanceof ArrayableInterface) {
-                    $attribute = $attribute->toArray($nestedFields, $nestedExpand);
-                } elseif (is_array($attribute) && ($nestedExpand || $nestedFields)) {
-                    $attribute = $this->filterAndExpand($attribute, $nestedFields, $nestedExpand);
-                }
-            }
-            $data[$field] = $attribute;
-        }
-
-        return $recursive ? ArrayHelper::toArray($data) : $data;
     }
 }
