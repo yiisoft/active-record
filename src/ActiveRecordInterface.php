@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use Throwable;
 use Yiisoft\Arrays\ArrayableInterface;
 use Yiisoft\Db\Exception\Exception;
