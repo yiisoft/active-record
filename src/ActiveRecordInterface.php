@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -85,14 +84,6 @@ interface ActiveRecordInterface
      * @return bool Whether the two active records refer to the same row in the same database table.
      */
     public function equals(self $record): bool;
-
-    /**
-     * @return array The default implementation returns the names of the columns whose values have been populated into
-     * this record.
-     *
-     * @psalm-return array<string, string|Closure>
-     */
-    public function fields(): array;
 
     /**
      * Filters array condition before it's assigned to a Query filter.
@@ -499,19 +490,4 @@ interface ActiveRecordInterface
      * @throws InvalidConfigException
      */
     public function populateRecord(array|object $row): void;
-
-    /**
-     * Serializes the active record into its array implementation with attribute name as a key, and it values as value.
-     *
-     * @param array $fields the fields that the output array should contain. Fields not specified
-     * in {@see fields()} will be ignored. If this parameter is empty, all fields as specified
-     * in {@see fields()} will be returned.
-     * @param array $expand the additional fields that the output array should contain.
-     * Fields not specified in {@see extraFields()} will be ignored. If this parameter is empty, no extra fields
-     * will be returned.
-     * @param bool $recursive Whether to recursively return array representation of embedded objects.
-     *
-     * @return array The array representation of the object.
-     */
-    public function toArray(array $fields = [], array $expand = [], bool $recursive = true): array;
 }
