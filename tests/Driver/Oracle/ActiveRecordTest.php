@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 

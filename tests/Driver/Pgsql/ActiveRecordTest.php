@@ -12,7 +12,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BoolAR;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
