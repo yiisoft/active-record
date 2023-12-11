@@ -9,6 +9,7 @@ use Closure;
 use IteratorAggregate;
 use ReflectionException;
 use Throwable;
+use Yiisoft\Arrays\ArrayableInterface;
 use Yiisoft\Arrays\ArrayableTrait;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
@@ -41,7 +42,7 @@ use function reset;
  * @template-implements ArrayAccess<int, mixed>
  * @template-implements IteratorAggregate<int>
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess
+abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess, ArrayableInterface
 {
     use ArrayableTrait;
     use BaseActiveRecordTrait;
