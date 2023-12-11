@@ -118,7 +118,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     }
 
     /**
-     * @psalm-suppress MixedReturnTypeCoercion
+     * @psalm-return array<string, string|Closure>
      */
     public function fields(): array
     {
