@@ -37,6 +37,11 @@ class Customer extends ActiveRecord
         return 'customer';
     }
 
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     public function getProfile(): ActiveQuery
     {
         return $this->hasOne(Profile::class, ['id' => 'profile_id']);

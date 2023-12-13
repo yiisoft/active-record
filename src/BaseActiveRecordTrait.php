@@ -200,9 +200,7 @@ trait BaseActiveRecordTrait
                 $this->resetDependentRelations($name);
             }
             $this->attributes[$name] = $value;
-        }
-
-        if (method_exists($this, 'get' . ucfirst($name))) {
+        } elseif (method_exists($this, 'get' . ucfirst($name))) {
             throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
     }
