@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
@@ -390,7 +391,8 @@ abstract class ActiveRecordTest extends TestCase
 
         $cat = new Cat($this->db);
 
-        $this->assertFalse(isset($cat->exception));
+        $this->expectException(Exception::class);
+        isset($cat->exception);
     }
 
     public function testIssetThrowable(): void
@@ -399,7 +401,18 @@ abstract class ActiveRecordTest extends TestCase
 
         $cat = new Cat($this->db);
 
-        $this->assertFalse(isset($cat->throwable));
+        $this->expectException(DivisionByZeroError::class);
+        isset($cat->throwable);
+    }
+
+    public function testIssetNonExisting(): void
+    {
+        $this->checkFixture($this->db, 'cat');
+
+        $cat = new Cat($this->db);
+
+        $this->assertFalse(isset($cat->non_existing));
+        $this->assertFalse(isset($cat->non_existing_property));
     }
 
     public function testSetAttributes(): void
