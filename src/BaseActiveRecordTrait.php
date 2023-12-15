@@ -44,12 +44,8 @@ trait BaseActiveRecordTrait
      */
     public function __get(string $name)
     {
-        if (isset($this->attributes[$name]) || array_key_exists($name, $this->attributes)) {
-            return $this->attributes[$name];
-        }
-
         if ($this->hasAttribute($name)) {
-            return null;
+            return $this->getAttribute($name);
         }
 
         if (isset($this->related[$name]) || array_key_exists($name, $this->related)) {
