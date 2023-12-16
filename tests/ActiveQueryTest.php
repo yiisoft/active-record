@@ -2248,7 +2248,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($customer->save());
         $this->assertSame('Jack', $customer->getOldAttribute('name'));
 
-        $customer->name = 'Harry';
+        $customer->setAttribute('name', 'Harry');
 
         $this->assertTrue($customer->save());
         $this->assertSame('Harry', $customer->getOldAttribute('name'));
