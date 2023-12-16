@@ -200,6 +200,7 @@ trait BaseActiveRecordTrait
                 $this->resetDependentRelations($name);
             }
             $this->attributes[$name] = $value;
+            return;
         }
 
         if (method_exists($this, 'get' . ucfirst($name))) {
