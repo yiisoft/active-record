@@ -44,12 +44,8 @@ trait BaseActiveRecordTrait
      */
     public function __get(string $name)
     {
-        if (isset($this->attributes[$name]) || array_key_exists($name, $this->attributes)) {
-            return $this->attributes[$name];
-        }
-
         if ($this->hasAttribute($name)) {
-            return null;
+            return $this->getAttribute($name);
         }
 
         if (isset($this->related[$name]) || array_key_exists($name, $this->related)) {
@@ -171,10 +167,7 @@ trait BaseActiveRecordTrait
     public function __unset(string $name): void
     {
         if ($this->hasAttribute($name)) {
-            unset($this->attributes[$name]);
-            if (!empty($this->relationsDependencies[$name])) {
-                $this->resetDependentRelations($name);
-            }
+            $this->setAttributeInternal($name, null);
         } elseif (array_key_exists($name, $this->related)) {
             unset($this->related[$name]);
         }
@@ -193,13 +186,8 @@ trait BaseActiveRecordTrait
     public function __set(string $name, mixed $value): void
     {
         if ($this->hasAttribute($name)) {
-            if (
-                !empty($this->relationsDependencies[$name])
-                && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
-            ) {
-                $this->resetDependentRelations($name);
-            }
-            $this->attributes[$name] = $value;
+            $this->setAttributeInternal($name, $value);
+            return;
         }
 
         if (method_exists($this, 'get' . ucfirst($name))) {

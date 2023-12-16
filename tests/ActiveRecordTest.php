@@ -10,6 +10,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerExtraAttributes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
@@ -762,5 +763,15 @@ abstract class ActiveRecordTest extends TestCase
             ],
             $customer->toArray(),
         );
+    }
+
+    public function testGetExtraArrtibute()
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(CustomerExtraAttributes::class, $this->db);
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame($customer->sex, 'm');
     }
 }
