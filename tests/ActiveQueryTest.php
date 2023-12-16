@@ -2231,6 +2231,29 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($query->isAttributeChanged('name', false));
     }
 
+    public function testOldAttributeAfterInsertAndUpdate(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customer = new Customer($this->db);
+
+        $customer->setAttributes([
+            'email' => 'info@example.com',
+            'name' => 'Jack',
+            'address' => '123 Ocean Dr',
+            'status' => 1,
+        ]);
+
+        $this->assertNull($customer->getOldAttribute('name'));
+        $this->assertTrue($customer->save());
+        $this->assertSame('Jack', $customer->getOldAttribute('name'));
+
+        $customer->setAttribute('name', 'Harry');
+
+        $this->assertTrue($customer->save());
+        $this->assertSame('Harry', $customer->getOldAttribute('name'));
+    }
+
     public function testCheckRelationUnknownPropertyException(): void
     {
         $this->checkFixture($this->db, 'customer');
