@@ -52,8 +52,8 @@ trait BaseActiveRecordTrait
             return null;
         }
 
-        if (isset($this->related[$name]) || array_key_exists($name, $this->related)) {
-            return $this->related[$name];
+        if ($this->activeRelation->has($name)) {
+            return $this->activeRelation->get($name);
         }
 
         /** @var mixed $value */
@@ -61,7 +61,10 @@ trait BaseActiveRecordTrait
 
         if ($value instanceof ActiveQuery) {
             $this->setRelationDependencies($name, $value);
-            return $this->related[$name] = $value->findFor($name, $this);
+            $valueForFind = $value->findFor($name, $this);
+            $this->activeRelation->set($name, $valueForFind);
+
+            return $valueForFind;
         }
 
         return $value;
@@ -175,8 +178,8 @@ trait BaseActiveRecordTrait
             if (!empty($this->relationsDependencies[$name])) {
                 $this->resetDependentRelations($name);
             }
-        } elseif (array_key_exists($name, $this->related)) {
-            unset($this->related[$name]);
+        } elseif ($this->activeRelation->has($name)) {
+            $this->activeRelation->remove($name);
         }
     }
 
