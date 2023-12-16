@@ -206,6 +206,8 @@ trait BaseActiveRecordTrait
         if (method_exists($this, 'get' . ucfirst($name))) {
             throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
+
+        throw new UnknownPropertyException('Setting unknown property: ' . static::class . '::' . $name);
     }
 
     /**
