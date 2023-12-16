@@ -39,7 +39,7 @@ class Customer extends ActiveRecord
 
     public function getName(): string
     {
-        return $this->name;
+        return $this->getAttribute('name');
     }
 
     public function getProfile(): ActiveQuery
