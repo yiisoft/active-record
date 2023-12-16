@@ -658,13 +658,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function setAttribute(string $name, mixed $value): void
     {
         if ($this->hasAttribute($name)) {
-            if (
-                !empty($this->relationsDependencies[$name])
-                && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
-            ) {
-                $this->resetDependentRelations($name);
-            }
-            $this->attributes[$name] = $value;
+            $this->setAttributeInternal($name, $value);
         } else {
             throw new InvalidArgumentException(static::class . ' has no attribute named "' . $name . '".');
         }
@@ -1280,5 +1274,20 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             }
         }
         return $data;
+    }
+
+    /**
+     * Sets the named attribute value without checking if the attribute exists.
+     */
+    protected function setAttributeInternal(string $name, mixed $value): void
+    {
+        if (
+            !empty($this->relationsDependencies[$name])
+            && ($value === null || $value !== $this->attributes[$name] ?? null)
+        ) {
+            $this->resetDependentRelations($name);
+        }
+
+        $this->attributes[$name] = $value;
     }
 }
