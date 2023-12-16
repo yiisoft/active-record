@@ -9,6 +9,8 @@ use Closure;
 use IteratorAggregate;
 use ReflectionException;
 use Throwable;
+use Yiisoft\Arrays\ArrayableInterface;
+use Yiisoft\Arrays\ArrayableTrait;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -40,8 +42,9 @@ use function reset;
  * @template-implements ArrayAccess<int, mixed>
  * @template-implements IteratorAggregate<int>
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess
+abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess, ArrayableInterface
 {
+    use ArrayableTrait;
     use BaseActiveRecordTrait;
 
     private array $attributes = [];
@@ -115,7 +118,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     }
 
     /**
-     * @psalm-suppress MixedReturnTypeCoercion
+     * @psalm-return array<string, string|Closure>
      */
     public function fields(): array
     {
@@ -1264,21 +1267,5 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return $this->tableName;
-    }
-
-    public function toArray(): array
-    {
-        $data = [];
-
-        foreach ($this->fields() as $key => $value) {
-            if ($value instanceof Closure) {
-                /** @var mixed */
-                $data[$key] = $value($this);
-            } else {
-                /** @var mixed */
-                $data[$value] = $this[$value];
-            }
-        }
-        return $data;
     }
 }
