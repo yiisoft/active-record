@@ -1283,7 +1283,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         if (
             !empty($this->relationsDependencies[$name])
-            && ($value === null || $value !== $this->attributes[$name] ?? null)
+            && ($value === null || $value !== ($this->attributes[$name] ?? null))
         ) {
             $this->resetDependentRelations($name);
         }
