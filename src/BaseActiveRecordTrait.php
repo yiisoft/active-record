@@ -156,7 +156,7 @@ trait BaseActiveRecordTrait
     {
         try {
             return $this->__get($name) !== null;
-        } catch (Throwable) {
+        } catch (InvalidCallException|UnknownPropertyException) {
             return false;
         }
     }
