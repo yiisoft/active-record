@@ -23,7 +23,6 @@ use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_combine;
 use function array_diff;
-use function array_diff_key;
 use function array_flip;
 use function array_intersect;
 use function array_key_exists;
