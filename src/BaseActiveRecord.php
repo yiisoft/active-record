@@ -23,10 +23,8 @@ use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_combine;
 use function array_diff;
-use function array_diff_key;
 use function array_flip;
 use function array_intersect;
-use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
@@ -183,24 +181,40 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     public function getDirtyAttributes(array $names = null): array
     {
         if ($names === null) {
-            $attributes = $this->attributes;
-        } else {
-            $attributes = array_intersect_key($this->attributes, array_flip($names));
+            $names = $this->attributes();
         }
+
+        $names = array_flip($names);
+        $attributes = [];
 
         if ($this->oldAttributes === null) {
-            return $attributes;
-        }
-
-        $result = array_diff_key($attributes, $this->oldAttributes);
-
-        foreach (array_diff_key($attributes, $result) as $name => $value) {
-            if ($value !== $this->oldAttributes[$name]) {
-                $result[$name] = $value;
+            /**
+             * @var string $name
+             * @var mixed $value
+             */
+            foreach ($this->attributes as $name => $value) {
+                if (isset($names[$name])) {
+                    /** @psalm-var mixed */
+                    $attributes[$name] = $value;
+                }
+            }
+        } else {
+            /**
+             * @var string $name
+             * @var mixed $value
+             */
+            foreach ($this->attributes as $name => $value) {
+                if (
+                    isset($names[$name])
+                    && (!array_key_exists($name, $this->oldAttributes) || $value !== $this->oldAttributes[$name])
+                ) {
+                    /** @psalm-var mixed */
+                    $attributes[$name] = $value;
+                }
             }
         }
 
-        return $result;
+        return $attributes;
     }
 
     public function getOldAttributes(): array
