@@ -836,4 +836,56 @@ abstract class ActiveRecordTest extends TestCase
             ]),
         );
     }
+
+    public function testGetDirtyAttributesOnNewRecord(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customer = new Customer($this->db);
+
+        $this->assertSame([], $customer->getDirtyAttributes());
+
+        $customer->setAttribute('name', 'Adam');
+        $customer->setAttribute('email', 'adam@example.com');
+        $customer->setAttribute('address', null);
+
+        $this->assertEquals(
+            ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes()
+        );
+        $this->assertEquals(
+            ['email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes(['id', 'email', 'address', 'status']),
+        );
+
+        $this->assertTrue($customer->save());
+        $this->assertSame([], $customer->getDirtyAttributes());
+
+        $customer->setAttribute('address', '');
+
+        $this->assertSame(['address' => ''], $customer->getDirtyAttributes());
+    }
+
+    public function testGetDirtyAttributesAfterFind(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame([], $customer->getDirtyAttributes());
+
+        $customer->setAttribute('name', 'Adam');
+        $customer->setAttribute('email', 'adam@example.com');
+        $customer->setAttribute('address', null);
+
+        $this->assertEquals(
+            ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes(),
+        );
+        $this->assertEquals(
+            ['email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes(['id', 'email', 'address', 'status']),
+        );
+    }
 }
