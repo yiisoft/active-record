@@ -22,10 +22,13 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_combine;
+use function array_diff;
+use function array_diff_key;
 use function array_flip;
 use function array_intersect;
 use function array_key_exists;
 use function array_keys;
+use function array_map;
 use function array_search;
 use function array_values;
 use function count;
@@ -134,24 +137,15 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function getAttributes(array $names = null, array $except = []): array
     {
-        $values = [];
-
         if ($names === null) {
             $names = $this->attributes();
         }
 
-        /** @psalm-var list<string> $names */
-        foreach ($names as $name) {
-            /** @psalm-var mixed */
-            $values[$name] = $this->$name;
+        if ($except !== []) {
+            $names = array_diff($names, $except);
         }
 
-        /** @psalm-var list<string> $except */
-        foreach ($except as $name) {
-            unset($values[$name]);
-        }
-
-        return $values;
+        return array_combine($names, array_map([$this, 'getAttribute'], $names));
     }
 
     public function getIsNewRecord(): bool
