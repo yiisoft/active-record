@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
@@ -25,6 +26,7 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Query\Query;
 
 abstract class ActiveRecordTest extends TestCase
@@ -391,7 +393,8 @@ abstract class ActiveRecordTest extends TestCase
 
         $cat = new Cat($this->db);
 
-        $this->assertFalse(isset($cat->exception));
+        $this->expectException(Exception::class);
+        isset($cat->exception);
     }
 
     public function testIssetThrowable(): void
@@ -400,7 +403,18 @@ abstract class ActiveRecordTest extends TestCase
 
         $cat = new Cat($this->db);
 
-        $this->assertFalse(isset($cat->throwable));
+        $this->expectException(DivisionByZeroError::class);
+        isset($cat->throwable);
+    }
+
+    public function testIssetNonExisting(): void
+    {
+        $this->checkFixture($this->db, 'cat');
+
+        $cat = new Cat($this->db);
+
+        $this->assertFalse(isset($cat->non_existing));
+        $this->assertFalse(isset($cat->non_existing_property));
     }
 
     public function testSetAttributes(): void
@@ -596,6 +610,10 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame([], $customer->orderItems);
         $this->assertFalse($customer->canGetProperty('non_existing_property'));
         $this->assertFalse($customer->canSetProperty('non_existing_property'));
+
+        $this->expectException(UnknownPropertyException::class);
+        $this->expectExceptionMessage('Setting unknown property: ' . Customer::class . '::non_existing_property');
+        $customer->non_existing_property = null;
     }
 
     public function testHasAttribute(): void

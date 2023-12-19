@@ -156,7 +156,7 @@ trait BaseActiveRecordTrait
     {
         try {
             return $this->__get($name) !== null;
-        } catch (Throwable) {
+        } catch (InvalidCallException|UnknownPropertyException) {
             return false;
         }
     }
@@ -200,11 +200,14 @@ trait BaseActiveRecordTrait
                 $this->resetDependentRelations($name);
             }
             $this->attributes[$name] = $value;
+            return;
         }
 
         if (method_exists($this, 'get' . ucfirst($name))) {
             throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
+
+        throw new UnknownPropertyException('Setting unknown property: ' . static::class . '::' . $name);
     }
 
     /**
