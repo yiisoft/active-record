@@ -29,11 +29,12 @@ final class ActiveRecordFactory
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
+     * @return ActiveRecordInterface
      *
      * @psalm-template T
      * @psalm-param class-string<T> $arClass
      * @psalm-return T
-     * @psalm-suppress T
+     * @psalm-suppress MoreSpecificReturnType
      */
     public function createAR(
         string $arClass,
