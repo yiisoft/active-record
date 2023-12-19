@@ -24,12 +24,12 @@ final class ActiveRecordFactory
      * @param string $tableName The name of the table associated with this ActiveRecord class, if its empty string the
      * name will be generated automatically by calling {@see getTableName()} in the active record class.
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
-     * @return ActiveRecordInterface|T
-     *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
+     * @return ActiveRecordInterface|T
+     *
      * @template T
      */
     public function createAR(
