@@ -33,6 +33,7 @@ final class ActiveRecordFactory
      * @psalm-template T
      * @psalm-param class-string<T> $arClass
      * @psalm-return T
+     * @psalm-suppress T
      */
     public function createAR(
         string $arClass,
