@@ -68,10 +68,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
           */
         $condition = $this->getOldPrimaryKey(true);
 
-        if (is_array($condition) === false) {
-            return false;
-        }
-
         $lock = $this->optimisticLock();
 
         if ($lock !== null) {
@@ -261,7 +257,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $keys = $this->primaryKey();
 
-        if (!$asArray && count($keys) === 1) {
+        if ($asArray === false && count($keys) === 1) {
             return $this->attributes[$keys[0]] ?? null;
         }
 
