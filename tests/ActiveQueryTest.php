@@ -2005,6 +2005,36 @@ abstract class ActiveQueryTest extends TestCase
         $record->save();
     }
 
+    public function testOptimisticLockOnDelete(): void
+    {
+        $this->checkFixture($this->db, 'document');
+
+        $documentQuery = new ActiveQuery(Document::class, $this->db);
+        $document = $documentQuery->findOne(1);
+
+        $this->assertSame(0, $document->version);
+
+        $document->version = 1;
+
+        $this->expectException(StaleObjectException::class);
+        $document->delete();
+    }
+
+    public function testOptimisticLockAfterDelete(): void
+    {
+        $this->checkFixture($this->db, 'document');
+
+        $documentQuery = new ActiveQuery(Document::class, $this->db);
+        $document = $documentQuery->findOne(1);
+
+        $this->assertSame(0, $document->version);
+        $this->assertSame(1, $document->delete());
+        $this->assertTrue($document->getIsNewRecord());
+
+        $this->expectException(StaleObjectException::class);
+        $document->delete();
+    }
+
     /**
      * {@see https://github.com/yiisoft/yii2/issues/9006}
      */

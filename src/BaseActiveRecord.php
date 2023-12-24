@@ -60,33 +60,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     ) {
     }
 
-    public function delete(): false|int
+    public function delete(): int
     {
-        /**
-          * We do not check the return value of deleteAll() because it's possible the record is already deleted in
-          * the database and thus the method will return 0
-          */
-        $condition = $this->getOldPrimaryKey(true);
-
-        if (is_array($condition) === false) {
-            return false;
-        }
-
-        $lock = $this->optimisticLock();
-
-        if ($lock !== null) {
-            $condition[$lock] = $lock;
-        }
-
-        $result = $this->deleteAll($condition);
-
-        if ($lock !== null && !$result) {
-            throw new StaleObjectException('The object being deleted is outdated.');
-        }
-
-        $this->oldAttributes = null;
-
-        return $result;
+        return $this->deleteInternal();
     }
 
     public function deleteAll(array $condition = [], array $params = []): int
@@ -1126,6 +1102,41 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     protected function createRelationQuery(string $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
         return $this->instantiateQuery($arClass)->primaryModel($this)->link($link)->multiple($multiple);
+    }
+
+    /**
+     * {@see delete()}
+     *
+     * @throws Exception
+     * @throws StaleObjectException
+     * @throws Throwable
+     *
+     * @return int The number of rows deleted.
+     */
+    protected function deleteInternal(): int
+    {
+        /**
+         * We do not check the return value of deleteAll() because it's possible the record is already deleted in
+         * the database and thus the method will return 0
+         */
+        $condition = $this->getOldPrimaryKey(true);
+        $lock = $this->optimisticLock();
+
+        if ($lock !== null) {
+            $condition[$lock] = $this->getAttribute($lock);
+
+            $result = $this->deleteAll($condition);
+
+            if ($result === 0) {
+                throw new StaleObjectException('The object being deleted is outdated.');
+            }
+        } else {
+            $result = $this->deleteAll($condition);
+        }
+
+        $this->setOldAttributes();
+
+        return $result;
     }
 
     /**
