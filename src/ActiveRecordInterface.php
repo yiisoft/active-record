@@ -159,6 +159,12 @@ interface ActiveRecordInterface
      * @return mixed The old primary key value. An array (column name => column value) is returned if the primary key
      * is composite or `$asArray` is true. A string is returned otherwise (`null` will be returned if the key value is
      * `null`).
+     *
+     * @psalm-return (
+     *     $asArray is true
+     *     ? array<string, mixed>
+     *     : mixed|null
+     * )
      */
     public function getOldPrimaryKey(bool $asArray = false): mixed;
 
@@ -172,6 +178,12 @@ interface ActiveRecordInterface
      * @return mixed The primary key value. An array (attribute name => attribute value) is returned if the primary key
      * is composite or `$asArray` is true. A string is returned otherwise (`null` will be returned if the key value is
      * `null`).
+     *
+     * @psalm-return (
+     *     $asArray is true
+     *     ? array<string, mixed>
+     *     : mixed|null
+     * )
      */
     public function getPrimaryKey(bool $asArray = false): mixed;
 
@@ -322,7 +334,7 @@ interface ActiveRecordInterface
      * @throws Exception
      * @throws InvalidConfigException
      *
-     * @psalm-return string[] The primary keys of the associated database table.
+     * @return string[] The primary keys of the associated database table.
      */
     public function primaryKey(): array;
 
@@ -377,7 +389,7 @@ interface ActiveRecordInterface
      * For this reason, you should use the following code to check if update() is successful or not:
      *
      * ```php
-     * if ($customer->update() !== false) {
+     * if ($customer->update() !== 0) {
      *     // update successful
      * } else {
      *     // update failed
@@ -391,10 +403,9 @@ interface ActiveRecordInterface
      * outdated.
      * @throws Throwable In case update failed.
      *
-     * @return false|int The number of rows affected, or false if validation fails or {@seebeforeSave()} stops the
-     * updating process.
+     * @return int The number of rows affected.
      */
-    public function update(array $attributeNames = null): false|int;
+    public function update(array $attributeNames = null): int;
 
     /**
      * Updates the whole table using the provided attribute values and conditions.
@@ -410,10 +421,10 @@ interface ActiveRecordInterface
      *
      * ```php
      * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $aqClasses = $customerQuery->where('status = 2')->all();
-     * foreach ($aqClasses as $aqClass) {
-     *     $aqClass->status = 1;
-     *     $aqClass->update();
+     * $customers = $customerQuery->where('status = 2')->all();
+     * foreach ($customers as $customer) {
+     *     $customer->status = 1;
+     *     $customer->update();
      * }
      * ```
      *

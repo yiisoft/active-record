@@ -233,7 +233,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function getOldPrimaryKey(bool $asArray = false): array|string|null
+    public function getOldPrimaryKey(bool $asArray = false): mixed
     {
         $keys = $this->primaryKey();
 
@@ -244,16 +244,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             );
         }
 
-        if (!$asArray && count($keys) === 1) {
-            /** @psalm-var string|null */
+        if ($asArray === false && count($keys) === 1) {
             return $this->oldAttributes[$keys[0]] ?? null;
         }
 
         $values = [];
 
-        /** @psalm-var list<string> $keys */
         foreach ($keys as $name) {
-            /** @psalm-var string|null */
             $values[$name] = $this->oldAttributes[$name] ?? null;
         }
 
@@ -270,9 +267,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
         $values = [];
 
-        /** @psalm-var list<string> $keys */
         foreach ($keys as $name) {
-            /** @psalm-var string|null */
             $values[$name] = $this->attributes[$name] ?? null;
         }
 
@@ -655,7 +650,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return $this->insert($attributeNames);
         }
 
-        return $this->update($attributeNames) !== false;
+        $this->update($attributeNames);
+
+        return true;
     }
 
     public function setAttribute(string $name, mixed $value): void
@@ -734,7 +731,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $this->oldAttributes = $values;
     }
 
-    public function update(array $attributeNames = null): false|int
+    public function update(array $attributeNames = null): int
     {
         return $this->updateInternal($attributeNames);
     }
@@ -752,19 +749,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $attrs = [];
 
-        $condition = $this->getOldPrimaryKey(true);
-
-        if ($condition === null || $condition === []) {
-            return 0;
-        }
-
-        /** @psalm-var mixed $value */
         foreach ($attributes as $name => $value) {
             if (is_int($name)) {
-                /** @psalm-var mixed */
                 $attrs[] = $value;
             } else {
-                $this->$name = $value;
+                $this->setAttribute($name, $value);
                 $attrs[] = $name;
             }
         }
@@ -775,11 +764,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return 0;
         }
 
-        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true) ?? []);
+        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true));
 
-        /** @psalm-var array<string, mixed> $value */
         foreach ($values as $name => $value) {
-            $this->oldAttributes[$name] = $this->attributes[$name];
+            $this->oldAttributes[$name] = $value;
         }
 
         return $rows;
@@ -843,6 +831,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param array $counters The counters to be updated (attribute name => increment value), use negative values if you
      * want to decrement the counters.
      *
+     * @psalm-param array<string, int> $counters
+     *
      * @throws Exception
      * @throws NotSupportedException
      *
@@ -852,18 +842,16 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function updateCounters(array $counters): bool
     {
-        if ($this->updateAllCounters($counters, $this->getOldPrimaryKey(true) ?? '')) {
-            /** @psalm-var array<string, int> $counters */
-            foreach ($counters as $name => $value) {
-                $this->attributes[$name] = isset($this->attributes[$name])
-                    ? (int) $this->attributes[$name] + $value : $value;
-                $this->oldAttributes[$name] = $this->attributes[$name];
-            }
-
-            return true;
+        if ($this->updateAllCounters($counters, $this->getOldPrimaryKey(true)) === 0) {
+            return false;
         }
 
-        return false;
+        foreach ($counters as $name => $value) {
+            $this->attributes[$name] = (int)($this->attributes[$name] ?? 0) + $value;
+            $this->oldAttributes[$name] = $this->attributes[$name];
+        }
+
+        return true;
     }
 
     public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void
@@ -1173,41 +1161,27 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return 0;
         }
 
-        /** @psalm-var mixed $condition */
         $condition = $this->getOldPrimaryKey(true);
         $lock = $this->optimisticLock();
 
-        if ($lock !== null && is_array($condition)) {
-            $values[$lock] = (int) $this->$lock + 1;
-            /** @psalm-var array<array-key, mixed>|string */
-            $condition[$lock] = $this->$lock;
+        if ($lock !== null) {
+            $lockValue = (int)$this->getAttribute($lock);
+
+            $condition[$lock] = $lockValue;
+            $values[$lock] = ++$lockValue;
+
+            $rows = $this->updateAll($values, $condition);
+
+            if ($rows === 0) {
+                throw new StaleObjectException('The object being updated is outdated.');
+            }
+
+            $this->setAttribute($lock, $lockValue);
+        } else {
+            $rows = $this->updateAll($values, $condition);
         }
 
-        /**
-         * We do not check the return value of updateAll() because it's possible that the UPDATE statement doesn't
-         * change anything and thus returns 0.
-         *
-         * @psalm-var array<array-key, mixed>|string $condition
-         */
-        $rows = $this->updateAll($values, $condition);
-
-        if ($lock !== null && !$rows) {
-            throw new StaleObjectException('The object being updated is outdated.');
-        }
-
-        if (isset($values[$lock])) {
-            $this->$lock = $values[$lock];
-        }
-
-        $changedAttributes = [];
-
-        /**
-         * @psalm-var string $name
-         * @psalm-var mixed $value
-         */
         foreach ($values as $name => $value) {
-            /** @psalm-var mixed */
-            $changedAttributes[$name] = $this->oldAttributes[$name] ?? null;
             $this->oldAttributes[$name] = $value;
         }
 

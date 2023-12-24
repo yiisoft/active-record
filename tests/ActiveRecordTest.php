@@ -836,4 +836,15 @@ abstract class ActiveRecordTest extends TestCase
             ]),
         );
     }
+
+    public function testSaveWithoutChanges()
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertTrue($customer->save());
+    }
 }
