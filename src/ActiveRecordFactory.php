@@ -31,10 +31,9 @@ final class ActiveRecordFactory
      * @throws NotInstantiableException
      * @return ActiveRecordInterface
      *
-     * @psalm-template T
+     * @psalm-template T of ActiveRecordInterface
      * @psalm-param class-string<T> $arClass
      * @psalm-return T
-     * @psalm-suppress ActiveRecordInterface
      */
     public function createAR(
         string $arClass,
