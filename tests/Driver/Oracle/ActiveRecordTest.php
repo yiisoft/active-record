@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
+use PHPUnit\Framework\Attributes\TestWith;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
@@ -80,5 +82,21 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['bool_status' => '0'])->all();
         $this->assertCount(2, $customers);
+    }
+
+    #[TestWith([[], [], [], []])]
+    public function testUpsert(
+        array $values,
+        array|null $insertProperties,
+        array|bool $updateValues,
+        array $expected,
+        array|null $expectedAfterRefresh = null,
+    ): void {
+        $customer = new Customer();
+
+        $this->expectException(NotSupportedException::class);
+        $this->expectExceptionMessage('Yiisoft\Db\Oracle\DMLQueryBuilder::upsertReturning() is not supported by Oracle.');
+
+        $customer->upsert($insertProperties, $updateValues);
     }
 }

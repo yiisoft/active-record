@@ -88,6 +88,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     abstract protected function populateProperty(string $name, mixed $value): void;
 
+    /**
+     * Internal method to insert or update a record in the database.
+     *
+     * @see upsert()
+     */
+    abstract protected function upsertInternal(
+        array|null $insertProperties = null,
+        array|bool $updateValues = true,
+    ): bool;
+
     public function delete(): int
     {
         return $this->deleteInternal();
@@ -797,6 +807,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         return true;
+    }
+
+    public function upsert(array|null $insertProperties = null, array|bool $updateValues = true): bool
+    {
+        return $this->upsertInternal($insertProperties, $updateValues);
     }
 
     public function unlink(string $relationName, ActiveRecordInterface $arClass, bool $delete = false): void

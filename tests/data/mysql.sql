@@ -50,7 +50,7 @@ CREATE TABLE `profile` (
 
 CREATE TABLE `customer` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(128) NOT NULL,
+  `email` varchar(128) NOT NULL UNIQUE,
   `name` varchar(128),
   `address` text,
   `status` int (11) DEFAULT 0,

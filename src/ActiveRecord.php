@@ -10,6 +10,9 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
+use function array_intersect_key;
+use function array_keys;
+use function array_merge;
 use function get_object_vars;
 
 /**
@@ -134,14 +137,9 @@ class ActiveRecord extends AbstractActiveRecord
     public function populateRecord(array|object $row): void
     {
         $row = ArArrayHelper::toArray($row);
-        $columns = $this->tableSchema()->getColumns();
-        $rowColumns = array_intersect_key($row, $columns);
+        $row = $this->phpTypecastValues($row);
 
-        foreach ($rowColumns as $name => &$value) {
-            $value = $columns[$name]->phpTypecast($value);
-        }
-
-        parent::populateRecord($rowColumns + $row);
+        parent::populateRecord($row);
     }
 
     public function primaryKey(): array
@@ -163,25 +161,61 @@ class ActiveRecord extends AbstractActiveRecord
         $values = $this->newPropertyValues($properties);
         $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->tableName(), $values);
 
-        if ($primaryKeys === false) {
-            return false;
+        return $this->populateRawValues($primaryKeys, $values);
+    }
+
+    protected function upsertInternal(array|null $insertProperties = null, array|bool $updateValues = true): bool
+    {
+        if (!$this->isNewRecord()) {
+            throw new InvalidCallException('The record is not new and cannot be inserted.');
         }
 
-        $columns = $this->tableSchema()->getColumns();
+        $values = $this->newPropertyValues($insertProperties);
+        $returnProperties = $insertProperties !== null ? array_merge($this->primaryKey(), array_keys($values)) : null;
 
-        foreach ($primaryKeys as $name => $value) {
-            $id = $columns[$name]->phpTypecast($value);
-            $this->set($name, $id);
-            $values[$name] = $id;
-        }
+        $returnedValues = $this->db()->createCommand()
+            ->upsertReturning($this->tableName(), $values, $updateValues, $returnProperties);
 
-        $this->assignOldValues($values);
-
-        return true;
+        return $this->populateRawValues($returnedValues);
     }
 
     protected function populateProperty(string $name, mixed $value): void
     {
         $this->$name = $value;
+    }
+
+    private function populateRawValues(array|false $rawValues, array $oldValues = []): bool
+    {
+        if ($rawValues === false) {
+            return false;
+        }
+
+        $values = $this->phpTypecastValues($rawValues);
+
+        foreach ($values as $name => $value) {
+            $this->set($name, $value);
+        }
+
+        if (empty($oldValues)) {
+            $oldValues = $values;
+        } else {
+            $oldValues = array_merge($oldValues, $values);
+        }
+
+        $this->assignOldValues($oldValues);
+
+        return true;
+    }
+
+    private function phpTypecastValues(array $values): array
+    {
+        $columns = $this->tableSchema()->getColumns();
+        $columnValues = array_intersect_key($values, $columns);
+
+        foreach ($columnValues as $name => $value) {
+            $values[$name] = $columns[$name]->phpTypecast($value);
+        }
+
+        return $values;
     }
 }

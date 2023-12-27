@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
 use DivisionByZeroError;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\ConnectionProvider;
@@ -1169,5 +1170,160 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($newItem->isChanged());
 
         $this->assertTrue((new Customer())->isChanged());
+    }
+
+    public static function dataUpsert(): array
+    {
+        return [
+            'insert values' => [
+                'values' => [
+                    'email' => 'user4@example.com',
+                    'name' => 'user4',
+                    'address' => 'address4',
+                ],
+                'insertProperties' => null,
+                'updateValues' => false,
+                'expected' => [
+                    'id' => 4,
+                    'email' => 'user4@example.com',
+                    'name' => 'user4',
+                    'address' => 'address4',
+                ],
+            ],
+            'insert part values' => [
+                'values' => [
+                    'email' => 'user4@example.com',
+                    'name' => 'user4',
+                    'address' => 'address4',
+                ],
+                'insertProperties' => [
+                    'email',
+                    'name',
+                ],
+                'updateValues' => false,
+                'expected' => [
+                    'id' => 4,
+                    'email' => 'user4@example.com',
+                    'name' => 'user4',
+                    'address' => 'address4',
+                ],
+                'expectedAfterRefresh' => [
+                    'id' => 4,
+                    'email' => 'user4@example.com',
+                    'name' => 'user4',
+                    'address' => null,
+                ],
+            ],
+            'insert from insertProperties' => [
+                'values' => [
+                    'email' => 'user4@example.com',
+                    'address' => 'address4',
+                ],
+                'insertProperties' => [
+                    'email',
+                    'name' => 'user4',
+                ],
+                'updateValues' => false,
+                'expected' => [
+                    'id' => 4,
+                    'email' => 'user4@example.com',
+                    'name' => 'user4',
+                    'address' => 'address4',
+                ],
+                'expectedAfterRefresh' => [
+                    'id' => 4,
+                    'email' => 'user4@example.com',
+                    'name' => 'user4',
+                    'address' => null,
+                ],
+            ],
+            'without changes' => [
+                'values' => [
+                    'email' => 'user3@example.com',
+                    'name' => 'new name',
+                ],
+                'insertProperties' => null,
+                'updateValues' => false,
+                'expected' => [
+                    'id' => 3,
+                    'email' => 'user3@example.com',
+                    'name' => 'user3',
+                    'address' => 'address3',
+                ],
+            ],
+            'update from values' => [
+                'values' => [
+                    'email' => 'user3@example.com',
+                    'name' => 'new name',
+                    'address' => 'new address',
+                ],
+                'insertProperties' => null,
+                'updateValues' => true,
+                'expected' => [
+                    'id' => 3,
+                    'email' => 'user3@example.com',
+                    'name' => 'new name',
+                    'address' => 'new address',
+                ],
+            ],
+            'update from updateValues' => [
+                'values' => [
+                    'email' => 'user3@example.com',
+                    'address' => 'new address',
+                ],
+                'insertProperties' => null,
+                'updateValues' => [
+                    'name' => 'another name',
+                    'address' => 'another address'
+                ],
+                'expected' => [
+                    'id' => 3,
+                    'email' => 'user3@example.com',
+                    'name' => 'another name',
+                    'address' => 'another address',
+                ],
+            ],
+        ];
+    }
+
+    #[DataProvider('dataUpsert')]
+    public function testUpsert(
+        array $values,
+        array|null $insertProperties,
+        array|bool $updateValues,
+        array $expected,
+        array|null $expectedAfterRefresh = null,
+    ): void {
+        $this->reloadFixtureAfterTest();
+
+        $customer = new Customer();
+
+        foreach ($values as $property => $value) {
+            $customer->set($property, $value);
+        }
+
+        $this->assertTrue($customer->upsert($insertProperties, $updateValues));
+
+        $this->assertFalse($customer->isNewRecord());
+
+        foreach ($expected as $property => $value) {
+            $this->assertSame($value, $customer->get($property));
+        }
+
+        $customer->refresh();
+
+        foreach ($expectedAfterRefresh ?? $expected as $property => $value) {
+            $this->assertSame($value, $customer->get($property));
+        }
+    }
+
+    public function testUpsertWithException(): void
+    {
+        $customer = Customer::findByPk(1);
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('The record is not new and cannot be inserted.');
+
+        $customer->upsert();
     }
 }

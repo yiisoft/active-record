@@ -38,7 +38,7 @@ CREATE TABLE [dbo].[profile] (
 
 CREATE TABLE [dbo].[customer] (
     [id] [int] IDENTITY NOT NULL,
-    [email] [varchar](128) NOT NULL,
+    [email] [varchar](128) NOT NULL UNIQUE,
     [name] [varchar](128),
     [address] [text],
     [status] [int] DEFAULT 0,
