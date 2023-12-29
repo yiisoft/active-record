@@ -27,7 +27,7 @@ final class Cat extends Animal
      */
     public function getThrowable(): float|int
     {
-        return 5/0;
+        return 5 / 0;
     }
 
     public function setNonExistingProperty(string $value): void
