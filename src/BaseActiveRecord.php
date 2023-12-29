@@ -136,6 +136,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function getAttributes(array $names = null, array $except = []): array
     {
+        $values = [];
+
         if ($names === null) {
             $names = $this->attributes();
         }
@@ -144,7 +146,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             $names = array_diff($names, $except);
         }
 
-        return array_combine($names, array_map([$this, 'getAttribute'], $names));
+        foreach ($names as $name) {
+            $values[$name] = $this->$name;
+        }
+
+        return $values;
     }
 
     public function getIsNewRecord(): bool
