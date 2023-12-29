@@ -2007,7 +2007,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOptimisticLockOnDelete(): void
     {
-        $this->checkFixture($this->db, 'document');
+        $this->checkFixture($this->db, 'document', true);
 
         $documentQuery = new ActiveQuery(Document::class, $this->db);
         $document = $documentQuery->findOne(1);
@@ -2022,7 +2022,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOptimisticLockAfterDelete(): void
     {
-        $this->checkFixture($this->db, 'document');
+        $this->checkFixture($this->db, 'document', true);
 
         $documentQuery = new ActiveQuery(Document::class, $this->db);
         $document = $documentQuery->findOne(1);
