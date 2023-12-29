@@ -29,12 +29,15 @@ use function array_intersect;
 use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
+use function array_merge;
 use function array_search;
 use function array_values;
 use function count;
+use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_int;
+use function property_exists;
 use function reset;
 
 /**
@@ -187,11 +190,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function getDirtyAttributes(array $names = null): array
     {
-        if ($names === null) {
-            $attributes = $this->attributes;
-        } else {
-            $attributes = array_intersect_key($this->attributes, array_flip($names));
-        }
+        $attributes = array_merge($this->attributes, get_object_vars($this));
+        $attributes = array_intersect_key($attributes, array_flip($names ?? $this->attributes()));
 
         if ($this->oldAttributes === null) {
             return $attributes;
@@ -570,21 +570,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function populateRecord(array|object $row): void
     {
-        $columns = array_flip($this->attributes());
-
-        /**
-         * @psalm-var string $name
-         * @psalm-var mixed $value
-         */
         foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $this->attributes[$name] = $value;
-            } elseif ($this->canSetProperty($name)) {
-                $this->$name = $value;
-            }
+            $this->populateAttribute($name, $value);
+            $this->oldAttributes[$name] = $value;
         }
 
-        $this->oldAttributes = $this->attributes;
         $this->related = [];
         $this->relationsDependencies = [];
     }
@@ -1251,5 +1241,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return $this->tableName;
+    }
+
+    private function populateAttribute(string $name, mixed $value): void
+    {
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+        } else {
+            $this->attributes[$name] = $value;
+        }
     }
 }
