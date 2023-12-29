@@ -843,7 +843,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         foreach ($counters as $name => $value) {
-            $this->attributes[$name] = (int)($this->attributes[$name] ?? 0) + $value;
+            $this->attributes[$name] = ($this->attributes[$name] ?? 0) + $value;
             $this->oldAttributes[$name] = $this->attributes[$name];
         }
 
@@ -1161,7 +1161,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $lock = $this->optimisticLock();
 
         if ($lock !== null) {
-            $lockValue = (int)$this->getAttribute($lock);
+            $lockValue = $this->getAttribute($lock);
 
             $condition[$lock] = $lockValue;
             $values[$lock] = ++$lockValue;
