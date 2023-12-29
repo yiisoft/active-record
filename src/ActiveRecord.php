@@ -8,7 +8,6 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_diff;
