@@ -20,7 +20,7 @@ final class ActiveRecordFactory
     /**
      * Allows you to create an active record instance through the factory.
      *
-     * @param class-string $arClass active record class.
+     * @param class-string<T> $arClass active record class.
      * @param string $tableName The name of the table associated with this ActiveRecord class, if its empty string the
      * name will be generated automatically by calling {@see getTableName()} in the active record class.
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
