@@ -25,6 +25,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Query\Query;
@@ -597,8 +598,8 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customer->canGetProperty('orderItems'));
         $this->assertFalse($customer->canSetProperty('orderItems'));
 
-        $this->expectException(UnknownPropertyException::class);
-        $this->expectExceptionMessage('Setting unknown property: ' . Customer::class . '::orderItems');
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
         $customer->orderItems = [new Item($this->db)];
 
         /** related attribute $customer->orderItems didn't change cause it's read-only */
