@@ -859,4 +859,16 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(1, $customer->getPrimaryKey());
         $this->assertSame(['id' => 1], $customer->getPrimaryKey(true));
     }
+
+    public function testGetOldPrimaryKey()
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame(1, $customer->getOldPrimaryKey());
+        $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
+    }
 }
