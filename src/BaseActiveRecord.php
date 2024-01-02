@@ -320,7 +320,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param class-string $class The class name of the related record
+     * @param class-string<T> $class The class name of the related record
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
@@ -359,7 +359,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param class-string $class The class name of the related record.
+     * @param class-string<T> $class The class name of the related record.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
@@ -375,7 +375,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     }
 
     /**
-     * @param class-string $arClass
+     * @param class-string<T> $arClass
      * @return ActiveQueryInterface
      *
      * @psalm-template T of ActiveRecordInterface
@@ -1127,7 +1127,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param class-string $arClass The class name of the related record.
+     * @param class-string<T> $arClass The class name of the related record.
      * @param array $link The primary-foreign key constraint.
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
