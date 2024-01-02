@@ -1121,7 +1121,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $lock = $this->optimisticLock();
 
         if ($lock !== null) {
-            $condition[$lock] = $this->getAttribute($lock);
+            $condition[$lock] = $this->$lock;
 
             $result = $this->deleteAll($condition);
 
