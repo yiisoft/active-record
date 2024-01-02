@@ -20,7 +20,7 @@ final class ActiveRecordFactory
     /**
      * Allows you to create an active record instance through the factory.
      *
-     * @param string $arClass active record class.
+     * @param class-string $arClass active record class.
      * @param string $tableName The name of the table associated with this ActiveRecord class, if its empty string the
      * name will be generated automatically by calling {@see getTableName()} in the active record class.
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
@@ -31,8 +31,11 @@ final class ActiveRecordFactory
      * @throws NotInstantiableException
      * @return ActiveRecordInterface
      *
+     * @template T of ActiveRecordInterface
+     * @template-typeof T $arClass
      * @psalm-template T of ActiveRecordInterface
      * @psalm-param class-string<T> $arClass
+     * @psalm-assert class-string<T> $arClass
      * @psalm-return T
      */
     public function createAR(
