@@ -837,7 +837,7 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
-    public function testSaveWithoutChanges()
+    public function testSaveWithoutChanges(): void
     {
         $this->checkFixture($this->db, 'customer');
 
@@ -848,7 +848,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customer->save());
     }
 
-    public function testGetPrimaryKey()
+    public function testGetPrimaryKey(): void
     {
         $this->checkFixture($this->db, 'customer');
 
@@ -860,7 +860,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(['id' => 1], $customer->getPrimaryKey(true));
     }
 
-    public function testGetOldPrimaryKey()
+    public function testGetOldPrimaryKey(): void
     {
         $this->checkFixture($this->db, 'customer');
 
