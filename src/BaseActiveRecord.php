@@ -320,12 +320,15 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string $class The class name of the related record
+     * @param class-string $class The class name of the related record
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-template T of ActiveRecordInterface
+     * @psalm-param class-string<T> $arClass
      */
     public function hasMany(string $class, array $link): ActiveQueryInterface
     {
@@ -356,18 +359,28 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string $class The class name of the related record.
+     * @param class-string $class The class name of the related record.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-template T of ActiveRecordInterface
+     * @psalm-param class-string<T> $arClass
      */
     public function hasOne(string $class, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($class, $link, false);
     }
 
+    /**
+     * @param class-string $arClass
+     * @return ActiveQueryInterface
+     *
+     * @psalm-template T of ActiveRecordInterface
+     * @psalm-param class-string<T> $arClass
+     */
     public function instantiateQuery(string $arClass): ActiveQueryInterface
     {
         return new ActiveQuery($arClass, $this->db, $this->arFactory);
@@ -1114,11 +1127,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param string $arClass The class name of the related record.
+     * @param class-string $arClass The class name of the related record.
      * @param array $link The primary-foreign key constraint.
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
      * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-template T of ActiveRecordInterface
+     * @psalm-param class-string<T> $arClass
 
      * {@see hasOne()}
      * {@see hasMany()}
