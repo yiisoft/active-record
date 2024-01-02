@@ -2133,6 +2133,17 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals($attributes, $attributesExpected);
     }
 
+    public function testGetAttributesOnly(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customer = new ActiveQuery(Customer::class, $this->db);
+
+        $attributes = $customer->findOne(1)->getAttributes(['id', 'email', 'name']);
+
+        $this->assertEquals(['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1'], $attributes);
+    }
+
     public function testGetAttributesExcept(): void
     {
         $this->checkFixture($this->db, 'customer');
