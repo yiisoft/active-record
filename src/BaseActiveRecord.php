@@ -258,13 +258,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $keys = $this->primaryKey();
 
         if ($asArray === false && count($keys) === 1) {
-            return $this->attributes[$keys[0]] ?? null;
+            return $this->{$keys[0]};
         }
 
         $values = [];
 
         foreach ($keys as $name) {
-            $values[$name] = $this->attributes[$name] ?? null;
+            $values[$name] = $this->$name;
         }
 
         return $values;
@@ -749,7 +749,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             if (is_int($name)) {
                 $attrs[] = $value;
             } else {
-                $this->setAttribute($name, $value);
+                $this->$name = $value;
                 $attrs[] = $name;
             }
         }
@@ -843,8 +843,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         foreach ($counters as $name => $value) {
-            $this->attributes[$name] = ($this->attributes[$name] ?? 0) + $value;
-            $this->oldAttributes[$name] = $this->attributes[$name];
+            $value += $this->$name ?? 0;
+            $this->$name = $value;
+            $this->oldAttributes[$name] = $value;
         }
 
         return true;
@@ -1161,7 +1162,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $lock = $this->optimisticLock();
 
         if ($lock !== null) {
-            $lockValue = $this->getAttribute($lock);
+            $lockValue = $this->$lock;
 
             $condition[$lock] = $lockValue;
             $values[$lock] = ++$lockValue;
@@ -1172,7 +1173,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
                 throw new StaleObjectException('The object being updated is outdated.');
             }
 
-            $this->setAttribute($lock, $lockValue);
+            $this->$lock = $lockValue;
         } else {
             $rows = $this->updateAll($values, $condition);
         }
