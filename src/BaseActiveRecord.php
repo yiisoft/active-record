@@ -22,6 +22,7 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_combine;
+use function array_diff;
 use function array_flip;
 use function array_intersect;
 use function array_key_exists;
@@ -136,15 +137,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             $names = $this->attributes();
         }
 
-        /** @psalm-var list<string> $names */
-        foreach ($names as $name) {
-            /** @psalm-var mixed */
-            $values[$name] = $this->$name;
+        if ($except !== []) {
+            $names = array_diff($names, $except);
         }
 
-        /** @psalm-var list<string> $except */
-        foreach ($except as $name) {
-            unset($values[$name]);
+        foreach ($names as $name) {
+            $values[$name] = $this->$name;
         }
 
         return $values;
