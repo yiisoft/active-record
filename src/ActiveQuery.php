@@ -108,13 +108,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private ActiveRecordInterface|null $arInstance = null;
 
     /**
-     * @param string $arClass
-     * @param ConnectionInterface $db
-     * @param ActiveRecordFactory|null $arFactory
-     * @param string $tableName
-     *
-     * @psalm-template T of ActiveRecordInterface
-     * @psalm-param class-string<T> $arClass
+     * @psalm-param class-string<ActiveRecordInterface> $arClass
      */
     final public function __construct(
         protected string $arClass,
