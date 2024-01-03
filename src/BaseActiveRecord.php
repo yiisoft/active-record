@@ -375,11 +375,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     }
 
     /**
-     * @param class-string<T> $arClass
-     * @return ActiveQueryInterface
-     *
-     * @psalm-template T of ActiveRecordInterface
-     * @psalm-param class-string<T> $arClass
+     * @psalm-param class-string<ActiveRecordInterface> $arClass
      */
     public function instantiateQuery(string $arClass): ActiveQueryInterface
     {
