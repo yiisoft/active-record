@@ -327,8 +327,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-template T of ActiveRecordInterface
-     * @psalm-param class-string<T> $arClass
+     * @psalm-param class-string<ActiveRecordInterface> $arClass
      */
     public function hasMany(string $class, array $link): ActiveQueryInterface
     {
