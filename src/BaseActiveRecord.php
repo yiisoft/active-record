@@ -320,7 +320,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param class-string<T> $class The class name of the related record
+     * @param string $class The class name of the related record
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
