@@ -56,6 +56,7 @@ declare(strict_types=1);
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
+use Yiisoft\Db\Sqlite\Driver;
 
 /**
  * config ConnectionInterface::class
@@ -64,8 +65,8 @@ return [
     ConnectionInterface::class => [
         'class' => SqliteConnection::class,
         '__construct()' => [
-            'dsn' => $params['yiisoft/db-sqlite']['dsn'],
-        ]
+            'driver' => new Driver($params['yiisoft/db-sqlite']['dsn']),
+        ],
     ]
 ];
 ```
@@ -145,6 +146,7 @@ declare(strict_types=1);
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
+use Yiisoft\Db\Sqlite\Driver;
 use Yiisoft\Definitions\Reference;
 
 /**
@@ -154,8 +156,8 @@ return [
     SqliteConnection::class => [
         'class' => SqliteConnection::class,
         '__construct()' => [
-            'dsn' => $params['yiisoft/db-sqlite']['dsn'],
-        ]
+            'driver' => new Driver($params['yiisoft/db-sqlite']['dsn']),
+        ],
     ],
 
     ActiveRecordFactory::class => [
