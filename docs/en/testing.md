@@ -45,8 +45,7 @@ composer require --dev yiisoft/db-mssql yiisoft/db-mysql yiisoft/db-oracle yiiso
 ```
 
 2. Run all Docker containers for each dbms.
-3. Install the dependencies of the project with composer.
-4. Run the tests.
+3. Run the tests.
 
 ```shell
 vendor/bin/phpunit
@@ -63,8 +62,7 @@ composer require --dev yiisoft/db-pgsql --ansi
 ```
 
 2. Run the Docker container for the dbms you want to test.
-3. Install the dependencies of the project with composer.
-4. Run the tests.
+3. Run the tests.
 
 ```shell
 vendor/bin/phpunit --testsuite=Pgsql
