@@ -100,11 +100,11 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Install db drivers.
-        run: composer require 'yiisoft/db-mssql:dev-master' 'yiisoft/db-mysql:dev-master' 'yiisoft/db-oracle:dev-master' 'yiisoft/db-pgsql:dev-master' 'yiisoft/db-sqlite:dev-master' --no-interaction --no-progress --optimize-autoloader --ansi
+      - name: Install db-pgsql.
+        run: composer require yiisoft/db-pgsql --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
       - name: Run infection.
         run: |
-          vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --only-covered --test-framework-options="--testsuite=Pgsql"
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
