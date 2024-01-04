@@ -21,6 +21,10 @@ on:
 
 name: db-pgsql
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: PHP ${{ matrix.php }}

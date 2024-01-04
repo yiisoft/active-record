@@ -21,6 +21,10 @@ on:
 
 name: static analysis
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
