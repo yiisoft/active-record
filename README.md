@@ -42,10 +42,10 @@ composer require yiisoft/active-record
 Example:
 
 ```php
-composer require yiisoft/db-mysql
+composer require yiisoft/db-sqlite
 ```
 
-## Configuration container di autowired
+## Config container interface class
 
 web.php:
 ```php
@@ -54,7 +54,7 @@ web.php:
 declare(strict_types=1);
 
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
+use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
 
 /**
@@ -62,7 +62,7 @@ use Yiisoft\Db\Sqlite\Driver;
  */
 return [
     ConnectionInterface::class => [
-        'class' => SqliteConnection::class,
+        'class' => Connection::class,
         '__construct()' => [
             'driver' => new Driver($params['yiisoft/db-sqlite']['dsn']),
         ],
@@ -83,7 +83,8 @@ return [
 ]
 ```
 
-defined your active record, example User.php:
+## Defined your active record class
+
 ```php
 <?php
 
@@ -110,7 +111,8 @@ final class User extends ActiveRecord
 }
 ```
 
-in controler or action:
+## Usage in controler with di container autowired
+
 ```php
 <?php
 
@@ -134,82 +136,8 @@ final class Register
 }
 ```
 
-## Configuration factory di
+## Usage in controler with active record factory
 
-web.php:
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\ActiveRecord\ActiveRecordFactory;
-use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
-use Yiisoft\Db\Sqlite\Driver;
-use Yiisoft\Definitions\Reference;
-
-/**
- * config SqliteConnection::class
- */
-return [
-    SqliteConnection::class => [
-        'class' => SqliteConnection::class,
-        '__construct()' => [
-            'driver' => new Driver($params['yiisoft/db-sqlite']['dsn']),
-        ],
-    ],
-
-    ActiveRecordFactory::class => [
-        'class' => ActiveRecordFactory::class,
-        '__construct()' => [
-            null,
-            [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
-        ]
-    ]
-];
-```
-
-params.php
-```php
-<?php
-
-declare(strict_types=1);
-
-return [
-    'yiisoft/db-sqlite' => [
-        'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3',
-    ]
-]
-```
-
-defined your active record, example User.php:
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Entity;
-
-use Yiisoft\ActiveRecord\ActiveRecord;
-
-/**
- * Entity User.
- *
- * Database fields:
- * @property int $id
- * @property string $username
- * @property string $email
- **/
-final class User extends ActiveRecord
-{
-    public function getTableName(): string
-    {
-        return '{{%user}}';
-    }
-}
-```
-
-in controler or action:
 ```php
 <?php
 
