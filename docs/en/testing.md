@@ -38,9 +38,15 @@ The package is tested with [PHPUnit](https://phpunit.de/).
 
 The following steps are required to run the tests.
 
-1. Run all Docker containers for each dbms.
-2. Install the dependencies of the project with composer.
-3. Run the tests.
+1. Install all dbms dependencies with composer.
+
+```shell
+composer require --dev yiisoft/db-mssql yiisoft/db-mysql yiisoft/db-oracle yiisoft/db-pgsql yiisoft/db-sqlite --ansi
+```
+
+2. Run all Docker containers for each dbms.
+3. Install the dependencies of the project with composer.
+4. Run the tests.
 
 ```shell
 vendor/bin/phpunit
@@ -50,9 +56,15 @@ vendor/bin/phpunit
 
 The following steps are required to run the tests.
 
-1. Run the Docker container for the dbms you want to test.
-2. Install the dependencies of the project with composer.
-3. Run the tests.
+1. Install dbms dependencies with composer.
+
+```shell
+composer require --dev yiisoft/db-pgsql --ansi
+```
+
+2. Run the Docker container for the dbms you want to test.
+3. Install the dependencies of the project with composer.
+4. Run the tests.
 
 ```shell
 vendor/bin/phpunit --testsuite=Pgsql
