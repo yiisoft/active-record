@@ -28,7 +28,7 @@ jobs:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
-      extensions: pdo, pdo_mysql, pdo_oci, pdo_pgsql, pdo_sqlite, pdo_sqlsrv-5.10.0-beta2, oci8
+      extensions: pdo, pdo_pgsql
 
     runs-on: ${{ matrix.os }}
 
@@ -41,36 +41,6 @@ jobs:
           - 8.1
 
     services:
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2019-latest
-        env:
-            SA_PASSWORD: YourStrong!Passw0rd
-            ACCEPT_EULA: Y
-            MSSQL_PID: Developer
-        ports:
-            - 1433:1433
-        options: --name=mssql --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_PASSWORD: ''
-          MYSQL_DATABASE: yiitest
-        ports:
-          - 3306:3306
-        options: --name=mysql --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      oci:
-        image: gvenzl/oracle-xe:latest
-        ports:
-          - 1521:1521
-        env:
-          ORACLE_PASSWORD : root
-        options: >-
-          --name=oci
-          --health-cmd healthcheck.sh
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
       postgres:
         image: postgres:14
         env:
@@ -84,9 +54,6 @@ jobs:
     steps:
       - name: Checkout.
         uses: actions/checkout@v3
-
-      - name: Create MS SQL Database.
-        run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
