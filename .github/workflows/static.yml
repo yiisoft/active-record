@@ -21,6 +21,10 @@ on:
 
 name: static analysis
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
@@ -33,8 +37,9 @@ jobs:
           - ubuntu-latest
 
         php:
-          - 8.0
           - 8.1
+          - 8.2
+          - 8.3
 
     steps:
       - name: Checkout
