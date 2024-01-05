@@ -61,7 +61,7 @@ The following steps are required to run the tests.
 composer require --dev yiisoft/db-pgsql --ansi
 ```
 
-2. Run the Docker container for the dbms you want to test.
+2. Run the Docker container for the DBMS you want to test.
 3. Run the tests.
 
 ```shell
