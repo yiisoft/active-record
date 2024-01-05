@@ -10,7 +10,7 @@ This package can be tested globally or individually for each DBMS.
 
 ## GitHub actions
 
-All our packages have github actions by default, so you can test your [contribution](https://github.com/yiisoft/db/blob/master/.github/CONTRIBUTING.md) in the cloud.
+All our packages have GitHub actions by default, so you can test your [contribution](https://github.com/yiisoft/db/blob/master/.github/CONTRIBUTING.md) in the cloud.
 
 > Note: We recommend pull requesting in draft mode until all tests pass.
 
