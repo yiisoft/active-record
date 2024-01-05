@@ -136,7 +136,7 @@ final class Register
 }
 ```
 
-## Usage in controler with active record factory
+## Usage in controler with Active Record factory
 
 ```php
 <?php
