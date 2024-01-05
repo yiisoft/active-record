@@ -8,7 +8,7 @@ This package can be tested globally or individually for each DBMS.
 - [PostgreSQL](https://github.com/yiisoft/db-pgsql)
 - [SQLite](https://github.com/yiisoft/db-sqlite)
 
-## Github actions
+## GitHub actions
 
 All our packages have github actions by default, so you can test your [contribution](https://github.com/yiisoft/db/blob/master/.github/CONTRIBUTING.md) in the cloud.
 
