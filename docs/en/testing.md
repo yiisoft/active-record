@@ -24,7 +24,7 @@ For greater ease we recommend to use Docker container for each DBMS. For this yo
 - [Oracle 21](https://github.com/yiisoft/db-oracle/blob/master/docker-compose.yml)
 - [PostgreSQL 15](https://github.com/yiisoft/db-pgsql/blob/master/docker-compose.yml)
 
-For running the Docker containers you can use the following command:
+To run Docker containers you can use the following command:
 
 ```shell
 docker compose up -d
