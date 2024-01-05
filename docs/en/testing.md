@@ -36,7 +36,7 @@ The package is tested with [PHPUnit](https://phpunit.de/).
 
 ### Global testing
 
-The following steps are required to run the tests.
+The following steps are required to run tests.
 
 1. Install all dbms dependencies with composer.
 
