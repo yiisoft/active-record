@@ -55,7 +55,7 @@ vendor/bin/phpunit
 
 The following steps are required to run the tests.
 
-1. Install dbms dependencies with composer.
+1. Install DBMS dependencies with Composer.
 
 ```shell
 composer require --dev yiisoft/db-pgsql --ansi
