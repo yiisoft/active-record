@@ -38,7 +38,7 @@ The package is tested with [PHPUnit](https://phpunit.de/).
 
 The following steps are required to run tests.
 
-1. Install all dbms dependencies with composer.
+1. Install all DBMS dependencies with composer.
 
 ```shell
 composer require --dev yiisoft/db-mssql yiisoft/db-mysql yiisoft/db-oracle yiisoft/db-pgsql yiisoft/db-sqlite --ansi
