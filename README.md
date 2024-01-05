@@ -111,7 +111,7 @@ final class User extends ActiveRecord
 }
 ```
 
-## Usage in controler with di container autowired
+## Usage in controler with DI container autowiring
 
 ```php
 <?php
