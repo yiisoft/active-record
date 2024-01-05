@@ -44,7 +44,7 @@ The following steps are required to run tests.
 composer require --dev yiisoft/db-mssql yiisoft/db-mysql yiisoft/db-oracle yiisoft/db-pgsql yiisoft/db-sqlite --ansi
 ```
 
-2. Run all Docker containers for each dbms.
+2. Run all Docker containers for each DBMS.
 3. Run the tests.
 
 ```shell
