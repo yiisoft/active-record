@@ -19,7 +19,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-json": "*",
         "yiisoft/arrays": "^3.0",
         "yiisoft/db": "^1.1",
@@ -27,13 +27,14 @@
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
-        "phpunit/phpunit": "^9.6|^10.0",
+        "phpunit/phpunit": "^10.5",
         "rector/rector": "^0.18",
-        "roave/infection-static-analysis-plugin": "^1.16",
+        "roave/infection-static-analysis-plugin": "^1.34",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.8|^5.8",
+        "vimeo/psalm": "^5.8",
         "yiisoft/aliases": "^2.0",
         "yiisoft/cache": "^3.0",
+        "yiisoft/db-sqlite": "^1.1",
         "yiisoft/di": "^1.0",
         "yiisoft/json": "^1.0"
     },
