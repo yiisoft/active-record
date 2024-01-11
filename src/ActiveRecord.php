@@ -40,21 +40,21 @@ use function preg_replace;
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
- * To declare an ActiveRecord class you need to extend {@see ActiveRecord} and implement the `tableName` method:
+ * To declare an ActiveRecord class you need to extend {@see ActiveRecord} and implement the `getTableName` method:
  *
  * ```php
  * <?php
  *
  * class Customer extends ActiveRecord
  * {
- *     public static function tableName(): string
+ *     public static function getTableName(): string
  *     {
  *         return 'customer';
  *     }
  * }
  * ```
  *
- * The `tableName` method only has to return the name of the database table associated with the class.
+ * The `getTableName` method only has to return the name of the database table associated with the class.
  *
  * Class instances are obtained in one of two ways:
  *
