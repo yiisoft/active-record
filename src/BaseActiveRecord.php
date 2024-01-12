@@ -140,21 +140,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function getAttributes(array $names = null, array $except = []): array
     {
-        $values = [];
-
-        if ($names === null) {
-            $names = $this->attributes();
-        }
+        $names ??= $this->attributes();
+        $attributes = array_merge($this->attributes, get_object_vars($this));
 
         if ($except !== []) {
             $names = array_diff($names, $except);
         }
 
-        foreach ($names as $name) {
-            $values[$name] = $this->$name;
-        }
-
-        return $values;
+        return array_intersect_key($attributes, array_flip($names));
     }
 
     public function getIsNewRecord(): bool
@@ -190,8 +183,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function getDirtyAttributes(array $names = null): array
     {
-        $attributes = array_merge($this->attributes, get_object_vars($this));
-        $attributes = array_intersect_key($attributes, array_flip($names ?? $this->attributes()));
+        $attributes = $this->getAttributes($names);
 
         if ($this->oldAttributes === null) {
             return $attributes;
