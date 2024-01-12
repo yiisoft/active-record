@@ -867,6 +867,7 @@ abstract class ActiveRecordTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
         $customer = $customerQuery->findOne(1);
+        $customer->id = 2;
 
         $this->assertSame(1, $customer->getOldPrimaryKey());
         $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
