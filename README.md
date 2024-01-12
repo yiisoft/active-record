@@ -14,7 +14,6 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/active-record/v/stable.png)](https://packagist.org/packages/yiisoft/active-record)
 [![Total Downloads](https://poser.pugx.org/yiisoft/active-record/downloads.png)](https://packagist.org/packages/yiisoft/active-record)
-[![build](https://github.com/yiisoft/active-record/actions/workflows/build.yml/badge.svg?branch=dev)](https://github.com/yiisoft/active-record/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/yiisoft/active-record/branch/master/graph/badge.svg?token=w4KarhYyEF)](https://codecov.io/gh/yiisoft/active-record)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Factive-record%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/active-record/master)
 [![static analysis](https://github.com/yiisoft/active-record/actions/workflows/static.yml/badge.svg?branch=dev)](https://github.com/yiisoft/active-record/actions/workflows/static.yml)
@@ -43,10 +42,10 @@ composer require yiisoft/active-record
 Example:
 
 ```php
-composer require yiisoft/db-mysql
+composer require yiisoft/db-sqlite
 ```
 
-## Configuration container di autowired
+## Config container interface class
 
 web.php:
 ```php
@@ -55,17 +54,18 @@ web.php:
 declare(strict_types=1);
 
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
+use Yiisoft\Db\Sqlite\Connection;
+use Yiisoft\Db\Sqlite\Driver;
 
 /**
  * config ConnectionInterface::class
  */
 return [
     ConnectionInterface::class => [
-        'class' => SqliteConnection::class,
+        'class' => Connection::class,
         '__construct()' => [
-            'dsn' => $params['yiisoft/db-sqlite']['dsn'],
-        ]
+            'driver' => new Driver($params['yiisoft/db-sqlite']['dsn']),
+        ],
     ]
 ];
 ```
@@ -83,105 +83,8 @@ return [
 ]
 ```
 
-defined your active record, example User.php:
-```php
-<?php
+## Defined your active record class
 
-declare(strict_types=1);
-
-namespace App\Entity;
-
-use Yiisoft\ActiveRecord\ActiveRecord;
-
-/**
- * Entity User.
- *
- * Database fields:
- * @property int $id
- * @property string $username
- * @property string $email
- **/
-final class User extends ActiveRecord
-{
-    public function tableName(): string
-    {
-        return '{{%user}}';
-    }
-}
-```
-
-in controler or action:
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Action;
-
-use App\Entity\User;
-use Psr\Http\Message\ResponseInterface;
-
-final class Register
-{
-    public function register(
-        User $user
-    ): ResponseInterface {
-        /** Connected AR by di autowired. */
-        $user->setAttribute('username', 'yiiliveext');
-        $user->setAttribute('email', 'yiiliveext@mail.ru');
-        $user->save();
-    }
-}
-```
-
-## Configuration factory di
-
-web.php:
-```php
-<?php
-
-declare(strict_types=1);
-
-use Yiisoft\ActiveRecord\ActiveRecordFactory;
-use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Sqlite\Connection as SqliteConnection;
-use Yiisoft\Definitions\Reference;
-
-/**
- * config SqliteConnection::class
- */
-return [
-    SqliteConnection::class => [
-        'class' => SqliteConnection::class,
-        '__construct()' => [
-            'dsn' => $params['yiisoft/db-sqlite']['dsn'],
-        ]
-    ],
-
-    ActiveRecordFactory::class => [
-        'class' => ActiveRecordFactory::class,
-        '__construct()' => [
-            null,
-            [ConnectionInterface::class => Reference::to(SqliteConnection::class)],
-        ]
-    ]
-];
-```
-
-params.php
-```php
-<?php
-
-declare(strict_types=1);
-
-return [
-    'yiisoft/db-sqlite' => [
-        'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3',
-    ]
-]
-```
-
-defined your active record, example User.php:
 ```php
 <?php
 
@@ -208,7 +111,33 @@ final class User extends ActiveRecord
 }
 ```
 
-in controler or action:
+## Usage in controler with DI container autowiring
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Action;
+
+use App\Entity\User;
+use Psr\Http\Message\ResponseInterface;
+
+final class Register
+{
+    public function register(
+        User $user
+    ): ResponseInterface {
+        /** Connected AR by di autowired. */
+        $user->setAttribute('username', 'yiiliveext');
+        $user->setAttribute('email', 'yiiliveext@mail.ru');
+        $user->save();
+    }
+}
+```
+
+## Usage in controler with Active Record factory
+
 ```php
 <?php
 
@@ -235,29 +164,14 @@ final class Register
 }
 ```
 
-### Unit testing
+## Support
 
-The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/db/68) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
-```shell
-./vendor/bin/phpunit
-```
+## Testing
 
-### Mutation testing
-
-The package tests are checked with [Infection](https://infection.github.io/) mutation framework. To run it:
-
-```shell
-./vendor/bin/infection
-```
-
-### Static analysis
-
-The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
-
-```shell
-./vendor/bin/psalm
-```
+[Check the testing instructions](/docs/en/testing.md) to learn about testing.
 
 ### Support the project
 
