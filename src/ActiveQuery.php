@@ -349,13 +349,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function allPopulate(): array
     {
-        $rows = $this->all();
-
-        if ($rows !== []) {
-            $rows = $this->populate($rows, $this->indexBy);
-        }
-
-        return $rows;
+        return $this->all();
     }
 
     /**
