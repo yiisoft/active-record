@@ -13,6 +13,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithProperties;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
@@ -597,14 +598,9 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customer->canGetProperty('orderItems'));
         $this->assertFalse($customer->canSetProperty('orderItems'));
 
-        try {
-            /** @var $itemClass ActiveRecordInterface */
-            $customer->orderItems = [new Item($this->db)];
-            $this->fail('setter call above MUST throw Exception');
-        } catch (Exception $e) {
-            /** catch exception "Setting read-only property" */
-            $this->assertInstanceOf(InvalidCallException::class, $e);
-        }
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
+        $customer->orderItems = [new Item($this->db)];
 
         /** related attribute $customer->orderItems didn't change cause it's read-only */
         $this->assertSame([], $customer->orderItems);
@@ -871,5 +867,87 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertSame(1, $customer->getOldPrimaryKey());
         $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
+    }
+
+    public function testGetDirtyAttributesOnNewRecord(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customer = new Customer($this->db);
+
+        $this->assertSame([], $customer->getDirtyAttributes());
+
+        $customer->setAttribute('name', 'Adam');
+        $customer->setAttribute('email', 'adam@example.com');
+        $customer->setAttribute('address', null);
+
+        $this->assertEquals(
+            ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes()
+        );
+        $this->assertEquals(
+            ['email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes(['id', 'email', 'address', 'status', 'unknown']),
+        );
+
+        $this->assertTrue($customer->save());
+        $this->assertSame([], $customer->getDirtyAttributes());
+
+        $customer->setAttribute('address', '');
+
+        $this->assertSame(['address' => ''], $customer->getDirtyAttributes());
+    }
+
+    public function testGetDirtyAttributesAfterFind(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame([], $customer->getDirtyAttributes());
+
+        $customer->setAttribute('name', 'Adam');
+        $customer->setAttribute('email', 'adam@example.com');
+        $customer->setAttribute('address', null);
+
+        $this->assertEquals(
+            ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes(),
+        );
+        $this->assertEquals(
+            ['email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes(['id', 'email', 'address', 'status', 'unknown']),
+        );
+    }
+
+    public function testGetDirtyAttributesWithProperties(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customer = new CustomerWithProperties($this->db);
+        $this->assertSame([
+            'name' => null,
+            'address' => null,
+        ], $customer->getDirtyAttributes());
+
+        $customerQuery = new ActiveQuery(CustomerWithProperties::class, $this->db);
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame([], $customer->getDirtyAttributes());
+
+        $customer->setEmail('adam@example.com');
+        $customer->setName('Adam');
+        $customer->setAddress(null);
+        $customer->setStatus(null);
+
+        $this->assertEquals(
+            ['email' => 'adam@example.com', 'name' => 'Adam', 'address' => null, 'status' => null],
+            $customer->getDirtyAttributes(),
+        );
+        $this->assertEquals(
+            ['email' => 'adam@example.com', 'address' => null],
+            $customer->getDirtyAttributes(['id', 'email', 'address', 'unknown']),
+        );
     }
 }

@@ -22,17 +22,22 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_combine;
+use function array_diff_key;
 use function array_diff;
 use function array_flip;
 use function array_intersect;
+use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
+use function array_merge;
 use function array_search;
 use function array_values;
 use function count;
+use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_int;
+use function property_exists;
 use function reset;
 
 /**
@@ -131,21 +136,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function getAttributes(array $names = null, array $except = []): array
     {
-        $values = [];
-
-        if ($names === null) {
-            $names = $this->attributes();
-        }
+        $names ??= $this->attributes();
+        $attributes = array_merge($this->attributes, get_object_vars($this));
 
         if ($except !== []) {
             $names = array_diff($names, $except);
         }
 
-        foreach ($names as $name) {
-            $values[$name] = $this->$name;
-        }
-
-        return $values;
+        return array_intersect_key($attributes, array_flip($names));
     }
 
     public function getIsNewRecord(): bool
@@ -181,41 +179,21 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function getDirtyAttributes(array $names = null): array
     {
-        if ($names === null) {
-            $names = $this->attributes();
-        }
-
-        $names = array_flip($names);
-        $attributes = [];
+        $attributes = $this->getAttributes($names);
 
         if ($this->oldAttributes === null) {
-            /**
-             * @var string $name
-             * @var mixed $value
-             */
-            foreach ($this->attributes as $name => $value) {
-                if (isset($names[$name])) {
-                    /** @psalm-var mixed */
-                    $attributes[$name] = $value;
-                }
-            }
-        } else {
-            /**
-             * @var string $name
-             * @var mixed $value
-             */
-            foreach ($this->attributes as $name => $value) {
-                if (
-                    isset($names[$name])
-                    && (!array_key_exists($name, $this->oldAttributes) || $value !== $this->oldAttributes[$name])
-                ) {
-                    /** @psalm-var mixed */
-                    $attributes[$name] = $value;
-                }
+            return $attributes;
+        }
+
+        $result = array_diff_key($attributes, $this->oldAttributes);
+
+        foreach (array_diff_key($attributes, $result) as $name => $value) {
+            if ($value !== $this->oldAttributes[$name]) {
+                $result[$name] = $value;
             }
         }
 
-        return $attributes;
+        return $result;
     }
 
     public function getOldAttributes(): array
@@ -582,21 +560,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function populateRecord(array|object $row): void
     {
-        $columns = array_flip($this->attributes());
-
-        /**
-         * @psalm-var string $name
-         * @psalm-var mixed $value
-         */
         foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $this->attributes[$name] = $value;
-            } elseif ($this->canSetProperty($name)) {
-                $this->$name = $value;
-            }
+            $this->populateAttribute($name, $value);
+            $this->oldAttributes[$name] = $value;
         }
 
-        $this->oldAttributes = $this->attributes;
         $this->related = [];
         $this->relationsDependencies = [];
     }
@@ -1245,5 +1213,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return $this->tableName;
+    }
+
+    private function populateAttribute(string $name, mixed $value): void
+    {
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+        } else {
+            $this->attributes[$name] = $value;
+        }
     }
 }
