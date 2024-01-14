@@ -8,7 +8,6 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_diff;
@@ -114,7 +113,7 @@ class ActiveRecord extends BaseActiveRecord
         return $this->getTableSchema()->getColumnNames();
     }
 
-    public function delete(): false|int
+    public function delete(): int
     {
         if (!$this->isTransactional(self::OP_DELETE)) {
             return $this->deleteInternal();
@@ -124,11 +123,7 @@ class ActiveRecord extends BaseActiveRecord
 
         try {
             $result = $this->deleteInternal();
-            if ($result === false) {
-                $transaction->rollBack();
-            } else {
-                $transaction->commit();
-            }
+            $transaction->commit();
 
             return $result;
         } catch (Throwable $e) {
@@ -344,41 +339,6 @@ class ActiveRecord extends BaseActiveRecord
             $transaction->rollBack();
             throw $e;
         }
-    }
-
-    /**
-     * Deletes an ActiveRecord without considering transaction.
-     *
-     * Note that it is possible the number of rows deleted is 0, even though the deletion execution is successful.
-     *
-     * @throws Exception
-     * @throws StaleObjectException
-     * @throws Throwable
-     *
-     * @return false|int The number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
-     */
-    protected function deleteInternal(): false|int
-    {
-        /**
-         * We do not check the return value of deleteAll() because it's possible the record is already deleted in the
-         * database and thus the method will return 0.
-         */
-        $condition = $this->getOldPrimaryKey(true);
-        $lock = $this->optimisticLock();
-
-        if ($lock !== null) {
-            $condition[$lock] = $this->$lock;
-        }
-
-        $result = $this->deleteAll($condition);
-
-        if ($lock !== null && !$result) {
-            throw new StaleObjectException('The object being deleted is outdated.');
-        }
-
-        $this->setOldAttributes();
-
-        return $result;
     }
 
     /**

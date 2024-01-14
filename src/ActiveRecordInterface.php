@@ -34,11 +34,11 @@ interface ActiveRecordInterface
      * is outdated.
      * @throws Throwable In case delete failed.
      *
-     * @return false|int The number of rows deleted, or `false` if the deletion is unsuccessful for some reason.
+     * @return int The number of rows deleted.
      *
      * Note that it's possible the number of rows deleted is 0, even though the deletion execution is successful.
      */
-    public function delete(): false|int;
+    public function delete(): int;
 
     /**
      * Deletes rows in the table using the provided conditions.
