@@ -323,7 +323,7 @@ class ActiveRecord extends BaseActiveRecord
         return [];
     }
 
-    public function update(array $attributeNames = null): false|int
+    public function update(array $attributeNames = null): int
     {
         if (!$this->isTransactional(self::OP_UPDATE)) {
             return $this->updateInternal($attributeNames);
@@ -365,10 +365,6 @@ class ActiveRecord extends BaseActiveRecord
          */
         $condition = $this->getOldPrimaryKey(true);
         $lock = $this->optimisticLock();
-
-        if (is_array($condition) === false) {
-            return false;
-        }
 
         if ($lock !== null) {
             $condition[$lock] = $this->$lock;
