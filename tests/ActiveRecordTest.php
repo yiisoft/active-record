@@ -836,4 +836,40 @@ abstract class ActiveRecordTest extends TestCase
             ]),
         );
     }
+
+    public function testSaveWithoutChanges(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertTrue($customer->save());
+    }
+
+    public function testGetPrimaryKey(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertSame(1, $customer->getPrimaryKey());
+        $this->assertSame(['id' => 1], $customer->getPrimaryKey(true));
+    }
+
+    public function testGetOldPrimaryKey(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+
+        $customer = $customerQuery->findOne(1);
+        $customer->id = 2;
+
+        $this->assertSame(1, $customer->getOldPrimaryKey());
+        $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
+    }
 }
