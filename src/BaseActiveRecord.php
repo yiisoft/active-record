@@ -22,17 +22,22 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_combine;
+use function array_diff_key;
 use function array_diff;
 use function array_flip;
 use function array_intersect;
+use function array_intersect_key;
 use function array_key_exists;
 use function array_keys;
+use function array_merge;
 use function array_search;
 use function array_values;
 use function count;
+use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_int;
+use function property_exists;
 use function reset;
 
 /**
@@ -111,21 +116,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
 
     public function getAttributes(array $names = null, array $except = []): array
     {
-        $values = [];
-
-        if ($names === null) {
-            $names = $this->attributes();
-        }
+        $names ??= $this->attributes();
+        $attributes = array_merge($this->attributes, get_object_vars($this));
 
         if ($except !== []) {
             $names = array_diff($names, $except);
         }
 
-        foreach ($names as $name) {
-            $values[$name] = $this->$name;
-        }
-
-        return $values;
+        return array_intersect_key($attributes, array_flip($names));
     }
 
     public function getIsNewRecord(): bool
@@ -161,41 +159,21 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function getDirtyAttributes(array $names = null): array
     {
-        if ($names === null) {
-            $names = $this->attributes();
-        }
-
-        $names = array_flip($names);
-        $attributes = [];
+        $attributes = $this->getAttributes($names);
 
         if ($this->oldAttributes === null) {
-            /**
-             * @var string $name
-             * @var mixed $value
-             */
-            foreach ($this->attributes as $name => $value) {
-                if (isset($names[$name])) {
-                    /** @psalm-var mixed */
-                    $attributes[$name] = $value;
-                }
-            }
-        } else {
-            /**
-             * @var string $name
-             * @var mixed $value
-             */
-            foreach ($this->attributes as $name => $value) {
-                if (
-                    isset($names[$name])
-                    && (!array_key_exists($name, $this->oldAttributes) || $value !== $this->oldAttributes[$name])
-                ) {
-                    /** @psalm-var mixed */
-                    $attributes[$name] = $value;
-                }
+            return $attributes;
+        }
+
+        $result = array_diff_key($attributes, $this->oldAttributes);
+
+        foreach (array_diff_key($attributes, $result) as $name => $value) {
+            if ($value !== $this->oldAttributes[$name]) {
+                $result[$name] = $value;
             }
         }
 
-        return $attributes;
+        return $result;
     }
 
     public function getOldAttributes(): array
@@ -207,7 +185,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function getOldPrimaryKey(bool $asArray = false): array|string|null
+    public function getOldPrimaryKey(bool $asArray = false): mixed
     {
         $keys = $this->primaryKey();
 
@@ -218,16 +196,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             );
         }
 
-        if (!$asArray && count($keys) === 1) {
-            /** @psalm-var string|null */
+        if ($asArray === false && count($keys) === 1) {
             return $this->oldAttributes[$keys[0]] ?? null;
         }
 
         $values = [];
 
-        /** @psalm-var list<string> $keys */
         foreach ($keys as $name) {
-            /** @psalm-var string|null */
             $values[$name] = $this->oldAttributes[$name] ?? null;
         }
 
@@ -238,16 +213,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $keys = $this->primaryKey();
 
-        if (!$asArray && count($keys) === 1) {
-            return $this->attributes[$keys[0]] ?? null;
+        if ($asArray === false && count($keys) === 1) {
+            return $this->{$keys[0]};
         }
 
         $values = [];
 
-        /** @psalm-var list<string> $keys */
         foreach ($keys as $name) {
-            /** @psalm-var string|null */
-            $values[$name] = $this->attributes[$name] ?? null;
+            $values[$name] = $this->$name;
         }
 
         return $values;
@@ -300,6 +273,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-param class-string<ActiveRecordInterface> $class
      */
     public function hasMany(string $class, array $link): ActiveQueryInterface
     {
@@ -336,12 +311,17 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-param class-string<ActiveRecordInterface> $class
      */
     public function hasOne(string $class, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($class, $link, false);
     }
 
+    /**
+     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     */
     public function instantiateQuery(string $arClass): ActiveQueryInterface
     {
         return new ActiveQuery($arClass, $this->db, $this->arFactory);
@@ -560,21 +540,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function populateRecord(array|object $row): void
     {
-        $columns = array_flip($this->attributes());
-
-        /**
-         * @psalm-var string $name
-         * @psalm-var mixed $value
-         */
         foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $this->attributes[$name] = $value;
-            } elseif ($this->canSetProperty($name)) {
-                $this->$name = $value;
-            }
+            $this->populateAttribute($name, $value);
+            $this->oldAttributes[$name] = $value;
         }
 
-        $this->oldAttributes = $this->attributes;
         $this->related = [];
         $this->relationsDependencies = [];
     }
@@ -629,7 +599,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return $this->insert($attributeNames);
         }
 
-        return $this->update($attributeNames) !== false;
+        $this->update($attributeNames);
+
+        return true;
     }
 
     public function setAttribute(string $name, mixed $value): void
@@ -708,7 +680,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         $this->oldAttributes = $values;
     }
 
-    public function update(array $attributeNames = null): false|int
+    public function update(array $attributeNames = null): int
     {
         return $this->updateInternal($attributeNames);
     }
@@ -726,16 +698,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
     {
         $attrs = [];
 
-        $condition = $this->getOldPrimaryKey(true);
-
-        if ($condition === null || $condition === []) {
-            return 0;
-        }
-
-        /** @psalm-var mixed $value */
         foreach ($attributes as $name => $value) {
             if (is_int($name)) {
-                /** @psalm-var mixed */
                 $attrs[] = $value;
             } else {
                 $this->$name = $value;
@@ -749,11 +713,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return 0;
         }
 
-        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true) ?? []);
+        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true));
 
-        /** @psalm-var array<string, mixed> $value */
         foreach ($values as $name => $value) {
-            $this->oldAttributes[$name] = $this->attributes[$name];
+            $this->oldAttributes[$name] = $value;
         }
 
         return $rows;
@@ -817,6 +780,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param array $counters The counters to be updated (attribute name => increment value), use negative values if you
      * want to decrement the counters.
      *
+     * @psalm-param array<string, int> $counters
+     *
      * @throws Exception
      * @throws NotSupportedException
      *
@@ -826,18 +791,17 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      */
     public function updateCounters(array $counters): bool
     {
-        if ($this->updateAllCounters($counters, $this->getOldPrimaryKey(true) ?? '')) {
-            /** @psalm-var array<string, int> $counters */
-            foreach ($counters as $name => $value) {
-                $this->attributes[$name] = isset($this->attributes[$name])
-                    ? (int) $this->attributes[$name] + $value : $value;
-                $this->oldAttributes[$name] = $this->attributes[$name];
-            }
-
-            return true;
+        if ($this->updateAllCounters($counters, $this->getOldPrimaryKey(true)) === 0) {
+            return false;
         }
 
-        return false;
+        foreach ($counters as $name => $value) {
+            $value += $this->$name ?? 0;
+            $this->$name = $value;
+            $this->oldAttributes[$name] = $value;
+        }
+
+        return true;
     }
 
     public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void
@@ -1093,6 +1057,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
      * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-param class-string<ActiveRecordInterface> $arClass
 
      * {@see hasOne()}
      * {@see hasMany()}
@@ -1182,41 +1148,27 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
             return 0;
         }
 
-        /** @psalm-var mixed $condition */
         $condition = $this->getOldPrimaryKey(true);
         $lock = $this->optimisticLock();
 
-        if ($lock !== null && is_array($condition)) {
-            $values[$lock] = (int) $this->$lock + 1;
-            /** @psalm-var array<array-key, mixed>|string */
-            $condition[$lock] = $this->$lock;
+        if ($lock !== null) {
+            $lockValue = $this->$lock;
+
+            $condition[$lock] = $lockValue;
+            $values[$lock] = ++$lockValue;
+
+            $rows = $this->updateAll($values, $condition);
+
+            if ($rows === 0) {
+                throw new StaleObjectException('The object being updated is outdated.');
+            }
+
+            $this->$lock = $lockValue;
+        } else {
+            $rows = $this->updateAll($values, $condition);
         }
 
-        /**
-         * We do not check the return value of updateAll() because it's possible that the UPDATE statement doesn't
-         * change anything and thus returns 0.
-         *
-         * @psalm-var array<array-key, mixed>|string $condition
-         */
-        $rows = $this->updateAll($values, $condition);
-
-        if ($lock !== null && !$rows) {
-            throw new StaleObjectException('The object being updated is outdated.');
-        }
-
-        if (isset($values[$lock])) {
-            $this->$lock = $values[$lock];
-        }
-
-        $changedAttributes = [];
-
-        /**
-         * @psalm-var string $name
-         * @psalm-var mixed $value
-         */
         foreach ($values as $name => $value) {
-            /** @psalm-var mixed */
-            $changedAttributes[$name] = $this->oldAttributes[$name] ?? null;
             $this->oldAttributes[$name] = $value;
         }
 
@@ -1276,5 +1228,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggreg
         }
 
         return $this->tableName;
+    }
+
+    private function populateAttribute(string $name, mixed $value): void
+    {
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+        } else {
+            $this->attributes[$name] = $value;
+        }
     }
 }

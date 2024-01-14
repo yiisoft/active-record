@@ -23,6 +23,10 @@ on:
 
 name: Composer require checker
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   composer-require-checker:
     uses: yiisoft/actions/.github/workflows/composer-require-checker.yml@master
@@ -30,4 +34,4 @@ jobs:
       os: >-
         ['ubuntu-latest']
       php: >-
-        ['8.0', '8.1']
+        ['8.1', '8.2', '8.3']

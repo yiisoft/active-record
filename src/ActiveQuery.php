@@ -107,6 +107,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array $joinWith = [];
     private ActiveRecordInterface|null $arInstance = null;
 
+    /**
+     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     */
     final public function __construct(
         protected string $arClass,
         protected ConnectionInterface $db,

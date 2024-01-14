@@ -19,12 +19,16 @@ on:
 
 name: mutation
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   mutation:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
-      extensions: pdo, pdo_mysql, pdo_oci, pdo_pgsql, pdo_sqlite, pdo_sqlsrv-5.10.0-beta2, oci8
+      extensions: pdo, pdo_pgsql
 
     runs-on: ${{ matrix.os }}
 
@@ -34,39 +38,9 @@ jobs:
           - ubuntu-latest
 
         php:
-          - 8.0
+          - 8.1
 
     services:
-      mssql:
-        image: mcr.microsoft.com/mssql/server:2019-latest
-        env:
-            SA_PASSWORD: YourStrong!Passw0rd
-            ACCEPT_EULA: Y
-            MSSQL_PID: Developer
-        ports:
-            - 1433:1433
-        options: --name=mssql --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'SELECT 1'" --health-interval=10s --health-timeout=5s --health-retries=3
-      mysql:
-        image: mysql:latest
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_PASSWORD: ''
-          MYSQL_DATABASE: yiitest
-        ports:
-          - 3306:3306
-        options: --name=mysql --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      oci:
-        image: gvenzl/oracle-xe:latest
-        ports:
-          - 1521:1521
-        env:
-          ORACLE_PASSWORD : root
-        options: >-
-          --name=oci
-          --health-cmd healthcheck.sh
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 10
       postgres:
         image: postgres:14
         env:
@@ -81,9 +55,6 @@ jobs:
       - name: Checkout.
         uses: actions/checkout@v3
 
-      - name: Create MS SQL Database.
-        run: docker exec -i mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
-
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
         with:
@@ -96,11 +67,11 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Install db drivers.
-        run: composer require 'yiisoft/db-mssql:dev-master' 'yiisoft/db-mysql:dev-master' 'yiisoft/db-oracle:dev-master' 'yiisoft/db-pgsql:dev-master' 'yiisoft/db-sqlite:dev-master' --no-interaction --no-progress --optimize-autoloader --ansi
+      - name: Install db-pgsql.
+        run: composer require yiisoft/db-pgsql --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
       - name: Run infection.
         run: |
-          vendor/bin/roave-infection-static-analysis-plugin -j2 --ignore-msi-with-no-mutations --only-covered
+          vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --only-covered --test-framework-options="--testsuite=Pgsql"
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
