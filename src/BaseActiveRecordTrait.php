@@ -192,6 +192,12 @@ trait BaseActiveRecordTrait
      */
     public function __set(string $name, mixed $value): void
     {
+        $setter = 'set' . $name;
+        if (method_exists($this, $setter)) {
+            $this->$setter($value);
+            return;
+        }
+
         if ($this->hasAttribute($name)) {
             if (
                 !empty($this->relationsDependencies[$name])
