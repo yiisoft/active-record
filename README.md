@@ -19,7 +19,7 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 [![static analysis](https://github.com/yiisoft/active-record/actions/workflows/static.yml/badge.svg?branch=dev)](https://github.com/yiisoft/active-record/actions/workflows/static.yml)
 [![type-coverage](https://shepherd.dev/github/yiisoft/active-record/coverage.svg)](https://shepherd.dev/github/yiisoft/active-record)
 
-## Support databases:
+## Support databases
 
 |Packages|  PHP | Versions            |  CI-Actions
 |:------:|:----:|:------------------------:|:-----------:|
@@ -33,7 +33,7 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 
 The package could be installed via composer:
 
-```php
+```shell
 composer require yiisoft/active-record
 ```
 
@@ -41,18 +41,15 @@ composer require yiisoft/active-record
 
 Example:
 
-```php
+```shell
 composer require yiisoft/db-sqlite
 ```
 
 ## Config container interface class
 
 web.php:
+
 ```php
-<?php
-
-declare(strict_types=1);
-
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
@@ -71,11 +68,8 @@ return [
 ```
 
 params.php
+
 ```php
-<?php
-
-declare(strict_types=1);
-
 return [
     'yiisoft/db-sqlite' => [
         'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3',
@@ -86,12 +80,6 @@ return [
 ## Defined your active record class
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Entity;
-
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
@@ -114,12 +102,6 @@ final class User extends ActiveRecord
 ## Usage in controler with DI container autowiring
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Action;
-
 use App\Entity\User;
 use Psr\Http\Message\ResponseInterface;
 
@@ -139,12 +121,6 @@ final class Register
 ## Usage in controler with Active Record factory
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Action;
-
 use App\Entity\User;
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
