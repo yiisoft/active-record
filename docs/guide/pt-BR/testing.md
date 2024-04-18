@@ -72,4 +72,4 @@ Suites available:
 - Pgsql
 - Sqlite
 
-*See more informations in [Internals.](../../internals.md)*
+More information can be found in the [Internals.](../../internals.md)
