@@ -146,11 +146,7 @@ final class Register
 
 ## Documentation
 
-Testing:
-
-- [English](docs/guide/en/testing.md)
-- [Portuguese - Brazil](docs/guide/pt-BR/testing.md)
-- [Internals](docs/internals.md)
+- More information can be found in the [Internals.](docs/internals.md)
 
 ## Support
 
@@ -171,7 +167,7 @@ You may also check out other [Yii Community Resources](https://www.yiiframework.
 
 ## License
 
-The Yii Access is free software. It is released under the terms of the BSD License.
+The Yii ActiveRecord Library is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
