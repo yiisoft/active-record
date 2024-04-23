@@ -26,7 +26,7 @@ For greater ease we recommend to use Docker container for each DBMS. For this yo
 
 To run Docker containers you can use the following command:
 
-```dockerfile
+```shell
 docker compose up -d
 ```
 
