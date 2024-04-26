@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" bootstrap="vendor/autoload.php" failOnRisky="true" failOnWarning="true" executionOrder="default" resolveDependencies="true" xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/10.1/phpunit.xsd">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" backupGlobals="false" colors="true" bootstrap="vendor/autoload.php" failOnRisky="true" failOnWarning="true" executionOrder="default" resolveDependencies="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd">
   <coverage/>
   <php>
     <ini name="error_reporting" value="-1"/>
