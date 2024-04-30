@@ -16,6 +16,7 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Query\BatchQueryResultInterface;
+use Yiisoft\Db\Query\Data\DataReaderInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
@@ -148,11 +149,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         );
     }
 
-    public function each(int $batchSize = 100): BatchQueryResultInterface
+    public function each(): DataReaderInterface
     {
-        return parent::each($batchSize)->setPopulatedMethod(
-            fn (array $rows, null|Closure|string $indexBy) => $this->populate($rows, $indexBy)
-        );
+        if ($this->getCallback() === null) {
+            $this->setCallback(fn (array $row) => $this->populate($row));
+        }
+
+        return parent::each();
     }
 
     /**
@@ -246,21 +249,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function populate(array $rows, Closure|string|null $indexBy = null): array
+    public function populate(array $row): array|object
     {
-        if (empty($rows)) {
-            return [];
-        }
+        // if (!empty($this->join) && $this->getIndexBy() === null) {
+        //     $models = $this->removeDuplicatedModels($models);
+        // }
 
-        $models = $this->createModels($rows);
-
-        if (empty($models)) {
-            return [];
-        }
-
-        if (!empty($this->join) && $this->getIndexBy() === null) {
-            $models = $this->removeDuplicatedModels($models);
-        }
+        $models = [$this->createModel($row)];
 
         if (!empty($this->with)) {
             $this->findWith($this->with, $models);
@@ -270,7 +265,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return DbArrayHelper::populate($models, $indexBy);
+        return reset($models);
     }
 
     /**
@@ -347,35 +342,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function allPopulate(): array
-    {
-        $rows = $this->all();
-
-        if ($rows !== []) {
-            $rows = $this->populate($rows, $this->indexBy);
-        }
-
-        return $rows;
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
-     * @throws Throwable
-     */
     public function onePopulate(): array|ActiveRecordInterface|null
     {
         $row = $this->one();
 
         if ($row !== null) {
-            $activeRecord = $this->populate([$row], $this->indexBy);
-            $row = reset($activeRecord) ?: null;
+            return $this->populate($row);
         }
 
-        return $row;
+        return null;
     }
 
     /**

@@ -105,27 +105,21 @@ trait ActiveQueryTrait
      *
      * @throws InvalidConfigException
      */
-    protected function createModels(array $rows): array|null
+    protected function createModel(array $row): array
     {
         if ($this->asArray) {
-            return $rows;
+            return $row;
         }
 
-        $arClassInstance = [];
+        $arClass = $this->getARInstance();
 
-        foreach ($rows as $row) {
-            $arClass = $this->getARInstance();
-
-            if (method_exists($arClass, 'instantiate')) {
-                $arClass = $arClass->instantiate($row);
-            }
-
-            $arClass->populateRecord($row);
-
-            $arClassInstance[] = $arClass;
+        if (method_exists($arClass, 'instantiate')) {
+            $arClass = $arClass->instantiate($row);
         }
 
-        return $arClassInstance;
+        $arClass->populateRecord($row);
+
+        return $arClass;
     }
 
     /**
