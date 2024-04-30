@@ -128,9 +128,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws InvalidConfigException
      * @throws Throwable
      *
-     * @return array The query results. If the query results in nothing, an empty array will be returned.
-     *
-     * @psalm-return ActiveRecord[]|array
+     * @psalm-suppress ImplementedReturnTypeMismatch
+     * @return ActiveRecordInterface[] The query results. If the query results in nothing, an empty array will be returned.
      */
     public function all(): array
     {
