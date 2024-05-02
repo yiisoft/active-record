@@ -80,9 +80,6 @@ use function preg_replace;
  *
  * @method ActiveQuery hasMany($class, array $link) {@see BaseActiveRecord::hasMany()} for more info.
  * @method ActiveQuery hasOne($class, array $link) {@see BaseActiveRecord::hasOne()} for more info.
- *
- * @psalm-suppress MissingClassConstType
- * Required for PHP versions 8.2 and below only and must be removed after raising the minimum PHP version to 8.3.
  */
 class ActiveRecord extends BaseActiveRecord
 {
