@@ -32,7 +32,7 @@ docker compose up -d
 
 ### Global testing
 
-The following steps are required to run tests.
+The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 
 1. Install all DBMS dependencies with composer.
 
@@ -49,7 +49,7 @@ vendor/bin/phpunit
 
 ### Individual testing
 
-The following steps are required to run the tests.
+The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 
 1. Install DBMS dependencies with Composer.
 
