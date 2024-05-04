@@ -35,7 +35,7 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 
 ## Installation
 
-The package could be installed via composer:
+The package could be installed via [composer](https://getcomposer.org/download/)
 
 ```shell
 composer require yiisoft/active-record
