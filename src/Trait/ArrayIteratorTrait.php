@@ -8,6 +8,8 @@ use ArrayIterator;
 use IteratorAggregate;
 
 /**
+ * Trait to implement {@see IteratorAggregate} for ActiveRecord.
+ *
  * @method array getAttributes(array|null $names = null, array $except = [])
  * @see ActiveRecordInterface::getAttributes() for more info.
  */
