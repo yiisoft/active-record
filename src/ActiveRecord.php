@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use IteratorAggregate;
 use Throwable;
+use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -80,9 +82,13 @@ use function preg_replace;
  *
  * @method ActiveQuery hasMany($class, array $link) {@see BaseActiveRecord::hasMany()} for more info.
  * @method ActiveQuery hasOne($class, array $link) {@see BaseActiveRecord::hasOne()} for more info.
+ *
+ * @template-implements IteratorAggregate<string, mixed>
  */
-class ActiveRecord extends BaseActiveRecord
+class ActiveRecord extends BaseActiveRecord implements IteratorAggregate
 {
+    use ArrayIteratorTrait;
+
     /**
      * The insert operation. This is mainly used when overriding {@see transactions()} to specify which operations are
      * transactional.
