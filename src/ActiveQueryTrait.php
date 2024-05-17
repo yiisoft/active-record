@@ -73,7 +73,6 @@ trait ActiveQueryTrait
      * CustomerQuery->with('orders')->with('country')->all();
      * ```
      *
-     * @param array|string $with
      *
      * @return static the query object itself.
      */
