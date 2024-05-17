@@ -35,8 +35,8 @@ interface ActiveQueryInterface extends QueryInterface
      * The parameters to this method can be either one or multiple strings, or a single array of relation names and the
      * optional callbacks to customize the relations.
      *
-     * A relation name can refer to a relation defined in {@see ActiveQueryTrait::modelClass|modelClass} or a
-     * sub-relation that stands for a relation of a related record.
+     * A relation name can refer to a relation defined in {@see modelClass} or a sub-relation that stands for a relation
+     * of a related record.
      *
      * For example, `orders.address` means the `address` relation defined in the model class corresponding to the
      * `orders` relation.
@@ -45,7 +45,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * ```php
      * // Create active query
-     * CustomerQuery = new ActiveQuery(Customer::class, $this->db);
+     * CustomerQuery = new ActiveQuery(Customer::class, $db);
      * // find customers together with their orders and country
      * CustomerQuery->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
@@ -59,8 +59,18 @@ interface ActiveQueryInterface extends QueryInterface
      * ])->all();
      * ```
      *
-     * @param array|string $with The relations to be eagerly loaded. This can be either an array of relations, or a
-     * variable number of strings representing the relations.
+     * You can call `with()` multiple times. Each call will add relations to the existing ones.
+     *
+     * For example, the following two statements are equivalent:
+     *
+     * ```php
+     * CustomerQuery->with('orders', 'country')->all();
+     * CustomerQuery->with('orders')->with('country')->all();
+     * ```
+     *
+     * @param array|string ...$with a list of relation names or relation definitions.
+     *
+     * @return static the query object itself.
      */
     public function with(array|string ...$with): self;
 
