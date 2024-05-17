@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord;
 
 use ArrayAccess;
 use Closure;
-use IteratorAggregate;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Arrays\ArrayableInterface;
@@ -46,9 +45,8 @@ use function reset;
  * See {@see ActiveRecord} for a concrete implementation.
  *
  * @template-implements ArrayAccess<int, mixed>
- * @template-implements IteratorAggregate<int>
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface, IteratorAggregate, ArrayAccess, ArrayableInterface
+abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, ArrayableInterface
 {
     use ArrayableTrait;
     use BaseActiveRecordTrait;

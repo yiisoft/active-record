@@ -19,7 +19,7 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 [![static analysis](https://github.com/yiisoft/active-record/actions/workflows/static.yml/badge.svg?branch=dev)](https://github.com/yiisoft/active-record/actions/workflows/static.yml)
 [![type-coverage](https://shepherd.dev/github/yiisoft/active-record/coverage.svg)](https://shepherd.dev/github/yiisoft/active-record)
 
-## Support databases:
+## Support databases
 
 |Packages|  PHP | Versions            |  CI-Actions
 |:------:|:----:|:------------------------:|:-----------:|
@@ -29,11 +29,15 @@ It is used in [Yii Framework] but is supposed to be usable separately.
 |[[db-pgsql]](https://github.com/yiisoft/db-pgsql)|**7.4 - 8.0**| **9.0 - 15.0**|[![Build status](https://github.com/yiisoft/db-pgsql/workflows/build/badge.svg)](https://github.com/yiisoft/db-pgsql/actions?query=workflow%3Abuild) [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdb-pgsql%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/db-pgsql/master) [![codecov](https://codecov.io/gh/yiisoft/db-pgsql/branch/master/graph/badge.svg?token=3FGN91IVZA)](https://codecov.io/gh/yiisoft/db-pgsql)|
 |[[db-sqlite]](https://github.com/yiisoft/db-sqlite)|**7.4 - 8.0**| **3:latest**|[![Build status](https://github.com/yiisoft/db-sqlite/workflows/build/badge.svg)](https://github.com/yiisoft/db-sqlite/actions?query=workflow%3Abuild) [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fdb-sqlite%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/db-sqlite/master) [![codecov](https://codecov.io/gh/yiisoft/db-sqlite/branch/master/graph/badge.svg?token=YXUHCPPITH)](https://codecov.io/gh/yiisoft/db-sqlite)|
 
+## Requirements
+
+- PHP 8.1 or higher.
+
 ## Installation
 
 The package could be installed via composer:
 
-```php
+```shell
 composer require yiisoft/active-record
 ```
 
@@ -41,18 +45,15 @@ composer require yiisoft/active-record
 
 Example:
 
-```php
+```shell
 composer require yiisoft/db-sqlite
 ```
 
 ## Config container interface class
 
 web.php:
+
 ```php
-<?php
-
-declare(strict_types=1);
-
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
@@ -71,11 +72,8 @@ return [
 ```
 
 params.php
+
 ```php
-<?php
-
-declare(strict_types=1);
-
 return [
     'yiisoft/db-sqlite' => [
         'dsn' => 'sqlite:' . dirname(__DIR__) . '/runtime/yiitest.sq3',
@@ -86,12 +84,6 @@ return [
 ## Defined your active record class
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Entity;
-
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
@@ -114,12 +106,6 @@ final class User extends ActiveRecord
 ## Usage in controler with DI container autowiring
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Action;
-
 use App\Entity\User;
 use Psr\Http\Message\ResponseInterface;
 
@@ -139,12 +125,6 @@ final class Register
 ## Usage in controler with Active Record factory
 
 ```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Action;
-
 use App\Entity\User;
 use Psr\Http\Message\ResponseInterface;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
@@ -164,30 +144,28 @@ final class Register
 }
 ```
 
-## Support
+## Documentation
 
-If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/db/68) is a good place for that.
+- [Internals](docs/internals.md)
+
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
 You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
-## Testing
+## License
 
-[Check the testing instructions](/docs/en/testing.md) to learn about testing.
+The Yii Active Record Library is free software. It is released under the terms of the BSD License.
+Please see [`LICENSE`](./LICENSE.md) for more information.
 
-### Support the project
+Maintained by [Yii Software](https://www.yiiframework.com/).
+
+## Support the project
 
 [![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
 
-### Follow updates
+## Follow updates
 
 [![Official website](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
 [![Twitter](https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555?style=flat)](https://twitter.com/yiiframework)
 [![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
 [![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
 [![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
-
-## License
-
-The Yii ActiveRecord Library is free software. It is released under the terms of the BSD License.
-Please see [`LICENSE`](./LICENSE.md) for more information.
-
-Maintained by [Yii Software](https://www.yiiframework.com/).
