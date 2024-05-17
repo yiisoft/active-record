@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use ArrayAccess;
-use ArrayIterator;
 use Error;
 use Exception;
-use IteratorAggregate;
 use ReflectionException;
 use ReflectionMethod;
 use Throwable;
@@ -208,20 +206,6 @@ trait BaseActiveRecordTrait
         }
 
         throw new UnknownPropertyException('Setting unknown property: ' . static::class . '::' . $name);
-    }
-
-    /**
-     * Returns an iterator for traversing the attributes in the ActiveRecord.
-     *
-     * This method is required by the interface {@see IteratorAggregate}.
-     *
-     * @return ArrayIterator an iterator for traversing the items in the list.
-     */
-    public function getIterator(): ArrayIterator
-    {
-        $attributes = $this->getAttributes();
-
-        return new ArrayIterator($attributes);
     }
 
     /**
