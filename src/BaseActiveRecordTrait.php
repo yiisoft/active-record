@@ -214,7 +214,6 @@ trait BaseActiveRecordTrait
      *
      * It is implicitly called when you use something like `isset($model[$offset])`.
      *
-     *
      * @return bool whether or not an offset exists.
      */
     public function offsetExists(mixed $offset): bool

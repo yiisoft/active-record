@@ -422,7 +422,6 @@ interface ActiveQueryInterface extends QueryInterface
      * $query = $aqClass->findOne($id);
      * ```
      *
-     *
      * @throws InvalidConfigException
      * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
@@ -508,7 +507,6 @@ interface ActiveQueryInterface extends QueryInterface
      * $aqClass = new ActiveQuery(Post::class, $db);
      * $aqClass = $aqClass->findOne($id);
      * ```
-     *
      *
      * @return array An array of ActiveRecord instance, or an empty array if nothing matches.
      */

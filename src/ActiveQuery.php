@@ -913,7 +913,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * This method is internally called by {@see findOne()} and {@see findAll()}.
      *
-     *
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidArgumentException

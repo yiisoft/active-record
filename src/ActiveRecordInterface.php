@@ -303,7 +303,6 @@ interface ActiveRecordInterface
      *
      * It's implicitly called when you use something like `$value = $model[$offset];`.
      *
-     *
      * @return mixed the element at the offset, null if no element is found at the offset
      */
     public function offsetGet(mixed $offset): mixed;
