@@ -650,7 +650,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
      * Sets the old value of the named attribute.
      *
      * @param string $name The attribute name.
-     * @param mixed $value The old attribute value.
      *
      * @throws InvalidArgumentException If the named attribute does not exist.
      *

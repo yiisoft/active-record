@@ -913,7 +913,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * This method is internally called by {@see findOne()} and {@see findAll()}.
      *
-     * @param mixed $condition Please refer to {@see findOne()} for the explanation of this parameter.
      *
      * @throws CircularReferenceException
      * @throws Exception

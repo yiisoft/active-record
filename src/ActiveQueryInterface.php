@@ -422,10 +422,8 @@ interface ActiveQueryInterface extends QueryInterface
      * $query = $aqClass->findOne($id);
      * ```
      *
-     * @param mixed $condition The primary key value or a set of column values.
      *
      * @throws InvalidConfigException
-     *
      * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
     public function findOne(mixed $condition): array|ActiveRecordInterface|null;
@@ -511,7 +509,6 @@ interface ActiveQueryInterface extends QueryInterface
      * $aqClass = $aqClass->findOne($id);
      * ```
      *
-     * @param mixed $condition The primary key value or a set of column values.
      *
      * @return array An array of ActiveRecord instance, or an empty array if nothing matches.
      */

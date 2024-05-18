@@ -184,7 +184,6 @@ trait BaseActiveRecordTrait
      * This method is overridden so that AR attributes can be accessed like properties.
      *
      * @param string $name property name.
-     * @param mixed $value property value.
      *
      * @throws InvalidCallException
      */
@@ -215,7 +214,6 @@ trait BaseActiveRecordTrait
      *
      * It is implicitly called when you use something like `isset($model[$offset])`.
      *
-     * @param mixed $offset the offset to check on.
      *
      * @return bool whether or not an offset exists.
      */
@@ -235,9 +233,6 @@ trait BaseActiveRecordTrait
      * This method is required by the SPL interface {@see ArrayAccess}.
      *
      * It is implicitly called when you use something like `$model[$offset] = $item;`.
-     *
-     * @param mixed $offset the offset to set element.
-     * @param mixed $value the element value.
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
@@ -250,8 +245,6 @@ trait BaseActiveRecordTrait
      * This method is required by the SPL interface {@see ArrayAccess}.
      *
      * It is implicitly called when you use something like `unset($model[$offset])`.
-     *
-     * @param mixed $offset the offset to unset element
      */
     public function offsetUnset(mixed $offset): void
     {

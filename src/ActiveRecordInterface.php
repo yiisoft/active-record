@@ -303,7 +303,6 @@ interface ActiveRecordInterface
      *
      * It's implicitly called when you use something like `$value = $model[$offset];`.
      *
-     * @param mixed $offset the offset to retrieve element.
      *
      * @return mixed the element at the offset, null if no element is found at the offset
      */
@@ -364,7 +363,6 @@ interface ActiveRecordInterface
      * Sets the named attribute value.
      *
      * @param string $name The attribute name.
-     * @param mixed $value The attribute value.
      *
      * @throws InvalidArgumentException If the named attribute doesn't exist.
      */
