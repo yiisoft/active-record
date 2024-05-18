@@ -49,7 +49,7 @@ vendor/bin/phpunit
 
 ### Individual testing
 
-The following steps are required to run the tests.
+The following steps are required to run tests.
 
 1. Install DBMS dependencies with Composer.
 
