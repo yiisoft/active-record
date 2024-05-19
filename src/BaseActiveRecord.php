@@ -37,7 +37,6 @@ use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_int;
-use function property_exists;
 use function reset;
 
 /**
