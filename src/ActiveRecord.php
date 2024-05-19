@@ -6,7 +6,9 @@ namespace Yiisoft\ActiveRecord;
 
 use IteratorAggregate;
 use Throwable;
+use Yiisoft\ActiveRecord\Trait\ArrayableTrait;
 use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
+use Yiisoft\Arrays\ArrayableInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -85,8 +87,9 @@ use function preg_replace;
  *
  * @template-implements IteratorAggregate<string, mixed>
  */
-class ActiveRecord extends BaseActiveRecord implements IteratorAggregate
+class ActiveRecord extends BaseActiveRecord implements ArrayableInterface, IteratorAggregate
 {
+    use ArrayableTrait;
     use ArrayIteratorTrait;
 
     /**

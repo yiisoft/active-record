@@ -8,8 +8,6 @@ use ArrayAccess;
 use Closure;
 use ReflectionException;
 use Throwable;
-use Yiisoft\Arrays\ArrayableInterface;
-use Yiisoft\Arrays\ArrayableTrait;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -20,7 +18,6 @@ use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Helper\DbStringHelper;
 
-use function array_combine;
 use function array_diff_key;
 use function array_diff;
 use function array_fill_keys;
@@ -46,9 +43,8 @@ use function reset;
  *
  * @template-implements ArrayAccess<int, mixed>
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, ArrayableInterface
+abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess
 {
-    use ArrayableTrait;
     use BaseActiveRecordTrait;
 
     private array $attributes = [];
@@ -84,27 +80,6 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
         }
 
         return $this->getTableName() === $record->getTableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
-    }
-
-    /**
-     * @return array The default implementation returns the names of the relations that have been populated into this
-     * record.
-     */
-    public function extraFields(): array
-    {
-        $fields = array_keys($this->getRelatedRecords());
-
-        return array_combine($fields, $fields);
-    }
-
-    /**
-     * @psalm-return array<string, string|Closure>
-     */
-    public function fields(): array
-    {
-        $fields = array_keys($this->attributes);
-
-        return array_combine($fields, $fields);
     }
 
     public function getAttribute(string $name): mixed
