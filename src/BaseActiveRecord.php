@@ -538,7 +538,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
     public function populateRecord(array|object $row): void
     {
         foreach ($row as $name => $value) {
-            $this->$name = $value;
+            if (property_exists($this, $name)) {
+                $this->$name = $value;
+            } else {
+                $this->attributes[$name] = $value;
+            }
+
             $this->oldAttributes[$name] = $value;
         }
 
