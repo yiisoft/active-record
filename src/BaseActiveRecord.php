@@ -23,6 +23,7 @@ use Yiisoft\Db\Helper\DbStringHelper;
 use function array_combine;
 use function array_diff_key;
 use function array_diff;
+use function array_fill_keys;
 use function array_flip;
 use function array_intersect;
 use function array_intersect_key;
@@ -36,7 +37,6 @@ use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_int;
-use function property_exists;
 use function reset;
 
 /**
@@ -194,8 +194,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
             );
         }
 
-        if ($asArray === false && count($keys) === 1) {
-            return $this->oldAttributes[$keys[0]] ?? null;
+        if (count($keys) === 1) {
+            $key = $this->oldAttributes[$keys[0]] ?? null;
+
+            return $asArray ? [$keys[0] => $key] : $key;
         }
 
         $values = [];
@@ -211,14 +213,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
     {
         $keys = $this->primaryKey();
 
-        if ($asArray === false && count($keys) === 1) {
-            return $this->{$keys[0]};
+        if (count($keys) === 1) {
+            return $asArray ? [$keys[0] => $this->getAttribute($keys[0])] : $this->getAttribute($keys[0]);
         }
 
         $values = [];
 
         foreach ($keys as $name) {
-            $values[$name] = $this->$name;
+            $values[$name] = $this->getAttribute($name);
         }
 
         return $values;
@@ -351,11 +353,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
     {
         $pks = $this->primaryKey();
 
-        if (count($keys) === count($pks)) {
-            return count(array_intersect($keys, $pks)) === count($pks);
-        }
-
-        return false;
+        return count($keys) === count($pks)
+            && count(array_intersect($keys, $pks)) === count($pks);
     }
 
     public function isRelationPopulated(string $name): bool
@@ -475,7 +474,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
                 if ($indexBy instanceof Closure) {
                     $index = $relation?->indexBy($arClass::class);
                 } else {
-                    $index = $arClass->{$indexBy};
+                    $index = $arClass->$indexBy;
                 }
 
                 if ($index !== null) {
@@ -539,7 +538,12 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
     public function populateRecord(array|object $row): void
     {
         foreach ($row as $name => $value) {
-            $this->populateAttribute($name, $value);
+            if (property_exists($this, $name)) {
+                $this->$name = $value;
+            } else {
+                $this->attributes[$name] = $value;
+            }
+
             $this->oldAttributes[$name] = $value;
         }
 
@@ -572,8 +576,8 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
     /**
      * Saves the current record.
      *
-     * This method will call {@see insert()} when {@see isNewRecord} is `true`, or {@see update()} when
-     * {@see isNewRecord} is `false`.
+     * This method will call {@see insert()} when {@see getIsNewRecord} is `true`, or {@see update()} when
+     * {@see getIsNewRecord} is `false`.
      *
      * For example, to save a customer record:
      *
@@ -587,7 +591,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
      * @param array|null $attributeNames List of attribute names that need to be saved. Defaults to null, meaning all
      * attributes that are loaded from DB will be saved.
      *
-     * @throws Exception|StaleObjectException
+     * @throws InvalidConfigException
+     * @throws StaleObjectException
+     * @throws Throwable
      *
      * @return bool Whether the saving succeeded (i.e. no validation errors occurred).
      */
@@ -626,11 +632,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
      */
     public function setAttributes(array $values): void
     {
+        $values = array_intersect_key($values, array_flip($this->attributes()));
+
         /** @psalm-var mixed $value */
         foreach ($values as $name => $value) {
-            if (in_array($name, $this->attributes(), true)) {
-                $this->$name = $value;
-            }
+            $this->$name = $value;
         }
     }
 
@@ -699,7 +705,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
             if (is_int($name)) {
                 $attrs[] = $value;
             } else {
-                $this->$name = $value;
+                $this->setAttribute($name, $value);
                 $attrs[] = $name;
             }
         }
@@ -712,9 +718,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
 
         $rows = $this->updateAll($values, $this->getOldPrimaryKey(true));
 
-        foreach ($values as $name => $value) {
-            $this->oldAttributes[$name] = $value;
-        }
+        $this->oldAttributes = array_merge($this->oldAttributes ?? [], $values);
 
         return $rows;
     }
@@ -751,7 +755,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
 
         /** @psalm-var array<string, int> $counters */
         foreach ($counters as $name => $value) {
-            $counters[$name] = new Expression("[[$name]]+:bp{$n}", [":bp{$n}" => $value]);
+            $counters[$name] = new Expression("[[$name]]+:bp$n", [":bp$n" => $value]);
             $n++;
         }
 
@@ -837,16 +841,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
                     $columns[$b] = $arClass->$a;
                 }
 
-                foreach (array_keys($columns) as $a) {
-                    $nulls[$a] = null;
-                }
+                $nulls = array_fill_keys(array_keys($columns), null);
 
                 if ($viaRelation->getOn() !== null) {
                     $columns = ['and', $columns, $viaRelation->getOn()];
                 }
             }
 
-            if ($viaClass instanceof ActiveRecordInterface && is_array($relation?->getVia())) {
+            if ($viaClass instanceof ActiveRecordInterface) {
                 if ($delete) {
                     $viaClass->deleteAll($columns);
                 } else {
@@ -861,10 +863,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
                 }
             }
         } elseif ($relation instanceof ActiveQueryInterface) {
-            $p1 = $arClass->isPrimaryKey(array_keys($relation->getLink()));
-            $p2 = $this->isPrimaryKey(array_values($relation->getLink()));
-
-            if ($p2) {
+            if ($this->isPrimaryKey($relation->getLink())) {
                 if ($delete) {
                     $arClass->delete();
                 } else {
@@ -873,7 +872,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
                     }
                     $arClass->save();
                 }
-            } elseif ($p1) {
+            } elseif ($arClass->isPrimaryKey(array_keys($relation->getLink()))) {
                 foreach ($relation->getLink() as $a => $b) {
                     /** @psalm-var mixed $values */
                     $values = $this->$b;
@@ -962,7 +961,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
                 }
             }
 
-            if ($viaClass instanceof ActiveRecordInterface && is_array($relation->getVia())) {
+            if ($viaClass instanceof ActiveRecordInterface) {
                 if ($delete) {
                     $viaClass->deleteAll($condition);
                 } else {
@@ -1027,7 +1026,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
     ): void {
         $via = $relation->getVia();
 
-        if (empty($via) && $relation->getLink()) {
+        if (empty($via)) {
             foreach ($relation->getLink() as $attribute) {
                 $this->relationsDependencies[$attribute][$name] = $name;
                 if ($viaRelationName !== null) {
@@ -1036,7 +1035,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
             }
         } elseif ($via instanceof ActiveQueryInterface) {
             $this->setRelationDependencies($name, $via);
-        } elseif (is_array($via)) {
+        } else {
             /**
              * @psalm-var string|null $viaRelationName
              * @psalm-var ActiveQueryInterface $viaQuery
@@ -1116,7 +1115,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
         }
 
         foreach ($this->attributes() as $name) {
-            $this->attributes[$name] = $record->getAttribute($name);
+            $this->setAttribute($name, $record->getAttribute($name));
         }
 
         $this->oldAttributes = $record->getOldAttributes();
@@ -1165,9 +1164,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
             $rows = $this->updateAll($values, $condition);
         }
 
-        foreach ($values as $name => $value) {
-            $this->oldAttributes[$name] = $value;
-        }
+        $this->oldAttributes = array_merge($this->oldAttributes ?? [], $values);
 
         return $rows;
     }
@@ -1193,11 +1190,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
              *
              * @psalm-suppress MixedArrayAssignment
              */
-            if (is_array($foreignModel->$fk)) {
+            if (is_array($foreignModel->getAttribute($fk))) {
                 /** @psalm-var mixed */
                 $foreignModel->{$fk}[] = $value;
             } else {
-                $foreignModel->{$fk} = $value;
+                $foreignModel->setAttribute($fk, $value);
             }
         }
 
@@ -1225,14 +1222,5 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
         }
 
         return $this->tableName;
-    }
-
-    private function populateAttribute(string $name, mixed $value): void
-    {
-        if (property_exists($this, $name)) {
-            $this->$name = $value;
-        } else {
-            $this->attributes[$name] = $value;
-        }
     }
 }
