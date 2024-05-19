@@ -92,8 +92,8 @@ use function preg_replace;
  */
 class ActiveRecord extends BaseActiveRecord implements ArrayAccess, ArrayableInterface, IteratorAggregate
 {
-    use ArrayAccessTrait;
     use ArrayableTrait;
+    use ArrayAccessTrait;
     use ArrayIteratorTrait;
 
     /**
