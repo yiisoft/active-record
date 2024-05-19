@@ -14,10 +14,10 @@ use function array_keys;
  * Trait to implement {@see \Yiisoft\Arrays\ArrayableTrait} interface for ActiveRecord.
  *
  * @method string[] attributes()
- * @see BaseActiveRecord::attributes() for more info.
+ * @see BaseActiveRecord::attributes()
  *
  * @method array getRelatedRecords()
- * @see BaseActiveRecord::getRelatedRecords() for more info.
+ * @see BaseActiveRecord::getRelatedRecords()
  */
 trait ArrayableTrait
 {

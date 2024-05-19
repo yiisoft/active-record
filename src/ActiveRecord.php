@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use ArrayAccess;
 use IteratorAggregate;
 use Throwable;
 use Yiisoft\ActiveRecord\Trait\ArrayableTrait;
+use Yiisoft\ActiveRecord\Trait\ArrayAccessTrait;
 use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
 use Yiisoft\Arrays\ArrayableInterface;
 use Yiisoft\Db\Exception\Exception;
@@ -85,10 +87,12 @@ use function preg_replace;
  * @method ActiveQuery hasMany($class, array $link) {@see BaseActiveRecord::hasMany()} for more info.
  * @method ActiveQuery hasOne($class, array $link) {@see BaseActiveRecord::hasOne()} for more info.
  *
+ * @template-implements ArrayAccess<string, mixed>
  * @template-implements IteratorAggregate<string, mixed>
  */
-class ActiveRecord extends BaseActiveRecord implements ArrayableInterface, IteratorAggregate
+class ActiveRecord extends BaseActiveRecord implements ArrayAccess, ArrayableInterface, IteratorAggregate
 {
+    use ArrayAccessTrait;
     use ArrayableTrait;
     use ArrayIteratorTrait;
 
