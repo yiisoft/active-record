@@ -118,7 +118,6 @@ trait MagicPropertiesTrait
      * This method is overridden so that AR attributes can be accessed like properties.
      *
      * @param string $name property name.
-     * @param mixed $value property value.
      *
      * @throws InvalidCallException|UnknownPropertyException
      */
