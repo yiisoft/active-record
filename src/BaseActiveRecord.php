@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use ArrayAccess;
 use Closure;
 use ReflectionException;
 use Throwable;
@@ -40,10 +39,8 @@ use function reset;
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
  *
  * See {@see ActiveRecord} for a concrete implementation.
- *
- * @template-implements ArrayAccess<int, mixed>
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess
+abstract class BaseActiveRecord implements ActiveRecordInterface
 {
     use BaseActiveRecordTrait;
 
