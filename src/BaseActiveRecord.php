@@ -873,25 +873,20 @@ abstract class BaseActiveRecord implements ActiveRecordInterface, ArrayAccess, A
                     $arClass->save();
                 }
             } elseif ($arClass->isPrimaryKey(array_keys($relation->getLink()))) {
-                if ($delete) {
-                    $this->delete();
-                } else {
-                    foreach ($relation->getLink() as $a => $b) {
-                        /** @psalm-var mixed $values */
-                        $values = $this->$b;
-                        /** relation via array valued attribute */
-                        if (is_array($values)) {
-                            if (($key = array_search($arClass->$a, $values, false)) !== false) {
-                                unset($values[$key]);
-                                $this->$b = array_values($values);
-                            }
-                        } else {
-                            $this->$b = null;
+                foreach ($relation->getLink() as $a => $b) {
+                    /** @psalm-var mixed $values */
+                    $values = $this->$b;
+                    /** relation via array valued attribute */
+                    if (is_array($values)) {
+                        if (($key = array_search($arClass->$a, $values, false)) !== false) {
+                            unset($values[$key]);
+                            $this->$b = array_values($values);
                         }
+                    } else {
+                        $this->$b = null;
                     }
-
-                    $this->save();
                 }
+                $delete ? $this->delete() : $this->save();
             } else {
                 throw new InvalidCallException('Unable to unlink models: the link does not involve any primary key.');
             }
