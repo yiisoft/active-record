@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
-use ReflectionMethod;
 use Stringable;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -25,8 +24,6 @@ use function is_object;
 use function is_scalar;
 use function is_string;
 use function key;
-use function lcfirst;
-use function method_exists;
 use function reset;
 use function serialize;
 

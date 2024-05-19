@@ -41,11 +41,10 @@ trait MagicPropertiesTrait
      * @throws InvalidArgumentException|InvalidCallException|InvalidConfigException|ReflectionException|Throwable
      * @throws UnknownPropertyException
      *
+     * @throws Exception
      * @return mixed property value.
      *
      * {@see getAttribute()}
-
-     * @throws Exception
      */
     public function __get(string $name)
     {
