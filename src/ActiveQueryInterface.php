@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use ReflectionException;
+use Throwable;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
@@ -334,16 +337,19 @@ interface ActiveQueryInterface extends QueryInterface
     public function populate(array $rows, Closure|string|null $indexBy = null): array;
 
     /**
-     * Finds the related records for the specified primary record.
+     * Returns related record(s).
      *
      * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.
      *
-     * @param string $name The relation name.
-     * @param ActiveRecordInterface $model The primary model.
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws ReflectionException
+     * @throws Throwable if the relation is invalid.
      *
-     * @return mixed The related record(s).
+     * @return ActiveRecordInterface|array|null the related record(s).
      */
-    public function findFor(string $name, ActiveRecordInterface $model): mixed;
+    public function relatedRecords(): ActiveRecordInterface|array|null;
 
     /**
      * Returns a single active record instance by a primary key or an array of column values.
@@ -423,6 +429,7 @@ interface ActiveQueryInterface extends QueryInterface
      * ```
      *
      * @throws InvalidConfigException
+     *
      * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
     public function findOne(mixed $condition): array|ActiveRecordInterface|null;

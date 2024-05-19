@@ -180,21 +180,10 @@ trait ActiveRelationTrait
      * @throws ReflectionException
      * @throws Throwable if the relation is invalid.
      *
-     * @return array|object|null the related record(s).
+     * @return ActiveRecordInterface|array|null the related record(s).
      */
-    public function findFor(string $name, ActiveRecordInterface $model): array|null|object
+    public function relatedRecords(): ActiveRecordInterface|array|null
     {
-        if (method_exists($model, 'get' . $name)) {
-            $method = new ReflectionMethod($model, 'get' . $name);
-            $realName = lcfirst(substr($method->getName(), 3));
-            if ($realName !== $name) {
-                throw new InvalidArgumentException(
-                    'Relation names are case sensitive. ' . $model::class
-                    . " has a relation named \"$realName\" instead of \"$name\"."
-                );
-            }
-        }
-
         return $this->multiple ? $this->all() : $this->onePopulate();
     }
 

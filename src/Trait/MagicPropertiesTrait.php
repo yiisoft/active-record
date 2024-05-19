@@ -2,24 +2,34 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord;
+namespace Yiisoft\ActiveRecord\Trait;
 
-use Exception;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 
+use function array_diff;
+use function array_flip;
+use function array_intersect_key;
 use function array_key_exists;
+use function array_merge;
+use function get_object_vars;
+use function in_array;
 use function method_exists;
 use function property_exists;
 use function ucfirst;
 
-trait BaseActiveRecordTrait
+/**
+ * Trait to define magic methods to access values of an ActiveRecord instance.
+ */
+trait MagicPropertiesTrait
 {
-    private static string|null $connectionId = null;
+    private array $attributes = [];
 
     /**
      * PHP getter magic method.
@@ -34,39 +44,28 @@ trait BaseActiveRecordTrait
      * @return mixed property value.
      *
      * {@see getAttribute()}
+
+     * @throws Exception
      */
     public function __get(string $name)
     {
-        if (isset($this->attributes[$name]) || array_key_exists($name, $this->attributes)) {
-            return $this->attributes[$name];
-        }
-
         if ($this->hasAttribute($name)) {
-            return null;
+            return $this->getAttribute($name);
         }
 
-        if (isset($this->related[$name]) || array_key_exists($name, $this->related)) {
-            return $this->related[$name];
+        if ($this->isRelationPopulated($name)) {
+            return $this->getRelatedRecords()[$name];
         }
 
-        /** @var mixed $value */
-        $value = $this->checkRelation($name);
+        if (method_exists($this, $getter = 'get' . ucfirst($name))) {
+            /** read getter, e.g. getName() */
+            $value = $this->$getter();
 
-        if ($value instanceof ActiveQuery) {
-            $this->setRelationDependencies($name, $value);
-            return $this->related[$name] = $value->findFor($name, $this);
-        }
+            if ($value instanceof ActiveQueryInterface) {
+                return $this->retrieveRelation($name);
+            }
 
-        return $value;
-    }
-
-    public function checkRelation(string $name): mixed
-    {
-        $getter = 'get' . ucfirst($name);
-
-        if (method_exists($this, $getter)) {
-            /** read property, e.g. getName() */
-            return $this->$getter();
+            return $value;
         }
 
         if (method_exists($this, 'set' . ucfirst($name))) {
@@ -105,11 +104,12 @@ trait BaseActiveRecordTrait
     {
         if ($this->hasAttribute($name)) {
             unset($this->attributes[$name]);
-            if (!empty($this->relationsDependencies[$name])) {
+
+            if ($this->hasDependentRelations($name)) {
                 $this->resetDependentRelations($name);
             }
-        } elseif (array_key_exists($name, $this->related)) {
-            unset($this->related[$name]);
+        } elseif ($this->isRelationPopulated($name)) {
+            $this->resetRelation($name);
         }
     }
 
@@ -119,19 +119,26 @@ trait BaseActiveRecordTrait
      * This method is overridden so that AR attributes can be accessed like properties.
      *
      * @param string $name property name.
+     * @param mixed $value property value.
      *
-     * @throws InvalidCallException
+     * @throws InvalidCallException|UnknownPropertyException
      */
     public function __set(string $name, mixed $value): void
     {
         if ($this->hasAttribute($name)) {
             if (
-                !empty($this->relationsDependencies[$name])
+                $this->hasDependentRelations($name)
                 && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
             ) {
                 $this->resetDependentRelations($name);
             }
+
             $this->attributes[$name] = $value;
+            return;
+        }
+
+        if (method_exists($this, $setter = 'set' . ucfirst($name))) {
+            $this->$setter($value);
             return;
         }
 
@@ -142,6 +149,76 @@ trait BaseActiveRecordTrait
         throw new UnknownPropertyException('Setting unknown property: ' . static::class . '::' . $name);
     }
 
+    public function getAttribute(string $name): mixed
+    {
+        return $this->attributes[$name] ?? null;
+    }
+
+    public function getAttributes(array $names = null, array $except = []): array
+    {
+        $names ??= $this->attributes();
+        $attributes = array_merge($this->attributes, get_object_vars($this));
+
+        if ($except !== []) {
+            $names = array_diff($names, $except);
+        }
+
+        return array_intersect_key($attributes, array_flip($names));
+    }
+
+    public function hasAttribute(string $name): bool
+    {
+        return isset($this->attributes[$name]) || in_array($name, $this->attributes(), true);
+    }
+
+    public function isAttributeChanged(string $name, bool $identical = true): bool
+    {
+        if (isset($this->attributes[$name], $this->oldAttributes[$name])) {
+            return $this->attributes[$name] !== $this->oldAttributes[$name];
+        }
+
+        return isset($this->attributes[$name]) || isset($this->oldAttributes[$name]);
+    }
+
+    public function setAttribute(string $name, mixed $value): void
+    {
+        if ($this->hasAttribute($name)) {
+            if (
+                $this->hasDependentRelations($name)
+                && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
+            ) {
+                $this->resetDependentRelations($name);
+            }
+            $this->attributes[$name] = $value;
+        } else {
+            throw new InvalidArgumentException(static::class . ' has no attribute named "' . $name . '".');
+        }
+    }
+
+    /**
+     * Populates an active record object using a row of data from the database/storage.
+     *
+     * This is an internal method meant to be called to create active record objects after fetching data from the
+     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
+     *
+     * @param array|object $row Attribute values (name => value).
+     */
+    public function populateRecord(array|object $row): void
+    {
+        foreach ($row as $name => $value) {
+            if (property_exists($this, $name)) {
+                $this->$name = $value;
+            } else {
+                $this->attributes[$name] = $value;
+            }
+
+            $this->oldAttributes[$name] = $value;
+        }
+
+        $this->related = [];
+        $this->relationsDependencies = [];
+    }
+
     /**
      * Returns a value indicating whether a property is defined for this component.
      *
@@ -150,7 +227,6 @@ trait BaseActiveRecordTrait
      * - the class has a getter or setter method associated with the specified name (in this case, property name is
      *   case-insensitive).
      * - the class has a member variable with the specified name (when `$checkVars` is true).
-     * - an attached behavior has a property of the given name (when `$checkBehaviors` is true).
      *
      * @param string $name the property name.
      * @param bool $checkVars whether to treat member variables as properties.

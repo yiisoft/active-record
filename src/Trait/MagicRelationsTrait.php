@@ -8,6 +8,7 @@ use Error;
 use ReflectionException;
 use ReflectionMethod;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 
 use function lcfirst;
@@ -15,6 +16,10 @@ use function method_exists;
 use function substr;
 use function ucfirst;
 
+/**
+ * Trait to define {@see ActiveRecordInterface::getRelation()} method to access relation queries of an ActiveRecord
+ * instance.
+ */
 trait MagicRelationsTrait
 {
     /**
