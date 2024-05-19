@@ -90,7 +90,7 @@ use function preg_replace;
  * @template-implements ArrayAccess<string, mixed>
  * @template-implements IteratorAggregate<string, mixed>
  */
-class ActiveRecord extends BaseActiveRecord implements ArrayAccess, ArrayableInterface, IteratorAggregate
+class ActiveRecord extends BaseActiveRecord implements ArrayableInterface, ArrayAccess, IteratorAggregate
 {
     use ArrayableTrait;
     use ArrayAccessTrait;
