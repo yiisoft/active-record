@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Trait;
 
-use Error;
 use ReflectionException;
 use ReflectionMethod;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 
+use function is_a;
 use function lcfirst;
 use function method_exists;
 use function substr;
@@ -23,13 +23,21 @@ use function ucfirst;
 trait MagicRelationsTrait
 {
     /**
-     * Returns the relation object with the specified name.
+     * @inheritdoc
      *
-     * A relation is defined by a getter method which returns an {@see ActiveQueryInterface} object.
+     * A relation is defined by a getter method which has prefix `get` and suffix `Query` and returns an object
+     * implementing the {@see ActiveQueryInterface}. Normally this would be a relational {@see ActiveQuery} object.
      *
-     * It can be declared in either the Active Record class itself or one of its behaviors.
+     * For example, a relation named `orders` is defined using the following getter method:
      *
-     * @param string $name the relation name, e.g. `orders` for a relation defined via `getOrders()` method
+     * ```php
+     * public function getOrders(): ActiveQueryInterface
+     * {
+     *    return $this->hasMany(Order::class, ['customer_id' => 'id']);
+     * }
+     * ```
+     *
+     * @param string $name The relation name, for example `orders` for a relation defined via `getOrdersQuery()` method
      * (case-sensitive).
      * @param bool $throwException whether to throw exception if the relation does not exist.
      *
@@ -43,42 +51,47 @@ trait MagicRelationsTrait
     {
         $getter = 'get' . ucfirst($name);
 
-        try {
-            /** the relation could be defined in a behavior */
-            $relation = $this->$getter();
-        } catch (Error) {
-            if ($throwException) {
-                throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
-            }
-
-            return null;
-        }
-
-        if (!$relation instanceof ActiveQueryInterface) {
-            if ($throwException) {
-                throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
-            }
-
-            return null;
-        }
-
-        if (method_exists($this, $getter)) {
-            /** relation name is case sensitive, trying to validate it when the relation is defined within this class */
-            $method = new ReflectionMethod($this, $getter);
-            $realName = lcfirst(substr($method->getName(), 3));
-
-            if ($realName !== $name) {
-                if ($throwException) {
-                    throw new InvalidArgumentException(
-                        'Relation names are case sensitive. ' . static::class
-                        . " has a relation named \"$realName\" instead of \"$name\"."
-                    );
-                }
-
+        if (!method_exists($this, $getter)) {
+            if (!$throwException) {
                 return null;
             }
+
+            throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
         }
 
-        return $relation;
+        $method = new ReflectionMethod($this, $getter);
+        $type = $method->getReturnType();
+
+        if (
+            $type === null
+            || !is_a('\\' . $type->getName(), ActiveQueryInterface::class, true)
+        ) {
+            if (!$throwException) {
+                return null;
+            }
+
+            $typeName = $type === null ? 'mixed' : $type->getName();
+
+            throw new InvalidArgumentException(
+                'Relation query method "' . static::class . '::' . $getter . '()" should return type "'
+                . ActiveQueryInterface::class . '", but  returns "' . $typeName . '" type.'
+            );
+        }
+
+        /** relation name is case sensitive, trying to validate it when the relation is defined within this class */
+        $realName = lcfirst(substr($method->getName(), 3));
+
+        if ($realName !== $name) {
+            if (!$throwException) {
+                return null;
+            }
+
+            throw new InvalidArgumentException(
+                'Relation names are case sensitive. ' . static::class
+                . " has a relation named \"$realName\" instead of \"$name\"."
+            );
+        }
+
+        return $this->$getter();
     }
 }

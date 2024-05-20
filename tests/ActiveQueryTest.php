@@ -2355,7 +2355,8 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "item"'
+            'Relation query method "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::getItem()" should return'
+            . ' type "Yiisoft\ActiveRecord\ActiveQueryInterface", but  returns "void" type.'
         );
         $query->relationQuery('item');
     }
