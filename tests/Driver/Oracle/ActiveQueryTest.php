@@ -236,7 +236,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
 
-        $customerQuery = $order->getCustomer()->innerJoinWith(['orders o'], false);
+        $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
 
         if ($aliasMethod === 'explicit') {
             $customer = $customerQuery->where(['{{o}}.[[id]]' => 1])->onePopulate();

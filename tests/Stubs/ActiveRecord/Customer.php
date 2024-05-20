@@ -42,41 +42,41 @@ class Customer extends ActiveRecord
         return $this->getAttribute('name');
     }
 
-    public function getProfile(): ActiveQuery
+    public function getProfileQuery(): ActiveQuery
     {
         return $this->hasOne(Profile::class, ['id' => 'profile_id']);
     }
 
-    public function getOrdersPlain(): ActiveQuery
+    public function getOrdersPlainQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id']);
     }
 
-    public function getOrders(): ActiveQuery
+    public function getOrdersQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
-    public function getOrdersNoOrder(): ActiveQuery
+    public function getOrdersNoOrderQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id']);
     }
 
-    public function getExpensiveOrders(): ActiveQuery
+    public function getExpensiveOrdersQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
-    public function getItem(): void
+    public function getItemQuery(): void
     {
     }
 
-    public function getOrdersWithItems(): ActiveQuery
+    public function getOrdersWithItemsQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
     }
 
-    public function getExpensiveOrdersWithNullFK(): ActiveQuery
+    public function getExpensiveOrdersWithNullFKQuery(): ActiveQuery
     {
         return $this->hasMany(
             OrderWithNullFK::class,
@@ -84,18 +84,18 @@ class Customer extends ActiveRecord
         )->andWhere('[[total]] > 50')->orderBy('id');
     }
 
-    public function getOrdersWithNullFK(): ActiveQuery
+    public function getOrdersWithNullFKQuery(): ActiveQuery
     {
         return $this->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->orderBy('id');
     }
 
-    public function getOrders2(): ActiveQuery
+    public function getOrders2Query(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
     }
 
     /** deeply nested table relation */
-    public function getOrderItems(): ActiveQuery
+    public function getOrderItemsQuery(): ActiveQuery
     {
         $rel = $this->hasMany(Item::class, ['id' => 'item_id']);
 
@@ -109,13 +109,13 @@ class Customer extends ActiveRecord
     {
     }
 
-    public function getOrderItems2(): ActiveQuery
+    public function getOrderItems2Query(): ActiveQuery
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id'])
             ->via('ordersNoOrder');
     }
 
-    public function getItems2(): ActiveQuery
+    public function getItems2Query(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItems2');

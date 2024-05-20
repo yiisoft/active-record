@@ -21,7 +21,7 @@ final class Department extends ActiveRecord
         return 'department';
     }
 
-    public function getEmployees(): ActiveQuery
+    public function getEmployeesQuery(): ActiveQuery
     {
         return $this->hasMany(
             Employee::class,

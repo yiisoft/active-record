@@ -23,7 +23,7 @@ final class Dossier extends ActiveRecord
         return 'dossier';
     }
 
-    public function getEmployee(): ActiveQuery
+    public function getEmployeeQuery(): ActiveQuery
     {
         return $this->hasOne(
             Employee::class,

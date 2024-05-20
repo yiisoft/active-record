@@ -35,28 +35,28 @@ final class OrderItem extends ActiveRecord
         return $fields;
     }
 
-    public function getOrder(): ActiveQuery
+    public function getOrderQuery(): ActiveQuery
     {
         return $this->hasOne(Order::class, ['id' => 'order_id']);
     }
 
-    public function getItem(): ActiveQuery
+    public function getItemQuery(): ActiveQuery
     {
         return $this->hasOne(Item::class, ['id' => 'item_id']);
     }
 
-    public function getOrderItemCompositeWithJoin(): ActiveQuery
+    public function getOrderItemCompositeWithJoinQuery(): ActiveQuery
     {
         /** relations used by testFindCompositeWithJoin() */
         return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
     }
 
-    public function getOrderItemCompositeNoJoin(): ActiveQuery
+    public function getOrderItemCompositeNoJoinQuery(): ActiveQuery
     {
         return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ]);
     }
 
-    public function getCustom(): ActiveQuery
+    public function getCustomQuery(): ActiveQuery
     {
         return new ActiveQuery(Order::class, $this->db);
     }

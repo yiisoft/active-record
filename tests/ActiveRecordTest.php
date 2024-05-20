@@ -706,7 +706,7 @@ abstract class ActiveRecordTest extends TestCase
         $order = $orderQuery->findOne(2);
 
         $order->setVirtualCustomerId($order->customer_id);
-        $this->assertNotNull($order->getVirtualCustomer());
+        $this->assertNotNull($order->getVirtualCustomerQuery());
     }
 
     /**

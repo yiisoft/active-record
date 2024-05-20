@@ -47,12 +47,12 @@ class CustomerWithProperties extends ActiveRecord
         return $this->getAttribute('status');
     }
 
-    public function getProfile(): ActiveQuery
+    public function getProfileQuery(): ActiveQuery
     {
         return $this->hasOne(Profile::class, ['id' => 'profile_id']);
     }
 
-    public function getOrders(): ActiveQuery
+    public function getOrdersQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }

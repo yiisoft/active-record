@@ -21,7 +21,7 @@ final class Item extends ActiveRecord
         return 'item';
     }
 
-    public function getCategory(): ActiveQuery
+    public function getCategoryQuery(): ActiveQuery
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
     }

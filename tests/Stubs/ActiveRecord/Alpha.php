@@ -20,7 +20,7 @@ final class Alpha extends ActiveRecord
         return self::TABLE_NAME;
     }
 
-    public function getBetas(): ActiveQuery
+    public function getBetasQuery(): ActiveQuery
     {
         return $this->hasMany(Beta::class, ['alpha_string_identifier' => 'string_identifier']);
     }
