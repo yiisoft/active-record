@@ -191,7 +191,7 @@ interface ActiveRecordInterface
      *
      * @return ActiveRecordInterface|array|null The relation object.
      */
-    public function relation(string $name): self|array|null;
+    public function relation(string $name): ActiveRecordInterface|array|null;
 
     /**
      * Returns the relation query object with the specified name.
@@ -199,8 +199,23 @@ interface ActiveRecordInterface
      * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
      * (normally this would be a relational {@see ActiveQuery} object).
      *
+     * Relations can be defined using {@see hasOne()} and {@see hasMany()} methods. For example:
+     *
+     * ```php
+     * public function relationQuery(string $name): ActiveQueryInterface
+     * {
+     *     return match ($name) {
+     *         'orders' => $this->hasMany(Order::class, ['customer_id' => 'id']),
+     *         'country' => $this->hasOne(Country::class, ['id' => 'country_id']),
+     *         default => parent::relationQuery($name),
+     *     };
+     * }
+     * ```
+     *
      * @param string $name The relation name, for example `orders` (case-sensitive).
      * @param bool $throwException Whether to throw exception if the relation doesn't exist.
+     *
+     * @throws InvalidArgumentException
      *
      * @return ActiveQueryInterface|null The relational query object.
      */
