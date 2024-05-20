@@ -172,9 +172,9 @@ class ActiveRecord extends AbstractActiveRecord implements ArrayableInterface, A
      */
     public function loadDefaultValues(bool $skipIfSet = true): self
     {
-        foreach ($this->getTableSchema()->getColumns() as $column) {
-            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->getAttribute($column->getName()) === null)) {
-                $this->setAttribute($column->getName(), $column->getDefaultValue());
+        foreach ($this->getTableSchema()->getColumns() as $name => $column) {
+            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->getAttribute($name) === null)) {
+                $this->setAttribute($name, $column->getDefaultValue());
             }
         }
 
@@ -267,13 +267,16 @@ class ActiveRecord extends AbstractActiveRecord implements ArrayableInterface, A
     protected function insertInternal(array $attributes = null): bool
     {
         $values = $this->getDirtyAttributes($attributes);
+        $primaryKeys = $this->db->createCommand()->insertWithReturningPks($this->getTableName(), $values);
 
-        if (($primaryKeys = $this->db->createCommand()->insertWithReturningPks($this->getTableName(), $values)) === false) {
+        if ($primaryKeys === false) {
             return false;
         }
 
+        $columns = $this->getTableSchema()->getColumns();
+
         foreach ($primaryKeys as $name => $value) {
-            $id = $this->getTableSchema()->getColumn($name)?->phpTypecast($value);
+            $id = $columns[$name]->phpTypecast($value);
             $this->setAttribute($name, $id);
             $values[$name] = $id;
         }
