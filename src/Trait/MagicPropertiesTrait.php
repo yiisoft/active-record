@@ -221,35 +221,23 @@ trait MagicPropertiesTrait
      */
     public function hasProperty(string $name, bool $checkVars = true): bool
     {
-        return $this->canGetProperty($name, $checkVars)
-            || $this->canSetProperty($name, false);
+        return method_exists($this, 'get' . ucfirst($name))
+            || method_exists($this, 'set' . ucfirst($name))
+            || ($checkVars && property_exists($this, $name))
+            || $this->hasAttribute($name);
     }
 
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
-        if (method_exists($this, 'get' . ucfirst($name)) || ($checkVars && property_exists($this, $name))) {
-            return true;
-        }
-
-        try {
-            return $this->hasAttribute($name);
-        } catch (Exception) {
-            /** `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
-            return false;
-        }
+        return method_exists($this, 'get' . ucfirst($name))
+            || ($checkVars && property_exists($this, $name))
+            || $this->hasAttribute($name);
     }
 
     public function canSetProperty(string $name, bool $checkVars = true): bool
     {
-        if (method_exists($this, 'set' . ucfirst($name)) || ($checkVars && property_exists($this, $name))) {
-            return true;
-        }
-
-        try {
-            return $this->hasAttribute($name);
-        } catch (Exception) {
-            /** `hasAttribute()` may fail on base/abstract classes in case automatic attribute list fetching used */
-            return false;
-        }
+        return method_exists($this, 'set' . ucfirst($name))
+            || ($checkVars && property_exists($this, $name))
+            || $this->hasAttribute($name);
     }
 }
