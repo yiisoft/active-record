@@ -572,7 +572,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $fullName = $prefix === '' ? $name : "$prefix.$name";
 
                 if (!isset($relations[$fullName])) {
-                    $relations[$fullName] = $relation = $primaryModel->getRelation($name);
+                    $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
                     if ($relation instanceof ActiveQueryInterface) {
                         $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
                     }
@@ -592,7 +592,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $fullName = $prefix === '' ? $name : "$prefix.$name";
 
             if (!isset($relations[$fullName])) {
-                $relations[$fullName] = $relation = $primaryModel->getRelation($name);
+                $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
 
                 if ($callback !== null) {
                     $callback($relation);

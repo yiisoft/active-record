@@ -200,7 +200,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return array An array of related records indexed by relation names.
      *
-     * {@see getRelation()}
+     * {@see relationQuery()}
      */
     public function getRelatedRecords(): array
     {
@@ -338,7 +338,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $viaClass = null;
         $viaTable = null;
-        $relation = $this->getRelation($name);
+        $relation = $this->relationQuery($name);
         $via = $relation?->getVia();
 
         if ($via !== null) {
@@ -552,7 +552,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     protected function retrieveRelation(string $name): ActiveRecordInterface|array|null
     {
         /** @var ActiveQueryInterface $query */
-        $query = $this->getRelation($name);
+        $query = $this->relationQuery($name);
 
         $this->setRelationDependencies($name, $query);
 
@@ -792,7 +792,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $viaClass = null;
         $viaTable = null;
-        $relation = $this->getRelation($name);
+        $relation = $this->relationQuery($name);
         $viaRelation = $relation?->getVia();
 
         if ($viaRelation !== null) {
@@ -909,7 +909,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $viaClass = null;
         $viaTable = null;
-        $relation = $this->getRelation($name);
+        $relation = $this->relationQuery($name);
         $viaRelation = $relation?->getVia();
 
         if ($relation instanceof ActiveQueryInterface && $viaRelation !== null) {
