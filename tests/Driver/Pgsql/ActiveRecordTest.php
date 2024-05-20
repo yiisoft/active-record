@@ -110,7 +110,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->checkFixture($this->db, 'bool_values');
 
         $command = $this->db->createCommand();
-        $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
+        $command->insertBatch('bool_values', [[true], [false]], ['bool_col'])->execute();
         $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
