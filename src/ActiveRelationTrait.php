@@ -639,7 +639,7 @@ trait ActiveRelationTrait
      *
      * @return int|string|null normalized key value.
      */
-    private function normalizeModelKey(int|null|string|Stringable $value): int|string|null
+    private function normalizeModelKey(int|string|Stringable|null $value): int|string|null
     {
         if ($value instanceof Stringable) {
             /**

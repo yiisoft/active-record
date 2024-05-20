@@ -187,20 +187,19 @@ interface ActiveRecordInterface
     /**
      * Returns the relation object with the specified name.
      *
-     * @param string $name The relation name (case-sensitive).
+     * @param string $name The relation name, for example `orders` (case-sensitive).
      *
      * @return ActiveRecordInterface|array|null The relation object.
      */
     public function relation(string $name): self|array|null;
 
     /**
-     * Returns the relation object with the specified name.
+     * Returns the relation query object with the specified name.
      *
      * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
      * (normally this would be a relational {@see ActiveQuery} object).
      *
-     * @param string $name The relation name, for example `orders` for a relation defined via `getOrders()` method
-     * (case-sensitive).
+     * @param string $name The relation name, for example `orders` (case-sensitive).
      * @param bool $throwException Whether to throw exception if the relation doesn't exist.
      *
      * @return ActiveQueryInterface|null The relational query object.
