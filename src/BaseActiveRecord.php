@@ -503,7 +503,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
     public function populateRecord(array|object $row): void
     {
         foreach ($row as $name => $value) {
-            $this->$name = $value;
+            $this->populateAttribute($name, $value);
             $this->oldAttributes[$name] = $value;
         }
 
@@ -1203,5 +1203,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
         }
 
         return $this->tableName;
+    }
+
+    protected function populateAttribute(string $name, mixed $value): void
+    {
+        $this->$name = $value;
     }
 }

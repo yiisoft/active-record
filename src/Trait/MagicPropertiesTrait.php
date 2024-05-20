@@ -193,28 +193,13 @@ trait MagicPropertiesTrait
         }
     }
 
-    /**
-     * Populates an active record object using a row of data from the database/storage.
-     *
-     * This is an internal method meant to be called to create active record objects after fetching data from the
-     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
-     *
-     * @param array|object $row Attribute values (name => value).
-     */
-    public function populateRecord(array|object $row): void
+    protected function populateAttribute(string $name, mixed $value): void
     {
-        foreach ($row as $name => $value) {
-            if (property_exists($this, $name)) {
-                $this->$name = $value;
-            } else {
-                $this->attributes[$name] = $value;
-            }
-
-            $this->oldAttributes[$name] = $value;
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+        } else {
+            $this->attributes[$name] = $value;
         }
-
-        $this->related = [];
-        $this->relationsDependencies = [];
     }
 
     /**
