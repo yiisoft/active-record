@@ -6,7 +6,8 @@ namespace Yiisoft\ActiveRecord\Trait;
 
 use ReflectionException;
 use Throwable;
-use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\AbstractActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -26,6 +27,24 @@ use function ucfirst;
 
 /**
  * Trait to define magic methods to access values of an ActiveRecord instance.
+ *
+ * @method array getRelatedRecords()
+ * @see AbstractActiveRecord::getRelatedRecords()
+ *
+ * @method bool hasDependentRelations(string $attribute)
+ * @see AbstractActiveRecord::hasDependentRelations()
+ *
+ * @method bool isRelationPopulated(string $name)
+ * @see ActiveRecordInterface::isRelationPopulated()
+ *
+ * @method void resetDependentRelations(string $attribute)
+ * @see AbstractActiveRecord::resetDependentRelations()
+ *
+ * @method void resetRelation(string $name)
+ * @see AbstractActiveRecord::resetRelation()
+ *
+ * @method ActiveRecordInterface|array|null retrieveRelation(string $name)
+ * @see AbstractActiveRecord::retrieveRelation()
  */
 trait MagicPropertiesTrait
 {
