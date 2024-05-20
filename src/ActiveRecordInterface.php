@@ -194,7 +194,7 @@ interface ActiveRecordInterface
      *
      * @return ActiveRecordInterface|array|null The relation object.
      */
-    public function relation(string $name): ActiveRecordInterface|array|null;
+    public function relation(string $name): self|array|null;
 
     /**
      * Returns the relation object with the specified name.
