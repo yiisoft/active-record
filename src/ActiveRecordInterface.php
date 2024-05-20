@@ -18,9 +18,6 @@ interface ActiveRecordInterface
      *
      * The default implementation will return all column names of the table associated with this AR class.
      *
-     * @throws InvalidConfigException
-     * @throws Exception
-     *
      * @return array List of attribute names.
      *
      * @psalm-return string[]
@@ -77,7 +74,7 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the given active record is the same as the current one.
      *
      * The comparison is made by comparing the table names and the primary key values of the two active records. If one
-     * of the records {@see isNewRecord|is new} they're also considered not equal.
+     * of the records {@see getIsNewRecord|is new} they're also considered not equal.
      *
      * @param self $record Record to compare to.
      *
@@ -304,17 +301,6 @@ interface ActiveRecordInterface
      * {@see ActiveQueryInterface::via()}).
      */
     public function link(string $name, self $arClass, array $extraColumns = []): void;
-
-    /**
-     * Returns the element at the specified offset.
-     *
-     * This method is required by the SPL interface {@see ArrayAccess}.
-     *
-     * It's implicitly called when you use something like `$value = $model[$offset];`.
-     *
-     * @return mixed the element at the offset, null if no element is found at the offset
-     */
-    public function offsetGet(mixed $offset): mixed;
 
     /**
      * Populates the named relation with the related records.

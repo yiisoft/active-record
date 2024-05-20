@@ -51,8 +51,6 @@ use function preg_replace;
  * To declare an ActiveRecord class you need to extend {@see ActiveRecord} and implement the `getTableName` method:
  *
  * ```php
- * <?php
- *
  * class Customer extends ActiveRecord
  * {
  *     public static function getTableName(): string
