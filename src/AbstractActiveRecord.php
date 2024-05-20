@@ -549,6 +549,31 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->retrieveRelation($name);
     }
 
+    /**
+     * @inheritdoc
+     *
+     * Relations can be defined using {@see hasOne()} and {@see hasMany()} methods. For example:
+     *
+     * ```php
+     * public function relationQuery(string $name): ActiveQueryInterface
+     * {
+     *     return match ($name) {
+     *         'orders' => $this->hasMany(Order::class, ['customer_id' => 'id']),
+     *         'country' => $this->hasOne(Country::class, ['id' => 'country_id']),
+     *         default => parent::relationQuery($name),
+     *     };
+     * }
+     * ```
+     */
+    public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null
+    {
+        if (!$throwException) {
+            return null;
+        }
+
+        throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
+    }
+
     public function resetRelation(string $name): void
     {
         foreach ($this->relationsDependencies as &$relationNames) {
