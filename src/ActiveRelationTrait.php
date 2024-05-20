@@ -635,7 +635,7 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @param int|null|string|Stringable $value raw key value.
+     * @param int|string|Stringable|null $value raw key value.
      *
      * @return int|string|null normalized key value.
      */
