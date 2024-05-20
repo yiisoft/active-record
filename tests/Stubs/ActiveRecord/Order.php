@@ -211,12 +211,12 @@ class Order extends ActiveRecord
         ];
     }
 
-    public function getOrderItemsFor8()
+    public function getOrderItemsFor8(): ActiveQuery
     {
         return $this->hasMany(OrderItemWithNullFK::class, ['order_id' => 'id'])->andOnCondition(['subtotal' => 8.0]);
     }
 
-    public function getItemsFor8()
+    public function getItemsFor8(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItemsFor8');
     }

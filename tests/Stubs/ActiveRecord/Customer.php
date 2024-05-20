@@ -109,13 +109,13 @@ class Customer extends ActiveRecord
     {
     }
 
-    public function getOrderItems2()
+    public function getOrderItems2(): ActiveQuery
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id'])
             ->via('ordersNoOrder');
     }
 
-    public function getItems2()
+    public function getItems2(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItems2');
