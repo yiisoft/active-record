@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Trait;
 use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\AbstractActiveRecord;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
