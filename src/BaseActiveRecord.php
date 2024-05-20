@@ -42,9 +42,6 @@ use function reset;
  */
 abstract class BaseActiveRecord implements ActiveRecordInterface
 {
-    use BaseActiveRecordTrait;
-
-    private array $attributes = [];
     private array|null $oldAttributes = null;
     private array $related = [];
     /** @psalm-var string[][] */
@@ -81,13 +78,13 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
 
     public function getAttribute(string $name): mixed
     {
-        return $this->attributes[$name] ?? null;
+        return get_object_vars($this)[$name] ?? null;
     }
 
     public function getAttributes(array $names = null, array $except = []): array
     {
         $names ??= $this->attributes();
-        $attributes = array_merge($this->attributes, get_object_vars($this));
+        $attributes = get_object_vars($this);
 
         if ($except !== []) {
             $names = array_diff($names, $except);
@@ -210,9 +207,9 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
         return $this->related;
     }
 
-    public function hasAttribute($name): bool
+    public function hasAttribute(string $name): bool
     {
-        return isset($this->attributes[$name]) || in_array($name, $this->attributes(), true);
+        return in_array($name, $this->attributes(), true);
     }
 
     /**
@@ -310,15 +307,11 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
      */
     public function isAttributeChanged(string $name, bool $identical = true): bool
     {
-        if (isset($this->attributes[$name], $this->oldAttributes[$name])) {
-            if ($identical) {
-                return $this->attributes[$name] !== $this->oldAttributes[$name];
-            }
-
-            return $this->attributes[$name] !== $this->oldAttributes[$name];
+        if (isset($this->oldAttributes[$name])) {
+            return $this->$name !== $this->oldAttributes[$name];
         }
 
-        return isset($this->attributes[$name]) || isset($this->oldAttributes[$name]);
+        return false;
     }
 
     public function isPrimaryKey(array $keys): bool
@@ -510,12 +503,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
     public function populateRecord(array|object $row): void
     {
         foreach ($row as $name => $value) {
-            if (property_exists($this, $name)) {
-                $this->$name = $value;
-            } else {
-                $this->attributes[$name] = $value;
-            }
-
+            $this->populateAttribute($name, $value);
             $this->oldAttributes[$name] = $value;
         }
 
@@ -543,6 +531,25 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
         $record = $this->instantiateQuery(static::class)->findOne($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
+    }
+
+    public function resetRelation(string $name): void
+    {
+        foreach ($this->relationsDependencies as &$relationNames) {
+            unset($relationNames[$name]);
+        }
+
+        unset($this->related[$name]);
+    }
+
+    protected function retrieveRelation(string $name): ActiveRecordInterface|array|null
+    {
+        /** @var ActiveQueryInterface $query */
+        $query = $this->getRelation($name);
+
+        $this->setRelationDependencies($name, $query);
+
+        return $this->related[$name] = $query->relatedRecords();
     }
 
     /**
@@ -582,17 +589,14 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
 
     public function setAttribute(string $name, mixed $value): void
     {
-        if ($this->hasAttribute($name)) {
-            if (
-                !empty($this->relationsDependencies[$name])
-                && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
-            ) {
-                $this->resetDependentRelations($name);
-            }
-            $this->attributes[$name] = $value;
-        } else {
-            throw new InvalidArgumentException(static::class . ' has no attribute named "' . $name . '".');
+        if (
+            isset($this->relationsDependencies[$name])
+            && (!isset(get_object_vars($this)[$name]) || $this->$name !== $value)
+        ) {
+            $this->resetDependentRelations($name);
         }
+
+        $this->$name = $value;
     }
 
     /**
@@ -621,7 +625,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
      */
     public function setIsNewRecord(bool $value): void
     {
-        $this->oldAttributes = $value ? null : $this->attributes;
+        $this->oldAttributes = $value ? null : get_object_vars($this);
     }
 
     /**
@@ -991,7 +995,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
      * @param ActiveQueryInterface $relation relation instance.
      * @param string|null $viaRelationName intermediate relation.
      */
-    private function setRelationDependencies(
+    protected function setRelationDependencies(
         string $name,
         ActiveQueryInterface $relation,
         string $viaRelationName = null
@@ -1173,12 +1177,17 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
         $foreignModel->save();
     }
 
+    protected function hasDependentRelations(string $attribute): bool
+    {
+        return isset($this->relationsDependencies[$attribute]);
+    }
+
     /**
      * Resets dependent related models checking if their links contain specific attribute.
      *
      * @param string $attribute The changed attribute name.
      */
-    private function resetDependentRelations(string $attribute): void
+    protected function resetDependentRelations(string $attribute): void
     {
         foreach ($this->relationsDependencies[$attribute] as $relation) {
             unset($this->related[$relation]);
@@ -1194,5 +1203,10 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
         }
 
         return $this->tableName;
+    }
+
+    protected function populateAttribute(string $name, mixed $value): void
+    {
+        $this->$name = $value;
     }
 }

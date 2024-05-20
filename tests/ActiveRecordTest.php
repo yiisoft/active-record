@@ -620,17 +620,13 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertTrue($customer->hasAttribute('id'));
         $this->assertTrue($customer->hasAttribute('email'));
-        $this->assertFalse($customer->hasAttribute(0));
-        $this->assertFalse($customer->hasAttribute(null));
-        $this->assertFalse($customer->hasAttribute(42));
+        $this->assertFalse($customer->hasAttribute('notExist'));
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->findOne(1);
         $this->assertTrue($customer->hasAttribute('id'));
         $this->assertTrue($customer->hasAttribute('email'));
-        $this->assertFalse($customer->hasAttribute(0));
-        $this->assertFalse($customer->hasAttribute(null));
-        $this->assertFalse($customer->hasAttribute(42));
+        $this->assertFalse($customer->hasAttribute('notExist'));
     }
 
     public function testRefresh(): void

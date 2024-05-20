@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
-use ReflectionMethod;
 use Stringable;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -25,8 +24,6 @@ use function is_object;
 use function is_scalar;
 use function is_string;
 use function key;
-use function lcfirst;
-use function method_exists;
 use function reset;
 use function serialize;
 
@@ -180,21 +177,10 @@ trait ActiveRelationTrait
      * @throws ReflectionException
      * @throws Throwable if the relation is invalid.
      *
-     * @return array|object|null the related record(s).
+     * @return ActiveRecordInterface|array|null the related record(s).
      */
-    public function findFor(string $name, ActiveRecordInterface $model): array|null|object
+    public function relatedRecords(): ActiveRecordInterface|array|null
     {
-        if (method_exists($model, 'get' . $name)) {
-            $method = new ReflectionMethod($model, 'get' . $name);
-            $realName = lcfirst(substr($method->getName(), 3));
-            if ($realName !== $name) {
-                throw new InvalidArgumentException(
-                    'Relation names are case sensitive. ' . $model::class
-                    . " has a relation named \"$realName\" instead of \"$name\"."
-                );
-            }
-        }
-
         return $this->multiple ? $this->all() : $this->onePopulate();
     }
 

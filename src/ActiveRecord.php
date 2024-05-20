@@ -10,6 +10,7 @@ use Throwable;
 use Yiisoft\ActiveRecord\Trait\ArrayableTrait;
 use Yiisoft\ActiveRecord\Trait\ArrayAccessTrait;
 use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
+use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
 use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
 use Yiisoft\Arrays\ArrayableInterface;
 use Yiisoft\Db\Exception\Exception;
@@ -96,6 +97,7 @@ class ActiveRecord extends BaseActiveRecord implements ArrayableInterface, Array
     use ArrayableTrait;
     use ArrayAccessTrait;
     use ArrayIteratorTrait;
+    use MagicPropertiesTrait;
     use MagicRelationsTrait;
 
     /**
