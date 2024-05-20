@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Trait;
 
 use Closure;
-use Yiisoft\ActiveRecord\BaseActiveRecord;
+use Yiisoft\ActiveRecord\AbstractActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 use function array_combine;
 use function array_keys;
@@ -14,10 +15,10 @@ use function array_keys;
  * Trait to implement {@see \Yiisoft\Arrays\ArrayableTrait} interface for ActiveRecord.
  *
  * @method string[] attributes()
- * @see BaseActiveRecord::attributes()
+ * @see ActiveRecordInterface::attributes()
  *
  * @method array getRelatedRecords()
- * @see BaseActiveRecord::getRelatedRecords()
+ * @see AbstractActiveRecord::getRelatedRecords()
  */
 trait ArrayableTrait
 {

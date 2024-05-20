@@ -40,7 +40,7 @@ use function reset;
  *
  * See {@see ActiveRecord} for a concrete implementation.
  */
-abstract class BaseActiveRecord implements ActiveRecordInterface
+abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
     private array|null $oldAttributes = null;
     private array $related = [];
