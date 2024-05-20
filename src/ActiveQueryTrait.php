@@ -181,7 +181,7 @@ trait ActiveQueryTrait
 
             if (!isset($relations[$name])) {
                 /** @var ActiveQuery $relation */
-                $relation = $model->getRelation($name);
+                $relation = $model->relationQuery($name);
                 $relation->primaryModel = null;
                 $relations[$name] = $relation;
             } else {

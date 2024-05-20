@@ -199,7 +199,7 @@ interface ActiveRecordInterface
      *
      * @return ActiveQueryInterface|null The relational query object.
      */
-    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface|null;
+    public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null;
 
     /**
      * Return the name of the table associated with this AR class.
@@ -270,7 +270,7 @@ interface ActiveRecordInterface
      *
      * @return bool Whether relation has been populated with records.
      *
-     * {@see getRelation()}
+     * {@see relationQuery()}
      */
     public function isRelationPopulated(string $name): bool;
 

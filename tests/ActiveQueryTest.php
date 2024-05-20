@@ -2332,14 +2332,14 @@ abstract class ActiveQueryTest extends TestCase
         $query = $customer->findOne(1);
 
         /** Without throwing exception */
-        $this->assertEmpty($query->getRelation('items', false));
+        $this->assertEmpty($query->relationQuery('items', false));
 
         /** Throwing exception */
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "items".'
         );
-        $query->getRelation('items');
+        $query->relationQuery('items');
     }
 
     public function testGetRelationInvalidArgumentExceptionHasNoRelationNamed(): void
@@ -2351,13 +2351,13 @@ abstract class ActiveQueryTest extends TestCase
         $query = $customer->findOne(1);
 
         /** Without throwing exception */
-        $this->assertEmpty($query->getRelation('item', false));
+        $this->assertEmpty($query->relationQuery('item', false));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "item"'
         );
-        $query->getRelation('item');
+        $query->relationQuery('item');
     }
 
     public function testGetRelationInvalidArgumentExceptionCaseSensitive(): void
@@ -2368,14 +2368,14 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = $customer->findOne(1);
 
-        $this->assertEmpty($query->getRelation('expensiveorders', false));
+        $this->assertEmpty($query->relationQuery('expensiveorders', false));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Relation names are case sensitive. Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer ' .
             'has a relation named "expensiveOrders" instead of "expensiveorders"'
         );
-        $query->getRelation('expensiveorders');
+        $query->relationQuery('expensiveorders');
     }
 
     public function testExists(): void

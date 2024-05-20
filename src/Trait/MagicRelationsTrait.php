@@ -17,7 +17,7 @@ use function substr;
 use function ucfirst;
 
 /**
- * Trait to define {@see ActiveRecordInterface::getRelation()} method to access relation queries of an ActiveRecord
+ * Trait to define {@see ActiveRecordInterface::relationQuery()} method to access relation queries of an ActiveRecord
  * instance.
  */
 trait MagicRelationsTrait
@@ -39,7 +39,7 @@ trait MagicRelationsTrait
      * @return ActiveQueryInterface|null the relational query object. If the relation does not exist and
      * `$throwException` is `false`, `null` will be returned.
      */
-    public function getRelation(string $name, bool $throwException = true): ActiveQueryInterface|null
+    public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null
     {
         $getter = 'get' . ucfirst($name);
 

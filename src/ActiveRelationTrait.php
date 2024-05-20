@@ -94,7 +94,7 @@ trait ActiveRelationTrait
      */
     public function via(string $relationName, callable $callable = null): static
     {
-        $relation = $this->primaryModel?->getRelation($relationName);
+        $relation = $this->primaryModel?->relationQuery($relationName);
         $callableUsed = $callable !== null;
         $this->via = [$relationName, $relation, $callableUsed];
 
@@ -201,7 +201,7 @@ trait ActiveRelationTrait
             if ($relatedModel instanceof ActiveRecordInterface) {
                 if (!isset($inverseRelation)) {
                     /** @var ActiveQuery $inverseRelation */
-                    $inverseRelation = $relatedModel->getRelation($this->inverseOf);
+                    $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
                 }
                 $relatedModel->populateRelation(
                     $this->inverseOf,
@@ -210,7 +210,7 @@ trait ActiveRelationTrait
             } else {
                 if (!isset($inverseRelation)) {
                     /** @var ActiveQuery $inverseRelation */
-                    $inverseRelation = $this->getARInstance()->getRelation($this->inverseOf);
+                    $inverseRelation = $this->getARInstance()->relationQuery($this->inverseOf);
                 }
 
                 $result[$i][$this->inverseOf] = $inverseRelation->multiple
@@ -359,10 +359,10 @@ trait ActiveRelationTrait
 
         if ($model instanceof ActiveRecordInterface) {
             /** @var ActiveQuery $relation */
-            $relation = $model->getRelation($name);
+            $relation = $model->relationQuery($name);
         } else {
             /** @var ActiveQuery $relation */
-            $relation = $this->getARInstance()->getRelation($name);
+            $relation = $this->getARInstance()->relationQuery($name);
         }
 
         if ($relation->getMultiple()) {
