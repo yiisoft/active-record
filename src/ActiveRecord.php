@@ -12,6 +12,7 @@ use Yiisoft\ActiveRecord\Trait\ArrayAccessTrait;
 use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
 use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
 use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
+use Yiisoft\ActiveRecord\Trait\TransactionalTrait;
 use Yiisoft\Arrays\ArrayableInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -92,61 +93,18 @@ use function preg_replace;
  * @template-implements ArrayAccess<string, mixed>
  * @template-implements IteratorAggregate<string, mixed>
  */
-class ActiveRecord extends AbstractActiveRecord implements ArrayableInterface, ArrayAccess, IteratorAggregate
+class ActiveRecord extends AbstractActiveRecord implements ArrayableInterface, ArrayAccess, IteratorAggregate, TransactionalInterface
 {
     use ArrayableTrait;
     use ArrayAccessTrait;
     use ArrayIteratorTrait;
     use MagicPropertiesTrait;
     use MagicRelationsTrait;
-
-    /**
-     * The insert operation. This is mainly used when overriding {@see transactions()} to specify which operations are
-     * transactional.
-     */
-    public const OP_INSERT = 0x01;
-
-    /**
-     * The update operation. This is mainly used when overriding {@see transactions()} to specify which operations are
-     * transactional.
-     */
-    public const OP_UPDATE = 0x02;
-
-    /**
-     * The delete operation. This is mainly used when overriding {@see transactions()} to specify which operations are
-     * transactional.
-     */
-    public const OP_DELETE = 0x04;
-
-    /**
-     * All three operations: insert, update, delete.
-     *
-     * This is a shortcut of the expression: OP_INSERT | OP_UPDATE | OP_DELETE.
-     */
-    public const OP_ALL = 0x07;
+    use TransactionalTrait;
 
     public function attributes(): array
     {
         return $this->getTableSchema()->getColumnNames();
-    }
-
-    public function delete(): int
-    {
-        if (!$this->isTransactional(self::OP_DELETE)) {
-            return $this->deleteInternal();
-        }
-
-        $transaction = $this->db->beginTransaction();
-
-        try {
-            $result = $this->deleteInternal();
-            $transaction->commit();
-
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
     }
 
     public function filterCondition(array $condition, array $aliases = []): array
@@ -193,42 +151,6 @@ class ActiveRecord extends AbstractActiveRecord implements ArrayableInterface, A
         }
 
         return $tableSchema;
-    }
-
-    public function insert(array $attributes = null): bool
-    {
-        if (!$this->isTransactional(self::OP_INSERT)) {
-            return $this->insertInternal($attributes);
-        }
-
-        $transaction = $this->db->beginTransaction();
-
-        try {
-            $result = $this->insertInternal($attributes);
-            if ($result === false) {
-                $transaction->rollBack();
-            } else {
-                $transaction->commit();
-            }
-
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * Returns a value indicating whether the specified operation is transactional.
-     *
-     * @param int $operation The operation to check. Possible values are {@see OP_INSERT}, {@see OP_UPDATE} and
-     * {@see OP_DELETE}.
-     *
-     * @return array|bool Whether the specified operation is transactional.
-     */
-    public function isTransactional(int $operation): array|bool
-    {
-        return $this->transactions();
     }
 
     /**
@@ -301,61 +223,6 @@ class ActiveRecord extends AbstractActiveRecord implements ArrayableInterface, A
         $query->where($pk);
 
         return $this->refreshInternal($query->onePopulate());
-    }
-
-    /**
-     * Declares which DB operations should be performed within a transaction in different scenarios.
-     *
-     * The supported DB operations are: {@see OP_INSERT}, {@see OP_UPDATE} and {@see OP_DELETE}, which correspond to the
-     * {@see insert()}, {@see update()} and {@see delete()} methods, respectively.
-     *
-     * By default, these methods are NOT enclosed in a DB transaction.
-     *
-     * In some scenarios, to ensure data consistency, you may want to enclose some or all of them in transactions. You
-     * can do so by overriding this method and returning the operations that need to be transactional. For example,
-     *
-     * ```php
-     * return [
-     *     'admin' => self::OP_INSERT,
-     *     'api' => self::OP_INSERT | self::OP_UPDATE | self::OP_DELETE,
-     *     // the above is equivalent to the following:
-     *     // 'api' => self::OP_ALL,
-     *
-     * ];
-     * ```
-     *
-     * The above declaration specifies that in the "admin" scenario, the insert operation ({@see insert()}) should be
-     * done in a transaction; and in the "api" scenario, all the operations should be done in a transaction.
-     *
-     * @return array The declarations of transactional operations. The array keys are scenarios names, and the array
-     * values are the corresponding transaction operations.
-     */
-    public function transactions(): array
-    {
-        return [];
-    }
-
-    public function update(array $attributeNames = null): int
-    {
-        if (!$this->isTransactional(self::OP_UPDATE)) {
-            return $this->updateInternal($attributeNames);
-        }
-
-        $transaction = $this->db->beginTransaction();
-
-        try {
-            $result = $this->updateInternal($attributeNames);
-            if ($result === 0) {
-                $transaction->rollBack();
-            } else {
-                $transaction->commit();
-            }
-
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
     }
 
     /**

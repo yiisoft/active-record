@@ -288,6 +288,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->createRelationQuery($class, $link, false);
     }
 
+    public function insert(array $attributes = null): bool
+    {
+        return $this->insertInternal($attributes);
+    }
+
+    abstract protected function insertInternal(array $attributes = null): bool;
+
     /**
      * @psalm-param class-string<ActiveRecordInterface> $arClass
      */
