@@ -540,6 +540,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->refreshInternal($record);
     }
 
+    public function relation(string $name): ActiveRecordInterface|array|null
+    {
+        if (array_key_exists($name, $this->related)) {
+            return $this->related[$name];
+        }
+
+        return $this->retrieveRelation($name);
+    }
+
     public function resetRelation(string $name): void
     {
         foreach ($this->relationsDependencies as &$relationNames) {
