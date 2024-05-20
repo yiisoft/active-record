@@ -625,7 +625,7 @@ abstract class BaseActiveRecord implements ActiveRecordInterface
      */
     public function setIsNewRecord(bool $value): void
     {
-        $this->oldAttributes = $value ? null : $this->getAttributes();
+        $this->oldAttributes = $value ? null : get_object_vars($this);
     }
 
     /**
