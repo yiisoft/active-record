@@ -86,8 +86,7 @@ trait ActiveRelationTrait
      * ```
      *
      * @param string $relationName the relation name. This refers to a relation declared in {@see primaryModel}.
-     * @param callable|null $callable $callable a PHP callback for customizing the relation associated with the junction
-     * table.
+     * @param callable|null $callable a PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
      *
      * @return static the relation object itself.
@@ -98,7 +97,7 @@ trait ActiveRelationTrait
         $callableUsed = $callable !== null;
         $this->via = [$relationName, $relation, $callableUsed];
 
-        if ($callable !== null) {
+        if ($callableUsed) {
             $callable($relation);
         }
 
@@ -164,12 +163,9 @@ trait ActiveRelationTrait
     }
 
     /**
-     * Finds the related records for the specified primary record.
+     * Returns query records depends on {@see $multiple} .
      *
      * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.
-     *
-     * @param string $name the relation name.
-     * @param ActiveRecordInterface $model the primary model.
      *
      * @throws Exception
      * @throws InvalidArgumentException
@@ -612,9 +608,19 @@ trait ActiveRelationTrait
     {
         $key = [];
 
-        foreach ($attributes as $attribute) {
-            if (isset($activeRecord[$attribute]) || (is_object($activeRecord) && property_exists($activeRecord, $attribute))) {
-                $key[] = $this->normalizeModelKey($activeRecord[$attribute]);
+        if (is_array($activeRecord)) {
+            foreach ($attributes as $attribute) {
+                if (isset($activeRecord[$attribute])) {
+                    $key[] = $this->normalizeModelKey($activeRecord[$attribute]);
+                }
+            }
+        } else {
+            foreach ($attributes as $attribute) {
+                $value = $activeRecord->getAttribute($attribute);
+
+                if ($value !== null) {
+                    $key[] = $this->normalizeModelKey($value);
+                }
             }
         }
 
@@ -628,9 +634,11 @@ trait ActiveRelationTrait
     }
 
     /**
+     * @param int|string|Stringable|null $value raw key value.
+     *
      * @return int|string|null normalized key value.
      */
-    private function normalizeModelKey(mixed $value): int|string|null
+    private function normalizeModelKey(int|string|Stringable|null $value): int|string|null
     {
         if ($value instanceof Stringable) {
             /**

@@ -205,7 +205,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     if ($viaCallableUsed) {
                         $viaModels = $viaQuery->all();
                     } elseif ($this->primaryModel->isRelationPopulated($viaName)) {
-                        $viaModels = $this->primaryModel->$viaName;
+                        $viaModels = $this->primaryModel->relation($viaName);
                     } else {
                         $viaModels = $viaQuery->all();
                         $this->primaryModel->populateRelation($viaName, $viaModels);
@@ -214,7 +214,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     if ($viaCallableUsed) {
                         $model = $viaQuery->onePopulate();
                     } elseif ($this->primaryModel->isRelationPopulated($viaName)) {
-                        $model = $this->primaryModel->$viaName;
+                        $model = $this->primaryModel->relation($viaName);
                     } else {
                         $model = $viaQuery->onePopulate();
                         $this->primaryModel->populateRelation($viaName, $model);
@@ -927,7 +927,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $condition = [$condition];
         }
 
-        if (!DbArrayHelper::isAssociative($condition) && !$condition instanceof ExpressionInterface) {
+        if (!DbArrayHelper::isAssociative($condition)) {
             /** query by primary key */
             $primaryKey = $arInstance->primaryKey();
 
