@@ -96,7 +96,8 @@ final class ArArrayHelper
             }
 
             if (property_exists($array, $key)) {
-                return get_object_vars($array)[$key] ?? $default;
+                $values = get_object_vars($array);
+                return array_key_exists($key, $values) ? $values[$key] : $default;
             }
 
             if ($array->isRelationPopulated($key)) {
