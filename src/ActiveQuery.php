@@ -269,7 +269,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return DbArrayHelper::populate($models, $indexBy);
+        return ArArrayHelper::populate($models, $indexBy);
     }
 
     /**

@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -28,7 +29,6 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function sort;
@@ -1933,13 +1933,13 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
 
         $orders = $orderQuery->findOne(1);
-        $orderItemIds = DbArrayHelper::getColumn($orders->items, 'id');
+        $orderItemIds = ArArrayHelper::getColumn($orders->items, 'id');
         sort($orderItemIds);
         $this->assertSame([1, 2], $orderItemIds);
 
         $orders->id = 2;
         sort($orderItemIds);
-        $orderItemIds = DbArrayHelper::getColumn($orders->items, 'id');
+        $orderItemIds = ArArrayHelper::getColumn($orders->items, 'id');
         $this->assertSame([3, 4, 5], $orderItemIds);
 
         unset($orders->id);
@@ -1949,7 +1949,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([], $order->items);
 
         $order->id = 3;
-        $orderItemIds = DbArrayHelper::getColumn($order->items, 'id');
+        $orderItemIds = ArArrayHelper::getColumn($order->items, 'id');
         $this->assertSame([2], $orderItemIds);
     }
 
