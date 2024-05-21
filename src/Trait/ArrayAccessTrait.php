@@ -88,7 +88,6 @@ trait ArrayAccessTrait
      * It is implicitly called when you use something like `$model[$offset] = $item;`.
      *
      * @param string $offset the offset to set element.
-     * @param mixed $value the element value.
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
