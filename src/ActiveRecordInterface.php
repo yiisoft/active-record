@@ -326,7 +326,7 @@ interface ActiveRecordInterface
      * Relations can be defined using {@see hasOne()} and {@see hasMany()} methods. For example:
      *
      * ```php
-     * public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface
+     * public function relationQuery(string $name): ActiveQueryInterface
      * {
      *     return match ($name) {
      *         'orders' => $this->hasMany(Order::class, ['customer_id' => 'id']),
@@ -337,13 +337,12 @@ interface ActiveRecordInterface
      * ```
      *
      * @param string $name The relation name, for example `orders` (case-sensitive).
-     * @param bool $throwException Whether to throw exception if the relation doesn't exist.
      *
      * @throws InvalidArgumentException
      *
-     * @return ActiveQueryInterface|null The relational query object.
+     * @return ActiveQueryInterface The relational query object.
      */
-    public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null;
+    public function relationQuery(string $name): ActiveQueryInterface;
 
     /**
      * Resets relation data for the specified name.
