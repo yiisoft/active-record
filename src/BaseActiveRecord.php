@@ -91,7 +91,7 @@ use function preg_replace;
  * @template-implements ArrayAccess<string, mixed>
  * @template-implements IteratorAggregate<string, mixed>
  */
-class ActiveRecord extends AbstractActiveRecord implements ArrayableInterface, ArrayAccess, IteratorAggregate, TransactionalInterface
+class BaseActiveRecord extends AbstractActiveRecord implements ArrayableInterface, ArrayAccess, IteratorAggregate, TransactionalInterface
 {
     use ArrayableTrait;
     use ArrayAccessTrait;
