@@ -117,11 +117,24 @@ final class ArArrayHelper
     }
 
     /**
-     * Returns the value of an array element or {@see ActiveRecordInterface} instance property by the given path.
+     * Populates an array of rows with the specified column value as keys.
      *
-     * This method is internally used to populate the data fetched from a database using `$indexBy` parameter.
+     * The input array should be multidimensional or an array of {@see ActiveRecordInterface} instances.
      *
-     * @param array[] $rows The raw query result from a database.
+     * For example,
+     *
+     * ```php
+     * $rows = [
+     *     ['id' => '123', 'data' => 'abc'],
+     *     ['id' => '345', 'data' => 'def'],
+     * ];
+     * $result = ArArrayHelper::populate($rows, 'id');
+     * // the result is: ['123' => ['id' => '123', 'data' => 'abc'], '345' => ['id' => '345', 'data' => 'def']]
+     * ```
+     *
+     * @param array[] $rows Array to populate.
+     * @param Closure|string|null $indexBy The column name or anonymous function that specifies the index by which to
+     * populate the array of rows.
      *
      * @psalm-template TRow of Row
      * @psalm-param array<TRow> $rows
