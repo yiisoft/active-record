@@ -6,7 +6,9 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 
+use function array_combine;
 use function array_key_exists;
+use function array_map;
 use function get_object_vars;
 use function property_exists;
 use function strrpos;
@@ -16,7 +18,7 @@ use function substr;
  * Array manipulation methods for ActiveRecord.
  *
  * @psalm-type Row = ActiveRecordInterface|array
- * @psalm-type PathKey = string|Closure(Row, mixed):mixed
+ * @psalm-type PathKey = string|Closure(Row, mixed=):mixed
  */
 final class ArArrayHelper
 {
@@ -46,9 +48,7 @@ final class ArArrayHelper
     public static function getColumn(array $array, string $name): array
     {
         return array_map(
-            static function (ActiveRecordInterface|array $element) use ($name): mixed {
-                return self::getValueByPath($element, $name);
-            },
+            static fn (ActiveRecordInterface|array $element): mixed => self::getValueByPath($element, $name),
             $array
         );
     }
@@ -84,21 +84,16 @@ final class ArArrayHelper
      * ```
      *
      * @param ActiveRecordInterface|array $array Array or an {@see ActiveRecordInterface} instance to extract value from.
-     * @param Closure|string $key Key name of the array element or a property or relation name
-     * of the {@see ActiveRecordInterface} instance, or an anonymous function returning the value.
+     * @param string $key Key name of the array element or a property or relation name
+     * of the {@see ActiveRecordInterface} instance.
      * @param mixed|null $default The default value to be returned if the specified `$key` doesn't exist.
      *
      * @psalm-param Row $array
-     * @psalm-param PathKey $key
      *
      * @return mixed The value of the element if found, default value otherwise
      */
-    public static function getValueByPath(ActiveRecordInterface|array $array, Closure|string $key, mixed $default = null): mixed
+    public static function getValueByPath(ActiveRecordInterface|array $array, string $key, mixed $default = null): mixed
     {
-        if ($key instanceof Closure) {
-            return $key($array, $default);
-        }
-
         if ($array instanceof ActiveRecordInterface) {
             if ($array->hasAttribute($key)) {
                 return $array->getAttribute($key);
@@ -143,6 +138,10 @@ final class ArArrayHelper
     {
         if ($indexBy === null) {
             return $rows;
+        }
+
+        if ($indexBy instanceof Closure) {
+            return array_combine(array_map($indexBy, $rows), $rows);
         }
 
         $result = [];
