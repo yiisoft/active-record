@@ -18,7 +18,7 @@ use function substr;
  * Array manipulation methods for ActiveRecord.
  *
  * @psalm-type Row = ActiveRecordInterface|array
- * @psalm-type PathKey = string|Closure(Row, mixed=):mixed
+ * @psalm-type IndexKey = string|Closure(Row, mixed=):mixed
  */
 final class ArArrayHelper
 {
@@ -75,10 +75,6 @@ final class ArArrayHelper
      * $username = ArArrayHelper::getValueByPath($array, 'username');
      * // working with an {@see ActiveRecordInterface} instance
      * $username = ArArrayHelper::getValueByPath($user, 'username');
-     * // working with an anonymous function
-     * $fullName = ArArrayHelper::getValueByPath($user, function ($user, $defaultValue) {
-     *     return $user->firstName . ' ' . $user->lastName;
-     * });
      * // using dot format to retrieve the property of an {@see ActiveRecordInterface} instance
      * $street = ArArrayHelper::getValue($users, 'address.street');
      * ```
@@ -129,7 +125,7 @@ final class ArArrayHelper
      *
      * @psalm-template TRow of Row
      * @psalm-param array<TRow> $rows
-     * @psalm-param PathKey|null $indexBy
+     * @psalm-param IndexKey|null $indexBy
      * @psalm-return array<TRow>
      *
      * @return array[]
