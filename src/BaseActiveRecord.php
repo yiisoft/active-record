@@ -4,16 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use ArrayAccess;
-use IteratorAggregate;
 use Throwable;
-use Yiisoft\ActiveRecord\Trait\ArrayableTrait;
-use Yiisoft\ActiveRecord\Trait\ArrayAccessTrait;
-use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
-use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
-use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
-use Yiisoft\ActiveRecord\Trait\TransactionalTrait;
-use Yiisoft\Arrays\ArrayableInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -30,7 +21,7 @@ use function key;
 use function preg_replace;
 
 /**
- * ActiveRecord is the base class for classes representing relational data in terms of objects.
+ * Base Active Record class which implements {@see ActiveRecordInterface} with the minimum set of methods.
  *
  * Active Record implements the [Active Record design pattern](https://en.wikipedia.org/wiki/Active_record).
  *
@@ -84,22 +75,9 @@ use function preg_replace;
  *
  * For more details and usage information on ActiveRecord,
  * {@see the [guide article on ActiveRecord](guide:db-active-record)}
- *
- * @method ActiveQuery hasMany($class, array $link) {@see BaseActiveRecord::hasMany()} for more info.
- * @method ActiveQuery hasOne($class, array $link) {@see BaseActiveRecord::hasOne()} for more info.
- *
- * @template-implements ArrayAccess<string, mixed>
- * @template-implements IteratorAggregate<string, mixed>
  */
-class BaseActiveRecord extends AbstractActiveRecord implements ArrayableInterface, ArrayAccess, IteratorAggregate, TransactionalInterface
+class BaseActiveRecord extends AbstractActiveRecord
 {
-    use ArrayableTrait;
-    use ArrayAccessTrait;
-    use ArrayIteratorTrait;
-    use MagicPropertiesTrait;
-    use MagicRelationsTrait;
-    use TransactionalTrait;
-
     public function attributes(): array
     {
         return $this->getTableSchema()->getColumnNames();
