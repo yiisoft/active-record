@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Trait;
 use InvalidArgumentException;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
-use function get_class;
 use function get_object_vars;
 use function property_exists;
 
@@ -108,7 +107,7 @@ trait ArrayAccessTrait
             return;
         }
 
-        throw new InvalidArgumentException('Setting unknown property: ' . get_class($this) . '::' . $offset);
+        throw new InvalidArgumentException('Setting unknown property: ' . static::class . '::' . $offset);
     }
 
     /**
