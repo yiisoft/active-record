@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 use function get_object_vars;
+use function is_array;
 use function property_exists;
 
 /**
@@ -22,13 +23,13 @@ use function property_exists;
  * @method void setAttribute(string $name, mixed $value)
  * @see ActiveRecordInterface::getAttribute()
  *
- * @method ActiveRecordInterface relation(string $name)
+ * @method ActiveRecordInterface|array|null relation(string $name)
  * @see ActiveRecordInterface::relation()
  *
  * @method bool isRelationPopulated(string $name)
  * @see ActiveRecordInterface::isRelationPopulated()
  *
- * @method void populateRelation(string $name, ActiveRecordInterface $record)
+ * @method void populateRelation(string $name, array|ActiveRecordInterface|null $record)
  * @see ActiveRecordInterface::populateRelation()
  *
  * @method void resetRelation(string $name)
@@ -101,7 +102,7 @@ trait ArrayAccessTrait
             return;
         }
 
-        if ($value instanceof ActiveRecordInterface) {
+        if ($value instanceof ActiveRecordInterface || is_array($value) || $value === null) {
             $this->populateRelation($offset, $value);
             return;
         }
