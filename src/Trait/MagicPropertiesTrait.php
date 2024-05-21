@@ -41,7 +41,7 @@ use function ucfirst;
  * @see AbstractActiveRecord::resetDependentRelations()
  *
  * @method void resetRelation(string $name)
- * @see AbstractActiveRecord::resetRelation()
+ * @see ActiveRecordInterface::resetRelation()
  *
  * @method ActiveRecordInterface|array|null retrieveRelation(string $name)
  * @see AbstractActiveRecord::retrieveRelation()
