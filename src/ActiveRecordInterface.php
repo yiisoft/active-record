@@ -185,43 +185,6 @@ interface ActiveRecordInterface
     public function getPrimaryKey(bool $asArray = false): mixed;
 
     /**
-     * Returns the relation object with the specified name.
-     *
-     * @param string $name The relation name, for example `orders` (case-sensitive).
-     *
-     * @return ActiveRecordInterface|array|null The relation object.
-     */
-    public function relation(string $name): self|array|null;
-
-    /**
-     * Returns the relation query object with the specified name.
-     *
-     * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
-     * (normally this would be a relational {@see ActiveQuery} object).
-     *
-     * Relations can be defined using {@see hasOne()} and {@see hasMany()} methods. For example:
-     *
-     * ```php
-     * public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface
-     * {
-     *     return match ($name) {
-     *         'orders' => $this->hasMany(Order::class, ['customer_id' => 'id']),
-     *         'country' => $this->hasOne(Country::class, ['id' => 'country_id']),
-     *         default => parent::relationQuery($name),
-     *     };
-     * }
-     * ```
-     *
-     * @param string $name The relation name, for example `orders` (case-sensitive).
-     * @param bool $throwException Whether to throw exception if the relation doesn't exist.
-     *
-     * @throws InvalidArgumentException
-     *
-     * @return ActiveQueryInterface|null The relational query object.
-     */
-    public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null;
-
-    /**
      * Return the name of the table associated with this AR class.
      *
      * ```php
@@ -344,6 +307,50 @@ interface ActiveRecordInterface
      * @return string[] The primary keys of the associated database table.
      */
     public function primaryKey(): array;
+
+    /**
+     * Returns the relation object with the specified name.
+     *
+     * @param string $name The relation name, for example `orders` (case-sensitive).
+     *
+     * @return ActiveRecordInterface|array|null The relation object.
+     */
+    public function relation(string $name): self|array|null;
+
+    /**
+     * Returns the relation query object with the specified name.
+     *
+     * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
+     * (normally this would be a relational {@see ActiveQuery} object).
+     *
+     * Relations can be defined using {@see hasOne()} and {@see hasMany()} methods. For example:
+     *
+     * ```php
+     * public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface
+     * {
+     *     return match ($name) {
+     *         'orders' => $this->hasMany(Order::class, ['customer_id' => 'id']),
+     *         'country' => $this->hasOne(Country::class, ['id' => 'country_id']),
+     *         default => parent::relationQuery($name),
+     *     };
+     * }
+     * ```
+     *
+     * @param string $name The relation name, for example `orders` (case-sensitive).
+     * @param bool $throwException Whether to throw exception if the relation doesn't exist.
+     *
+     * @throws InvalidArgumentException
+     *
+     * @return ActiveQueryInterface|null The relational query object.
+     */
+    public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null;
+
+    /**
+     * Resets relation data for the specified name.
+     *
+     * @param string $name The relation name, for example `orders` (case-sensitive).
+     */
+    public function resetRelation(string $name): void;
 
     /**
      * Saves the current record.
