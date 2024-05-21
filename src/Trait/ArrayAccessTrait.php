@@ -29,7 +29,7 @@ use function property_exists;
  * @method bool isRelationPopulated(string $name)
  * @see ActiveRecordInterface::isRelationPopulated()
  *
- * @method void populateRelation(string $name, array|ActiveRecordInterface|null $record)
+ * @method void populateRelation(string $name, ActiveRecordInterface|array|null $record)
  * @see ActiveRecordInterface::populateRelation()
  *
  * @method void resetRelation(string $name)
