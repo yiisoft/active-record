@@ -30,7 +30,7 @@ final class Employee extends ActiveRecord
         return $this->first_name . ' ' . $this->last_name;
     }
 
-    public function getDepartment(): ActiveQuery
+    public function getDepartmentQuery(): ActiveQuery
     {
         return $this
             ->hasOne(Department::class, [
@@ -40,7 +40,7 @@ final class Employee extends ActiveRecord
         ;
     }
 
-    public function getDossier(): ActiveQuery
+    public function getDossierQuery(): ActiveQuery
     {
         return $this->hasOne(
             Dossier::class,

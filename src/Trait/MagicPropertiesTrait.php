@@ -77,13 +77,12 @@ trait MagicPropertiesTrait
 
         if (method_exists($this, $getter = 'get' . ucfirst($name))) {
             /** read getter, e.g. getName() */
-            $value = $this->$getter();
+            return $this->$getter();
+        }
 
-            if ($value instanceof ActiveQueryInterface) {
-                return $this->retrieveRelation($name);
-            }
-
-            return $value;
+        if (method_exists($this, 'get' . ucfirst($name) . 'Query')) {
+            /** read relation query getter, e.g. getUserQuery() */
+            return $this->retrieveRelation($name);
         }
 
         if (method_exists($this, 'set' . ucfirst($name))) {
@@ -159,7 +158,10 @@ trait MagicPropertiesTrait
             return;
         }
 
-        if (method_exists($this, 'get' . ucfirst($name))) {
+        if (
+            method_exists($this, 'get' . ucfirst($name))
+            || method_exists($this, 'get' . ucfirst($name) . 'Query')
+        ) {
             throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
 
@@ -242,6 +244,7 @@ trait MagicPropertiesTrait
     {
         return method_exists($this, 'get' . ucfirst($name))
             || method_exists($this, 'set' . ucfirst($name))
+            || method_exists($this, 'get' . ucfirst($name) . 'Query')
             || ($checkVars && property_exists($this, $name))
             || $this->hasAttribute($name);
     }
@@ -249,6 +252,7 @@ trait MagicPropertiesTrait
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, 'get' . ucfirst($name))
+            || method_exists($this, 'get' . ucfirst($name) . 'Query')
             || ($checkVars && property_exists($this, $name))
             || $this->hasAttribute($name);
     }

@@ -31,22 +31,22 @@ class Order extends ActiveRecord
         $this->virtualCustomerId = $virtualCustomerId;
     }
 
-    public function getVirtualCustomer()
+    public function getVirtualCustomerQuery()
     {
         return $this->hasOne(Customer::class, ['id' => 'virtualCustomerId']);
     }
 
-    public function getCustomer(): ActiveQuery
+    public function getCustomerQuery(): ActiveQuery
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
 
-    public function getCustomerJoinedWithProfile(): ActiveQuery
+    public function getCustomerJoinedWithProfileQuery(): ActiveQuery
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->joinWith('profile');
     }
 
-    public function getCustomerJoinedWithProfileIndexOrdered(): ActiveQuery
+    public function getCustomerJoinedWithProfileIndexOrderedQuery(): ActiveQuery
     {
         return $this->hasMany(
             Customer::class,
@@ -54,22 +54,22 @@ class Order extends ActiveRecord
         )->joinWith('profile')->orderBy(['profile.description' => SORT_ASC])->indexBy('name');
     }
 
-    public function getCustomer2(): ActiveQuery
+    public function getCustomer2Query(): ActiveQuery
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('orders2');
     }
 
-    public function getOrderItems(): ActiveQuery
+    public function getOrderItemsQuery(): ActiveQuery
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
     }
 
-    public function getOrderItems2(): ActiveQuery
+    public function getOrderItems2Query(): ActiveQuery
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id'])->indexBy('item_id');
     }
 
-    public function getOrderItems3(): ActiveQuery
+    public function getOrderItems3Query(): ActiveQuery
     {
         return $this->hasMany(
             OrderItem::class,
@@ -77,24 +77,24 @@ class Order extends ActiveRecord
         )->indexBy(fn ($row) => $row['order_id'] . '_' . $row['item_id']);
     }
 
-    public function getOrderItemsWithNullFK(): ActiveQuery
+    public function getOrderItemsWithNullFKQuery(): ActiveQuery
     {
         return $this->hasMany(OrderItemWithNullFK::class, ['order_id' => 'id']);
     }
 
-    public function getItems(): ActiveQuery
+    public function getItemsQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems', static function ($q) {
             // additional query configuration
         })->orderBy('item.id');
     }
 
-    public function getItemsIndexed(): ActiveQuery
+    public function getItemsIndexedQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems')->indexBy('id');
     }
 
-    public function getItemsWithNullFK(): ActiveQuery
+    public function getItemsWithNullFKQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -102,26 +102,26 @@ class Order extends ActiveRecord
         )->viaTable('order_item_with_null_fk', ['order_id' => 'id']);
     }
 
-    public function getItemsInOrder1(): ActiveQuery
+    public function getItemsInOrder1Query(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems', static function ($q) {
             $q->orderBy(['subtotal' => SORT_ASC]);
         })->orderBy('name');
     }
 
-    public function getItemsInOrder2(): ActiveQuery
+    public function getItemsInOrder2Query(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems', static function ($q) {
             $q->orderBy(['subtotal' => SORT_DESC]);
         })->orderBy('name');
     }
 
-    public function getBooks(): ActiveQuery
+    public function getBooksQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems')->where(['category_id' => 1]);
     }
 
-    public function getBooksWithNullFK(): ActiveQuery
+    public function getBooksWithNullFKQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -129,7 +129,7 @@ class Order extends ActiveRecord
         )->via('orderItemsWithNullFK')->where(['category_id' => 1]);
     }
 
-    public function getBooksViaTable(): ActiveQuery
+    public function getBooksViaTableQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -137,7 +137,7 @@ class Order extends ActiveRecord
         )->viaTable('order_item', ['order_id' => 'id'])->where(['category_id' => 1]);
     }
 
-    public function getBooksWithNullFKViaTable(): ActiveQuery
+    public function getBooksWithNullFKViaTableQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -145,7 +145,7 @@ class Order extends ActiveRecord
         )->viaTable('order_item_with_null_fk', ['order_id' => 'id'])->where(['category_id' => 1]);
     }
 
-    public function getBooks2(): ActiveQuery
+    public function getBooks2Query(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -153,7 +153,7 @@ class Order extends ActiveRecord
         )->onCondition(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
-    public function getBooksExplicit(): ActiveQuery
+    public function getBooksExplicitQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -161,7 +161,7 @@ class Order extends ActiveRecord
         )->onCondition(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
-    public function getBooksExplicitA(): ActiveQuery
+    public function getBooksExplicitAQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -169,7 +169,7 @@ class Order extends ActiveRecord
         )->alias('bo')->onCondition(['bo.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
-    public function getBookItems(): ActiveQuery
+    public function getBookItemsQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -177,7 +177,7 @@ class Order extends ActiveRecord
         )->alias('books')->onCondition(['books.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
-    public function getMovieItems(): ActiveQuery
+    public function getMovieItemsQuery(): ActiveQuery
     {
         return $this->hasMany(
             Item::class,
@@ -185,38 +185,31 @@ class Order extends ActiveRecord
         )->alias('movies')->onCondition(['movies.category_id' => 2])->viaTable('order_item', ['order_id' => 'id']);
     }
 
-    public function getLimitedItems(): ActiveQuery
+    public function getLimitedItemsQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->onCondition(['item.id' => [3, 5]])->via('orderItems');
     }
 
-    public function getExpensiveItemsUsingViaWithCallable(): ActiveQuery
+    public function getExpensiveItemsUsingViaWithCallableQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems', function (ActiveQuery $q) {
             $q->where(['>=', 'subtotal', 10]);
         });
     }
 
-    public function getCheapItemsUsingViaWithCallable(): ActiveQuery
+    public function getCheapItemsUsingViaWithCallableQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems', function (ActiveQuery $q) {
             $q->where(['<', 'subtotal', 10]);
         });
     }
 
-    public function activeAttributes(): array
-    {
-        return [
-            0 => 'customer_id',
-        ];
-    }
-
-    public function getOrderItemsFor8(): ActiveQuery
+    public function getOrderItemsFor8Query(): ActiveQuery
     {
         return $this->hasMany(OrderItemWithNullFK::class, ['order_id' => 'id'])->andOnCondition(['subtotal' => 8.0]);
     }
 
-    public function getItemsFor8(): ActiveQuery
+    public function getItemsFor8Query(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItemsFor8');
     }

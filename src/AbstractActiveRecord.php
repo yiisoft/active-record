@@ -225,7 +225,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * `Customer` class:
      *
      * ```php
-     * public function getOrders()
+     * public function getOrdersQuery()
      * {
      *     return $this->hasMany(Order::className(), ['customer_id' => 'id']);
      * }
@@ -263,7 +263,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * `Customer` class:
      *
      * ```php
-     * public function getCountry()
+     * public function getCountryQuery()
      * {
      *     return $this->hasOne(Country::className(), ['id' => 'country_id']);
      * }
@@ -1116,7 +1116,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         foreach ($this->attributes() as $name) {
-            $this->setAttribute($name, $record->getAttribute($name));
+            $this->$name = $record->getAttribute($name);
         }
 
         $this->oldAttributes = $record->getOldAttributes();

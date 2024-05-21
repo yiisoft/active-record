@@ -31,7 +31,7 @@ trait MagicRelationsTrait
      * For example, a relation named `orders` is defined using the following getter method:
      *
      * ```php
-     * public function getOrders(): ActiveQueryInterface
+     * public function getOrdersQuery(): ActiveQueryInterface
      * {
      *    return $this->hasMany(Order::class, ['customer_id' => 'id']);
      * }
@@ -49,7 +49,7 @@ trait MagicRelationsTrait
      */
     public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null
     {
-        $getter = 'get' . ucfirst($name);
+        $getter = 'get' . ucfirst($name) . 'Query';
 
         if (!method_exists($this, $getter)) {
             if (!$throwException) {
@@ -79,7 +79,7 @@ trait MagicRelationsTrait
         }
 
         /** relation name is case sensitive, trying to validate it when the relation is defined within this class */
-        $realName = lcfirst(substr($method->getName(), 3));
+        $realName = lcfirst(substr($method->getName(), 3, -5));
 
         if ($realName !== $name) {
             if (!$throwException) {

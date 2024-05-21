@@ -19,7 +19,7 @@ final class Beta extends ActiveRecord
         return 'beta';
     }
 
-    public function getAlpha(): ActiveQuery
+    public function getAlphaQuery(): ActiveQuery
     {
         return $this->hasOne(Alpha::class, ['string_identifier' => 'alpha_string_identifier']);
     }

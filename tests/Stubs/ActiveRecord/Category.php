@@ -20,22 +20,22 @@ final class Category extends ActiveRecord
         return 'category';
     }
 
-    public function getLimitedItems(): ActiveQuery
+    public function getLimitedItemsQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
     }
 
-    public function getItems(): ActiveQuery
+    public function getItemsQuery(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['category_id' => 'id']);
     }
 
-    public function getOrderItems(): ActiveQuery
+    public function getOrderItemsQuery(): ActiveQuery
     {
         return $this->hasMany(OrderItem::class, ['item_id' => 'id'])->via('items');
     }
 
-    public function getOrders(): ActiveQuery
+    public function getOrdersQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['id' => 'order_id'])->via('orderItems');
     }

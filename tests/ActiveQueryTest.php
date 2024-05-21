@@ -662,7 +662,7 @@ abstract class ActiveQueryTest extends TestCase
         /** {@see https://github.com/yiisoft/yii2/issues/2880} */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $query = $orderQuery->findOne(1);
-        $customer = $query->getCustomer()->joinWith(
+        $customer = $query->getCustomerQuery()->joinWith(
             [
                 'orders' => static function ($q) {
                     $q->orderBy([]);
@@ -980,7 +980,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
 
-        $customerQuery = $order->getCustomer()->innerJoinWith(['orders o'], false);
+        $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
 
         if ($aliasMethod === 'explicit') {
             $customer = $customerQuery->where(['o.id' => 1])->onePopulate();
@@ -1399,7 +1399,7 @@ abstract class ActiveQueryTest extends TestCase
         /** ad-hoc lazy loading */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->findOne(2);
-        $orders = $customer->getOrders2()->all();
+        $orders = $customer->getOrders2Query()->all();
         $this->assertCount(2, $orders);
         $this->assertSame($orders[0]->customer2, $customer);
         $this->assertSame($orders[1]->customer2, $customer);
@@ -1502,9 +1502,9 @@ abstract class ActiveQueryTest extends TestCase
         $categoryQuery = new ActiveQuery(Category::class, $this->db);
         $category = $categoryQuery->findOne(2);
         $this->assertInstanceOf(Category::class, $category);
-        $this->assertEquals(3, $category->getItems()->count());
-        $this->assertEquals(1, $category->getLimitedItems()->count());
-        $this->assertEquals(1, $category->getLimitedItems()->distinct(true)->count());
+        $this->assertEquals(3, $category->getItemsQuery()->count());
+        $this->assertEquals(1, $category->getLimitedItemsQuery()->count());
+        $this->assertEquals(1, $category->getLimitedItemsQuery()->distinct(true)->count());
 
         /** {@see https://github.com/yiisoft/yii2/issues/3197} */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -1855,7 +1855,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
-        $itemsSQL = $order->getOrderitems()->createCommand()->getRawSql();
+        $itemsSQL = $order->getOrderItemsQuery()->createCommand()->getRawSql();
         $expectedSQL = DbHelper::replaceQuotes(
             <<<SQL
             SELECT * FROM [[order_item]] WHERE [[order_id]]=1
@@ -1865,7 +1865,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals($expectedSQL, $itemsSQL);
 
         $order = $orderQuery->findOne(1);
-        $itemsSQL = $order->getOrderItems()->joinWith('item')->createCommand()->getRawSql();
+        $itemsSQL = $order->getOrderItemsQuery()->joinWith('item')->createCommand()->getRawSql();
         $expectedSQL = DbHelper::replaceQuotes(
             <<<SQL
             SELECT [[order_item]].* FROM [[order_item]] LEFT JOIN [[item]] ON [[order_item]].[[item_id]] = [[item]].[[id]] WHERE [[order_item]].[[order_id]]=1
@@ -1962,27 +1962,27 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->findOne(1);
 
         /** request the inverseOf relation without explicitly (eagerly) loading it */
-        $orders2 = $customer->getOrders2()->all();
+        $orders2 = $customer->getOrders2Query()->all();
         $this->assertSame($customer, $orders2[0]->customer2);
 
-        $orders2 = $customer->getOrders2()->onePopulate();
+        $orders2 = $customer->getOrders2Query()->onePopulate();
         $this->assertSame($customer, $orders2->customer2);
 
         /**
          * request the inverseOf relation while also explicitly eager loading it (while possible, this is of course
          * redundant)
          */
-        $orders2 = $customer->getOrders2()->with('customer2')->all();
+        $orders2 = $customer->getOrders2Query()->with('customer2')->all();
         $this->assertSame($customer, $orders2[0]->customer2);
 
-        $orders2 = $customer->getOrders2()->with('customer2')->onePopulate();
+        $orders2 = $customer->getOrders2Query()->with('customer2')->onePopulate();
         $this->assertSame($customer, $orders2->customer2);
 
         /** request the inverseOf relation as array */
-        $orders2 = $customer->getOrders2()->asArray()->all();
+        $orders2 = $customer->getOrders2Query()->asArray()->all();
         $this->assertEquals($customer['id'], $orders2[0]['customer2']['id']);
 
-        $orders2 = $customer->getOrders2()->asArray()->onePopulate();
+        $orders2 = $customer->getOrders2Query()->asArray()->onePopulate();
         $this->assertEquals($customer['id'], $orders2['customer2']['id']);
     }
 
@@ -2355,8 +2355,8 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Relation query method "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::getItem()" should return'
-            . ' type "Yiisoft\ActiveRecord\ActiveQueryInterface", but  returns "void" type.'
+            'Relation query method "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::getItemQuery()" should'
+            . ' return type "Yiisoft\ActiveRecord\ActiveQueryInterface", but  returns "void" type.'
         );
         $query->relationQuery('item');
     }
