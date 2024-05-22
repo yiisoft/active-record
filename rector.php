@@ -12,7 +12,8 @@ use Rector\Set\ValueObject\LevelSetList;
 return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->paths([
         __DIR__ . '/src',
-        __DIR__ . '/tests',
+        /** Disable rector on tests */
+        // __DIR__ . '/tests',
     ]);
 
     // register a single rule
