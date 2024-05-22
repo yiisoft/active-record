@@ -16,7 +16,7 @@ final class CustomerClosureField extends ActiveRecord
     protected string $email;
     protected string $address;
     protected int $status;
-    protected int|null $profile_id;
+    protected int|null $profile_id = null;
 
     public function getTableName(): string
     {

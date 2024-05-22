@@ -24,7 +24,7 @@ final class CustomerWithAlias extends ActiveRecord
     public string $email;
     public string $address;
     public int $status;
-    public int|null $profile_id;
+    public int|null $profile_id = null;
 
     public function getTableName(): string
     {
