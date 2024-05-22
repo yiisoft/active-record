@@ -114,7 +114,7 @@ final class OrderItem extends ActiveRecord
         return $this->hasOne(Item::class, ['id' => 'item_id']);
     }
 
-    public function getOrderItemCompositeWithJoin(): OrderItem|null
+    public function getOrderItemCompositeWithJoin(): self|null
     {
         return $this->relation('orderItemCompositeWithJoin');
     }
@@ -125,7 +125,7 @@ final class OrderItem extends ActiveRecord
         return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
     }
 
-    public function getOrderItemCompositeNoJoin(): OrderItem|null
+    public function getOrderItemCompositeNoJoin(): self|null
     {
         return $this->relation('orderItemCompositeNoJoin');
     }
