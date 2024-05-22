@@ -823,7 +823,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         foreach ($counters as $name => $value) {
             $value += $this->getAttribute($name) ?? 0;
-            $this->setAttribute($name, $value);
+            $this->populateAttribute($name, $value);
             $this->oldAttributes[$name] = $value;
         }
 
@@ -1184,7 +1184,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 throw new StaleObjectException('The object being updated is outdated.');
             }
 
-            $this->setAttribute($lock, $lockValue);
+            $this->populateAttribute($lock, $lockValue);
         } else {
             $rows = $this->updateAll($values, $condition);
         }
@@ -1212,12 +1212,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             /**
              * relation via array valued attribute
-             *
-             * @psalm-suppress MixedArrayAssignment
              */
-            if (is_array($foreignModel->getAttribute($fk))) {
+            if (is_array($fkValue = $foreignModel->getAttribute($fk))) {
                 /** @psalm-var mixed */
-                $foreignModel->{$fk}[] = $value;
+                $fkValue[] = $value;
+                $foreignModel->setAttribute($fk, $fkValue);
             } else {
                 $foreignModel->setAttribute($fk, $value);
             }
