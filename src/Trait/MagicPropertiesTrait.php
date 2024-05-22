@@ -207,8 +207,7 @@ trait MagicPropertiesTrait
         }
 
         if (property_exists($this, $name)) {
-            return !array_key_exists($name, get_object_vars($this))
-                || $this->getOldAttribute($name) !== $this->$name;
+            return $this->getOldAttribute($name) !== $this->$name;
         }
 
         return !array_key_exists($name, $this->attributes)
