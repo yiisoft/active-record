@@ -2331,9 +2331,6 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = $customer->findOne(1);
 
-        /** Without throwing exception */
-        $this->assertEmpty($query->relationQuery('items', false));
-
         /** Throwing exception */
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -2350,9 +2347,6 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = $customer->findOne(1);
 
-        /** Without throwing exception */
-        $this->assertEmpty($query->relationQuery('item', false));
-
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Relation query method "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::getItemQuery()" should'
@@ -2368,8 +2362,6 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new ActiveQuery(Customer::class, $this->db);
 
         $query = $customer->findOne(1);
-
-        $this->assertEmpty($query->relationQuery('expensiveorders', false));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(

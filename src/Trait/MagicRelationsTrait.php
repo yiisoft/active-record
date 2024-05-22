@@ -37,25 +37,14 @@ trait MagicRelationsTrait
      * }
      * ```
      *
-     * @param string $name The relation name, for example `orders` for a relation defined via `getOrdersQuery()` method
-     * (case-sensitive).
-     * @param bool $throwException whether to throw exception if the relation does not exist.
-     *
      * @throws InvalidArgumentException if the named relation does not exist.
      * @throws ReflectionException
-     *
-     * @return ActiveQueryInterface|null the relational query object. If the relation does not exist and
-     * `$throwException` is `false`, `null` will be returned.
      */
-    public function relationQuery(string $name, bool $throwException = true): ActiveQueryInterface|null
+    public function relationQuery(string $name): ActiveQueryInterface
     {
         $getter = 'get' . ucfirst($name) . 'Query';
 
         if (!method_exists($this, $getter)) {
-            if (!$throwException) {
-                return null;
-            }
-
             throw new InvalidArgumentException(static::class . ' has no relation named "' . $name . '".');
         }
 
@@ -66,10 +55,6 @@ trait MagicRelationsTrait
             $type === null
             || !is_a('\\' . $type->getName(), ActiveQueryInterface::class, true)
         ) {
-            if (!$throwException) {
-                return null;
-            }
-
             $typeName = $type === null ? 'mixed' : $type->getName();
 
             throw new InvalidArgumentException(
@@ -82,10 +67,6 @@ trait MagicRelationsTrait
         $realName = lcfirst(substr($method->getName(), 3, -5));
 
         if ($realName !== $name) {
-            if (!$throwException) {
-                return null;
-            }
-
             throw new InvalidArgumentException(
                 'Relation names are case sensitive. ' . static::class
                 . " has a relation named \"$realName\" instead of \"$name\"."
