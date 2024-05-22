@@ -14,6 +14,7 @@ use function array_diff;
 use function array_keys;
 use function array_map;
 use function array_values;
+use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -90,7 +91,7 @@ class BaseActiveRecord extends AbstractActiveRecord
         $columnNames = $this->filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array($this->db->getQuoter()->quoteSql($key), $columnNames, true)) {
+            if (is_string($key) && !in_array($this->db()->getQuoter()->quoteSql($key), $columnNames, true)) {
                 throw new InvalidArgumentException(
                     'Key "' . $key . '" is not a column name and can not be used as a filter'
                 );
@@ -120,7 +121,7 @@ class BaseActiveRecord extends AbstractActiveRecord
      */
     public function getTableSchema(): TableSchemaInterface
     {
-        $tableSchema = $this->db->getSchema()->getTableSchema($this->getTableName());
+        $tableSchema = $this->db()->getSchema()->getTableSchema($this->getTableName());
 
         if ($tableSchema === null) {
             throw new InvalidConfigException('The table does not exist: ' . $this->getTableName());
@@ -211,41 +212,33 @@ class BaseActiveRecord extends AbstractActiveRecord
     {
         $columnNames = [];
         $tableName = $this->getTableName();
-        $quotedTableName = $this->db->getQuoter()->quoteTableName($tableName);
+        $quotedTableName = $this->db()->getQuoter()->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
-            $columnNames[] = $this->db->getQuoter()->quoteColumnName($columnName);
+            $columnNames[] = $this->db()->getQuoter()->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableName.[[$columnName]]");
+            $columnNames[] = $this->db()->getQuoter()->quoteSql("$quotedTableName.[[$columnName]]");
 
             foreach ($aliases as $tableAlias) {
                 $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $this->db->getQuoter()->quoteTableName($tableAlias);
-                $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableAlias.[[$columnName]]");
+                $quotedTableAlias = $this->db()->getQuoter()->quoteTableName($tableAlias);
+                $columnNames[] = $this->db()->getQuoter()->quoteSql("$quotedTableAlias.[[$columnName]]");
             }
         }
 
         return $columnNames;
     }
 
-    /**
-     * Inserts an ActiveRecord into DB without considering transaction.
-     *
-     * @param array|null $attributes List of attributes that need to be saved. Defaults to `null`, meaning all
-     * attributes that are loaded from DB will be saved.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     *
-     * @return bool Whether the record is inserted successfully.
-     */
+    protected function getObjectVars(ActiveRecordInterface $object): array
+    {
+        return get_object_vars($object);
+    }
+
     protected function insertInternal(array $attributes = null): bool
     {
         $values = $this->getDirtyAttributes($attributes);
-        $primaryKeys = $this->db->createCommand()->insertWithReturningPks($this->getTableName(), $values);
+        $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->getTableName(), $values);
 
         if ($primaryKeys === false) {
             return false;
@@ -262,5 +255,10 @@ class BaseActiveRecord extends AbstractActiveRecord
         $this->setOldAttributes($values);
 
         return true;
+    }
+
+    protected function populateAttribute(string $name, mixed $value): void
+    {
+        $this->$name = $value;
     }
 }

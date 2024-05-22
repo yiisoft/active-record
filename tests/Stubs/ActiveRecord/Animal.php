@@ -39,7 +39,7 @@ class Animal extends ActiveRecord
     {
         $class = $row['type'];
 
-        return new $class($this->db);
+        return new $class($this->db());
     }
 
     public function setDoes(string $value): void

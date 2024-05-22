@@ -43,14 +43,14 @@ interface ActiveRecordInterface
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * $customer = new Customer($this->db);
+     * $customer = new Customer($db);
      * $customer->deleteAll('status = 3');
      * ```
      *
      * > Warning: If you don't specify any condition, this method will delete **all** rows in the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class, $this->db);
+     * $customerQuery = new ActiveQuery(Customer::class, $db);
      * $aqClasses = $customerQuery->where('status = 3')->all();
      * foreach ($aqClasses as $aqClass) {
      *     $aqClass->delete();

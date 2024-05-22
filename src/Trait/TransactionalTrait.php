@@ -25,7 +25,7 @@ trait TransactionalTrait
             return $this->deleteInternal();
         }
 
-        $transaction = $this->db->beginTransaction();
+        $transaction = $this->db()->beginTransaction();
 
         try {
             $result = $this->deleteInternal();
@@ -44,7 +44,7 @@ trait TransactionalTrait
             return $this->insertInternal($attributes);
         }
 
-        $transaction = $this->db->beginTransaction();
+        $transaction = $this->db()->beginTransaction();
 
         try {
             $result = $this->insertInternal($attributes);
@@ -81,7 +81,7 @@ trait TransactionalTrait
             return $this->updateInternal($attributeNames);
         }
 
-        $transaction = $this->db->beginTransaction();
+        $transaction = $this->db()->beginTransaction();
 
         try {
             $result = $this->updateInternal($attributeNames);
