@@ -20,11 +20,12 @@ final class CustomerWithAlias extends ActiveRecord
     public float $sumTotal;
 
     public int $id;
-    public string $name;
     public string $email;
-    public string $address;
-    public int $status;
-    public int|null $profile_id;
+    public string|null $name = null;
+    public string|null $address = null;
+    public int|null $status = null;
+    public bool|string|null $bool_status = null;
+    public int|null $profile_id = null;
 
     public function getTableName(): string
     {

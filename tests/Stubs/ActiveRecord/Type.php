@@ -25,7 +25,7 @@ use Yiisoft\Db\Expression\Expression;
  * @property bool $bool_col
  * @property bool|null $bool_col2 DEFAULT 1
  */
-final class Type extends ActiveRecord
+class Type extends ActiveRecord
 {
     public int $int_col;
     public int|null $int_col2 = 1;
@@ -40,10 +40,10 @@ final class Type extends ActiveRecord
     public float|null $numeric_col = 33.22;
     public string $time = '2002-01-01 00:00:00';
     public bool|int $bool_col;
-    public bool|int|null $bool_col2 = true;
+    public bool|int|string|null $bool_col2 = true;
     public string|Expression $ts_default;
-    public $bit_col = b'10000010';
-    public array $json_col;
+    public int|string $bit_col = 0b1000_0010;
+    public array|null $json_col = null;
 
     public function getTableName(): string
     {

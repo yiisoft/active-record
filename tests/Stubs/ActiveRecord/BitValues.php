@@ -15,5 +15,5 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 final class BitValues extends ActiveRecord
 {
     public int $id;
-    public bool $val;
+    public bool|int $val;
 }

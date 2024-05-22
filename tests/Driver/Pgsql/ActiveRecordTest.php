@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 use ArrayAccess;
 use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Type;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BoolAR;
@@ -37,6 +38,65 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->db->close();
 
         unset($this->db);
+    }
+
+    public function testDefaultValues(): void
+    {
+        $this->checkFixture($this->db, 'type');
+
+        $arClass = new Type($this->db);
+
+        $arClass->loadDefaultValues();
+
+        $this->assertEquals(1, $arClass->int_col2);
+        $this->assertEquals('something', $arClass->char_col2);
+        $this->assertEquals(1.23, $arClass->float_col2);
+        $this->assertEquals(33.22, $arClass->numeric_col);
+        $this->assertEquals(true, $arClass->bool_col2);
+        $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
+
+        $arClass = new Type($this->db);
+        $arClass->char_col2 = 'not something';
+
+        $arClass->loadDefaultValues();
+        $this->assertEquals('not something', $arClass->char_col2);
+
+        $arClass = new Type($this->db);
+        $arClass->char_col2 = 'not something';
+
+        $arClass->loadDefaultValues(false);
+        $this->assertEquals('something', $arClass->char_col2);
+    }
+
+    public function testCastValues(): void
+    {
+        $this->checkFixture($this->db, 'type');
+
+        $arClass = new Type($this->db);
+
+        $arClass->int_col = 123;
+        $arClass->int_col2 = 456;
+        $arClass->smallint_col = 42;
+        $arClass->char_col = '1337';
+        $arClass->char_col2 = 'test';
+        $arClass->char_col3 = 'test123';
+        $arClass->float_col = 3.742;
+        $arClass->float_col2 = 42.1337;
+        $arClass->bool_col = true;
+        $arClass->bool_col2 = false;
+
+        $arClass->save();
+
+        /** @var $model Type */
+        $aqClass = new ActiveQuery(Type::class, $this->db);
+        $query = $aqClass->onePopulate();
+
+        $this->assertSame(123, $query->int_col);
+        $this->assertSame(456, $query->int_col2);
+        $this->assertSame(42, $query->smallint_col);
+        $this->assertSame('1337', trim($query->char_col));
+        $this->assertSame('test', $query->char_col2);
+        $this->assertSame('test123', $query->char_col3);
     }
 
     public function testExplicitPkOnAutoIncrement(): void

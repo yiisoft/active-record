@@ -12,21 +12,16 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * CustomerWithConstructor.
- *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $address
- * @property int $status
  */
 final class CustomerWithConstructor extends ActiveRecord
 {
     protected int $id;
-    protected string $name;
     protected string $email;
-    protected string $address;
-    protected int $status;
-    protected int $profile_id;
+    protected string|null $name = null;
+    protected string|null $address = null;
+    protected int|null $status = 0;
+    protected bool|string|null $bool_status = false;
+    protected int|null $profile_id = null;
 
     public function __construct(ConnectionInterface $db, private Aliases $aliases)
     {

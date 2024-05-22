@@ -12,11 +12,12 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 final class CustomerClosureField extends ActiveRecord
 {
     protected int $id;
-    protected string $name;
     protected string $email;
-    protected string $address;
-    protected int $status;
-    protected int|null $profile_id;
+    protected string|null $name = null;
+    protected string|null $address = null;
+    protected int|null $status = 0;
+    protected bool|string|null $bool_status = false;
+    protected int|null $profile_id = null;
 
     public function getTableName(): string
     {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer as CustomerWithRownumid;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
@@ -26,6 +27,57 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $this->db->close();
 
         unset($this->db);
+    }
+
+    public function testFindLimit(): void
+    {
+        $this->checkFixture($this->db, 'customer', true);
+
+        /** one */
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db);
+        $customer = $customerQuery->orderBy('id')->onePopulate();
+        $this->assertEquals('user1', $customer->getName());
+
+        /** all */
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db);
+        $customers = $customerQuery->allPopulate();
+        $this->assertCount(3, $customers);
+
+        /** limit */
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db);
+        $customers = $customerQuery->orderBy('id')->limit(1)->allPopulate();
+        $this->assertCount(1, $customers);
+        $this->assertEquals('user1', $customers[0]->getName());
+
+        $customers = $customerQuery->orderBy('id')->limit(1)->offset(1)->allPopulate();
+        $this->assertCount(1, $customers);
+        $this->assertEquals('user2', $customers[0]->getName());
+
+        $customers = $customerQuery->orderBy('id')->limit(1)->offset(2)->allPopulate();
+        $this->assertCount(1, $customers);
+        $this->assertEquals('user3', $customers[0]->getName());
+
+        $customers = $customerQuery->orderBy('id')->limit(2)->offset(1)->allPopulate();
+        $this->assertCount(2, $customers);
+        $this->assertEquals('user2', $customers[0]->getName());
+        $this->assertEquals('user3', $customers[1]->getName());
+
+        $customers = $customerQuery->limit(2)->offset(3)->allPopulate();
+        $this->assertCount(0, $customers);
+
+        /** offset */
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db);
+        $customer = $customerQuery->orderBy('id')->offset(0)->onePopulate();
+        $this->assertEquals('user1', $customer->getName());
+
+        $customer = $customerQuery->orderBy('id')->offset(1)->onePopulate();
+        $this->assertEquals('user2', $customer->getName());
+
+        $customer = $customerQuery->orderBy('id')->offset(2)->onePopulate();
+        $this->assertEquals('user3', $customer->getName());
+
+        $customer = $customerQuery->offset(3)->onePopulate();
+        $this->assertNull($customer);
     }
 
     public function testFindEager(): void

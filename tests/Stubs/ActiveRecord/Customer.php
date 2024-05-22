@@ -10,14 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Customer.
- *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $address
- * @property int $status
- *
- * @method CustomerQuery findBySql($sql, $params = []) static.
  */
 class Customer extends ActiveRecord
 {
@@ -29,6 +21,7 @@ class Customer extends ActiveRecord
     protected string|null $name = null;
     protected string|null $address = null;
     protected int|null $status = 0;
+    protected bool|string|null $bool_status = false;
     protected int|null $profile_id = null;
 
     /**
@@ -89,6 +82,11 @@ class Customer extends ActiveRecord
         return $this->status;
     }
 
+    public function getBoolStatus(): bool|null
+    {
+        return $this->bool_status;
+    }
+
     public function getProfileId(): int|null
     {
         return $this->profile_id;
@@ -117,6 +115,11 @@ class Customer extends ActiveRecord
     public function setStatus(int|null $status): void
     {
         $this->status = $status;
+    }
+
+    public function setBoolStatus(bool|null $bool_status): void
+    {
+        $this->bool_status = $bool_status;
     }
 
     public function setProfileId(int|null $profile_id): void

@@ -756,6 +756,7 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 1,
+                'bool_status' => true,
                 'profile_id' => 1,
             ],
             $customer->toArray(),
@@ -776,6 +777,7 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 'active',
+                'bool_status' => true,
                 'profile_id' => 1,
             ],
             $customer->toArray(),
@@ -883,6 +885,7 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => null,
                 'address' => null,
                 'status' => 0,
+                'bool_status' => false,
                 'profile_id' => null,
             ],
             $customer->getDirtyAttributes()
@@ -900,6 +903,7 @@ abstract class ActiveRecordTest extends TestCase
                 'email' => 'adam@example.com',
                 'address' => null,
                 'status' => 0,
+                'bool_status' => false,
                 'profile_id' => null,
             ],
             $customer->getDirtyAttributes()

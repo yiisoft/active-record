@@ -277,6 +277,7 @@ abstract class ActiveQueryFindTest extends TestCase
             'name' => 'user2',
             'address' => 'address2',
             'status' => 1,
+            'bool_status' => true,
             'profile_id' => null,
         ], $customer);
 

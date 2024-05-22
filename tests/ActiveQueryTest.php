@@ -2116,15 +2116,7 @@ abstract class ActiveQueryTest extends TestCase
         $attributesExpected['name'] = 'user1';
         $attributesExpected['address'] = 'address1';
         $attributesExpected['status'] = 1;
-
-        if ($this->db->getDriverName() === 'pgsql') {
-            $attributesExpected['bool_status'] = true;
-        }
-
-        if ($this->db->getDriverName() === 'oci') {
-            $attributesExpected['bool_status'] = '1';
-        }
-
+        $attributesExpected['bool_status'] = true;
         $attributesExpected['profile_id'] = 1;
 
         $customer = new ActiveQuery(Customer::class, $this->db);
@@ -2200,15 +2192,7 @@ abstract class ActiveQueryTest extends TestCase
         $attributes['name'] = 'user1';
         $attributes['address'] = 'address1';
         $attributes['status'] = 1;
-
-        if ($this->db->getDriverName() === 'pgsql') {
-            $attributes['bool_status'] = true;
-        }
-
-        if ($this->db->getDriverName() === 'oci') {
-            $attributes['bool_status'] = '1';
-        }
-
+        $attributes['bool_status'] = true;
         $attributes['profile_id'] = 1;
 
         $customer = new ActiveQuery(Customer::class, $this->db);
@@ -2223,15 +2207,7 @@ abstract class ActiveQueryTest extends TestCase
         $attributesNew['name'] = 'samdark';
         $attributesNew['address'] = 'address1';
         $attributesNew['status'] = 1;
-
-        if ($this->db->getDriverName() === 'pgsql') {
-            $attributesNew['bool_status'] = true;
-        }
-
-        if ($this->db->getDriverName() === 'oci') {
-            $attributesNew['bool_status'] = '1';
-        }
-
+        $attributesNew['bool_status'] = true;
         $attributesNew['profile_id'] = 1;
 
         $this->assertEquals($attributesNew, $query->getAttributes());

@@ -42,6 +42,7 @@ CREATE TABLE [dbo].[customer] (
     [name] [varchar](128),
     [address] [text],
     [status] [int] DEFAULT 0,
+    [bool_status] [bit] DEFAULT 0,
     [profile_id] [int],
     CONSTRAINT [PK_customer] PRIMARY KEY CLUSTERED (
         [id] ASC
@@ -214,9 +215,9 @@ INSERT INTO [dbo].[animal] (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\Acti
 INSERT INTO [dbo].[profile] ([description]) VALUES ('profile customer 1');
 INSERT INTO [dbo].[profile] ([description]) VALUES ('profile customer 3');
 
-INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [profile_id]) VALUES ('user1@example.com', 'user1', 'address1', 1, 1);
-INSERT INTO [dbo].[customer] ([email], [name], [address], [status]) VALUES ('user2@example.com', 'user2', 'address2', 1);
-INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [profile_id]) VALUES ('user3@example.com', 'user3', 'address3', 2, 2);
+INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status], [profile_id]) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
+INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status]) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
+INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status], [profile_id]) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
 
 INSERT INTO [dbo].[category] ([name]) VALUES ('Books');
 INSERT INTO [dbo].[category] ([name]) VALUES ('Movies');
