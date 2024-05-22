@@ -33,7 +33,7 @@ class Type extends ActiveRecord
     public int|null $smallint_col = 1;
     public string $char_col;
     public string|null $char_col2 = 'something';
-    public string|null $char_col3;
+    public string|null $char_col3 = null;
     public float $float_col;
     public float|null $float_col2 = 1.23;
     public mixed $blob_col;

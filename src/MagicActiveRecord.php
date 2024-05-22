@@ -38,7 +38,7 @@ class MagicActiveRecord extends BaseActiveRecord implements
     use ArrayableTrait;
     use ArrayAccessTrait;
     use ArrayIteratorTrait;
-    use TransactionalTrait;
     use MagicPropertiesTrait;
     use MagicRelationsTrait;
+    use TransactionalTrait;
 }
