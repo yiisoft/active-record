@@ -17,7 +17,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 final class OrderWithNullFK extends ActiveRecord
 {
     protected int $id;
-    protected int|null $customer_id;
+    protected int|null $customer_id = null;
     protected int $created_at;
     protected float $total;
 

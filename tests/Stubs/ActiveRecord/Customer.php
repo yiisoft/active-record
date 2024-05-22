@@ -18,11 +18,11 @@ class Customer extends ActiveRecord
 
     protected int $id;
     protected string $email;
-    protected string|null $name;
-    protected string|null $address;
+    protected string|null $name = null;
+    protected string|null $address = null;
     protected int|null $status = 0;
     protected bool|string|null $bool_status = false;
-    protected int|null $profile_id;
+    protected int|null $profile_id = null;
 
     /**
      * @var int|string

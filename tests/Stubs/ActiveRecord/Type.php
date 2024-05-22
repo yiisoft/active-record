@@ -33,7 +33,7 @@ class Type extends ActiveRecord
     public int|null $smallint_col = 1;
     public string $char_col;
     public string|null $char_col2 = 'something';
-    public string|null $char_col3;
+    public string|null $char_col3 = null;
     public float $float_col;
     public float|null $float_col2 = 1.23;
     public mixed $blob_col;
@@ -43,7 +43,7 @@ class Type extends ActiveRecord
     public bool|int|string|null $bool_col2 = true;
     public string|Expression $ts_default;
     public int|string $bit_col = 0b1000_0010;
-    public array|null $json_col;
+    public array|null $json_col = null;
 
     public function getTableName(): string
     {
