@@ -12,9 +12,9 @@ use Yiisoft\Db\Expression\JsonExpression;
 final class ArrayAndJsonTypes extends ActiveRecord
 {
     public int $id;
-    public array|ArrayExpression|null $intarray_col;
-    public array|ArrayExpression|null $textarray2_col;
-    public array|float|int|string|JsonExpression|null $json_col;
-    public array|float|int|string|JsonExpression|null $jsonb_col;
-    public array|ArrayExpression|Expression|null $jsonarray_col;
+    public array|ArrayExpression|null $intarray_col = null;
+    public array|ArrayExpression|null $textarray2_col = null;
+    public array|float|int|string|JsonExpression|null $json_col = null;
+    public array|float|int|string|JsonExpression|null $jsonb_col = null;
+    public array|ArrayExpression|Expression|null $jsonarray_col = null;
 }
