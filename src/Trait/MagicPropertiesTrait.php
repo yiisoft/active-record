@@ -28,6 +28,12 @@ use function ucfirst;
 /**
  * Trait to define magic methods to access values of an ActiveRecord instance.
  *
+ * @method array getOldAttributes()
+ * @see AbstractActiveRecord::getOldAttributes()
+ *
+ * @method mixed getOldAttribute(string $name)
+ * @see AbstractActiveRecord::getOldAttribute()
+ *
  * @method array getRelatedRecords()
  * @see AbstractActiveRecord::getRelatedRecords()
  *
@@ -122,6 +128,10 @@ trait MagicPropertiesTrait
         if ($this->hasAttribute($name)) {
             unset($this->attributes[$name]);
 
+            if (property_exists($this, $name)) {
+                $this->$name = null;
+            }
+
             if ($this->hasDependentRelations($name)) {
                 $this->resetDependentRelations($name);
             }
@@ -142,14 +152,7 @@ trait MagicPropertiesTrait
     public function __set(string $name, mixed $value): void
     {
         if ($this->hasAttribute($name)) {
-            if (
-                $this->hasDependentRelations($name)
-                && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
-            ) {
-                $this->resetDependentRelations($name);
-            }
-
-            $this->attributes[$name] = $value;
+            $this->setAttributeInternal($name, $value);
             return;
         }
 
@@ -170,6 +173,10 @@ trait MagicPropertiesTrait
 
     public function getAttribute(string $name): mixed
     {
+        if (property_exists($this, $name)) {
+            return get_object_vars($this)[$name] ?? null;
+        }
+
         return $this->attributes[$name] ?? null;
     }
 
@@ -192,34 +199,28 @@ trait MagicPropertiesTrait
 
     public function isAttributeChanged(string $name, bool $identical = true): bool
     {
-        if (isset($this->attributes[$name], $this->oldAttributes[$name])) {
-            return $this->attributes[$name] !== $this->oldAttributes[$name];
+        $hasOldAttribute = array_key_exists($name, $this->getOldAttributes());
+
+        if (!$hasOldAttribute) {
+            return property_exists($this, $name) && array_key_exists($name, get_object_vars($this))
+                || array_key_exists($name, $this->attributes);
         }
 
-        return isset($this->attributes[$name]) || isset($this->oldAttributes[$name]);
+        if (property_exists($this, $name)) {
+            return !array_key_exists($name, get_object_vars($this))
+                || $this->getOldAttribute($name) !== $this->$name;
+        }
+
+        return !array_key_exists($name, $this->attributes)
+            || $this->getOldAttribute($name) !== $this->attributes[$name];
     }
 
     public function setAttribute(string $name, mixed $value): void
     {
         if ($this->hasAttribute($name)) {
-            if (
-                $this->hasDependentRelations($name)
-                && (!array_key_exists($name, $this->attributes) || $this->attributes[$name] !== $value)
-            ) {
-                $this->resetDependentRelations($name);
-            }
-            $this->attributes[$name] = $value;
+            $this->setAttributeInternal($name, $value);
         } else {
             throw new InvalidArgumentException(static::class . ' has no attribute named "' . $name . '".');
-        }
-    }
-
-    protected function populateAttribute(string $name, mixed $value): void
-    {
-        if (property_exists($this, $name)) {
-            $this->$name = $value;
-        } else {
-            $this->attributes[$name] = $value;
         }
     }
 
@@ -262,5 +263,25 @@ trait MagicPropertiesTrait
         return method_exists($this, 'set' . ucfirst($name))
             || ($checkVars && property_exists($this, $name))
             || $this->hasAttribute($name);
+    }
+
+    protected function populateAttribute(string $name, mixed $value): void
+    {
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+        } else {
+            $this->attributes[$name] = $value;
+        }
+    }
+
+    private function setAttributeInternal(string $name, mixed $value): void
+    {
+        if ($this->hasDependentRelations($name)
+            && ($value === null || $this->getAttribute($name) !== $value)
+        ) {
+            $this->resetDependentRelations($name);
+        }
+
+        $this->populateAttribute($name, $value);
     }
 }
