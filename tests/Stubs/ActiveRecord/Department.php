@@ -5,20 +5,32 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
  * Class Department
  *
  * @property int $id
  * @property string $title
- * @property Employee[] $employees
  */
 final class Department extends ActiveRecord
 {
+    protected int $id;
+    protected string $title;
+
     public function getTableName(): string
     {
         return 'department';
+    }
+
+    public function relationQuery(string $name): ActiveQueryInterface
+    {
+        return match ($name) {
+            'employees' => $this->getEmployeesQuery(),
+            default => parent::relationQuery($name),
+        };
     }
 
     public function getEmployeesQuery(): ActiveQuery
@@ -29,5 +41,10 @@ final class Department extends ActiveRecord
                 'department_id' => 'id',
             ]
         )->inverseOf('department');
+    }
+
+    public function getEmployees(): ActiveRecordInterface
+    {
+        return $this->relation('employees');
     }
 }

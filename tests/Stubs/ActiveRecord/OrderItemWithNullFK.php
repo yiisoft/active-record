@@ -9,13 +9,18 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 /**
  * Class OrderItem.
  *
- * @property int $order_id
- * @property int $item_id
+ * @property int|null $order_id
+ * @property int|null $item_id
  * @property int $quantity
- * @property string $subtotal
+ * @property float $subtotal
  */
 final class OrderItemWithNullFK extends ActiveRecord
 {
+    protected int|null $order_id;
+    protected int|null $item_id;
+    protected int $quantity;
+    protected float $subtotal;
+
     public function getTableName(): string
     {
         return 'order_item_with_null_fk';

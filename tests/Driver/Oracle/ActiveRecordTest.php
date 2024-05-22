@@ -102,22 +102,22 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $customer = new Customer($this->db);
 
-        $customer->name = 'boolean customer';
-        $customer->email = 'mail@example.com';
-        $customer->status = '1';
+        $customer->setName('boolean customer');
+        $customer->setEmail('mail@example.com');
+        $customer->setStatus(1);
 
         $customer->save();
         $customer->refresh();
-        $this->assertEquals('1', $customer->status);
+        $this->assertEquals(1, $customer->getStatus());
 
-        $customer->status = '0';
+        $customer->setStatus(0);
         $customer->save();
 
         $customer->refresh();
-        $this->assertEquals('0', $customer->status);
+        $this->assertEquals(0, $customer->getStatus());
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['status' => '1'])->all();
+        $customers = $customerQuery->where(['status' => 1])->all();
         $this->assertCount(2, $customers);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);

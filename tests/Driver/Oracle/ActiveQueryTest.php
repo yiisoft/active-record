@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
+use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\BitValues;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -62,9 +62,9 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         }
 
         $this->assertCount(3, $orders);
-        $this->assertEquals(2, $orders[0]->id);
-        $this->assertEquals(3, $orders[1]->id);
-        $this->assertEquals(1, $orders[2]->id);
+        $this->assertEquals(2, $orders[0]->getId());
+        $this->assertEquals(3, $orders[1]->getId());
+        $this->assertEquals(1, $orders[2]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
@@ -84,8 +84,8 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         }
 
         $this->assertCount(2, $orders);
-        $this->assertEquals(2, $orders[0]->id);
-        $this->assertEquals(3, $orders[1]->id);
+        $this->assertEquals(2, $orders[0]->getId());
+        $this->assertEquals(3, $orders[1]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
 
@@ -104,8 +104,8 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         }
 
         $this->assertCount(2, $orders);
-        $this->assertEquals(2, $orders[0]->id);
-        $this->assertEquals(3, $orders[1]->id);
+        $this->assertEquals(2, $orders[0]->getId());
+        $this->assertEquals(3, $orders[1]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('customer'));
         $this->assertFalse($orders[1]->isRelationPopulated('customer'));
 
@@ -128,10 +128,10 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         }
 
         $this->assertCount(2, $orders);
-        $this->assertCount(2, $orders[0]->books);
-        $this->assertCount(1, $orders[1]->books);
-        $this->assertEquals(1, $orders[0]->id);
-        $this->assertEquals(3, $orders[1]->id);
+        $this->assertCount(2, $orders[0]->getBooks());
+        $this->assertCount(1, $orders[1]->getBooks());
+        $this->assertEquals(1, $orders[0]->getId());
+        $this->assertEquals(3, $orders[1]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('books'));
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
@@ -171,11 +171,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         }
 
         $this->assertCount(1, $orders);
-        $this->assertCount(3, $orders[0]->items);
-        $this->assertEquals(2, $orders[0]->id);
-        $this->assertEquals(2, $orders[0]->items[0]->category->id);
+        $this->assertCount(3, $orders[0]->getItems());
+        $this->assertEquals(2, $orders[0]->getId());
+        $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($orders[0]->items[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
 
         /** join with ON condition */
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
@@ -185,12 +185,12 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders = $orderQuery->joinWith(["$relationName b"])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
-            $this->assertCount(2, $orders[0]->$relationName);
-            $this->assertCount(0, $orders[1]->$relationName);
-            $this->assertCount(1, $orders[2]->$relationName);
-            $this->assertEquals(1, $orders[0]->id);
-            $this->assertEquals(2, $orders[1]->id);
-            $this->assertEquals(3, $orders[2]->id);
+            $this->assertCount(2, $orders[0]->relation($relationName));
+            $this->assertCount(0, $orders[1]->relation($relationName));
+            $this->assertCount(1, $orders[2]->relation($relationName));
+            $this->assertEquals(1, $orders[0]->getId());
+            $this->assertEquals(2, $orders[1]->getId());
+            $this->assertEquals(3, $orders[2]->getId());
             $this->assertTrue($orders[0]->isRelationPopulated($relationName));
             $this->assertTrue($orders[1]->isRelationPopulated($relationName));
             $this->assertTrue($orders[2]->isRelationPopulated($relationName));
@@ -204,12 +204,12 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders = $orderQuery->joinWith([(string)$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
-            $this->assertCount(2, $orders[0]->$relationName);
-            $this->assertCount(0, $orders[1]->$relationName);
-            $this->assertCount(1, $orders[2]->$relationName);
-            $this->assertEquals(1, $orders[0]->id);
-            $this->assertEquals(2, $orders[1]->id);
-            $this->assertEquals(3, $orders[2]->id);
+            $this->assertCount(2, $orders[0]->relation($relationName));
+            $this->assertCount(0, $orders[1]->relation($relationName));
+            $this->assertCount(1, $orders[2]->relation($relationName));
+            $this->assertEquals(1, $orders[0]->getId());
+            $this->assertEquals(2, $orders[1]->getId());
+            $this->assertEquals(3, $orders[2]->getId());
             $this->assertTrue($orders[0]->isRelationPopulated($relationName));
             $this->assertTrue($orders[1]->isRelationPopulated($relationName));
             $this->assertTrue($orders[2]->isRelationPopulated($relationName));
@@ -246,7 +246,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->onePopulate();
         }
 
-        $this->assertEquals(1, $customer->id);
+        $this->assertEquals(1, $customer->getId());
         $this->assertNotNull($customer);
 
         /** join with sub-relation called inside Closure */
@@ -270,11 +270,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         )->orderBy('order.id')->all();
 
         $this->assertCount(1, $orders);
-        $this->assertCount(3, $orders[0]->items);
-        $this->assertEquals(2, $orders[0]->id);
-        $this->assertEquals(2, $orders[0]->items[0]->category->id);
+        $this->assertCount(3, $orders[0]->getItems());
+        $this->assertEquals(2, $orders[0]->getId());
+        $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($orders[0]->items[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
     }
 
     /**
@@ -299,7 +299,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders,
             $query->createCommand()->getRawSql() . print_r($orders, true)
         );
-        $this->assertEquals(2, $orders[0]->id);
+        $this->assertEquals(2, $orders[0]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('bookItems'));
         $this->assertFalse($orders[0]->isRelationPopulated('movieItems'));
 
@@ -312,9 +312,9 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders,
             $query->createCommand()->getRawSql() . print_r($orders, true)
         );
-        $this->assertCount(0, $orders[0]->bookItems);
-        $this->assertCount(3, $orders[0]->movieItems);
-        $this->assertEquals(2, $orders[0]->id);
+        $this->assertCount(0, $orders[0]->getBookItems());
+        $this->assertCount(3, $orders[0]->getMovieItems());
+        $this->assertEquals(2, $orders[0]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('bookItems'));
         $this->assertTrue($orders[0]->isRelationPopulated('movieItems'));
 
@@ -345,7 +345,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders,
             $query->createCommand()->getRawSql() . print_r($orders, true)
         );
-        $this->assertEquals(2, $orders[0]->id);
+        $this->assertEquals(2, $orders[0]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, only for one relation as it would be overwritten otherwise. */
@@ -369,8 +369,8 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             )->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
-        $this->assertCount(3, $orders[0]->itemsIndexed);
-        $this->assertEquals(2, $orders[0]->id);
+        $this->assertCount(3, $orders[0]->getItemsIndexed());
+        $this->assertEquals(2, $orders[0]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, and the other relation */
@@ -395,8 +395,8 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             ->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
-        $this->assertCount(0, $orders[0]->itemsIndexed);
-        $this->assertEquals(2, $orders[0]->id);
+        $this->assertCount(0, $orders[0]->getItemsIndexed());
+        $this->assertEquals(2, $orders[0]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
     }
 

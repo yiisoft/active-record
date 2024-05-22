@@ -8,18 +8,19 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class CustomerClosureField.
- *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $address
- * @property int $status
  */
 class CustomerForArrayable extends ActiveRecord
 {
     public array $items = [];
 
     public ?CustomerForArrayable $item = null;
+
+    protected int $id;
+    protected string $name;
+    protected string $email;
+    protected string $address;
+    protected int $status;
+    protected int|null $profile_id;
 
     public function getTableName(): string
     {

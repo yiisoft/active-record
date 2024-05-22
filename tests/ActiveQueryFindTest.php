@@ -101,7 +101,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
 
         $orders = $orderQuery->findOne(2);
-        $this->assertCount(0, $orders->books);
+        $this->assertCount(0, $orders->getBooks());
         $this->assertEquals(2, $orders->getAttribute('id'));
 
         $orders = $orderQuery->where(['id' => 1])->asArray()->one();
@@ -117,19 +117,19 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertCount(3, $orders);
 
         $order = $orders[0];
-        $this->assertCount(2, $order->books);
+        $this->assertCount(2, $order->getBooks());
         $this->assertEquals(1, $order->getAttribute('id'));
-        $this->assertEquals(1, $order->books[0]->getAttribute('id'));
-        $this->assertEquals(2, $order->books[1]->getAttribute('id'));
+        $this->assertEquals(1, $order->getBooks()[0]->getAttribute('id'));
+        $this->assertEquals(2, $order->getBooks()[1]->getAttribute('id'));
 
         $order = $orders[1];
-        $this->assertCount(0, $order->books);
+        $this->assertCount(0, $order->getBooks());
         $this->assertEquals(2, $order->getAttribute('id'));
 
         $order = $orders[2];
-        $this->assertCount(1, $order->books);
+        $this->assertCount(1, $order->getBooks());
         $this->assertEquals(3, $order->getAttribute('id'));
-        $this->assertEquals(2, $order->books[0]->getAttribute('id'));
+        $this->assertEquals(2, $order->getBooks()[0]->getAttribute('id'));
 
         /** https://github.com/yiisoft/yii2/issues/1402 */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -158,10 +158,10 @@ abstract class ActiveQueryFindTest extends TestCase
         /** @var $orderItems OrderItem */
         $orderItems = $orderItemQuery->findOne([1, 1]);
 
-        $orderItemNoJoin = $orderItems->orderItemCompositeNoJoin;
+        $orderItemNoJoin = $orderItems->getOrderItemCompositeNoJoin();
         $this->assertInstanceOf(OrderItem::class, $orderItemNoJoin);
 
-        $orderItemWithJoin = $orderItems->orderItemCompositeWithJoin;
+        $orderItemWithJoin = $orderItems->getOrderItemCompositeWithJoin();
         $this->assertInstanceOf(OrderItem::class, $orderItemWithJoin);
     }
 
@@ -172,13 +172,13 @@ abstract class ActiveQueryFindTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
 
         $orders = $orderQuery->findOne(1);
-        $customerNoJoin = $orders->customer;
+        $customerNoJoin = $orders->getCustomer();
         $this->assertInstanceOf(Customer::class, $customerNoJoin);
 
-        $customerWithJoin = $orders->customerJoinedWithProfile;
+        $customerWithJoin = $orders->getCustomerJoinedWithProfile();
         $this->assertInstanceOf(Customer::class, $customerWithJoin);
 
-        $customerWithJoinIndexOrdered = $orders->customerJoinedWithProfileIndexOrdered;
+        $customerWithJoinIndexOrdered = $orders->getCustomerJoinedWithProfileIndexOrdered();
         $this->assertArrayHasKey('user1', $customerWithJoinIndexOrdered);
         $this->assertInstanceOf(Customer::class, $customerWithJoinIndexOrdered['user1']);
         $this->assertIsArray($customerWithJoinIndexOrdered);
@@ -192,12 +192,12 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new CustomerQuery(Customer::class, $this->db);
 
         $arClass = $customer->findOne(['id' => 1]);
-        $this->assertEquals(1, $arClass->id);
+        $this->assertEquals(1, $arClass->getId());
 
         $customerQuery->joinWithProfile = true;
 
         $arClass = $customer->findOne(['customer.id' => 1]);
-        $this->assertEquals(1, $arClass->id);
+        $this->assertEquals(1, $arClass->getId());
 
         $customerQuery->joinWithProfile = false;
     }
@@ -225,7 +225,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->findOne(2);
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->name);
+        $this->assertEquals('user2', $customer->getName());
 
         $customer = $customerQuery->findOne(5);
         $this->assertNull($customer);
@@ -241,7 +241,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->findOne(['id' => 2, 'name' => 'user2']);
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->name);
+        $this->assertEquals('user2', $customer->getName());
 
         $customer = $customerQuery->findOne(['id' => 2, 'name' => 'user1']);
         $this->assertNull($customer);
@@ -256,7 +256,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->where(['name' => 'user2'])->onePopulate();
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals(2, $customer->id);
+        $this->assertEquals(2, $customer->getId());
 
         /** scope */
         $customerQuery = new CustomerQuery(Customer::class, $this->db);
@@ -317,7 +317,10 @@ abstract class ActiveQueryFindTest extends TestCase
         /** indexBy callable */
         $customer = new ActiveQuery(Customer::class, $this->db);
 
-        $customers = $customer->indexBy(fn (Customer $customer) => $customer->id . '-' . $customer->name)->orderBy('id')->all();
+        $customers = $customer
+            ->indexBy(fn (Customer $customer) => $customer->getId() . '-' . $customer->getName())
+            ->orderBy('id')
+            ->all();
 
         $this->assertCount(3, $customers);
         $this->assertInstanceOf(Customer::class, $customers['1-user1']);
@@ -394,7 +397,7 @@ abstract class ActiveQueryFindTest extends TestCase
         /** one */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->orderBy('id')->onePopulate();
-        $this->assertEquals('user1', $customer->name);
+        $this->assertEquals('user1', $customer->getName());
 
         /** all */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
@@ -405,20 +408,20 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customers = $customerQuery->orderBy('id')->limit(1)->allPopulate();
         $this->assertCount(1, $customers);
-        $this->assertEquals('user1', $customers[0]->name);
+        $this->assertEquals('user1', $customers[0]->getName());
 
         $customers = $customerQuery->orderBy('id')->limit(1)->offset(1)->allPopulate();
         $this->assertCount(1, $customers);
-        $this->assertEquals('user2', $customers[0]->name);
+        $this->assertEquals('user2', $customers[0]->getName());
 
         $customers = $customerQuery->orderBy('id')->limit(1)->offset(2)->allPopulate();
         $this->assertCount(1, $customers);
-        $this->assertEquals('user3', $customers[0]->name);
+        $this->assertEquals('user3', $customers[0]->getName());
 
         $customers = $customerQuery->orderBy('id')->limit(2)->offset(1)->allPopulate();
         $this->assertCount(2, $customers);
-        $this->assertEquals('user2', $customers[0]->name);
-        $this->assertEquals('user3', $customers[1]->name);
+        $this->assertEquals('user2', $customers[0]->getName());
+        $this->assertEquals('user3', $customers[1]->getName());
 
         $customers = $customerQuery->limit(2)->offset(3)->allPopulate();
         $this->assertCount(0, $customers);
@@ -426,13 +429,13 @@ abstract class ActiveQueryFindTest extends TestCase
         /** offset */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->orderBy('id')->offset(0)->onePopulate();
-        $this->assertEquals('user1', $customer->name);
+        $this->assertEquals('user1', $customer->getName());
 
         $customer = $customerQuery->orderBy('id')->offset(1)->onePopulate();
-        $this->assertEquals('user2', $customer->name);
+        $this->assertEquals('user2', $customer->getName());
 
         $customer = $customerQuery->orderBy('id')->offset(2)->onePopulate();
-        $this->assertEquals('user3', $customer->name);
+        $this->assertEquals('user3', $customer->getName());
 
         $customer = $customerQuery->offset(3)->onePopulate();
         $this->assertNull($customer);
@@ -482,12 +485,12 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
         $customer = $customerQuery->findOne(2);
-        $customer->name = null;
+        $customer->setName(null);
         $customer->save();
 
         $result = $customerQuery->where(['name' => null])->all();
         $this->assertCount(1, $result);
-        $this->assertEquals(2, reset($result)->primaryKey);
+        $this->assertEquals(2, reset($result)->getPrimaryKey());
     }
 
     public function testFindEager(): void
@@ -502,17 +505,17 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertTrue($customers[1]->isRelationPopulated('orders'));
         $this->assertTrue($customers[2]->isRelationPopulated('orders'));
         $this->assertTrue($customers[3]->isRelationPopulated('orders'));
-        $this->assertCount(1, $customers[1]->orders);
-        $this->assertCount(2, $customers[2]->orders);
-        $this->assertCount(0, $customers[3]->orders);
+        $this->assertCount(1, $customers[1]->getOrders());
+        $this->assertCount(2, $customers[2]->getOrders());
+        $this->assertCount(0, $customers[3]->getOrders());
 
-        unset($customers[1]->orders);
+        $customers[1]->resetRelation('orders');
         $this->assertFalse($customers[1]->isRelationPopulated('orders'));
 
         $customer = $customerQuery->where(['id' => 1])->with('orders')->onePopulate();
         $this->assertTrue($customer->isRelationPopulated('orders'));
-        $this->assertCount(1, $customer->orders);
-        $this->assertCount(1, $customer->relatedRecords);
+        $this->assertCount(1, $customer->getOrders());
+        $this->assertCount(1, $customer->getRelatedRecords());
 
         /** multiple with() calls */
         $orderQuery = new ActiveQuery(Order::class, $this->db);
@@ -536,11 +539,11 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertCount(3, $orders);
 
         $order = $orders[0];
-        $this->assertEquals(1, $order->id);
+        $this->assertEquals(1, $order->getId());
         $this->assertTrue($order->isRelationPopulated('items'));
-        $this->assertCount(2, $order->items);
-        $this->assertEquals(1, $order->items[0]->id);
-        $this->assertEquals(2, $order->items[1]->id);
+        $this->assertCount(2, $order->getItems());
+        $this->assertEquals(1, $order->getItems()[0]->getId());
+        $this->assertEquals(2, $order->getItems()[1]->getId());
     }
 
     public function testFindNestedRelation(): void
@@ -555,23 +558,23 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertTrue($customers[1]->isRelationPopulated('orders'));
         $this->assertTrue($customers[2]->isRelationPopulated('orders'));
         $this->assertTrue($customers[3]->isRelationPopulated('orders'));
-        $this->assertCount(1, $customers[1]->orders);
-        $this->assertCount(2, $customers[2]->orders);
-        $this->assertCount(0, $customers[3]->orders);
-        $this->assertTrue($customers[1]->orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($customers[2]->orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($customers[2]->orders[1]->isRelationPopulated('items'));
-        $this->assertCount(2, $customers[1]->orders[0]->items);
-        $this->assertCount(3, $customers[2]->orders[0]->items);
-        $this->assertCount(1, $customers[2]->orders[1]->items);
+        $this->assertCount(1, $customers[1]->getOrders());
+        $this->assertCount(2, $customers[2]->getOrders());
+        $this->assertCount(0, $customers[3]->getOrders());
+        $this->assertTrue($customers[1]->getOrders()[0]->isRelationPopulated('items'));
+        $this->assertTrue($customers[2]->getOrders()[0]->isRelationPopulated('items'));
+        $this->assertTrue($customers[2]->getOrders()[1]->isRelationPopulated('items'));
+        $this->assertCount(2, $customers[1]->getOrders()[0]->getItems());
+        $this->assertCount(3, $customers[2]->getOrders()[0]->getItems());
+        $this->assertCount(1, $customers[2]->getOrders()[1]->getItems());
 
         $customers = $customerQuery->where(['id' => 1])->with('ordersWithItems')->onePopulate();
         $this->assertTrue($customers->isRelationPopulated('ordersWithItems'));
-        $this->assertCount(1, $customers->ordersWithItems);
+        $this->assertCount(1, $customers->getOrdersWithItems());
 
-        $order = $customers->ordersWithItems[0];
+        $order = $customers->getOrdersWithItems()[0];
         $this->assertTrue($order->isRelationPopulated('orderItems'));
-        $this->assertCount(2, $order->orderItems);
+        $this->assertCount(2, $order->getOrderItems());
     }
 
     /**
@@ -588,25 +591,25 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertCount(3, $orders);
 
         $order = $orders[0];
-        $this->assertEquals(1, $order->id);
+        $this->assertEquals(1, $order->getId());
         $this->assertTrue($order->isRelationPopulated('itemsInOrder1'));
-        $this->assertCount(2, $order->itemsInOrder1);
-        $this->assertEquals(1, $order->itemsInOrder1[0]->id);
-        $this->assertEquals(2, $order->itemsInOrder1[1]->id);
+        $this->assertCount(2, $order->getItemsInOrder1());
+        $this->assertEquals(1, $order->getItemsInOrder1()[0]->getId());
+        $this->assertEquals(2, $order->getItemsInOrder1()[1]->getId());
 
         $order = $orders[1];
-        $this->assertEquals(2, $order->id);
+        $this->assertEquals(2, $order->getId());
         $this->assertTrue($order->isRelationPopulated('itemsInOrder1'));
-        $this->assertCount(3, $order->itemsInOrder1);
-        $this->assertEquals(5, $order->itemsInOrder1[0]->id);
-        $this->assertEquals(3, $order->itemsInOrder1[1]->id);
-        $this->assertEquals(4, $order->itemsInOrder1[2]->id);
+        $this->assertCount(3, $order->getItemsInOrder1());
+        $this->assertEquals(5, $order->getItemsInOrder1()[0]->getId());
+        $this->assertEquals(3, $order->getItemsInOrder1()[1]->getId());
+        $this->assertEquals(4, $order->getItemsInOrder1()[2]->getId());
 
         $order = $orders[2];
-        $this->assertEquals(3, $order->id);
+        $this->assertEquals(3, $order->getId());
         $this->assertTrue($order->isRelationPopulated('itemsInOrder1'));
-        $this->assertCount(1, $order->itemsInOrder1);
-        $this->assertEquals(2, $order->itemsInOrder1[0]->id);
+        $this->assertCount(1, $order->getItemsInOrder1());
+        $this->assertEquals(2, $order->getItemsInOrder1()[0]->getId());
     }
 
     public function testFindEagerViaRelationPreserveOrderB(): void
@@ -619,25 +622,25 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertCount(3, $orders);
 
         $order = $orders[0];
-        $this->assertEquals(1, $order->id);
+        $this->assertEquals(1, $order->getId());
         $this->assertTrue($order->isRelationPopulated('itemsInOrder2'));
-        $this->assertCount(2, $order->itemsInOrder2);
-        $this->assertEquals(1, $order->itemsInOrder2[0]->id);
-        $this->assertEquals(2, $order->itemsInOrder2[1]->id);
+        $this->assertCount(2, $order->getItemsInOrder2());
+        $this->assertEquals(1, $order->getItemsInOrder2()[0]->getId());
+        $this->assertEquals(2, $order->getItemsInOrder2()[1]->getId());
 
         $order = $orders[1];
-        $this->assertEquals(2, $order->id);
+        $this->assertEquals(2, $order->getId());
         $this->assertTrue($order->isRelationPopulated('itemsInOrder2'));
-        $this->assertCount(3, $order->itemsInOrder2);
-        $this->assertEquals(5, $order->itemsInOrder2[0]->id);
-        $this->assertEquals(3, $order->itemsInOrder2[1]->id);
-        $this->assertEquals(4, $order->itemsInOrder2[2]->id);
+        $this->assertCount(3, $order->getItemsInOrder2());
+        $this->assertEquals(5, $order->getItemsInOrder2()[0]->getId());
+        $this->assertEquals(3, $order->getItemsInOrder2()[1]->getId());
+        $this->assertEquals(4, $order->getItemsInOrder2()[2]->getId());
 
         $order = $orders[2];
-        $this->assertEquals(3, $order->id);
+        $this->assertEquals(3, $order->getId());
         $this->assertTrue($order->isRelationPopulated('itemsInOrder2'));
-        $this->assertCount(1, $order->itemsInOrder2);
-        $this->assertEquals(2, $order->itemsInOrder2[0]->id);
+        $this->assertCount(1, $order->getItemsInOrder2());
+        $this->assertEquals(2, $order->getItemsInOrder2()[0]->getId());
     }
 
     public function testFindEmptyInCondition(): void
@@ -666,7 +669,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $order = $orderQuery->with('itemsIndexed')->where(['id' => 1])->onePopulate();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
 
-        $items = $order->itemsIndexed;
+        $items = $order->getItemsIndexed();
         $this->assertCount(2, $items);
         $this->assertTrue(isset($items[1]));
         $this->assertTrue(isset($items[2]));
@@ -674,7 +677,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $order = $orderQuery->with('itemsIndexed')->where(['id' => 2])->onePopulate();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
 
-        $items = $order->itemsIndexed;
+        $items = $order->getItemsIndexed();
         $this->assertCount(3, $items);
         $this->assertTrue(isset($items[3]));
         $this->assertTrue(isset($items[4]));
@@ -689,12 +692,12 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer = $customerQuery->findOne(2);
         $this->assertFalse($customer->isRelationPopulated('orders'));
 
-        $orders = $customer->orders;
+        $orders = $customer->getOrders();
         $this->assertTrue($customer->isRelationPopulated('orders'));
         $this->assertCount(2, $orders);
-        $this->assertCount(1, $customer->relatedRecords);
+        $this->assertCount(1, $customer->getRelatedRecords());
 
-        unset($customer['orders']);
+        $customer->resetRelation('orders');
         $this->assertFalse($customer->isRelationPopulated('orders'));
 
         $customer = $customerQuery->findOne(2);
@@ -702,9 +705,9 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $orders = $customer->getOrdersQuery()->where(['id' => 3])->all();
         $this->assertFalse($customer->isRelationPopulated('orders'));
-        $this->assertCount(0, $customer->relatedRecords);
+        $this->assertCount(0, $customer->getRelatedRecords());
         $this->assertCount(1, $orders);
-        $this->assertEquals(3, $orders[0]->id);
+        $this->assertEquals(3, $orders[0]->getId());
     }
 
     public function testFindLazyVia(): void
@@ -714,9 +717,9 @@ abstract class ActiveQueryFindTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
 
-        $this->assertEquals(1, $order->id);
-        $this->assertCount(2, $order->items);
-        $this->assertEquals(1, $order->items[0]->id);
-        $this->assertEquals(2, $order->items[1]->id);
+        $this->assertEquals(1, $order->getId());
+        $this->assertCount(2, $order->getItems());
+        $this->assertEquals(1, $order->getItems()[0]->getId());
+        $this->assertEquals(2, $order->getItems()[1]->getId());
     }
 }

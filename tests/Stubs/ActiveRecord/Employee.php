@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
@@ -15,19 +16,36 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property string $first_name
  * @property string $last_name
  * @property string $fullName
- * @property Department $department
- * @property Dossier $dossier
  */
 final class Employee extends ActiveRecord
 {
+    protected int $id;
+    protected int $department_id;
+    protected string $first_name;
+    protected string $last_name;
+
     public function getTableName(): string
     {
         return 'employee';
     }
 
+    public function relationQuery(string $name): ActiveQueryInterface
+    {
+        return match ($name) {
+            'department' => $this->getDepartmentQuery(),
+            'dossier' => $this->getDossierQuery(),
+            default => parent::relationQuery($name),
+        };
+    }
+
     public function getFullName(): string
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+
+    public function getDepartment(): Department
+    {
+        return $this->relation('department');
     }
 
     public function getDepartmentQuery(): ActiveQuery
@@ -38,6 +56,11 @@ final class Employee extends ActiveRecord
             ])
             ->inverseOf('employees')
         ;
+    }
+
+    public function getDossier(): Dossier
+    {
+        return $this->relation('dossier');
     }
 
     public function getDossierQuery(): ActiveQuery

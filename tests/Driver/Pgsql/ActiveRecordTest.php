@@ -44,15 +44,15 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->checkFixture($this->db, 'customer');
 
         $customer = new Customer($this->db);
-        $customer->id = 1337;
-        $customer->email = 'user1337@example.com';
-        $customer->name = 'user1337';
-        $customer->address = 'address1337';
-        $this->assertTrue($customer->isNewRecord);
+        $customer->setId(1337);
+        $customer->setEmail('user1337@example.com');
+        $customer->setName('user1337');
+        $customer->setAddress('address1337');
+        $this->assertTrue($customer->getIsNewRecord());
 
         $customer->save();
-        $this->assertEquals(1337, $customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertEquals(1337, $customer->getId());
+        $this->assertFalse($customer->getIsNewRecord());
     }
 
     /**
@@ -70,9 +70,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         /** @var Beta[] $betas */
         foreach ($betas as $beta) {
-            $this->assertNotNull($beta->alpha);
-            $this->assertEquals($beta->alpha_string_identifier, $beta->alpha->string_identifier);
-            $alphaIdentifiers[] = $beta->alpha->string_identifier;
+            $this->assertNotNull($beta->getAlpha());
+            $this->assertEquals($beta->getAlphaStringIdentifier(), $beta->getAlpha()->getStringIdentifier());
+            $alphaIdentifiers[] = $beta->getAlpha()->getStringIdentifier();
         }
 
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
@@ -83,19 +83,19 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->checkFixture($this->db, 'customer', true);
 
         $customer = new Customer($this->db);
-        $customer->name = 'boolean customer';
-        $customer->email = 'mail@example.com';
-        $customer->bool_status = false;
+        $customer->setName('boolean customer');
+        $customer->setEmail('mail@example.com');
+        $customer->setBoolStatus(false);
         $customer->save();
 
         $customer->refresh();
-        $this->assertFalse($customer->bool_status);
+        $this->assertFalse($customer->getBoolStatus());
 
-        $customer->bool_status = true;
+        $customer->setBoolStatus(true);
 
         $customer->save();
         $customer->refresh();
-        $this->assertTrue($customer->bool_status);
+        $this->assertTrue($customer->getBoolStatus());
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customers = $customerQuery->where(['bool_status' => true])->all();
@@ -177,8 +177,8 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass = new BoolAR($this->db);
 
         $this->assertNull($arClass->bool_col);
-        $this->assertNull($arClass->default_true);
-        $this->assertNull($arClass->default_false);
+        $this->assertTrue($arClass->default_true);
+        $this->assertFalse($arClass->default_false);
 
         $arClass->loadDefaultValues();
 
@@ -198,7 +198,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $record->save();
 
-        $this->assertEquals(5, $record->primaryKey);
+        $this->assertEquals(5, $record->getPrimaryKey());
     }
 
     public static function arrayValuesProvider(): array
@@ -303,7 +303,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $type = new ArrayAndJsonTypes($this->db);
 
         foreach ($attributes as $attribute => $expected) {
-            $type->$attribute = $expected[0];
+            $type->setAttribute($attribute, $expected[0]);
         }
 
         $type->save();
@@ -314,7 +314,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         foreach ($attributes as $attribute => $expected) {
             $expected = $expected[1] ?? $expected[0];
-            $value = $type->$attribute;
+            $value = $type->getAttribute($attribute);
 
             if ($expected instanceof ArrayExpression) {
                 $expected = $expected->getValue();
@@ -326,7 +326,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 $this->assertInstanceOf(ArrayAccess::class, $value);
                 $this->assertInstanceOf(Traversable::class, $value);
                 /** testing arrayaccess */
-                foreach ($type->$attribute as $key => $v) {
+                foreach ($type->getAttribute($attribute) as $key => $v) {
                     $this->assertSame($expected[$key], $value[$key]);
                 }
             }

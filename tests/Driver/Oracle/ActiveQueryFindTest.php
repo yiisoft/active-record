@@ -40,17 +40,17 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $this->assertTrue($customers[1]->isRelationPopulated('orders'));
         $this->assertTrue($customers[2]->isRelationPopulated('orders'));
         $this->assertTrue($customers[3]->isRelationPopulated('orders'));
-        $this->assertCount(1, $customers[1]->orders);
-        $this->assertCount(2, $customers[2]->orders);
-        $this->assertCount(0, $customers[3]->orders);
+        $this->assertCount(1, $customers[1]->getOrders());
+        $this->assertCount(2, $customers[2]->getOrders());
+        $this->assertCount(0, $customers[3]->getOrders());
 
-        unset($customers[1]->orders);
+        $customers[1]->resetRelation('orders');
         $this->assertFalse($customers[1]->isRelationPopulated('orders'));
 
         $customer = $customerQuery->where(['id' => 1])->with('orders')->onePopulate();
         $this->assertTrue($customer->isRelationPopulated('orders'));
-        $this->assertCount(1, $customer->orders);
-        $this->assertCount(1, $customer->relatedRecords);
+        $this->assertCount(1, $customer->getOrders());
+        $this->assertCount(1, $customer->getRelatedRecords());
 
         /** multiple with() calls */
         $orderQuery = new ActiveQuery(Order::class, $this->db);

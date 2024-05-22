@@ -9,12 +9,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 /**
  * Class Customer.
  *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $address
- * @property int $status
- *
  * @method CustomerQuery findBySql($sql, $params = []) static
  */
 final class CustomerWithAlias extends ActiveRecord
@@ -24,6 +18,13 @@ final class CustomerWithAlias extends ActiveRecord
 
     public int $status2;
     public float $sumTotal;
+
+    public int $id;
+    public string $name;
+    public string $email;
+    public string $address;
+    public int $status;
+    public int|null $profile_id;
 
     public function getTableName(): string
     {

@@ -131,9 +131,9 @@ abstract class BatchQueryResultTest extends TestCase
         }
 
         $this->assertCount(3, $customers);
-        $this->assertCount(1, $customers[0]->orders);
-        $this->assertCount(2, $customers[1]->orders);
-        $this->assertCount(0, $customers[2]->orders);
+        $this->assertCount(1, $customers[0]->getOrders());
+        $this->assertCount(2, $customers[1]->getOrders());
+        $this->assertCount(0, $customers[2]->getOrders());
     }
 
     public function testBatchWithIndexBy(): void
@@ -147,9 +147,9 @@ abstract class BatchQueryResultTest extends TestCase
         $customers = $this->getAllRowsFromBatch($query->batch(2));
 
         $this->assertCount(3, $customers);
-        $this->assertEquals('user1', $customers[0]->name);
-        $this->assertEquals('user2', $customers[1]->name);
-        $this->assertEquals('user3', $customers[2]->name);
+        $this->assertEquals('user1', $customers[0]->getName());
+        $this->assertEquals('user2', $customers[1]->getName());
+        $this->assertEquals('user3', $customers[2]->getName());
     }
 
     protected function getAllRowsFromBatch(BatchQueryResultInterface $batch): array

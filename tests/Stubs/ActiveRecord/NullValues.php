@@ -17,6 +17,12 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class NullValues extends ActiveRecord
 {
+    public int $id;
+    public int|null $var1 = null;
+    public int|null $var2 = null;
+    public int|null $var3 = null;
+    public string|null $stringcol = null;
+
     public function getTableName(): string
     {
         return 'null_values';

@@ -87,6 +87,6 @@ abstract class ActiveRecordFactoryTest extends TestCase
         $query = $this->arFactory->createQueryTo(CustomerWithConstructor::class);
         $customer = $query->onePopulate();
 
-        $this->assertNotNull($customer->profile);
+        $this->assertNotNull($customer->getProfile());
     }
 }

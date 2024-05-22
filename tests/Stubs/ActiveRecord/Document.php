@@ -15,6 +15,12 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Document extends ActiveRecord
 {
+    public int $id;
+    public string $title;
+    public string $content;
+    public int $version;
+    public array $properties;
+
     public function optimisticLock(): ?string
     {
         return 'version';

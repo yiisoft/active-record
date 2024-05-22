@@ -18,6 +18,9 @@ class Animal extends ActiveRecord
 {
     private string $does;
 
+    protected int $id;
+    protected string $type;
+
     public function getTableName(): string
     {
         return 'animal';
