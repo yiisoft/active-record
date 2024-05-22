@@ -16,7 +16,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Category extends ActiveRecord
 {
-    protected int|null $id = null;
+    protected int|null $id;
     protected string $name;
 
     public function getTableName(): string

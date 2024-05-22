@@ -20,7 +20,7 @@ class Order extends ActiveRecord
 {
     public const TABLE_NAME = 'order';
 
-    protected int|null $id = null;
+    protected int|null $id;
     protected int $customer_id;
     protected int $created_at;
     protected float $total;
