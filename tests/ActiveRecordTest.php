@@ -882,11 +882,8 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertSame(
             [
-                'name' => null,
-                'address' => null,
                 'status' => 0,
                 'bool_status' => false,
-                'profile_id' => null,
             ],
             $customer->getDirtyAttributes()
         );
@@ -904,7 +901,6 @@ abstract class ActiveRecordTest extends TestCase
                 'address' => null,
                 'status' => 0,
                 'bool_status' => false,
-                'profile_id' => null,
             ],
             $customer->getDirtyAttributes()
         );

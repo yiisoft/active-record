@@ -17,11 +17,11 @@ class CustomerForArrayable extends ActiveRecord
 
     protected int $id;
     protected string $email;
-    protected string|null $name = null;
-    protected string|null $address = null;
+    protected string|null $name;
+    protected string|null $address;
     protected int|null $status = 0;
     protected bool|string|null $bool_status = false;
-    protected int|null $profile_id = null;
+    protected int|null $profile_id;
 
     public function getTableName(): string
     {
