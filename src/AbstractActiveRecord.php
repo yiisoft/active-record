@@ -54,10 +54,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Returns the public and protected member variables of an Active Record object.
+     * Returns the public and protected property values of an Active Record object.
      *
      * This method is provided because a direct call of {@see get_object_vars()} within the {@see AbstractActiveRecord}
-     * class will return also private property variables.
+     * class will return also private property values of {@see AbstractActiveRecord} class.
      *
      * @param ActiveRecordInterface $object
      *
