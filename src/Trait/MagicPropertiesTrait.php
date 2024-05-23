@@ -128,7 +128,7 @@ trait MagicPropertiesTrait
         if ($this->hasAttribute($name)) {
             unset($this->attributes[$name]);
 
-            if (property_exists($this, $name)) {
+            if ($name !== 'attributes' && isset(get_object_vars($this)[$name])) {
                 $this->$name = null;
             }
 
@@ -173,7 +173,7 @@ trait MagicPropertiesTrait
 
     public function getAttribute(string $name): mixed
     {
-        if (property_exists($this, $name)) {
+        if ($name !== 'attributes' && property_exists($this, $name)) {
             return get_object_vars($this)[$name] ?? null;
         }
 
@@ -266,7 +266,7 @@ trait MagicPropertiesTrait
 
     protected function populateAttribute(string $name, mixed $value): void
     {
-        if (property_exists($this, $name)) {
+        if ($name !== 'attributes' && property_exists($this, $name)) {
             $this->$name = $value;
         } else {
             $this->attributes[$name] = $value;
