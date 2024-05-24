@@ -8,11 +8,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class OrderItem.
- *
- * @property int|null $order_id
- * @property int|null $item_id
- * @property int $quantity
- * @property float $subtotal
  */
 final class OrderItemWithNullFK extends ActiveRecord
 {

@@ -9,21 +9,6 @@ use Yiisoft\Db\Expression\Expression;
 
 /**
  * Model representing type table.
- *
- * @property int $int_col
- * @property int|null $int_col2 DEFAULT 1
- * @property int|null $tinyint_col DEFAULT 1
- * @property int|null $smallint_col DEFAULT 1
- * @property string $char_col
- * @property string|null $char_col2 DEFAULT 'something'
- * @property string|null $char_col3
- * @property float $float_col
- * @property float|null $float_col2 DEFAULT '1.23'
- * @property string|null $blob_col
- * @property float|null $numeric_col DEFAULT '33.22'
- * @property string $time DEFAULT '2002-01-01 00:00:00'
- * @property bool $bool_col
- * @property bool|null $bool_col2 DEFAULT 1
  */
 class Type extends ActiveRecord
 {

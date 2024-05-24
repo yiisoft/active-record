@@ -8,10 +8,6 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-/**
- * @property int $id
- * @property string $string_identifier
- */
 final class Alpha extends ActiveRecord
 {
     public const TABLE_NAME = 'alpha';

@@ -10,11 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Dossier
- *
- * @property int $id
- * @property int $department_id
- * @property int $employee_id
- * @property string $summary
  */
 final class Dossier extends ActiveRecord
 {

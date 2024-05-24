@@ -10,11 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Order.
- *
- * @property int $id
- * @property int $customer_id
- * @property int $created_at
- * @property float $total
  */
 class Order extends ActiveRecord
 {

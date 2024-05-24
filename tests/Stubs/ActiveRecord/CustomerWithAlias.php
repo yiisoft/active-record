@@ -8,8 +8,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Customer.
- *
- * @method CustomerQuery findBySql($sql, $params = []) static
  */
 final class CustomerWithAlias extends ActiveRecord
 {

@@ -10,11 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class OrderItem.
- *
- * @property int $order_id
- * @property int $item_id
- * @property int $quantity
- * @property float $subtotal
  */
 final class OrderItem extends ActiveRecord
 {

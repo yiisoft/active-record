@@ -8,9 +8,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class TestTriggerAlert.
- *
- * @property int $id
- * @property string $stringcol
  */
 final class TestTriggerAlert extends ActiveRecord
 {

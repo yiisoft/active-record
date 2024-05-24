@@ -8,11 +8,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Order.
- *
- * @property int $id
- * @property int|null $customer_id
- * @property int $created_at
- * @property float $total
  */
 final class OrderWithNullFK extends ActiveRecord
 {

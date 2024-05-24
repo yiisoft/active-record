@@ -10,9 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Category.
- *
- * @property int $id
- * @property string $name
  */
 final class Category extends ActiveRecord
 {

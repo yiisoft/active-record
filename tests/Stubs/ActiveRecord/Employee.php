@@ -10,12 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Employee
- *
- * @property int $id
- * @property int $department_id
- * @property string $first_name
- * @property string $last_name
- * @property string $fullName
  */
 final class Employee extends ActiveRecord
 {

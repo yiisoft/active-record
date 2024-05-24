@@ -8,9 +8,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Profile.
- *
- * @property int $id
- * @property string $description
  */
 final class Profile extends ActiveRecord
 {

@@ -8,11 +8,6 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-/**
- * @property int $id
- * @property string $alpha_string_identifier
- * @property Alpha $alpha
- */
 final class Beta extends ActiveRecord
 {
     protected int $id;

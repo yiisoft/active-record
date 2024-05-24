@@ -10,9 +10,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * Class Animal.
- *
- * @property int $id
- * @property string $type
  */
 class Animal extends ActiveRecord
 {

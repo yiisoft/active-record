@@ -10,9 +10,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * Class Profile.
- *
- * @property int $id
- * @property string $description
  */
 final class ProfileWithConstructor extends ActiveRecord
 {

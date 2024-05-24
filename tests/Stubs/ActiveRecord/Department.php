@@ -11,9 +11,6 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
  * Class Department
- *
- * @property int $id
- * @property string $title
  */
 final class Department extends ActiveRecord
 {
@@ -33,6 +30,11 @@ final class Department extends ActiveRecord
         };
     }
 
+    public function getEmployees(): ActiveRecordInterface
+    {
+        return $this->relation('employees');
+    }
+
     public function getEmployeesQuery(): ActiveQuery
     {
         return $this->hasMany(
@@ -41,10 +43,5 @@ final class Department extends ActiveRecord
                 'department_id' => 'id',
             ]
         )->inverseOf('department');
-    }
-
-    public function getEmployees(): ActiveRecordInterface
-    {
-        return $this->relation('employees');
     }
 }
