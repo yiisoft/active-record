@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 
 /**
  * @property int $id
  * @property string $string_identifier
  */
-final class Alpha extends MagicActiveRecord
+final class Alpha extends MagicalActiveRecord
 {
     public const TABLE_NAME = 'alpha';
 

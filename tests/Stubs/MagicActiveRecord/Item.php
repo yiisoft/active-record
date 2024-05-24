@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 
 /**
  * Class Item.
@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\MagicActiveRecord;
  * @property string $name
  * @property int $category_id
  */
-final class Item extends MagicActiveRecord
+final class Item extends MagicalActiveRecord
 {
     public function getTableName(): string
     {

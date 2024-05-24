@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 
 /**
  * Class NullValues.
@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\MagicActiveRecord;
  * @property int $var3
  * @property string $stringcol
  */
-final class NullValues extends MagicActiveRecord
+final class NullValues extends MagicalActiveRecord
 {
     public function getTableName(): string
     {

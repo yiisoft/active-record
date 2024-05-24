@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 
 /**
  * {@see https://github.com/yiisoft/yii2/issues/9006}
@@ -12,6 +12,6 @@ use Yiisoft\ActiveRecord\MagicActiveRecord;
  * @property int $id
  * @property int $val
  */
-final class BitValues extends MagicActiveRecord
+final class BitValues extends MagicalActiveRecord
 {
 }

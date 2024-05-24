@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 
-final class UserAR extends MagicActiveRecord
+final class UserAR extends MagicalActiveRecord
 {
     public const STATUS_DELETED = 0;
     public const STATUS_ACTIVE = 10;

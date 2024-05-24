@@ -29,7 +29,7 @@ use Yiisoft\Arrays\ArrayableInterface;
  *
  * @see BaseActiveRecord for more information.
  */
-class MagicActiveRecord extends BaseActiveRecord implements
+class MagicalActiveRecord extends BaseActiveRecord implements
     ArrayableInterface,
     ArrayAccess,
     IteratorAggregate,

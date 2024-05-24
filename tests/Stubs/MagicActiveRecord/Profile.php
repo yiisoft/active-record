@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 
 /**
  * Class Profile.
@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\MagicActiveRecord;
  * @property int $id
  * @property string $description
  */
-final class Profile extends MagicActiveRecord
+final class Profile extends MagicalActiveRecord
 {
     public const TABLE_NAME = 'profile';
 

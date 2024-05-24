@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 
 /**
  * @property int $id
@@ -13,7 +13,7 @@ use Yiisoft\ActiveRecord\MagicActiveRecord;
  * @property int $version
  * @property array $properties
  */
-final class Document extends MagicActiveRecord
+final class Document extends MagicalActiveRecord
 {
     public function optimisticLock(): ?string
     {

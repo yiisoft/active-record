@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicActiveRecord;
+use Yiisoft\ActiveRecord\MagicalActiveRecord;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
@@ -14,7 +14,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  * @property int $id
  * @property string $type
  */
-class Animal extends MagicActiveRecord
+class Animal extends MagicalActiveRecord
 {
     private string $does;
 
