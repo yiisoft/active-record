@@ -38,9 +38,9 @@ abstract class BatchQueryResultTest extends TestCase
         }
 
         $this->assertCount(3, $allRows);
-        $this->assertEquals('user1', $allRows[0]['name']);
-        $this->assertEquals('user2', $allRows[1]['name']);
-        $this->assertEquals('user3', $allRows[2]['name']);
+        $this->assertEquals('user1', $allRows[0]->getName());
+        $this->assertEquals('user2', $allRows[1]->getName());
+        $this->assertEquals('user3', $allRows[2]->getName());
 
         /** rewind */
         $allRows = [];
@@ -79,9 +79,9 @@ abstract class BatchQueryResultTest extends TestCase
         }
 
         $this->assertCount(3, $allRows);
-        $this->assertEquals('address1', $allRows['user1']['address']);
-        $this->assertEquals('address2', $allRows['user2']['address']);
-        $this->assertEquals('address3', $allRows['user3']['address']);
+        $this->assertEquals('address1', $allRows['user1']->getAddress());
+        $this->assertEquals('address2', $allRows['user2']->getAddress());
+        $this->assertEquals('address3', $allRows['user3']->getAddress());
 
         /** each */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
@@ -94,9 +94,9 @@ abstract class BatchQueryResultTest extends TestCase
             $allRows[$index] = $row;
         }
         $this->assertCount(3, $allRows);
-        $this->assertEquals('user1', $allRows[0]['name']);
-        $this->assertEquals('user2', $allRows[1]['name']);
-        $this->assertEquals('user3', $allRows[2]['name']);
+        $this->assertEquals('user1', $allRows[0]->getName());
+        $this->assertEquals('user2', $allRows[1]->getName());
+        $this->assertEquals('user3', $allRows[2]->getName());
 
         /** each with key */
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
@@ -110,9 +110,9 @@ abstract class BatchQueryResultTest extends TestCase
         }
 
         $this->assertCount(3, $allRows);
-        $this->assertEquals('address1', $allRows['user1']['address']);
-        $this->assertEquals('address2', $allRows['user2']['address']);
-        $this->assertEquals('address3', $allRows['user3']['address']);
+        $this->assertEquals('address1', $allRows['user1']->getAddress());
+        $this->assertEquals('address2', $allRows['user2']->getAddress());
+        $this->assertEquals('address3', $allRows['user3']->getAddress());
     }
 
     public function testActiveQuery(): void

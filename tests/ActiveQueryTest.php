@@ -1981,10 +1981,10 @@ abstract class ActiveQueryTest extends TestCase
 
         /** request the inverseOf relation as array */
         $orders2 = $customer->getOrders2Query()->asArray()->all();
-        $this->assertEquals($customer['id'], $orders2[0]['customer2']['id']);
+        $this->assertEquals($customer->getId(), $orders2[0]['customer2']->getId());
 
         $orders2 = $customer->getOrders2Query()->asArray()->onePopulate();
-        $this->assertEquals($customer['id'], $orders2['customer2']['id']);
+        $this->assertEquals($customer->getId(), $orders2['customer2']->getId());
     }
 
     public function testOptimisticLock(): void
