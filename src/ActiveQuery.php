@@ -329,9 +329,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
 
             if (count($pks) === 1) {
-                $hash = array_map(static fn ($model) => $model->getPrimaryKey(), $models);
+                $hash = array_map(static fn ($model): mixed => $model->getPrimaryKey(), $models);
             } else {
-                $hash = array_map(static fn ($model) => serialize($model->getPrimaryKey(true)), $models);
+                $hash = array_map(static fn ($model): mixed => serialize($model->getPrimaryKey(true)), $models);
             }
         }
 
