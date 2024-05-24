@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * Model representing type table.
@@ -23,7 +23,7 @@ use Yiisoft\ActiveRecord\MagicalActiveRecord;
  * @property bool $bool_col
  * @property bool $bool_col2 DEFAULT 1
  */
-final class Type extends MagicalActiveRecord
+final class Type extends MagicActiveRecord
 {
     public function getTableName(): string
     {

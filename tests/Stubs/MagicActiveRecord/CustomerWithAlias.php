@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * Class Customer.
@@ -17,7 +17,7 @@ use Yiisoft\ActiveRecord\MagicalActiveRecord;
  *
  * @method CustomerQuery findBySql($sql, $params = []) static
  */
-final class CustomerWithAlias extends MagicalActiveRecord
+final class CustomerWithAlias extends MagicActiveRecord
 {
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;

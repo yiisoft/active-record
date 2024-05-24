@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
-final class DefaultPk extends MagicalActiveRecord
+final class DefaultPk extends MagicActiveRecord
 {
     public function getTableName(): string
     {

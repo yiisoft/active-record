@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * @property int $id
  * @property string $alpha_string_identifier
  * @property Alpha $alpha
  */
-final class Beta extends MagicalActiveRecord
+final class Beta extends MagicActiveRecord
 {
     public function getTableName(): string
     {

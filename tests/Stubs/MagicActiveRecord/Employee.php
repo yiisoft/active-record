@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * Class Employee
@@ -18,7 +18,7 @@ use Yiisoft\ActiveRecord\MagicalActiveRecord;
  * @property Department $department
  * @property Dossier $dossier
  */
-final class Employee extends MagicalActiveRecord
+final class Employee extends MagicActiveRecord
 {
     public function getTableName(): string
     {

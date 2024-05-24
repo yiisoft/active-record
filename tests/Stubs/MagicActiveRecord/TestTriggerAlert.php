@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * Class TestTriggerAlert.
@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\MagicalActiveRecord;
  * @property int $id
  * @property string $stringcol
  */
-final class TestTriggerAlert extends MagicalActiveRecord
+final class TestTriggerAlert extends MagicActiveRecord
 {
     public function getTableName(): string
     {

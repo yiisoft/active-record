@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
@@ -19,7 +19,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  * @property int $status
  * @property ProfileWithConstructor $profile
  */
-final class CustomerWithConstructor extends MagicalActiveRecord
+final class CustomerWithConstructor extends MagicActiveRecord
 {
     public function __construct(ConnectionInterface $db, private Aliases $aliases)
     {

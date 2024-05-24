@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * Class CustomerClosureField.
@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\MagicalActiveRecord;
  * @property string $address
  * @property int $status
  */
-final class CustomerClosureField extends MagicalActiveRecord
+final class CustomerClosureField extends MagicActiveRecord
 {
     public function getTableName(): string
     {

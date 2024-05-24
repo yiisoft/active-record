@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * Class Customer with defined properties.
  */
-class CustomerWithProperties extends MagicalActiveRecord
+class CustomerWithProperties extends MagicActiveRecord
 {
     protected int $id;
     protected string $email;

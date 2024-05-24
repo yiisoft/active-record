@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\MagicalActiveRecord;
+use Yiisoft\ActiveRecord\MagicActiveRecord;
 
 /**
  * Class Order.
@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\MagicalActiveRecord;
  * @property int $created_at
  * @property string $total
  */
-class Order extends MagicalActiveRecord
+class Order extends MagicActiveRecord
 {
     public const TABLE_NAME = 'order';
 
