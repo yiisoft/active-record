@@ -230,9 +230,9 @@ class BaseActiveRecord extends AbstractActiveRecord
         return $columnNames;
     }
 
-    protected function getObjectVars(ActiveRecordInterface $object): array
+    protected function getAttributesInternal(): array
     {
-        return get_object_vars($object);
+        return get_object_vars($this);
     }
 
     protected function insertInternal(array $attributes = null): bool
