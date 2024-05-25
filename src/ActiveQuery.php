@@ -27,6 +27,7 @@ use function array_column;
 use function array_combine;
 use function array_flip;
 use function array_intersect_key;
+use function array_key_first;
 use function array_map;
 use function array_merge;
 use function array_values;
@@ -35,6 +36,7 @@ use function implode;
 use function in_array;
 use function is_array;
 use function is_int;
+use function is_scalar;
 use function is_string;
 use function preg_match;
 use function reset;
@@ -313,7 +315,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $hash = array_column($models, reset($pks));
             } else {
                 $flippedPks = array_flip($pks);
-                $hash = array_map(static fn ($model) => serialize(array_intersect_key($model, $flippedPks)), $models);
+                $hash = array_map(
+                    static fn ($model): string => serialize(array_intersect_key($model, $flippedPks)),
+                    $models
+                );
             }
         } else {
             $pks = $model->getPrimaryKey(true);
@@ -329,9 +334,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
 
             if (count($pks) === 1) {
-                $hash = array_map(static fn ($model): mixed => $model->getPrimaryKey(), $models);
+                $key = array_key_first($pks);
+                $hash = array_map(static fn ($model): string => (string) $model->getAttribute($key), $models);
             } else {
-                $hash = array_map(static fn ($model): mixed => serialize($model->getPrimaryKey(true)), $models);
+                $hash = array_map(static fn ($model): string => serialize($model->getPrimaryKey(true)), $models);
             }
         }
 
