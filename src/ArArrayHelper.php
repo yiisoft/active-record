@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use Traversable;
 
 use function array_combine;
 use function array_key_exists;
 use function array_map;
 use function get_object_vars;
+use function is_array;
+use function iterator_to_array;
 use function property_exists;
 use function strrpos;
 use function substr;
@@ -161,5 +164,29 @@ final class ArArrayHelper
         }
 
         return $result;
+    }
+
+    /**
+     * Converts an object into an array.
+     *
+     * @param array|object $object The object to be converted into an array.
+     *
+     * @return array The array representation of the object.
+     */
+    public static function toArray(array|object $object): array
+    {
+        if (is_array($object)) {
+            return $object;
+        }
+
+        if ($object instanceof ActiveRecordInterface) {
+            return $object->getAttributes();
+        }
+
+        if ($object instanceof Traversable) {
+            return iterator_to_array($object);
+        }
+
+        return get_object_vars($object);
     }
 }

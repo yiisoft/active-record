@@ -162,16 +162,15 @@ class BaseActiveRecord extends AbstractActiveRecord
 
     public function populateRecord(array|object $row): void
     {
+        $row = ArArrayHelper::toArray($row);
         $columns = $this->getTableSchema()->getColumns();
+        $rowColumns = array_intersect_key($row, $columns);
 
-        /** @psalm-var array[][] $row */
-        foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $row[$name] = $columns[$name]->phpTypecast($value);
-            }
+        foreach ($rowColumns as $name => &$value) {
+            $value = $columns[$name]->phpTypecast($value);
         }
 
-        parent::populateRecord($row);
+        parent::populateRecord($rowColumns + $row);
     }
 
     public function primaryKey(): array
