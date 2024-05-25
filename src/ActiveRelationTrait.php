@@ -488,10 +488,10 @@ trait ActiveRelationTrait
     }
 
     /**
-     * Indexes buckets by column name.
+     * Indexes buckets by a column name.
      *
      * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
-     * also be a callable(e.g. anonymous function) that returns the index value based on the given row data.
+     * also be a {@see Closure} that returns the index value based on the given models data.
      */
     private function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
