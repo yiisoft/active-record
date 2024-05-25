@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use ReflectionException;
 use Stringable;
 use Throwable;
@@ -489,22 +490,16 @@ trait ActiveRelationTrait
     /**
      * Indexes buckets by column name.
      *
-     * @param callable|string $indexBy the name of the column by which the query results should be indexed by. This can
+     * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a callable(e.g. anonymous function) that returns the index value based on the given row data.
      */
-    private function indexBuckets(array $buckets, callable|string $indexBy): array
+    private function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
-        $result = [];
-
-        foreach ($buckets as $key => $models) {
-            $result[$key] = [];
-            foreach ($models as $model) {
-                $index = is_string($indexBy) ? $model[$indexBy] : $indexBy($model);
-                $result[$key][$index] = $model;
-            }
+        foreach ($buckets as &$models) {
+            $models = ArArrayHelper::index($models, $indexBy);
         }
 
-        return $result;
+        return $buckets;
     }
 
     /**
