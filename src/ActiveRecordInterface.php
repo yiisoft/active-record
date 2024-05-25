@@ -132,7 +132,7 @@ interface ActiveRecordInterface
      *
      * @return array Attribute values (name => value).
      */
-    public function getAttributes(array $names = null, array $except = []): array;
+    public function getAttributes(array|null $names = null, array $except = []): array;
 
     /**
      * Returns a value indicating whether the current record is new (not saved in the database).

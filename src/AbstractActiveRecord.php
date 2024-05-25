@@ -115,11 +115,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->getObjectVars($this)[$name] ?? null;
     }
 
-    public function getAttributes(array $names = null, array $except = []): array
+    public function getAttributes(array|null $names = null, array $except = []): array
     {
         $names ??= $this->attributes();
 
-        if ($except !== []) {
+        if (!empty($except)) {
             $names = array_diff($names, $except);
         }
 
