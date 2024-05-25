@@ -96,8 +96,7 @@ final class ArArrayHelper
             }
 
             if (property_exists($array, $key)) {
-                $values = get_object_vars($array);
-                return array_key_exists($key, $values) ? $values[$key] : $default;
+                return array_key_exists($key, get_object_vars($array)) ? $array->$key : $default;
             }
 
             if ($array->isRelationPopulated($key)) {
@@ -118,7 +117,7 @@ final class ArArrayHelper
     }
 
     /**
-     * Populates an array of rows with the specified column value as keys.
+     * Indexes an array of rows with the specified column value as keys.
      *
      * The input array should be multidimensional or an array of {@see ActiveRecordInterface} instances.
      *
@@ -144,7 +143,7 @@ final class ArArrayHelper
      *
      * @return array[]
      */
-    public static function populate(array $rows, Closure|string|null $indexBy = null): array
+    public static function index(array $rows, Closure|string|null $indexBy = null): array
     {
         if ($indexBy === null) {
             return $rows;
