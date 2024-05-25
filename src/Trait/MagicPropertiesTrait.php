@@ -180,12 +180,12 @@ trait MagicPropertiesTrait
         return $this->attributes[$name] ?? null;
     }
 
-    public function getAttributes(array $names = null, array $except = []): array
+    public function getAttributes(array|null $names = null, array $except = []): array
     {
         $names ??= $this->attributes();
         $attributes = array_merge($this->attributes, get_object_vars($this));
 
-        if ($except !== []) {
+        if (!empty($except)) {
             $names = array_diff($names, $except);
         }
 
