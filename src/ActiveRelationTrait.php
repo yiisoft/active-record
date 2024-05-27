@@ -283,13 +283,10 @@ trait ActiveRelationTrait
 
         $this->indexBy($indexBy);
 
-        $indexBy = $this->getIndexBy();
-
         if ($indexBy !== null && $this->multiple) {
             $buckets = $this->indexBuckets($buckets, $indexBy);
         }
 
-        $link = array_values($this->link);
         if (isset($viaQuery)) {
             $deepViaQuery = $viaQuery;
 
@@ -297,29 +294,39 @@ trait ActiveRelationTrait
                 $deepViaQuery = is_array($deepViaQuery->via) ? $deepViaQuery->via[1] : $deepViaQuery->via;
             }
 
-            $link = array_values($deepViaQuery->link);
+            $link = $deepViaQuery->link;
+        } else {
+            $link = $this->link;
         }
 
         foreach ($primaryModels as $i => $primaryModel) {
             $keys = null;
+
             if ($this->multiple && count($link) === 1) {
                 $primaryModelKey = reset($link);
-                $keys = $primaryModel[$primaryModelKey] ?? null;
+
+                if ($primaryModel instanceof ActiveRecordInterface) {
+                    $keys = $primaryModel->getAttribute($primaryModelKey);
+                } else {
+                    $keys = $primaryModel[$primaryModelKey] ?? null;
+                }
             }
+
             if (is_array($keys)) {
                 $value = [];
+
                 foreach ($keys as $key) {
                     $key = $this->normalizeModelKey($key);
                     if (isset($buckets[$key])) {
-                        if ($indexBy !== null) {
-                            /** if indexBy is set, array_merge will cause renumbering of numeric array */
-                            foreach ($buckets[$key] as $bucketKey => $bucketValue) {
-                                $value[$bucketKey] = $bucketValue;
-                            }
-                        } else {
-                            $value = array_merge($value, $buckets[$key]);
-                        }
+                        $value[] = $buckets[$key];
                     }
+                }
+
+                if ($indexBy !== null) {
+                    /** if indexBy is set, array_merge will cause renumbering of numeric array */
+                    $value = array_replace(...$value);
+                } else {
+                    $value = array_merge(...$value);
                 }
             } else {
                 $key = $this->getModelKey($primaryModel, $link);
@@ -332,6 +339,7 @@ trait ActiveRelationTrait
                 $primaryModels[$i][$name] = $value;
             }
         }
+
         if ($this->inverseOf !== null) {
             $this->populateInverseRelation($primaryModels, $models, $name, $this->inverseOf);
         }
