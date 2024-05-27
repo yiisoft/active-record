@@ -194,24 +194,21 @@ trait ActiveRelationTrait
             return;
         }
 
-        foreach ($result as $i => $relatedModel) {
-            if ($relatedModel instanceof ActiveRecordInterface) {
-                if (!isset($inverseRelation)) {
-                    /** @var ActiveQuery $inverseRelation */
-                    $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
-                }
-                $relatedModel->populateRelation(
-                    $this->inverseOf,
-                    $inverseRelation->multiple ? [$this->primaryModel] : $this->primaryModel
-                );
-            } else {
-                if (!isset($inverseRelation)) {
-                    /** @var ActiveQuery $inverseRelation */
-                    $inverseRelation = $this->getARInstance()->relationQuery($this->inverseOf);
-                }
+        $relatedModel = reset($result);
 
-                $result[$i][$this->inverseOf] = $inverseRelation->multiple
-                    ? [$this->primaryModel] : $this->primaryModel;
+        if ($relatedModel instanceof ActiveRecordInterface) {
+            $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
+            $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
+
+            foreach ($result as $relatedModel) {
+                $relatedModel->populateRelation($this->inverseOf, $primaryModel);
+            }
+        } else {
+            $inverseRelation = $this->getARInstance()->relationQuery($this->inverseOf);
+            $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
+
+            foreach ($result as &$relatedModel) {
+                $relatedModel[$this->inverseOf] = $primaryModel;
             }
         }
     }
