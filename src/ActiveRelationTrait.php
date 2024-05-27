@@ -575,10 +575,12 @@ trait ActiveRelationTrait
             } else {
                 foreach ($models as $model) {
                     if (isset($model[$attribute])) {
-                        if (is_array($model[$attribute])) {
-                            $values = [...$values, ...$model[$attribute]];
+                        $value = $model[$attribute];
+
+                        if (is_array($value)) {
+                            $values = [...$values, ...$value];
                         } else {
-                            $values[] = $model[$attribute];
+                            $values[] = $value;
                         }
                     }
                 }
