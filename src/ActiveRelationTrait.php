@@ -21,7 +21,6 @@ use function array_intersect_key;
 use function array_keys;
 use function array_merge;
 use function array_unique;
-use function array_values;
 use function count;
 use function is_array;
 use function is_object;
