@@ -12,9 +12,12 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\ArrayExpression;
 
 use function array_combine;
+use function array_diff_key;
+use function array_fill_keys;
+use function array_filter;
+use function array_intersect_key;
 use function array_keys;
 use function array_merge;
 use function array_unique;
@@ -541,64 +544,81 @@ trait ActiveRelationTrait
      */
     protected function filterByModels(array $models): void
     {
-        $attributes = array_keys($this->link);
+        if (empty($this->link)) {
+            $this->emulateExecution();
+            $this->andWhere('1=0');
+            return;
+        }
 
+        $attributes = array_keys($this->link);
         $attributes = $this->prefixKeyColumns($attributes);
 
+        $model = reset($models);
         $values = [];
+
         if (count($attributes) === 1) {
             /** single key */
             $attribute = reset($this->link);
-            foreach ($models as $model) {
-                $value = isset($model[$attribute]) || (is_object($model) && property_exists($model, $attribute)) ? $model[$attribute] : null;
-                if ($value !== null) {
-                    if (is_array($value)) {
-                        $values = array_merge($values, $value);
-                    } elseif ($value instanceof ArrayExpression && $value->getDimension() === 1) {
-                        $values = array_merge($values, $value->getValue());
-                    } else {
-                        $values[] = $value;
+
+            if ($model instanceof ActiveRecordInterface) {
+                foreach ($models as $model) {
+                    $value = $model->getAttribute($attribute);
+
+                    if ($value !== null) {
+                        if (is_array($value)) {
+                            $values[] = $value;
+                        } else {
+                            $values[] = [$value];
+                        }
+                    }
+                }
+            } else {
+                foreach ($models as $model) {
+                    if (isset($model[$attribute])) {
+                        if (is_array($model[$attribute])) {
+                            $values[] = $model[$attribute];
+                        } else {
+                            $values[] = [$model[$attribute]];
+                        }
                     }
                 }
             }
 
-            if (empty($values)) {
-                $this->emulateExecution();
+            if (!empty($values)) {
+                $values = array_merge(...$values);
+
+                $scalarValues = array_filter($values, 'is_scalar');
+                $nonScalarValues = array_diff_key($values, $scalarValues);
+
+                $scalarValues = array_unique($scalarValues);
+                $values = [...$scalarValues, ...$nonScalarValues];
             }
         } else {
-            /**
-             * composite keys ensure keys of $this->link are prefixed the same way as $attributes.
-             */
-            $prefixedLink = array_combine($attributes, $this->link);
+            $nulls = array_fill_keys($this->link, null);
 
-            foreach ($models as $model) {
-                $v = [];
+            if ($model instanceof ActiveRecordInterface) {
+                foreach ($models as $model) {
+                    $value = $model->getAttributes($this->link);
 
-                foreach ($prefixedLink as $attribute => $link) {
-                    $v[$attribute] = $model[$link];
+                    if (!empty($value)) {
+                        $values[] = array_combine($attributes, array_merge($nulls, $value));
+                    }
                 }
+            } else {
+                foreach ($models as $model) {
+                    $value = array_intersect_key($model, $nulls);
 
-                $values[] = $v;
-
-                if (empty($v)) {
-                    $this->emulateExecution();
+                    if (!empty($value)) {
+                        $values[] = array_combine($attributes, array_merge($nulls, $value));
+                    }
                 }
             }
         }
 
-        if (!empty($values)) {
-            $scalarValues = [];
-            $nonScalarValues = [];
-            foreach ($values as $value) {
-                if (is_scalar($value)) {
-                    $scalarValues[] = $value;
-                } else {
-                    $nonScalarValues[] = $value;
-                }
-            }
-
-            $scalarValues = array_unique($scalarValues);
-            $values = [...$scalarValues, ...$nonScalarValues];
+        if (empty($values)) {
+            $this->emulateExecution();
+            $this->andWhere('1=0');
+            return;
         }
 
         $this->andWhere(['in', $attributes, $values]);
