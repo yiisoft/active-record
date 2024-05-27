@@ -365,60 +365,118 @@ trait ActiveRelationTrait
         if ($model instanceof ActiveRecordInterface) {
             /** @var ActiveQuery $relation */
             $relation = $model->relationQuery($name);
-        } else {
-            /** @var ActiveQuery $relation */
-            $relation = $this->getARInstance()->relationQuery($name);
+            $buckets = $relation->buildBuckets($primaryModels, $relation->getLink());
+            $this->populateRelationFromBuckets($models, $name, $relation->getLink(), $buckets);
+
+            return;
         }
 
+        /** @var ActiveQuery $relation */
+        $relation = $this->getARInstance()->relationQuery($name);
+
+        $link = $relation->getLink();
+        $primaryModel = reset($primaryModels);
+
         if ($relation->getMultiple()) {
-            $buckets = $this->buildBuckets($primaryModels, $relation->getLink(), null, null, false);
-            if ($model instanceof ActiveRecordInterface) {
-                foreach ($models as $model) {
-                    $key = $this->getModelKey($model, $relation->getLink());
-                    if ($model instanceof ActiveRecordInterface) {
-                        $model->populateRelation($name, $buckets[$key] ?? []);
+            $buckets = $relation->buildBuckets($primaryModels, $link);
+
+            if ($primaryModel instanceof ActiveRecordInterface) {
+                if ($this->multiple) {
+                    foreach ($primaryModels as $primaryModel) {
+                        $models = $primaryModel->relation($primaryName);
+                        $this->populateRelationFromBuckets($models, $name, $link, $buckets);
+                    }
+                } else {
+                    foreach ($primaryModels as $primaryModel) {
+                        $models = [$primaryModel->relation($primaryName)];
+                        $this->populateRelationFromBuckets($models, $name, $link, $buckets);
                     }
                 }
             } else {
-                foreach ($primaryModels as $i => $primaryModel) {
-                    if ($this->multiple) {
-                        foreach ($primaryModel as $j => $m) {
-                            $key = $this->getModelKey($m, $relation->getLink());
-                            $primaryModels[$i][$j][$name] = $buckets[$key] ?? [];
-                        }
-                    } elseif (!empty($primaryModel[$primaryName])) {
-                        $key = $this->getModelKey($primaryModel[$primaryName], $relation->getLink());
-                        $primaryModels[$i][$primaryName][$name] = $buckets[$key] ?? [];
+                if ($this->multiple) {
+                    foreach ($primaryModels as &$primaryModel) {
+                        $primaryModel[$primaryName] =
+                            $this->populateRelationFromBuckets($primaryModel[$primaryName], $name, $link, $buckets);
+                    }
+                } else {
+                    foreach ($primaryModels as &$primaryModel) {
+                        $primaryModel[$primaryName] =
+                            $this->populateRelationFromBuckets([$primaryModel[$primaryName]], $name, $link, $buckets)[0];
                     }
                 }
             }
         } elseif ($this->multiple) {
-            foreach ($primaryModels as $i => $primaryModel) {
-                foreach ($primaryModel[$primaryName] as $j => $m) {
-                    if ($m instanceof ActiveRecordInterface) {
-                        $m->populateRelation($name, $primaryModel);
+            if ($primaryModel instanceof ActiveRecordInterface) {
+                foreach ($primaryModels as $primaryModel) {
+                    $models = $primaryModel->relation($primaryName);
+
+                    $model = reset($models);
+                    if ($model instanceof ActiveRecordInterface) {
+                        foreach ($models as $model) {
+                            $model->populateRelation($name, $primaryModel);
+                        }
                     } else {
-                        $primaryModels[$i][$primaryName][$j][$name] = $primaryModel;
+                        foreach ($models as &$model) {
+                            $model[$name] = $primaryModel;
+                        }
+                        unset($model);
+
+                        $primaryModel->populateRelation($primaryName, $models);
+                    }
+                }
+            } else {
+                foreach ($primaryModels as $i => $primaryModel) {
+                    foreach ($primaryModel[$primaryName] as $j => $model) {
+                        if ($model instanceof ActiveRecordInterface) {
+                            $model->populateRelation($name, $primaryModel);
+                        } else {
+                            $primaryModels[$i][$primaryName][$j][$name] = $primaryModel;
+                        }
                     }
                 }
             }
         } else {
-            foreach ($primaryModels as $i => $primaryModel) {
-                if ($primaryModel[$primaryName] instanceof ActiveRecordInterface) {
-                    $primaryModel[$primaryName]->populateRelation($name, $primaryModel);
-                } elseif (!empty($primaryModel[$primaryName])) {
-                    $primaryModels[$i][$primaryName][$name] = $primaryModel;
+            if ($primaryModel instanceof ActiveRecordInterface) {
+                foreach ($primaryModels as $primaryModel) {
+                    $model = $primaryModel->relation($primaryName);
+                    if ($model instanceof ActiveRecordInterface) {
+                        $model->populateRelation($name, $primaryModel);
+                    }
+                }
+            } else {
+                foreach ($primaryModels as $i => $primaryModel) {
+                    if (!empty($primaryModel[$primaryName])) {
+                        $primaryModels[$i][$primaryName][$name] = $primaryModel;
+                    }
                 }
             }
         }
+    }
+
+    private function populateRelationFromBuckets(array $models, string $name, array $link, array $buckets): array
+    {
+        $model = reset($models);
+        if ($model instanceof ActiveRecordInterface) {
+            /** @var ActiveRecordInterface $model */
+            foreach ($models as $model) {
+                $key = $this->getModelKey($model, $link);
+                $model->populateRelation($name, $buckets[$key] ?? []);
+            }
+        } else {
+            foreach ($models as $i => $model) {
+                $key = $this->getModelKey($model, $link);
+                $models[$i][$name] = $buckets[$key] ?? [];
+            }
+        }
+
+        return $models;
     }
 
     private function buildBuckets(
         array $models,
         array $link,
         array $viaModels = null,
-        self $viaQuery = null,
-        bool $checkMultiple = true
+        self $viaQuery = null
     ): array {
         if ($viaModels !== null) {
             $map = [];
@@ -471,7 +529,7 @@ trait ActiveRelationTrait
             }
         }
 
-        if ($checkMultiple && !$this->multiple) {
+        if (!$this->multiple) {
             foreach ($buckets as $i => $bucket) {
                 $buckets[$i] = reset($bucket);
             }
