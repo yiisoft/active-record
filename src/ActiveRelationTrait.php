@@ -384,12 +384,14 @@ trait ActiveRelationTrait
                 if ($this->multiple) {
                     foreach ($primaryModels as $primaryModel) {
                         $models = $primaryModel->relation($primaryName);
-                        $this->populateRelationFromBuckets($models, $name, $link, $buckets);
+                        $models = $this->populateRelationFromBuckets($models, $name, $link, $buckets);
+                        $primaryModel->populateRelation($primaryName, $models);
                     }
                 } else {
                     foreach ($primaryModels as $primaryModel) {
                         $models = [$primaryModel->relation($primaryName)];
-                        $this->populateRelationFromBuckets($models, $name, $link, $buckets);
+                        $models = $this->populateRelationFromBuckets($models, $name, $link, $buckets);
+                        $primaryModel->populateRelation($primaryName, $models[0]);
                     }
                 }
             } else {
@@ -410,44 +412,31 @@ trait ActiveRelationTrait
                 foreach ($primaryModels as $primaryModel) {
                     $models = $primaryModel->relation($primaryName);
 
-                    $model = reset($models);
-                    if ($model instanceof ActiveRecordInterface) {
-                        foreach ($models as $model) {
-                            $model->populateRelation($name, $primaryModel);
-                        }
-                    } else {
-                        foreach ($models as &$model) {
-                            $model[$name] = $primaryModel;
-                        }
-                        unset($model);
-
-                        $primaryModel->populateRelation($primaryName, $models);
+                    foreach ($models as &$model) {
+                        $model[$name] = $primaryModel;
                     }
+                    unset($model);
+
+                    $primaryModel->populateRelation($primaryName, $models);
                 }
             } else {
-                foreach ($primaryModels as $i => $primaryModel) {
-                    foreach ($primaryModel[$primaryName] as $j => $model) {
-                        if ($model instanceof ActiveRecordInterface) {
-                            $model->populateRelation($name, $primaryModel);
-                        } else {
-                            $primaryModels[$i][$primaryName][$j][$name] = $primaryModel;
-                        }
+                foreach ($primaryModels as &$primaryModel) {
+                    foreach ($primaryModel[$primaryName] as &$model) {
+                        $model[$name] = $primaryModel;
                     }
+                    unset($model);
                 }
             }
         } else {
             if ($primaryModel instanceof ActiveRecordInterface) {
                 foreach ($primaryModels as $primaryModel) {
                     $model = $primaryModel->relation($primaryName);
-                    if ($model instanceof ActiveRecordInterface) {
-                        $model->populateRelation($name, $primaryModel);
-                    }
+                    $model[$name] = $primaryModel;
+                    $primaryModel->populateRelation($primaryName, $model);
                 }
             } else {
-                foreach ($primaryModels as $i => $primaryModel) {
-                    if (!empty($primaryModel[$primaryName])) {
-                        $primaryModels[$i][$primaryName][$name] = $primaryModel;
-                    }
+                foreach ($primaryModels as &$primaryModel) {
+                    $primaryModel[$primaryName][$name] = $primaryModel;
                 }
             }
         }
