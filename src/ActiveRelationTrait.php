@@ -544,12 +544,6 @@ trait ActiveRelationTrait
      */
     protected function filterByModels(array $models): void
     {
-        if (empty($this->link)) {
-            $this->emulateExecution();
-            $this->andWhere('1=0');
-            return;
-        }
-
         $attributes = array_keys($this->link);
         $attributes = $this->prefixKeyColumns($attributes);
 
