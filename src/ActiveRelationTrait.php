@@ -207,8 +207,8 @@ trait ActiveRelationTrait
             $inverseRelation = $this->getARInstance()->relationQuery($this->inverseOf);
             $relations = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
 
-            foreach ($result as $i => $relatedModel) {
-                $result[$i][$this->inverseOf] = $relations;
+            foreach ($result as &$relatedModel) {
+                $relatedModel[$this->inverseOf] = $relations;
             }
         }
     }
