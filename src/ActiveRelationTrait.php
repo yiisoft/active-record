@@ -566,9 +566,9 @@ trait ActiveRelationTrait
 
                     if ($value !== null) {
                         if (is_array($value)) {
-                            $values[] = $value;
+                            $values = [...$values, ...$value];
                         } else {
-                            $values[] = [$value];
+                            $values[] = $value;
                         }
                     }
                 }
@@ -576,17 +576,15 @@ trait ActiveRelationTrait
                 foreach ($models as $model) {
                     if (isset($model[$attribute])) {
                         if (is_array($model[$attribute])) {
-                            $values[] = $model[$attribute];
+                            $values = [...$values, ...$model[$attribute]];
                         } else {
-                            $values[] = [$model[$attribute]];
+                            $values[] = $model[$attribute];
                         }
                     }
                 }
             }
 
             if (!empty($values)) {
-                $values = array_merge(...$values);
-
                 $scalarValues = array_filter($values, 'is_scalar');
                 $nonScalarValues = array_diff_key($values, $scalarValues);
 
