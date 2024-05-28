@@ -190,10 +190,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             );
         }
 
-        if (count($keys) === 1) {
-            $key = $this->oldAttributes[$keys[0]] ?? null;
-
-            return $asArray ? [$keys[0] => $key] : $key;
+        if ($asArray === false && count($keys) === 1) {
+            return $this->oldAttributes[$keys[0]] ?? null;
         }
 
         $values = [];
@@ -209,8 +207,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $keys = $this->primaryKey();
 
-        if (count($keys) === 1) {
-            return $asArray ? [$keys[0] => $this->getAttribute($keys[0])] : $this->getAttribute($keys[0]);
+        if ($asArray === false && count($keys) === 1) {
+            return $this->getAttribute($keys[0]);
         }
 
         $values = [];
