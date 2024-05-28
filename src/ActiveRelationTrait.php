@@ -372,26 +372,35 @@ trait ActiveRelationTrait
             if ($this->multiple) {
                 foreach ($primaryModels as $primaryModel) {
                     $models = $primaryModel->relation($primaryName);
-                    $this->populateInverseRelationToModels($models, $primaryModels, $name);
-                    $primaryModel->populateRelation($primaryName, $models);
+                    if (!empty($models)) {
+                        $this->populateInverseRelationToModels($models, $primaryModels, $name);
+                        $primaryModel->populateRelation($primaryName, $models);
+                    }
                 }
             } else {
                 foreach ($primaryModels as $primaryModel) {
-                    $models = [$primaryModel->relation($primaryName)];
-                    $this->populateInverseRelationToModels($models, $primaryModels, $name);
-                    $primaryModel->populateRelation($primaryName, $models[0]);
+                    $model = $primaryModel->relation($primaryName);
+                    if (!empty($model)) {
+                        $models = [$model];
+                        $this->populateInverseRelationToModels($models, $primaryModels, $name);
+                        $primaryModel->populateRelation($primaryName, $models[0]);
+                    }
                 }
             }
         } else {
             if ($this->multiple) {
                 foreach ($primaryModels as &$primaryModel) {
-                    $this->populateInverseRelationToModels($primaryModel[$primaryName], $primaryModels, $name);
+                    if (!empty($primaryModel[$primaryName])) {
+                        $this->populateInverseRelationToModels($primaryModel[$primaryName], $primaryModels, $name);
+                    }
                 }
             } else {
                 foreach ($primaryModels as &$primaryModel) {
-                    $models = [$primaryModel[$primaryName]];
-                    $this->populateInverseRelationToModels($models, $primaryModels, $name);
-                    $primaryModel[$primaryName] = $models[0];
+                    if (!empty($primaryModel[$primaryName])) {
+                        $models = [$primaryModel[$primaryName]];
+                        $this->populateInverseRelationToModels($models, $primaryModels, $name);
+                        $primaryModel[$primaryName] = $models[0];
+                    }
                 }
             }
         }
@@ -399,10 +408,6 @@ trait ActiveRelationTrait
 
     private function populateInverseRelationToModels(array &$models, array $primaryModels, string $name): void
     {
-        if (empty($models)) {
-            return;
-        }
-
         $model = reset($models);
         $isArray = is_array($model);
 
