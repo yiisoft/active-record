@@ -6,13 +6,13 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 use ReflectionException;
-use Stringable;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 
+use function array_column;
 use function array_combine;
 use function array_diff_key;
 use function array_fill_keys;
@@ -24,7 +24,6 @@ use function array_unique;
 use function count;
 use function is_array;
 use function is_object;
-use function is_scalar;
 use function is_string;
 use function key;
 use function reset;
@@ -315,7 +314,8 @@ trait ActiveRelationTrait
                 $value = [];
 
                 foreach ($keys as $key) {
-                    $key = $this->normalizeModelKey($key);
+                    $key = (string) $key;
+
                     if (isset($buckets[$key])) {
                         $value[] = $buckets[$key];
                     }
@@ -489,9 +489,10 @@ trait ActiveRelationTrait
         }
 
         if (!$this->multiple) {
-            foreach ($buckets as $i => $bucket) {
-                $buckets[$i] = reset($bucket);
-            }
+            return array_combine(
+                array_keys($buckets),
+                array_column($buckets, 0)
+            );
         }
 
         return $buckets;
@@ -635,14 +636,14 @@ trait ActiveRelationTrait
         $this->andWhere(['in', $attributes, $values]);
     }
 
-    private function getModelKey(ActiveRecordInterface|array $activeRecord, array $attributes): false|int|string
+    private function getModelKey(ActiveRecordInterface|array $activeRecord, array $attributes): string
     {
         $key = [];
 
         if (is_array($activeRecord)) {
             foreach ($attributes as $attribute) {
                 if (isset($activeRecord[$attribute])) {
-                    $key[] = $this->normalizeModelKey($activeRecord[$attribute]);
+                    $key[] = (string) $activeRecord[$attribute];
                 }
             }
         } else {
@@ -650,36 +651,16 @@ trait ActiveRelationTrait
                 $value = $activeRecord->getAttribute($attribute);
 
                 if ($value !== null) {
-                    $key[] = $this->normalizeModelKey($value);
+                    $key[] = (string) $value;
                 }
             }
         }
 
-        if (count($key) > 1) {
-            return serialize($key);
-        }
-
-        $key = reset($key);
-
-        return is_scalar($key) ? $key : serialize($key);
-    }
-
-    /**
-     * @param int|string|Stringable|null $value raw key value.
-     *
-     * @return int|string|null normalized key value.
-     */
-    private function normalizeModelKey(int|string|Stringable|null $value): int|string|null
-    {
-        if ($value instanceof Stringable) {
-            /**
-             * ensure matching to special objects, which are convertible to string, for cross-DBMS relations,
-             * for example: `|MongoId`
-             */
-            $value = (string) $value;
-        }
-
-        return $value;
+        return match (count($key)) {
+            0 => '',
+            1 => $key[0],
+            default => serialize($key),
+        };
     }
 
     /**
