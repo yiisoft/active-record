@@ -23,6 +23,12 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Factory\NotFoundException;
 
+use function array_column;
+use function array_combine;
+use function array_flip;
+use function array_intersect_key;
+use function array_key_first;
+use function array_map;
 use function array_merge;
 use function array_values;
 use function count;
@@ -269,7 +275,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return ArArrayHelper::populate($models, $indexBy);
+        return ArArrayHelper::index($models, $indexBy);
     }
 
     /**
@@ -289,53 +295,52 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     private function removeDuplicatedModels(array $models): array
     {
-        $hash = [];
+        $model = reset($models);
 
-        $pks = $this->getARInstance()->primaryKey();
+        if ($this->asArray) {
+            $pks = $this->getARInstance()->primaryKey();
 
-        if (count($pks) > 1) {
-            // Composite primary key.
-            foreach ($models as $i => $model) {
-                $key = [];
-                foreach ($pks as $pk) {
-                    if (!isset($model[$pk])) {
-                        // Don't continue if the primary key isn't part of the result set.
-                        break 2;
-                    }
-                    $key[] = $model[$pk];
-                }
+            if (empty($pks)) {
+                throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+            }
 
-                $key = serialize($key);
-
-                if (isset($hash[$key])) {
-                    unset($models[$i]);
-                } else {
-                    $hash[$key] = true;
+            foreach ($pks as $pk) {
+                if (!isset($model[$pk])) {
+                    return $models;
                 }
             }
-        } elseif (empty($pks)) {
-            throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+
+            if (count($pks) === 1) {
+                $hash = array_column($models, reset($pks));
+            } else {
+                $flippedPks = array_flip($pks);
+                $hash = array_map(
+                    static fn ($model): string => serialize(array_intersect_key($model, $flippedPks)),
+                    $models
+                );
+            }
         } else {
-            // Single column primary key.
-            $pk = reset($pks);
+            $pks = $model->getPrimaryKey(true);
 
-            foreach ($models as $i => $model) {
-                if (!isset($model[$pk])) {
-                    // Don't continue if the primary key isn't part of the result set.
-                    break;
+            if (empty($pks)) {
+                throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+            }
+
+            foreach ($pks as $pk) {
+                if ($pk === null) {
+                    return $models;
                 }
+            }
 
-                $key = $model[$pk];
-
-                if (isset($hash[$key])) {
-                    unset($models[$i]);
-                } else {
-                    $hash[$key] = true;
-                }
+            if (count($pks) === 1) {
+                $key = array_key_first($pks);
+                $hash = array_map(static fn ($model): string => (string) $model->getAttribute($key), $models);
+            } else {
+                $hash = array_map(static fn ($model): string => serialize($model->getPrimaryKey(true)), $models);
             }
         }
 
-        return array_values($models);
+        return array_values(array_combine($hash, $models));
     }
 
     /**

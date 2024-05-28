@@ -162,16 +162,15 @@ class BaseActiveRecord extends AbstractActiveRecord
 
     public function populateRecord(array|object $row): void
     {
+        $row = ArArrayHelper::toArray($row);
         $columns = $this->getTableSchema()->getColumns();
+        $rowColumns = array_intersect_key($row, $columns);
 
-        /** @psalm-var array[][] $row */
-        foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $row[$name] = $columns[$name]->phpTypecast($value);
-            }
+        foreach ($rowColumns as $name => &$value) {
+            $value = $columns[$name]->phpTypecast($value);
         }
 
-        parent::populateRecord($row);
+        parent::populateRecord($rowColumns + $row);
     }
 
     public function primaryKey(): array
@@ -230,9 +229,9 @@ class BaseActiveRecord extends AbstractActiveRecord
         return $columnNames;
     }
 
-    protected function getObjectVars(ActiveRecordInterface $object): array
+    protected function getAttributesInternal(): array
     {
-        return get_object_vars($object);
+        return get_object_vars($this);
     }
 
     protected function insertInternal(array $attributes = null): bool

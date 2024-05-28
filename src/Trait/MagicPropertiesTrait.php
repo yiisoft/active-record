@@ -14,10 +14,6 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 
-use function array_diff;
-use function array_flip;
-use function array_intersect_key;
-use function array_key_exists;
 use function array_merge;
 use function get_object_vars;
 use function in_array;
@@ -54,6 +50,7 @@ use function ucfirst;
  */
 trait MagicPropertiesTrait
 {
+    /** @psalm-var array<string, mixed> $attributes */
     private array $attributes = [];
 
     /**
@@ -171,47 +168,9 @@ trait MagicPropertiesTrait
         throw new UnknownPropertyException('Setting unknown property: ' . static::class . '::' . $name);
     }
 
-    public function getAttribute(string $name): mixed
-    {
-        if ($name !== 'attributes' && property_exists($this, $name)) {
-            return get_object_vars($this)[$name] ?? null;
-        }
-
-        return $this->attributes[$name] ?? null;
-    }
-
-    public function getAttributes(array $names = null, array $except = []): array
-    {
-        $names ??= $this->attributes();
-        $attributes = array_merge($this->attributes, get_object_vars($this));
-
-        if ($except !== []) {
-            $names = array_diff($names, $except);
-        }
-
-        return array_intersect_key($attributes, array_flip($names));
-    }
-
     public function hasAttribute(string $name): bool
     {
         return isset($this->attributes[$name]) || in_array($name, $this->attributes(), true);
-    }
-
-    public function isAttributeChanged(string $name, bool $identical = true): bool
-    {
-        $hasOldAttribute = array_key_exists($name, $this->getOldAttributes());
-
-        if (!$hasOldAttribute) {
-            return property_exists($this, $name) && array_key_exists($name, get_object_vars($this))
-                || array_key_exists($name, $this->attributes);
-        }
-
-        if (property_exists($this, $name)) {
-            return $this->getOldAttribute($name) !== $this->$name;
-        }
-
-        return !array_key_exists($name, $this->attributes)
-            || $this->getOldAttribute($name) !== $this->attributes[$name];
     }
 
     public function setAttribute(string $name, mixed $value): void
@@ -262,6 +221,12 @@ trait MagicPropertiesTrait
         return method_exists($this, 'set' . ucfirst($name))
             || ($checkVars && property_exists($this, $name))
             || $this->hasAttribute($name);
+    }
+
+    /** @psalm-return array<string, mixed> */
+    protected function getAttributesInternal(): array
+    {
+        return array_merge($this->attributes, parent::getAttributesInternal());
     }
 
     protected function populateAttribute(string $name, mixed $value): void

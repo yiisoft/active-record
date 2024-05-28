@@ -56,17 +56,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Returns the public and protected property values of an Active Record object.
      *
-     * This method is provided because a direct call of {@see get_object_vars()} within the {@see AbstractActiveRecord}
-     * class will return also private property values of {@see AbstractActiveRecord} class.
-     *
-     * @param ActiveRecordInterface $object
-     *
      * @return array
-     * @link https://www.php.net/manual/en/function.get-object-vars.php
      *
      * @psalm-return array<string, mixed>
      */
-    abstract protected function getObjectVars(ActiveRecordInterface $object): array;
+    abstract protected function getAttributesInternal(): array;
 
     /**
      * Inserts Active Record values into DB without considering transaction.
@@ -112,18 +106,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function getAttribute(string $name): mixed
     {
-        return $this->getObjectVars($this)[$name] ?? null;
+        return $this->getAttributesInternal()[$name] ?? null;
     }
 
-    public function getAttributes(array $names = null, array $except = []): array
+    public function getAttributes(array|null $names = null, array $except = []): array
     {
         $names ??= $this->attributes();
 
-        if ($except !== []) {
+        if (!empty($except)) {
             $names = array_diff($names, $except);
         }
 
-        return array_intersect_key($this->getObjectVars($this), array_flip($names));
+        return array_intersect_key($this->getAttributesInternal(), array_flip($names));
     }
 
     public function getIsNewRecord(): bool
@@ -196,10 +190,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             );
         }
 
-        if (count($keys) === 1) {
-            $key = $this->oldAttributes[$keys[0]] ?? null;
-
-            return $asArray ? [$keys[0] => $key] : $key;
+        if ($asArray === false && count($keys) === 1) {
+            return $this->oldAttributes[$keys[0]] ?? null;
         }
 
         $values = [];
@@ -215,8 +207,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $keys = $this->primaryKey();
 
-        if (count($keys) === 1) {
-            return $asArray ? [$keys[0] => $this->getAttribute($keys[0])] : $this->getAttribute($keys[0]);
+        if ($asArray === false && count($keys) === 1) {
+            return $this->getAttribute($keys[0]);
         }
 
         $values = [];
@@ -345,11 +337,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function isAttributeChanged(string $name, bool $identical = true): bool
     {
-        if (!isset($this->oldAttributes[$name])) {
-            return array_key_exists($name, $this->getObjectVars($this));
+        $attributes = $this->getAttributesInternal();
+
+        if (empty($this->oldAttributes) || !array_key_exists($name, $this->oldAttributes)) {
+            return array_key_exists($name, $attributes);
         }
 
-        return $this->getAttribute($name) !== $this->oldAttributes[$name];
+        return !array_key_exists($name, $attributes) || $attributes[$name] !== $this->oldAttributes[$name];
     }
 
     public function isPrimaryKey(array $keys): bool
@@ -537,6 +531,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function populateRecord(array|object $row): void
     {
+        if ($row instanceof ActiveRecordInterface) {
+            $row = $row->getAttributes();
+        }
+
         foreach ($row as $name => $value) {
             $this->populateAttribute($name, $value);
             $this->oldAttributes[$name] = $value;
@@ -674,7 +672,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function setIsNewRecord(bool $value): void
     {
-        $this->oldAttributes = $value ? null : $this->getObjectVars($this);
+        $this->oldAttributes = $value ? null : $this->getAttributesInternal();
     }
 
     /**

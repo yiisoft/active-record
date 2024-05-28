@@ -4,24 +4,26 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use ReflectionException;
-use Stringable;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\ArrayExpression;
 
+use function array_column;
 use function array_combine;
+use function array_diff_key;
+use function array_fill_keys;
+use function array_filter;
+use function array_intersect_key;
 use function array_keys;
 use function array_merge;
 use function array_unique;
-use function array_values;
 use function count;
 use function is_array;
 use function is_object;
-use function is_scalar;
 use function is_string;
 use function key;
 use function reset;
@@ -193,24 +195,21 @@ trait ActiveRelationTrait
             return;
         }
 
-        foreach ($result as $i => $relatedModel) {
-            if ($relatedModel instanceof ActiveRecordInterface) {
-                if (!isset($inverseRelation)) {
-                    /** @var ActiveQuery $inverseRelation */
-                    $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
-                }
-                $relatedModel->populateRelation(
-                    $this->inverseOf,
-                    $inverseRelation->multiple ? [$this->primaryModel] : $this->primaryModel
-                );
-            } else {
-                if (!isset($inverseRelation)) {
-                    /** @var ActiveQuery $inverseRelation */
-                    $inverseRelation = $this->getARInstance()->relationQuery($this->inverseOf);
-                }
+        $relatedModel = reset($result);
 
-                $result[$i][$this->inverseOf] = $inverseRelation->multiple
-                    ? [$this->primaryModel] : $this->primaryModel;
+        if ($relatedModel instanceof ActiveRecordInterface) {
+            $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
+            $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
+
+            foreach ($result as $relatedModel) {
+                $relatedModel->populateRelation($this->inverseOf, $primaryModel);
+            }
+        } else {
+            $inverseRelation = $this->getARInstance()->relationQuery($this->inverseOf);
+            $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
+
+            foreach ($result as &$relatedModel) {
+                $relatedModel[$this->inverseOf] = $primaryModel;
             }
         }
     }
@@ -275,20 +274,17 @@ trait ActiveRelationTrait
         $models = $this->all();
 
         if (isset($viaModels, $viaQuery)) {
-            $buckets = $this->buildBuckets($models, $this->link, $viaModels, $viaQuery);
+            $buckets = $this->buildBuckets($models, $viaModels, $viaQuery);
         } else {
-            $buckets = $this->buildBuckets($models, $this->link);
+            $buckets = $this->buildBuckets($models);
         }
 
         $this->indexBy($indexBy);
-
-        $indexBy = $this->getIndexBy();
 
         if ($indexBy !== null && $this->multiple) {
             $buckets = $this->indexBuckets($buckets, $indexBy);
         }
 
-        $link = array_values($this->link);
         if (isset($viaQuery)) {
             $deepViaQuery = $viaQuery;
 
@@ -296,29 +292,40 @@ trait ActiveRelationTrait
                 $deepViaQuery = is_array($deepViaQuery->via) ? $deepViaQuery->via[1] : $deepViaQuery->via;
             }
 
-            $link = array_values($deepViaQuery->link);
+            $link = $deepViaQuery->link;
+        } else {
+            $link = $this->link;
         }
 
         foreach ($primaryModels as $i => $primaryModel) {
             $keys = null;
+
             if ($this->multiple && count($link) === 1) {
                 $primaryModelKey = reset($link);
-                $keys = $primaryModel[$primaryModelKey] ?? null;
+
+                if ($primaryModel instanceof ActiveRecordInterface) {
+                    $keys = $primaryModel->getAttribute($primaryModelKey);
+                } else {
+                    $keys = $primaryModel[$primaryModelKey] ?? null;
+                }
             }
+
             if (is_array($keys)) {
                 $value = [];
+
                 foreach ($keys as $key) {
-                    $key = $this->normalizeModelKey($key);
+                    $key = (string) $key;
+
                     if (isset($buckets[$key])) {
-                        if ($indexBy !== null) {
-                            /** if indexBy is set, array_merge will cause renumbering of numeric array */
-                            foreach ($buckets[$key] as $bucketKey => $bucketValue) {
-                                $value[$bucketKey] = $bucketValue;
-                            }
-                        } else {
-                            $value = array_merge($value, $buckets[$key]);
-                        }
+                        $value[] = $buckets[$key];
                     }
+                }
+
+                if ($indexBy !== null) {
+                    /** if indexBy is set, array_merge will cause renumbering of numeric array */
+                    $value = array_replace(...$value);
+                } else {
+                    $value = array_merge(...$value);
                 }
             } else {
                 $key = $this->getModelKey($primaryModel, $link);
@@ -331,6 +338,7 @@ trait ActiveRelationTrait
                 $primaryModels[$i][$name] = $value;
             }
         }
+
         if ($this->inverseOf !== null) {
             $this->populateInverseRelation($primaryModels, $models, $name, $this->inverseOf);
         }
@@ -354,66 +362,84 @@ trait ActiveRelationTrait
         $model = reset($models);
 
         if ($model instanceof ActiveRecordInterface) {
-            /** @var ActiveQuery $relation */
-            $relation = $model->relationQuery($name);
-        } else {
-            /** @var ActiveQuery $relation */
-            $relation = $this->getARInstance()->relationQuery($name);
+            $this->populateInverseRelationToModels($models, $primaryModels, $name);
+            return;
         }
 
-        if ($relation->getMultiple()) {
-            $buckets = $this->buildBuckets($primaryModels, $relation->getLink(), null, null, false);
-            if ($model instanceof ActiveRecordInterface) {
-                foreach ($models as $model) {
-                    $key = $this->getModelKey($model, $relation->getLink());
-                    if ($model instanceof ActiveRecordInterface) {
-                        $model->populateRelation($name, $buckets[$key] ?? []);
+        $primaryModel = reset($primaryModels);
+
+        if ($primaryModel instanceof ActiveRecordInterface) {
+            if ($this->multiple) {
+                foreach ($primaryModels as $primaryModel) {
+                    $models = $primaryModel->relation($primaryName);
+                    if (!empty($models)) {
+                        $this->populateInverseRelationToModels($models, $primaryModels, $name);
+                        $primaryModel->populateRelation($primaryName, $models);
                     }
                 }
             } else {
-                foreach ($primaryModels as $i => $primaryModel) {
-                    if ($this->multiple) {
-                        foreach ($primaryModel as $j => $m) {
-                            $key = $this->getModelKey($m, $relation->getLink());
-                            $primaryModels[$i][$j][$name] = $buckets[$key] ?? [];
-                        }
-                    } elseif (!empty($primaryModel[$primaryName])) {
-                        $key = $this->getModelKey($primaryModel[$primaryName], $relation->getLink());
-                        $primaryModels[$i][$primaryName][$name] = $buckets[$key] ?? [];
-                    }
-                }
-            }
-        } elseif ($this->multiple) {
-            foreach ($primaryModels as $i => $primaryModel) {
-                foreach ($primaryModel[$primaryName] as $j => $m) {
-                    if ($m instanceof ActiveRecordInterface) {
-                        $m->populateRelation($name, $primaryModel);
-                    } else {
-                        $primaryModels[$i][$primaryName][$j][$name] = $primaryModel;
+                foreach ($primaryModels as $primaryModel) {
+                    $model = $primaryModel->relation($primaryName);
+                    if (!empty($model)) {
+                        $models = [$model];
+                        $this->populateInverseRelationToModels($models, $primaryModels, $name);
+                        $primaryModel->populateRelation($primaryName, $models[0]);
                     }
                 }
             }
         } else {
-            foreach ($primaryModels as $i => $primaryModel) {
-                if ($primaryModel[$primaryName] instanceof ActiveRecordInterface) {
-                    $primaryModel[$primaryName]->populateRelation($name, $primaryModel);
-                } elseif (!empty($primaryModel[$primaryName])) {
-                    $primaryModels[$i][$primaryName][$name] = $primaryModel;
+            if ($this->multiple) {
+                foreach ($primaryModels as &$primaryModel) {
+                    if (!empty($primaryModel[$primaryName])) {
+                        $this->populateInverseRelationToModels($primaryModel[$primaryName], $primaryModels, $name);
+                    }
                 }
+            } else {
+                foreach ($primaryModels as &$primaryModel) {
+                    if (!empty($primaryModel[$primaryName])) {
+                        $models = [$primaryModel[$primaryName]];
+                        $this->populateInverseRelationToModels($models, $primaryModels, $name);
+                        $primaryModel[$primaryName] = $models[0];
+                    }
+                }
+            }
+        }
+    }
+
+    private function populateInverseRelationToModels(array &$models, array $primaryModels, string $name): void
+    {
+        $model = reset($models);
+        $isArray = is_array($model);
+
+        /** @var ActiveQuery $relation */
+        $relation = $isArray ? $this->getARInstance()->relationQuery($name) : $model->relationQuery($name);
+        $buckets = $relation->buildBuckets($primaryModels);
+        $link = $relation->getLink();
+        $default = $relation->getMultiple() ? [] : null;
+
+        if ($isArray) {
+            /** @var array $model */
+            foreach ($models as &$model) {
+                $key = $this->getModelKey($model, $link);
+                $model[$name] = $buckets[$key] ?? $default;
+            }
+        } else {
+            /** @var ActiveRecordInterface $model */
+            foreach ($models as $model) {
+                $key = $this->getModelKey($model, $link);
+                $model->populateRelation($name, $buckets[$key] ?? $default);
             }
         }
     }
 
     private function buildBuckets(
         array $models,
-        array $link,
         array $viaModels = null,
-        self $viaQuery = null,
-        bool $checkMultiple = true
+        self $viaQuery = null
     ): array {
         if ($viaModels !== null) {
             $map = [];
-            $linkValues = array_values($link);
+            $linkValues = $this->link;
             $viaLink = $viaQuery->link ?? [];
             $viaLinkKeys = array_keys($viaLink);
             $viaVia = null;
@@ -443,7 +469,7 @@ trait ActiveRelationTrait
         }
 
         $buckets = [];
-        $linkKeys = array_keys($link);
+        $linkKeys = array_keys($this->link);
 
         if (isset($map)) {
             foreach ($models as $model) {
@@ -462,10 +488,11 @@ trait ActiveRelationTrait
             }
         }
 
-        if ($checkMultiple && !$this->multiple) {
-            foreach ($buckets as $i => $bucket) {
-                $buckets[$i] = reset($bucket);
-            }
+        if (!$this->multiple) {
+            return array_combine(
+                array_keys($buckets),
+                array_column($buckets, 0)
+            );
         }
 
         return $buckets;
@@ -487,24 +514,18 @@ trait ActiveRelationTrait
     }
 
     /**
-     * Indexes buckets by column name.
+     * Indexes buckets by a column name.
      *
-     * @param callable|string $indexBy the name of the column by which the query results should be indexed by. This can
-     * also be a callable(e.g. anonymous function) that returns the index value based on the given row data.
+     * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
+     * also be a {@see Closure} that returns the index value based on the given models data.
      */
-    private function indexBuckets(array $buckets, callable|string $indexBy): array
+    private function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
-        $result = [];
-
-        foreach ($buckets as $key => $models) {
-            $result[$key] = [];
-            foreach ($models as $model) {
-                $index = is_string($indexBy) ? $model[$indexBy] : $indexBy($model);
-                $result[$key][$index] = $model;
-            }
+        foreach ($buckets as &$models) {
+            $models = ArArrayHelper::index($models, $indexBy);
         }
 
-        return $result;
+        return $buckets;
     }
 
     /**
@@ -542,76 +563,87 @@ trait ActiveRelationTrait
     protected function filterByModels(array $models): void
     {
         $attributes = array_keys($this->link);
-
         $attributes = $this->prefixKeyColumns($attributes);
 
+        $model = reset($models);
         $values = [];
+
         if (count($attributes) === 1) {
             /** single key */
             $attribute = reset($this->link);
-            foreach ($models as $model) {
-                $value = isset($model[$attribute]) || (is_object($model) && property_exists($model, $attribute)) ? $model[$attribute] : null;
-                if ($value !== null) {
-                    if (is_array($value)) {
-                        $values = array_merge($values, $value);
-                    } elseif ($value instanceof ArrayExpression && $value->getDimension() === 1) {
-                        $values = array_merge($values, $value->getValue());
-                    } else {
-                        $values[] = $value;
+
+            if ($model instanceof ActiveRecordInterface) {
+                foreach ($models as $model) {
+                    $value = $model->getAttribute($attribute);
+
+                    if ($value !== null) {
+                        if (is_array($value)) {
+                            $values = [...$values, ...$value];
+                        } else {
+                            $values[] = $value;
+                        }
+                    }
+                }
+            } else {
+                foreach ($models as $model) {
+                    if (isset($model[$attribute])) {
+                        $value = $model[$attribute];
+
+                        if (is_array($value)) {
+                            $values = [...$values, ...$value];
+                        } else {
+                            $values[] = $value;
+                        }
                     }
                 }
             }
 
-            if (empty($values)) {
-                $this->emulateExecution();
+            if (!empty($values)) {
+                $scalarValues = array_filter($values, 'is_scalar');
+                $nonScalarValues = array_diff_key($values, $scalarValues);
+
+                $scalarValues = array_unique($scalarValues);
+                $values = [...$scalarValues, ...$nonScalarValues];
             }
         } else {
-            /**
-             * composite keys ensure keys of $this->link are prefixed the same way as $attributes.
-             */
-            $prefixedLink = array_combine($attributes, $this->link);
+            $nulls = array_fill_keys($this->link, null);
 
-            foreach ($models as $model) {
-                $v = [];
+            if ($model instanceof ActiveRecordInterface) {
+                foreach ($models as $model) {
+                    $value = $model->getAttributes($this->link);
 
-                foreach ($prefixedLink as $attribute => $link) {
-                    $v[$attribute] = $model[$link];
+                    if (!empty($value)) {
+                        $values[] = array_combine($attributes, array_merge($nulls, $value));
+                    }
                 }
+            } else {
+                foreach ($models as $model) {
+                    $value = array_intersect_key($model, $nulls);
 
-                $values[] = $v;
-
-                if (empty($v)) {
-                    $this->emulateExecution();
+                    if (!empty($value)) {
+                        $values[] = array_combine($attributes, array_merge($nulls, $value));
+                    }
                 }
             }
         }
 
-        if (!empty($values)) {
-            $scalarValues = [];
-            $nonScalarValues = [];
-            foreach ($values as $value) {
-                if (is_scalar($value)) {
-                    $scalarValues[] = $value;
-                } else {
-                    $nonScalarValues[] = $value;
-                }
-            }
-
-            $scalarValues = array_unique($scalarValues);
-            $values = [...$scalarValues, ...$nonScalarValues];
+        if (empty($values)) {
+            $this->emulateExecution();
+            $this->andWhere('1=0');
+            return;
         }
 
         $this->andWhere(['in', $attributes, $values]);
     }
 
-    private function getModelKey(ActiveRecordInterface|array $activeRecord, array $attributes): false|int|string
+    private function getModelKey(ActiveRecordInterface|array $activeRecord, array $attributes): string
     {
         $key = [];
 
         if (is_array($activeRecord)) {
             foreach ($attributes as $attribute) {
                 if (isset($activeRecord[$attribute])) {
-                    $key[] = $this->normalizeModelKey($activeRecord[$attribute]);
+                    $key[] = (string) $activeRecord[$attribute];
                 }
             }
         } else {
@@ -619,36 +651,16 @@ trait ActiveRelationTrait
                 $value = $activeRecord->getAttribute($attribute);
 
                 if ($value !== null) {
-                    $key[] = $this->normalizeModelKey($value);
+                    $key[] = (string) $value;
                 }
             }
         }
 
-        if (count($key) > 1) {
-            return serialize($key);
-        }
-
-        $key = reset($key);
-
-        return is_scalar($key) ? $key : serialize($key);
-    }
-
-    /**
-     * @param int|string|Stringable|null $value raw key value.
-     *
-     * @return int|string|null normalized key value.
-     */
-    private function normalizeModelKey(int|string|Stringable|null $value): int|string|null
-    {
-        if ($value instanceof Stringable) {
-            /**
-             * ensure matching to special objects, which are convertible to string, for cross-DBMS relations,
-             * for example: `|MongoId`
-             */
-            $value = (string) $value;
-        }
-
-        return $value;
+        return match (count($key)) {
+            0 => '',
+            1 => $key[0],
+            default => serialize($key),
+        };
     }
 
     /**
