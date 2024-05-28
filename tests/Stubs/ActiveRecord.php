@@ -2,16 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord;
+namespace Yiisoft\ActiveRecord\Tests\Stubs;
 
 use ArrayAccess;
 use IteratorAggregate;
 use Yiisoft\ActiveRecord\Trait\ArrayableTrait;
 use Yiisoft\ActiveRecord\Trait\ArrayAccessTrait;
 use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
-use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
-use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
 use Yiisoft\ActiveRecord\Trait\TransactionalTrait;
+use Yiisoft\ActiveRecord\TransactionalInterface;
 use Yiisoft\Arrays\ArrayableInterface;
 
 /**
@@ -21,15 +20,13 @@ use Yiisoft\Arrays\ArrayableInterface;
  * @see ArrayAccess to access attributes as array elements;
  * @see IteratorAggregate to iterate over attributes;
  * @see TransactionalInterface to handle transactions;
- * @see MagicPropertiesTrait to access attributes as properties;
- * @see MagicRelationsTrait to access relation queries.
  *
  * @template-implements ArrayAccess<string, mixed>
  * @template-implements IteratorAggregate<string, mixed>
  *
- * @see BaseActiveRecord for more information.
+ * @see ActiveRecord for more information.
  */
-class MagicActiveRecord extends BaseActiveRecord implements
+class ActiveRecord extends \Yiisoft\ActiveRecord\ActiveRecord implements
     ArrayableInterface,
     ArrayAccess,
     IteratorAggregate,
@@ -38,7 +35,5 @@ class MagicActiveRecord extends BaseActiveRecord implements
     use ArrayableTrait;
     use ArrayAccessTrait;
     use ArrayIteratorTrait;
-    use MagicPropertiesTrait;
-    use MagicRelationsTrait;
     use TransactionalTrait;
 }

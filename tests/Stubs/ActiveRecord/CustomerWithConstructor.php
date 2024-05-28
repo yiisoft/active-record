@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
