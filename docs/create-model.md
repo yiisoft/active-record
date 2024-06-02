@@ -34,8 +34,10 @@ Now you can use `$user->id`, `$user->username`, `$user->email` to access the pro
 
 ```php
 $user = new User($db);
+
 $user->username = 'admin';
 $user->email = 'admin@example.net';
+
 $user->save();
 ```
 
@@ -121,8 +123,10 @@ Now you can use `$user->getId()`, `$user->getUsername()`, `$user->getEmail()` to
 
 ```php
 $user = new User($db);
+
 $user->setUsername('admin');
 $user->setEmail('admin@example.net');
+
 $user->save();
 ```
 
@@ -188,6 +192,7 @@ final class User extends ActiveRecord
     {
         return match ($name) {
             'profile' => $this->hasOne(Profile::class, ['id' => 'profile_id']),
+            'orders' => $this->hasMany(Order::class, ['user_id' => 'id']),
             default => parent::relationQuery($name),
         };
     }
@@ -195,6 +200,12 @@ final class User extends ActiveRecord
     public function getProfile(): Profile|null
     {
         return $this->relation('profile');
+    }
+    
+    /** @return Order[] */
+    public function getOrders(): array
+    {
+        return $this->relation('orders');
     }
 }
 ```
@@ -207,5 +218,8 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 $userQuery = new ActiveQuery(User::class, $db);
 
 $user = $userQuery->where(['id' => 1])->onePopulate();
-$user->getProfile();
+
+$profile = $user->getProfile();
+
+$orders = $user->getOrders();
 ```
