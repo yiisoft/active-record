@@ -164,9 +164,8 @@ You can use `$user->id`, `$user->username`, `$user->email` to access the propert
 To define relations, use the {@see ActiveRecordInterface::relationQuery()} method. This method should return an
 instance of {@see ActiveQueryInterface} for the relation. You can then define a getter method to access the relation.
 
-To get the related record, use the {@see ActiveRecordInterface::relation()} method. This method should return 
-the related record(s) or `null` (empty array for {@see AbstractActiveRecord::hasMany()} relation type) if the record(s) 
-not found.
+To get the related record, use the {@see ActiveRecordInterface::relation()} method. This method returns the related 
+record(s) or `null` (empty array for {@see AbstractActiveRecord::hasMany()} relation type) if the record(s) not found.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
