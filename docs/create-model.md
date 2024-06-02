@@ -161,10 +161,10 @@ You can use `$user->id`, `$user->username`, `$user->email` to access the propert
 
 ## Relations
 
-To define relations, you can use the {@see ActiveRecordInterface::relationQuery()} method. This method should return an
+To define relations, use the {@see ActiveRecordInterface::relationQuery()} method. This method should return an
 instance of {@see ActiveQueryInterface} for the relation. You can then define a getter method to access the relation.
 
-To get the related record, you can use the {@see ActiveRecordInterface::relation()} method. This method should return 
+To get the related record, use the {@see ActiveRecordInterface::relation()} method. This method should return 
 the related record(s) or `null` (empty array for {@see AbstractActiveRecord::hasMany()} relation type) if the record(s) 
 not found.
 
