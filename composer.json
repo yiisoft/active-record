@@ -31,9 +31,7 @@
     "require": {
         "php": "^8.1",
         "ext-json": "*",
-        "yiisoft/arrays": "^3.0",
-        "yiisoft/db": "dev-master",
-        "yiisoft/factory": "^1.0"
+        "yiisoft/db": "dev-master"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
