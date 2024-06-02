@@ -41,9 +41,11 @@
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^5.20",
         "yiisoft/aliases": "^2.0",
+        "yiisoft/arrays": "^3.1",
         "yiisoft/cache": "^3.0",
         "yiisoft/db-sqlite": "dev-master",
         "yiisoft/di": "^1.0",
+        "yiisoft/factory": "^1.2",
         "yiisoft/json": "^1.0"
     },
     "autoload": {
