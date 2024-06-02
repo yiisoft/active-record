@@ -85,9 +85,10 @@ abstract class ActiveRecordTest extends TestCase
 
         $record = new NullValues($this->db);
 
-        $record->var1 = null;
-        $record->var2 = null;
-        $record->var3 = null;
+        /** this is to simulate empty html form submission */
+        $record->var1 = '';
+        $record->var2 = '';
+        $record->var3 = '';
         $record->stringcol = '';
         $record->save();
 
