@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * Class Profile.
- *
- * @property int $id
- * @property string $description
  */
 final class ProfileWithConstructor extends ActiveRecord
 {
+    protected int $id;
+    protected string $description;
+
     public function __construct(ConnectionInterface $db, private Aliases $aliases)
     {
         parent::__construct($db);

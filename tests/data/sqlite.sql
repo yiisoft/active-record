@@ -43,6 +43,7 @@ CREATE TABLE "customer" (
   name varchar(128),
   address text,
   status INTEGER DEFAULT 0,
+  bool_status bool DEFAULT FALSE,
   profile_id INTEGER,
   PRIMARY KEY (id)
 );
@@ -196,9 +197,9 @@ INSERT INTO "animal" ("type") VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRe
 INSERT INTO "profile" (description) VALUES ('profile customer 1');
 INSERT INTO "profile" (description) VALUES ('profile customer 3');
 
-INSERT INTO "customer" (email, name, address, status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1);
-INSERT INTO "customer" (email, name, address, status) VALUES ('user2@example.com', 'user2', 'address2', 1);
-INSERT INTO "customer" (email, name, address, status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 2);
+INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
+INSERT INTO "customer" (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
+INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
 
 INSERT INTO "category" (name) VALUES ('Books');
 INSERT INTO "category" (name) VALUES ('Movies');

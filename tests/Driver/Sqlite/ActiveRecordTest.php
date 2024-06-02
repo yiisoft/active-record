@@ -34,16 +34,16 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $customer = new Customer($this->db);
 
-        $customer->id = 1337;
-        $customer->email = 'user1337@example.com';
-        $customer->name = 'user1337';
-        $customer->address = 'address1337';
+        $customer->setId(1337);
+        $customer->setEmail('user1337@example.com');
+        $customer->setName('user1337');
+        $customer->setAddress('address1337');
 
-        $this->assertTrue($customer->isNewRecord);
+        $this->assertTrue($customer->getIsNewRecord());
         $customer->save();
 
-        $this->assertEquals(1337, $customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertEquals(1337, $customer->getId());
+        $this->assertFalse($customer->getIsNewRecord());
     }
 
     /**
@@ -63,9 +63,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         /** @var Beta[] $betas */
         foreach ($betas as $beta) {
-            $this->assertNotNull($beta->alpha);
-            $this->assertEquals($beta->alpha_string_identifier, $beta->alpha->string_identifier);
-            $alphaIdentifiers[] = $beta->alpha->string_identifier;
+            $this->assertNotNull($beta->getAlpha());
+            $this->assertEquals($beta->getAlphaStringIdentifier(), $beta->getAlpha()->getStringIdentifier());
+            $alphaIdentifiers[] = $beta->getAlpha()->getStringIdentifier();
         }
 
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 /**
  * Class NullValues.
@@ -15,6 +15,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $var3
  * @property string $stringcol
  */
+#[\AllowDynamicProperties]
 final class NullValues extends ActiveRecord
 {
     public function getTableName(): string

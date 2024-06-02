@@ -5,23 +5,24 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 /**
  * Class Customer.
- *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $address
- * @property int $status
- *
- * @method CustomerQuery findBySql($sql, $params = []) static.
  */
 class Customer extends ActiveRecord
 {
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
+
+    protected int $id;
+    protected string $email;
+    protected string|null $name = null;
+    protected string|null $address = null;
+    protected int|null $status = 0;
+    protected bool|string|null $bool_status = false;
+    protected int|null $profile_id = null;
 
     /**
      * @var int|string
@@ -37,9 +38,98 @@ class Customer extends ActiveRecord
         return 'customer';
     }
 
-    public function getName(): string
+    public function relationQuery(string $name): ActiveQueryInterface
     {
-        return $this->getAttribute('name');
+        return match ($name) {
+            'profile' => $this->getProfileQuery(),
+            'orders' => $this->getOrdersQuery(),
+            'ordersPlain' => $this->getOrdersPlainQuery(),
+            'ordersNoOrder' => $this->getOrdersNoOrderQuery(),
+            'expensiveOrders' => $this->getExpensiveOrdersQuery(),
+            'ordersWithItems' => $this->getOrdersWithItemsQuery(),
+            'expensiveOrdersWithNullFK' => $this->getExpensiveOrdersWithNullFKQuery(),
+            'ordersWithNullFK' => $this->getOrdersWithNullFKQuery(),
+            'orders2' => $this->getOrders2Query(),
+            'orderItems' => $this->getOrderItemsQuery(),
+            'orderItems2' => $this->getOrderItems2Query(),
+            'items2' => $this->getItems2Query(),
+            default => parent::relationQuery($name),
+        };
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function getName(): string|null
+    {
+        return $this->name;
+    }
+
+    public function getAddress(): string|null
+    {
+        return $this->address;
+    }
+
+    public function getStatus(): int|null
+    {
+        return $this->status;
+    }
+
+    public function getBoolStatus(): bool|null
+    {
+        return $this->bool_status;
+    }
+
+    public function getProfileId(): int|null
+    {
+        return $this->profile_id;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
+    public function setName(string|null $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function setAddress(string|null $address): void
+    {
+        $this->address = $address;
+    }
+
+    public function setStatus(int|null $status): void
+    {
+        $this->status = $status;
+    }
+
+    public function setBoolStatus(bool|null $bool_status): void
+    {
+        $this->bool_status = $bool_status;
+    }
+
+    public function setProfileId(int|null $profile_id): void
+    {
+        $this->setAttribute('profile_id', $profile_id);
+    }
+
+    public function getProfile(): Profile|null
+    {
+        return $this->relation('profile');
     }
 
     public function getProfileQuery(): ActiveQuery
@@ -47,9 +137,19 @@ class Customer extends ActiveRecord
         return $this->hasOne(Profile::class, ['id' => 'profile_id']);
     }
 
+    public function getOrdersPlain(): array
+    {
+        return $this->relation('ordersPlain');
+    }
+
     public function getOrdersPlainQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id']);
+    }
+
+    public function getOrders(): array
+    {
+        return $this->relation('orders');
     }
 
     public function getOrdersQuery(): ActiveQuery
@@ -57,9 +157,19 @@ class Customer extends ActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
+    public function getOrdersNoOrder(): array
+    {
+        return $this->relation('ordersNoOrder');
+    }
+
     public function getOrdersNoOrderQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id']);
+    }
+
+    public function getExpensiveOrders(): array
+    {
+        return $this->relation('expensiveOrders');
     }
 
     public function getExpensiveOrdersQuery(): ActiveQuery
@@ -67,13 +177,23 @@ class Customer extends ActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
-    public function getItemQuery(): void
+    public function getItem(): void
     {
+    }
+
+    public function getOrdersWithItems(): array
+    {
+        return $this->relation('ordersWithItems');
     }
 
     public function getOrdersWithItemsQuery(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
+    }
+
+    public function getExpensiveOrdersWithNullFK(): array
+    {
+        return $this->relation('expensiveOrdersWithNullFK');
     }
 
     public function getExpensiveOrdersWithNullFKQuery(): ActiveQuery
@@ -84,14 +204,29 @@ class Customer extends ActiveRecord
         )->andWhere('[[total]] > 50')->orderBy('id');
     }
 
+    public function getOrdersWithNullFK(): array
+    {
+        return $this->relation('ordersWithNullFK');
+    }
+
     public function getOrdersWithNullFKQuery(): ActiveQuery
     {
         return $this->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->orderBy('id');
     }
 
+    public function getOrders2(): array
+    {
+        return $this->relation('orders2');
+    }
+
     public function getOrders2Query(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
+    }
+
+    public function getOrderItems(): array
+    {
+        return $this->relation('orderItems');
     }
 
     /** deeply nested table relation */
@@ -105,14 +240,20 @@ class Customer extends ActiveRecord
         })->orderBy('id');
     }
 
-    public function setOrdersReadOnly(): void
+    public function getOrderItems2(): array
     {
+        return $this->relation('orderItems2');
     }
 
     public function getOrderItems2Query(): ActiveQuery
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id'])
             ->via('ordersNoOrder');
+    }
+
+    public function getItems2(): array
+    {
+        return $this->relation('items2');
     }
 
     public function getItems2Query(): ActiveQuery

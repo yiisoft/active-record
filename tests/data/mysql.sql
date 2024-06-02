@@ -20,19 +20,19 @@ DROP TABLE IF EXISTS `animal` CASCADE;
 DROP TABLE IF EXISTS `default_pk` CASCADE;
 DROP TABLE IF EXISTS `document` CASCADE;
 DROP TABLE IF EXISTS `comment` CASCADE;
-DROP TABLE IF EXISTS `dossier`;
-DROP TABLE IF EXISTS `employee`;
-DROP TABLE IF EXISTS `department`;
-DROP TABLE IF EXISTS `storage`;
-DROP TABLE IF EXISTS `alpha`;
-DROP TABLE IF EXISTS `beta`;
-DROP VIEW IF EXISTS `animal_view`;
+DROP TABLE IF EXISTS `dossier` CASCADE;
+DROP TABLE IF EXISTS `employee` CASCADE;
+DROP TABLE IF EXISTS `department` CASCADE;
+DROP TABLE IF EXISTS `storage` CASCADE;
+DROP TABLE IF EXISTS `alpha` CASCADE;
+DROP TABLE IF EXISTS `beta` CASCADE;
+DROP VIEW IF EXISTS `animal_view` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_4` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_3` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_2` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_1` CASCADE;
 DROP TABLE IF EXISTS `T_upsert` CASCADE;
-DROP TABLE IF EXISTS `T_upsert_1`;
+DROP TABLE IF EXISTS `T_upsert_1` CASCADE;
 
 CREATE TABLE `constraints`
 (
@@ -53,6 +53,7 @@ CREATE TABLE `customer` (
   `name` varchar(128),
   `address` text,
   `status` int (11) DEFAULT 0,
+  `bool_status` bit(1) DEFAULT 0,
   `profile_id` int(11),
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_customer_profile_id` FOREIGN KEY (`profile_id`) REFERENCES `profile` (`id`)
@@ -232,9 +233,9 @@ INSERT INTO `animal` (`type`) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRe
 INSERT INTO `profile` (description) VALUES ('profile customer 1');
 INSERT INTO `profile` (description) VALUES ('profile customer 3');
 
-INSERT INTO `customer` (email, name, address, status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1);
-INSERT INTO `customer` (email, name, address, status) VALUES ('user2@example.com', 'user2', 'address2', 1);
-INSERT INTO `customer` (email, name, address, status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 2);
+INSERT INTO `customer` (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
+INSERT INTO `customer` (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
+INSERT INTO `customer` (email, name, address, status, bool_status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
 
 INSERT INTO `category` (name) VALUES ('Books');
 INSERT INTO `category` (name) VALUES ('Movies');

@@ -13,7 +13,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithProperties;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
@@ -128,22 +127,21 @@ abstract class ActiveRecordTest extends TestCase
 
         $orderItem = new OrderItem($this->db);
 
-        $orderItem->order_id = 1;
-        $orderItem->item_id = 3;
-        $this->assertEquals(1, $orderItem->order->id);
-        $this->assertEquals(3, $orderItem->item->id);
+        $orderItem->setOrderId(1);
+        $orderItem->setItemId(3);
+        $this->assertEquals(1, $orderItem->getOrder()->getId());
+        $this->assertEquals(3, $orderItem->getItem()->getId());
 
-        /** test `__set()`. */
-        $orderItem->order_id = 2;
-        $orderItem->item_id = 1;
-        $this->assertEquals(2, $orderItem->order->id);
-        $this->assertEquals(1, $orderItem->item->id);
+        $orderItem->setOrderId(2);
+        $orderItem->setItemId(1);
+        $this->assertEquals(2, $orderItem->getOrder()->getId());
+        $this->assertEquals(1, $orderItem->getItem()->getId());
 
         /** test `setAttribute()`. */
         $orderItem->setAttribute('order_id', 2);
         $orderItem->setAttribute('item_id', 2);
-        $this->assertEquals(2, $orderItem->order->id);
-        $this->assertEquals(2, $orderItem->item->id);
+        $this->assertEquals(2, $orderItem->getOrder()->getId());
+        $this->assertEquals(2, $orderItem->getItem()->getId());
     }
 
     public function testDefaultValues(): void
@@ -243,21 +241,21 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer($this->db);
 
-        $customer->name = 'Some {{weird}} name';
-        $customer->email = 'test@example.com';
-        $customer->address = 'Some {{%weird}} address';
+        $customer->setName('Some {{weird}} name');
+        $customer->setEmail('test@example.com');
+        $customer->setAddress('Some {{%weird}} address');
         $customer->insert();
         $customer->refresh();
 
-        $this->assertEquals('Some {{weird}} name', $customer->name);
-        $this->assertEquals('Some {{%weird}} address', $customer->address);
+        $this->assertEquals('Some {{weird}} name', $customer->getName());
+        $this->assertEquals('Some {{%weird}} address', $customer->getAddress());
 
-        $customer->name = 'Some {{updated}} name';
-        $customer->address = 'Some {{%updated}} address';
+        $customer->setName('Some {{updated}} name');
+        $customer->setAddress('Some {{%updated}} address');
         $customer->update();
 
-        $this->assertEquals('Some {{updated}} name', $customer->name);
-        $this->assertEquals('Some {{%updated}} address', $customer->address);
+        $this->assertEquals('Some {{updated}} name', $customer->getName());
+        $this->assertEquals('Some {{%updated}} address', $customer->getAddress());
     }
 
     public static function legalValuesForFindByCondition(): array
@@ -373,23 +371,25 @@ abstract class ActiveRecordTest extends TestCase
 
         $order = new Order($this->db);
 
-        $order->customer_id = 1;
-        $order->created_at = 1_325_502_201;
-        $order->total = 0;
+        $order->setCustomerId(1);
+        $order->setCreatedAt(1_325_502_201);
+        $order->setTotal(0);
 
         $orderItem = new OrderItem($this->db);
 
-        $order->orderItems;
+        $order->getOrderItems();
 
         $order->populateRelation('orderItems', [$orderItem]);
 
         $order->save();
 
-        $this->assertCount(1, $order->orderItems);
+        $this->assertCount(1, $order->getOrderItems());
     }
 
     public function testIssetException(): void
     {
+        self::markTestSkipped('There are no magic properties in the Cat class');
+
         $this->checkFixture($this->db, 'cat');
 
         $cat = new Cat($this->db);
@@ -400,6 +400,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIssetThrowable(): void
     {
+        self::markTestSkipped('There are no magic properties in the Cat class');
+
         $this->checkFixture($this->db, 'cat');
 
         $cat = new Cat($this->db);
@@ -410,6 +412,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIssetNonExisting(): void
     {
+        self::markTestSkipped('There are no magic properties in the Cat class');
+
         $this->checkFixture($this->db, 'cat');
 
         $cat = new Cat($this->db);
@@ -443,13 +447,15 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetAttributeNoExist(): void
     {
+        self::markTestSkipped('There are no magic properties in the Cat class');
+
         $this->checkFixture($this->db, 'cat');
 
         $cat = new Cat($this->db);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat has no attribute named "noExist"'
+            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no attribute named "noExist"'
         );
 
         $cat->setAttribute('noExist', 1);
@@ -489,9 +495,9 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer($this->db);
 
-        $this->assertEmpty($customer->getAttribute('name'));
-        $this->assertEmpty($customer->getOldAttribute('name'));
-        $this->assertFalse($customer->isAttributeChanged('name', false));
+        $this->assertEmpty($customer->getAttribute('email'));
+        $this->assertEmpty($customer->getOldAttribute('email'));
+        $this->assertFalse($customer->isAttributeChanged('email', false));
     }
 
     public function testTableSchemaException(): void
@@ -509,17 +515,17 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer($this->db);
 
-        $customer->email = 'user4@example.com';
-        $customer->name = 'user4';
-        $customer->address = 'address4';
+        $customer->setEmail('user4@example.com');
+        $customer->setName('user4');
+        $customer->setAddress('address4');
 
-        $this->assertNull($customer->id);
-        $this->assertTrue($customer->isNewRecord);
+        $this->assertNull($customer->getAttribute('id'));
+        $this->assertTrue($customer->getIsNewRecord());
 
         $customer->save();
 
-        $this->assertNotNull($customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertNotNull($customer->getId());
+        $this->assertFalse($customer->getIsNewRecord());
     }
 
     /**
@@ -533,31 +539,33 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer($this->db);
 
-        $customer->name = 'boolean customer';
-        $customer->email = 'mail@example.com';
-        $customer->status = true;
+        $customer->setName('boolean customer');
+        $customer->setEmail('mail@example.com');
+        $customer->setStatus(1);
 
         $customer->save();
         $customer->refresh();
-        $this->assertEquals(1, $customer->status);
+        $this->assertEquals(1, $customer->getStatus());
 
-        $customer->status = false;
+        $customer->setStatus(0);
         $customer->save();
 
         $customer->refresh();
-        $this->assertEquals(0, $customer->status);
+        $this->assertEquals(0, $customer->getStatus());
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['status' => true])->all();
+        $customers = $customerQuery->where(['status' => 1])->all();
         $this->assertCount(2, $customers);
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['status' => false])->all();
+        $customers = $customerQuery->where(['status' => 0])->all();
         $this->assertCount(1, $customers);
     }
 
     public function testAttributeAccess(): void
     {
+        self::markTestSkipped('There are no magic properties in the Cat class');
+
         $this->checkFixture($this->db, 'customer');
 
         $arClass = new Customer($this->db);
@@ -639,10 +647,10 @@ abstract class ActiveRecordTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $customer = $customerQuery->findOne(1);
-        $customer->name = 'to be refreshed';
+        $customer->setName('to be refreshed');
 
         $this->assertTrue($customer->refresh());
-        $this->assertEquals('user1', $customer->name);
+        $this->assertEquals('user1', $customer->getName());
     }
 
     public function testEquals(): void
@@ -679,12 +687,12 @@ abstract class ActiveRecordTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(2);
 
-        $this->assertCount(1, $order->itemsFor8);
-        $order->unlink('itemsFor8', $order->itemsFor8[0], $delete);
+        $this->assertCount(1, $order->getItemsFor8());
+        $order->unlink('itemsFor8', $order->getItemsFor8()[0], $delete);
 
         $order = $orderQuery->findOne(2);
-        $this->assertCount(0, $order->itemsFor8);
-        $this->assertCount(2, $order->orderItemsWithNullFK);
+        $this->assertCount(0, $order->getItemsFor8());
+        $this->assertCount(2, $order->getOrderItemsWithNullFK());
 
         $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class, $this->db);
         $this->assertCount(1, $orderItemQuery->findAll([
@@ -705,7 +713,7 @@ abstract class ActiveRecordTest extends TestCase
         /** @var Order $order */
         $order = $orderQuery->findOne(2);
 
-        $order->setVirtualCustomerId($order->customer_id);
+        $order->setVirtualCustomerId($order->getCustomerId());
         $this->assertNotNull($order->getVirtualCustomerQuery());
     }
 
@@ -722,14 +730,14 @@ abstract class ActiveRecordTest extends TestCase
         $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
         $eagerItemsCount = 0;
         foreach ($eagerCustomers as $customer) {
-            $eagerItemsCount += is_countable($customer->items2) ? count($customer->items2) : 0;
+            $eagerItemsCount += is_countable($customer->getItems2()) ? count($customer->getItems2()) : 0;
         }
 
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
         $lazyCustomers = $customerQuery->all();
         $lazyItemsCount = 0;
         foreach ($lazyCustomers as $customer) {
-            $lazyItemsCount += is_countable($customer->items2) ? count($customer->items2) : 0;
+            $lazyItemsCount += is_countable($customer->getItems2()) ? count($customer->getItems2()) : 0;
         }
 
         $this->assertEquals($eagerItemsCount, $lazyItemsCount);
@@ -749,6 +757,7 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 1,
+                'bool_status' => true,
                 'profile_id' => 1,
             ],
             $customer->toArray(),
@@ -769,6 +778,7 @@ abstract class ActiveRecordTest extends TestCase
                 'name' => 'user1',
                 'address' => 'address1',
                 'status' => 'active',
+                'bool_status' => true,
                 'profile_id' => 1,
             ],
             $customer->toArray(),
@@ -859,7 +869,7 @@ abstract class ActiveRecordTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class, $this->db);
 
         $customer = $customerQuery->findOne(1);
-        $customer->id = 2;
+        $customer->setId(2);
 
         $this->assertSame(1, $customer->getOldPrimaryKey());
         $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
@@ -871,18 +881,40 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer($this->db);
 
-        $this->assertSame([], $customer->getDirtyAttributes());
+        $this->assertSame(
+            [
+                'name' => null,
+                'address' => null,
+                'status' => 0,
+                'bool_status' => false,
+                'profile_id' => null,
+            ],
+            $customer->getDirtyAttributes()
+        );
 
         $customer->setAttribute('name', 'Adam');
         $customer->setAttribute('email', 'adam@example.com');
         $customer->setAttribute('address', null);
 
+        $this->assertEquals([], $customer->getDirtyAttributes([]));
+
         $this->assertEquals(
-            ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
+            [
+                'name' => 'Adam',
+                'email' => 'adam@example.com',
+                'address' => null,
+                'status' => 0,
+                'bool_status' => false,
+                'profile_id' => null,
+            ],
             $customer->getDirtyAttributes()
         );
         $this->assertEquals(
-            ['email' => 'adam@example.com', 'address' => null],
+            [
+                'email' => 'adam@example.com',
+                'address' => null,
+                'status' => 0,
+            ],
             $customer->getDirtyAttributes(['id', 'email', 'address', 'status', 'unknown']),
         );
 
@@ -914,36 +946,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
             $customer->getDirtyAttributes(['id', 'email', 'address', 'status', 'unknown']),
-        );
-    }
-
-    public function testGetDirtyAttributesWithProperties(): void
-    {
-        $this->checkFixture($this->db, 'customer');
-
-        $customer = new CustomerWithProperties($this->db);
-        $this->assertSame([
-            'name' => null,
-            'address' => null,
-        ], $customer->getDirtyAttributes());
-
-        $customerQuery = new ActiveQuery(CustomerWithProperties::class, $this->db);
-        $customer = $customerQuery->findOne(1);
-
-        $this->assertSame([], $customer->getDirtyAttributes());
-
-        $customer->setEmail('adam@example.com');
-        $customer->setName('Adam');
-        $customer->setAddress(null);
-        $customer->setStatus(null);
-
-        $this->assertEquals(
-            ['email' => 'adam@example.com', 'name' => 'Adam', 'address' => null, 'status' => null],
-            $customer->getDirtyAttributes(),
-        );
-        $this->assertEquals(
-            ['email' => 'adam@example.com', 'address' => null],
-            $customer->getDirtyAttributes(['id', 'email', 'address', 'unknown']),
         );
     }
 }
