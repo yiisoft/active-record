@@ -15,7 +15,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 /**
  * Entity User.
  *
- * Database fields:
  * @property int $id
  * @property string $username
  * @property string $email
@@ -41,9 +40,14 @@ $user->email = 'admin@example.net';
 $user->save();
 ```
 
+Notes:
+- It needs to use the `#[\AllowDynamicProperties]` attribute to enable dynamic properties;
+- ❌ It is not supported by static analysis, IDEs for autocompletion, type hinting, code generation and inspection tools;
+- ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory;
+
 ### Public properties
 
-To define properties explicitly, you can use public properties.
+To define properties explicitly, you can use `public` properties.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
@@ -68,7 +72,7 @@ As with dynamic properties, you can use `$user->id`, `$user->username`, `$user->
 
 ### Protected properties
 
-To protect properties from being accessed directly, you can use protected properties.
+To protect properties from being accessed directly, you can use `protected` properties.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
@@ -87,24 +91,24 @@ final class User extends ActiveRecord
         return '{{%user}}';
     }
     
-    public function getId(): int
+    public function getId(): int|null
     {
-        return $this->id;
+        return $this->id ?? null;
     }
     
-    public function getUsername(): string
+    public function getUsername(): string|null
     {
-        return $this->username;
+        return $this->username ?? null;
     }
     
-    public function getEmail(): string
+    public function getEmail(): string|null
     {
-        return $this->email;
+        return $this->email ?? null;
     }
     
     public function setId(int $id): void
     {
-        $this->id = $id;
+        $this->setAttribute('id', $id);
     }
     
     public function setUsername(string $username): void
@@ -130,6 +134,12 @@ $user->setEmail('admin@example.net');
 $user->save();
 ```
 
+Notes:
+- Do not use `private` properties, as it will cause an error when populating the model from the database or saving it 
+  to the database;
+- ✔️ It allows access to uninitialized properties, using **null coalescing operator** `return $this->id ?? null;`
+- ✔️ It allows to reset relations when setting the property {@see ActiveRecordInterface::setAttribute()}.
+
 ### Magic properties
 
 You can also use magic properties to access properties.
@@ -141,7 +151,6 @@ use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
 /**
  * Entity User.
  *
- * Database fields:
  * @property int $id
  * @property string $username
  * @property string $email
@@ -159,6 +168,14 @@ final class User extends ActiveRecord
 
 You can use `$user->id`, `$user->username`, `$user->email` to access the properties as with dynamic properties.
 
+Notes:
+- It needs to use the `MagicPropertiesTrait` to enable magic properties;
+- Compared to dynamic properties, they are stored in the `private array $attributes` property;
+- ✔️ It allows to access relations as properties;
+- ❌ It is not supported by static analysis, IDEs for autocompletion, type hinting, code generation and inspection tools;
+- ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.
+  In some cases it can be 200 times slower than explicitly defined properties;
+
 ## Relations
 
 To define relations, use the {@see ActiveRecordInterface::relationQuery()} method. This method should return an
@@ -172,16 +189,14 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Entity User.
- *
- * Database fields:
- * @property int $id
- * @property string $username
- * @property string $email
- * @property int $profile_id
  **/
-#[\AllowDynamicProperties]
 final class User extends ActiveRecord
 {
+    public int $id;
+    public string $username;
+    public string $email;
+    public int $profile_id;
+    
     public function getTableName(): string
     {
         return '{{%user}}';
@@ -209,7 +224,7 @@ final class User extends ActiveRecord
 }
 ```
 
-Now you can use `$user->getProfile()` to access the relation.
+Now you can use `$user->getProfile()` and `$user->getOrders()` to access the relation.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveQuery;
@@ -219,6 +234,5 @@ $userQuery = new ActiveQuery(User::class, $db);
 $user = $userQuery->where(['id' => 1])->onePopulate();
 
 $profile = $user->getProfile();
-
 $orders = $user->getOrders();
 ```
