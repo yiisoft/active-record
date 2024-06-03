@@ -1,7 +1,7 @@
 # Create Active Record Model
 
-To create an Active Record model, you need to create a class that extends `Yiisoft\ActiveRecord\ActiveRecord` and define 
-the table name and properties.
+To create an Active Record model, you need to create a class that extends `Yiisoft\ActiveRecord\ActiveRecord` and define
+class properties, the table name and relations.
 
 ## Properties
 
