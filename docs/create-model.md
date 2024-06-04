@@ -174,7 +174,7 @@ Notes:
 - ✔️ It allows to access relations as properties;
 - ❌ It is not supported by static analysis, IDEs for autocompletion, type hinting, code generation and inspection tools;
 - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.
-  In some cases it can be 200 times slower than explicitly defined properties;
+  In some cases it can be 100 times slower than explicitly defined properties;
 
 ## Relations
 
