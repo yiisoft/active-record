@@ -18,6 +18,9 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $id
  * @property string $username
  * @property string $email
+ * 
+ * The properties in PHPDoc are optional and used by static analysis and by IDEs for autocompletion, type hinting, 
+ * code generation and inspection tools. This does not affect code execution.
  **/
 #[\AllowDynamicProperties]
 final class User extends ActiveRecord
@@ -42,7 +45,7 @@ $user->save();
 
 Notes:
 - It needs to use the `#[\AllowDynamicProperties]` attribute to enable dynamic properties;
-- ❌ It is not supported by static analysis, IDEs for autocompletion, type hinting, code generation and inspection tools;
+- ❌ It does not use strict typing and can be a reason of hard-to-detect errors;
 - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory;
 
 ### Public properties
@@ -72,9 +75,10 @@ final class User extends ActiveRecord
 As with dynamic properties, you can use `$user->id`, `$user->username`, `$user->email` to access the properties.
 
 Notes:
-- ✔️ It allows to define default values for properties;
+- ✔️ It allows to use strict typing and define default values for properties;
+- ✔️ It works faster than dynamic properties, optimized by PHP opcache and uses less memory;
 
-### Protected properties
+### Protected properties (recommended)
 
 To protect properties from being accessed directly, you can use `protected` properties.
 
@@ -140,12 +144,52 @@ $user->save();
 ```
 
 Notes:
-- Do not use `private` properties, as it will cause an error when populating the model from the database or saving it 
-  to the database;
-- ✔️ It allows to define default values for properties;
+- To access properties, you need to define getter and setter methods.
+- ✔️ It allows to use strict typing and define default values for properties;
 - ✔️ It allows to access uninitialized properties, using **null coalescing operator** `return $this->id ?? null;`
-- ✔️ It allows to reset relations when setting the property {@see ActiveRecordInterface::setAttribute()}.
+- ✔️ It allows to reset relations when setting the property, using `ActiveRecordInterface::setAttribute()` method.
 
+### Private properties
+
+To use `private` properties inside the model class, you need to copy `getAttributesInternal()` and `populateAttribute()` 
+methods from the `ActiveRecord` class and adjust them to work with the `private` properties.
+
+```php
+use Yiisoft\ActiveRecord\ActiveRecord;
+
+/**
+ * Entity User.
+ **/
+final class User extends ActiveRecord
+{
+    private int $id;
+    private string $username;
+    private string $email;
+    private string $status = 'active';
+
+    public function getTableName(): string
+    {
+        return '{{%user}}';
+    }
+    
+    // Getters and setters as for protected properties
+    // ...
+
+    // Copied `getAttributesInternal()` and `populateAttribute()` methods from `ActiveRecord` class
+    protected function getAttributesInternal(): array
+    {
+        return get_object_vars($this);
+    }
+    
+    protected function populateAttribute(string $name, mixed $value): void
+    {
+        $this->$name = $value;
+    }
+}
+```
+
+Private properties have the same benefits as protected properties, and they are more secure.
+    
 ### Magic properties
 
 You can also use magic properties to access properties.
@@ -160,6 +204,9 @@ use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
  * @property int $id
  * @property string $username
  * @property string $email
+ * 
+ * The properties in PHPDoc are optional and used by static analysis and by IDEs for autocompletion, type hinting, 
+ * code generation and inspection tools. This does not affect code execution.
  **/
 final class User extends ActiveRecord
 {
@@ -178,17 +225,17 @@ Notes:
 - It needs to use the `MagicPropertiesTrait` to enable magic properties;
 - Compared to dynamic properties, they are stored in the `private array $attributes` property;
 - ✔️ It allows to access relations as properties;
-- ❌ It is not supported by static analysis, IDEs for autocompletion, type hinting, code generation and inspection tools;
+- ❌ It does not use strict typing and can be a reason of hard-to-detect errors;
 - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.
   In some cases it can be 100 times slower than explicitly defined properties;
 
 ## Relations
 
-To define relations, use the {@see ActiveRecordInterface::relationQuery()} method. This method should return an
-instance of {@see ActiveQueryInterface} for the relation. You can then define a getter method to access the relation.
+To define relations, use the `ActiveRecordInterface::relationQuery()` method. This method should return an instance of 
+`ActiveQueryInterface` for the relation. You can then define a getter method to access the relation.
 
-To get the related record, use the {@see ActiveRecordInterface::relation()} method. This method returns the related 
-record(s) or `null` (empty array for {@see AbstractActiveRecord::hasMany()} relation type) if the record(s) not found.
+To get the related record, use the `ActiveRecordInterface::relation()` method. This method returns the related record(s)
+or `null` (empty array for `AbstractActiveRecord::hasMany()` relation type) if the record(s) not found.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
