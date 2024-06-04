@@ -60,6 +60,7 @@ final class User extends ActiveRecord
     public int $id;
     public string $username;
     public string $email;
+    public string $status = 'active';
 
     public function getTableName(): string
     {
@@ -69,6 +70,9 @@ final class User extends ActiveRecord
 ```
 
 As with dynamic properties, you can use `$user->id`, `$user->username`, `$user->email` to access the properties.
+
+Notes:
+- ✔️ It allows to define default values for properties;
 
 ### Protected properties
 
@@ -85,6 +89,7 @@ final class User extends ActiveRecord
     protected int $id;
     protected string $username;
     protected string $email;
+    protected string $status = 'active';
 
     public function getTableName(): string
     {
@@ -137,7 +142,8 @@ $user->save();
 Notes:
 - Do not use `private` properties, as it will cause an error when populating the model from the database or saving it 
   to the database;
-- ✔️ It allows access to uninitialized properties, using **null coalescing operator** `return $this->id ?? null;`
+- ✔️ It allows to define default values for properties;
+- ✔️ It allows to access uninitialized properties, using **null coalescing operator** `return $this->id ?? null;`
 - ✔️ It allows to reset relations when setting the property {@see ActiveRecordInterface::setAttribute()}.
 
 ### Magic properties
