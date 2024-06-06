@@ -323,10 +323,11 @@ trait ActiveRelationTrait
             : $model->relationQuery($name);
 
         $link = $relation->getLink();
+        $indexBy = $relation->getIndexBy();
         $buckets = $relation->buildBuckets($primaryModels);
 
-        if ($relation->getMultiple() && $relation->getIndexBy() !== null) {
-            $buckets = $this->indexBuckets($buckets, $relation->getIndexBy());
+        if ($indexBy !== null && $relation->getMultiple()) {
+            $buckets = $this->indexBuckets($buckets, $indexBy);
         }
 
         $relation->populateRelationFromBuckets($models, $buckets, $name, $link);
@@ -344,6 +345,7 @@ trait ActiveRelationTrait
         foreach ($models as &$model) {
             $keys = $this->getModelKeys($model, $link);
 
+            /** @psalm-suppress NamedArgumentNotAllowed */
             $value = match (count($keys)) {
                 0 => $default,
                 1 => $buckets[$keys[0]] ?? $default,
@@ -412,6 +414,7 @@ trait ActiveRelationTrait
         if (isset($map)) {
             foreach ($models as $model) {
                 $keys = $this->getModelKeys($model, $linkKeys);
+                /** @var bool[][] $filtered */
                 $filtered = array_intersect_key($map, array_flip($keys));
 
                 foreach ($filtered as $keys2) {
