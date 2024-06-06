@@ -104,6 +104,8 @@ final class User extends ActiveRecord
 }
 ```
 
+For more information, follow [Create Active Record Model](docs/create-model.md).
+
 ## Usage in controler with DI container autowiring
 
 ```php
