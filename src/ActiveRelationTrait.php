@@ -379,15 +379,11 @@ trait ActiveRelationTrait
             foreach ($viaModels as $viaModel) {
                 $key1 = $this->getModelKeys($viaModel, $viaLinkKeys);
                 $key2 = $this->getModelKeys($viaModel, $linkValues);
-                $flags = array_fill_keys($key1, true);
+                $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
+            }
 
-                foreach ($key2 as $key) {
-                    if (isset($map[$key])) {
-                        $map[$key] += $flags;
-                    } else {
-                        $map[$key] = $flags;
-                    }
-                }
+            if (!empty($map)) {
+                $map = array_replace_recursive(...$map);
             }
 
             if ($viaQuery !== null) {
@@ -415,12 +411,10 @@ trait ActiveRelationTrait
             foreach ($models as $model) {
                 $keys = $this->getModelKeys($model, $linkKeys);
                 /** @var bool[][] $filtered */
-                $filtered = array_intersect_key($map, array_flip($keys));
+                $filtered = array_intersect_key($map, array_fill_keys($keys, null));
 
-                foreach ($filtered as $keys2) {
-                    foreach (array_keys($keys2) as $key2) {
-                        $buckets[$key2][] = $model;
-                    }
+                foreach (array_keys(array_replace(...$filtered)) as $key2) {
+                    $buckets[$key2][] = $model;
                 }
             }
         } else {
@@ -448,11 +442,7 @@ trait ActiveRelationTrait
         $resultMap = [];
 
         foreach ($map as $key => $linkKeys) {
-            $resultMap[$key] = [];
-            foreach (array_keys($linkKeys) as $linkKey) {
-                /** @psalm-suppress InvalidArrayOffset */
-                $resultMap[$key] += $viaMap[$linkKey];
-            }
+            $resultMap[$key] = array_replace(...array_intersect_key($viaMap, $linkKeys));
         }
 
         return $resultMap;
