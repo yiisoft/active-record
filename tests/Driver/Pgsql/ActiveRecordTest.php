@@ -472,4 +472,25 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[2]->getItems()[0]->getPromotions(), 'id'));
         $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[2]->getItems()[1]->getPromotions(), 'id'));
     }
+
+    public function testLazzyRelationViaArray()
+    {
+        $this->checkFixture($this->db, 'item');
+
+        $itemQuery = new ActiveQuery(Item::class, $this->db);
+        /** @var Item[] $items */
+        $items = $itemQuery->all();
+
+        $this->assertFalse($items[0]->isRelationPopulated('promotions'));
+        $this->assertFalse($items[1]->isRelationPopulated('promotions'));
+        $this->assertFalse($items[2]->isRelationPopulated('promotions'));
+        $this->assertFalse($items[3]->isRelationPopulated('promotions'));
+        $this->assertFalse($items[4]->isRelationPopulated('promotions'));
+
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($items[0]->getPromotions(), 'id'));
+        $this->assertSame([1], ArArrayHelper::getColumn($items[1]->getPromotions(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($items[2]->getPromotions(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($items[3]->getPromotions(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($items[4]->getPromotions(), 'id'));
+    }
 }
