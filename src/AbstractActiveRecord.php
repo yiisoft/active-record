@@ -48,7 +48,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function __construct(
         private ConnectionInterface $db,
-        private ActiveRecordFactory|null $arFactory = null,
         private string $tableName = ''
     ) {
     }
@@ -323,7 +322,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function instantiateQuery(string $arClass): ActiveQueryInterface
     {
-        return new ActiveQuery($arClass, $this->db, $this->arFactory);
+        return new ActiveQuery($arClass, $this->db);
     }
 
     /**

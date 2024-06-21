@@ -298,7 +298,7 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function getSql(): string|null;
 
-    public function getARClass(): string|null;
+    public function getARClass(): string|ActiveRecordInterface|Closure;
 
     /**
      * Creates an {@see ActiveQuery} instance with a given SQL statement.

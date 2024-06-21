@@ -2664,4 +2664,33 @@ abstract class ActiveQueryTest extends TestCase
         $customerB = (new ActiveQuery(Item::class, $this->db))->findOne(1);
         $this->assertFalse($customerA->equals($customerB));
     }
+
+    public function testARClassAsString(): void
+    {
+        $query = new ActiveQuery(Customer::class, $this->db);
+
+        $this->assertSame($query->getARClass(), Customer::class);
+        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+    }
+
+    public function testARClassAsInstance(): void
+    {
+        $customer = new Customer($this->db);
+        $query = new ActiveQuery($customer, $this->db);
+
+        $this->assertSame($query->getARClass(), $customer);
+        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+    }
+
+    public function testARClassAsClosure(): void
+    {
+        $closure = fn () => new Customer($this->db);
+        $query = new ActiveQuery($closure, $this->db);
+
+        $this->assertSame($query->getARClass(), $closure);
+        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+    }
 }
