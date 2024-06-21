@@ -1170,4 +1170,41 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertTrue((new Customer())->isChanged());
     }
+
+    public function testTimestampBehavior(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $startTime = time();
+
+        $order = new Order();
+
+        $order->setCustomerId(1);
+        $order->setTotal(0);
+        $order->save();
+
+        $insertTime = time();
+
+        $createdAt = $order->getCreatedAt()->getTimestamp();
+        $updatedAt = $order->getUpdatedAt()->getTimestamp();
+
+        $this->assertEqualsWithDelta($insertTime, $createdAt, $insertTime - $startTime);
+        $this->assertEqualsWithDelta($insertTime, $updatedAt, $insertTime - $startTime);
+        $this->assertEqualsWithDelta($createdAt, $updatedAt, 1);
+
+        $order->setTotal(1);
+
+        sleep(1); // Ensure that the updatedAt timestamp will be different
+        $order->save();
+
+        $newUpdatedAt = $order->getUpdatedAt()->getTimestamp();
+
+        $this->assertSame($createdAt, $order->getCreatedAt()->getTimestamp());
+        $this->assertTrue($updatedAt < $newUpdatedAt);
+
+        $order->refresh();
+
+        $this->assertSame($createdAt, $order->getCreatedAt());
+        $this->assertSame($newUpdatedAt, $order->getUpdatedAt());
+    }
 }
