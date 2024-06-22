@@ -22,6 +22,8 @@ use Yiisoft\Factory\NotFoundException;
  * represents a relation between two active record classes and will return related records only.
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
+ *
+ * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -298,6 +300,11 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function getSql(): string|null;
 
+    /**
+     * @return string|ActiveRecordInterface|Closure The AR class associated with this query.
+     *
+     * @psalm-return ARClass
+     */
     public function getARClass(): string|ActiveRecordInterface|Closure;
 
     /**

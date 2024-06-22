@@ -102,6 +102,8 @@ use function substr;
  * These methods may only be called in a relational context. Same is true for {@see inverseOf()}, which marks a relation
  * as inverse of another relation and {@see onCondition()} which adds a condition that's to be added to relational
  * query join condition.
+ *
+ * @psalm-import-type ARClass from ActiveQueryInterface
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
@@ -113,7 +115,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array $joinWith = [];
 
     /**
-     * @psalm-param class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure $arClass
+     * @psalm-param ARClass $arClass
      */
     final public function __construct(
         protected string|ActiveRecordInterface|Closure $arClass,
@@ -990,7 +992,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function getARInstance(): ActiveRecordInterface
     {
         if ($this->arClass instanceof ActiveRecordInterface) {
-            return $this->arClass;
+            return clone $this->arClass;
         }
 
         if ($this->arClass instanceof Closure) {

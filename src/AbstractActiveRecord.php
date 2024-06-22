@@ -38,6 +38,8 @@ use function reset;
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
  *
  * See {@see ActiveRecord} for a concrete implementation.
+ *
+ * @psalm-import-type ARClass from ActiveQueryInterface
  */
 abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
@@ -260,16 +262,17 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string $class The class name of the related record
+     * @param string|ActiveRecordInterface|Closure $class The class name of the related record, or an instance of the
+     * related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param class-string<ActiveRecordInterface> $class
+     * @psalm-param ARClass $class
      */
-    public function hasMany(string $class, array $link): ActiveQueryInterface
+    public function hasMany(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($class, $link, true);
     }
@@ -298,16 +301,17 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string $class The class name of the related record.
+     * @param string|ActiveRecordInterface|Closure $class The class name of the related record, or an instance of the
+     *  related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param class-string<ActiveRecordInterface> $class
+     * @psalm-param ARClass $class
      */
-    public function hasOne(string $class, array $link): ActiveQueryInterface
+    public function hasOne(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($class, $link, false);
     }
@@ -318,9 +322,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     * @param string|ActiveRecordInterface|Closure $arClass The class name of the related record, or an instance of the
+     * related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     *
+     * @psalm-param ARClass $arClass
      */
-    public function instantiateQuery(string $arClass): ActiveQueryInterface
+    public function instantiateQuery(string|ActiveRecordInterface|Closure $arClass): ActiveQueryInterface
     {
         return new ActiveQuery($arClass, $this->db);
     }
@@ -1070,18 +1077,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param string $arClass The class name of the related record.
+     * @param string|ActiveRecordInterface|Closure $arClass The class name of the related record.
      * @param array $link The primary-foreign key constraint.
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     * @psalm-param ARClass $arClass
 
      * {@see hasOne()}
      * {@see hasMany()}
      */
-    protected function createRelationQuery(string $arClass, array $link, bool $multiple): ActiveQueryInterface
+    protected function createRelationQuery(string|ActiveRecordInterface|Closure $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
         return $this->instantiateQuery($arClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
