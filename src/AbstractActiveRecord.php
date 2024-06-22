@@ -262,7 +262,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string|ActiveRecordInterface|Closure $class The class name of the related record, or an instance of the
+     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of the
      * related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
@@ -301,7 +301,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string|ActiveRecordInterface|Closure $class The class name of the related record, or an instance of the
+     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of the
      *  related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
@@ -322,7 +322,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * @param string|ActiveRecordInterface|Closure $arClass The class name of the related record, or an instance of the
+     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record, or an instance of the
      * related record, or a Closure to create an {@see ActiveRecordInterface} object.
      *
      * @psalm-param ARClass $arClass
@@ -1077,7 +1077,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param string|ActiveRecordInterface|Closure $arClass The class name of the related record.
+     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record.
      * @param array $link The primary-foreign key constraint.
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
