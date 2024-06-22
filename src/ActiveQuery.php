@@ -301,7 +301,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $pks = $this->getARInstance()->primaryKey();
 
             if (empty($pks)) {
-                throw new InvalidConfigException("Primary key of '{$this->getARClassName()}' can not be empty.");
+                throw new InvalidConfigException('Primary key of "' . $this->getARClassName() . '" can not be empty.');
             }
 
             foreach ($pks as $pk) {
@@ -323,7 +323,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $pks = $model->getPrimaryKey(true);
 
             if (empty($pks)) {
-                throw new InvalidConfigException("Primary key of '{$this->getARClassName()}' can not be empty.");
+                throw new InvalidConfigException('Primary key of "' . $this->getARClassName() . '" can not be empty.');
             }
 
             foreach ($pks as $pk) {
