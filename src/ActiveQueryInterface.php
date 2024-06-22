@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -23,7 +24,7 @@ use Yiisoft\Factory\NotFoundException;
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  *
- * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
+ * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure(ConnectionInterface):ActiveRecordInterface
  */
 interface ActiveQueryInterface extends QueryInterface
 {

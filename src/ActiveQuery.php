@@ -983,7 +983,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if ($this->arClass instanceof Closure) {
-            return ($this->arClass)()::class;
+            return ($this->arClass)($this->db)::class;
         }
 
         return $this->arClass;
@@ -996,7 +996,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if ($this->arClass instanceof Closure) {
-            return ($this->arClass)();
+            return ($this->arClass)($this->db);
         }
 
         /** @psalm-var class-string<ActiveRecordInterface> $class */
