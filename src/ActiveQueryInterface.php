@@ -301,7 +301,7 @@ interface ActiveQueryInterface extends QueryInterface
     public function getSql(): string|null;
 
     /**
-     * @return string|ActiveRecordInterface|Closure The AR class associated with this query.
+     * @return ActiveRecordInterface|Closure|string The AR class associated with this query.
      *
      * @psalm-return ARClass
      */
