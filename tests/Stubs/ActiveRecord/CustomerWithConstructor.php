@@ -23,9 +23,9 @@ final class CustomerWithConstructor extends ActiveRecord
     protected bool|string|null $bool_status = false;
     protected int|null $profile_id = null;
 
-    public function __construct(ConnectionInterface $db, private Aliases $aliases)
+    public function __construct(ConnectionInterface $db, string $tableName = '', private Aliases|null $aliases = null)
     {
-        parent::__construct($db);
+        parent::__construct($db, $tableName);
     }
 
     public function getTableName(): string
