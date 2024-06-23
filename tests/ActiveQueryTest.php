@@ -23,6 +23,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Command\AbstractCommand;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -2686,7 +2687,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testARClassAsClosure(): void
     {
-        $closure = fn () => new Customer($this->db);
+        $closure = fn (ConnectionInterface $db): Customer => new Customer($db);
         $query = new ActiveQuery($closure, $this->db);
 
         $this->assertSame($query->getARClass(), $closure);
