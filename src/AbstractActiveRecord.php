@@ -49,8 +49,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     private array $relationsDependencies = [];
 
     public function __construct(
-        private ConnectionInterface $db,
-        private string $tableName = ''
+        private ConnectionInterface $db
     ) {
     }
 
@@ -1250,11 +1249,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function getTableName(): string
     {
-        if ($this->tableName === '') {
-            $this->tableName = '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
-        }
-
-        return $this->tableName;
+        return '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
     }
 
     protected function db(): ConnectionInterface

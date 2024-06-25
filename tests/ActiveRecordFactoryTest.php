@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveRecordFactory;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
@@ -33,11 +34,15 @@ abstract class ActiveRecordFactoryTest extends TestCase
 
     public function testCreateARWithTableName(): void
     {
-        $customerAR = $this->arFactory->createAR(ArrayAndJsonTypes::class, 'array_and_json_types');
-        $tableName = $customerAR->getTableName();
+        $model = $this->arFactory->createAR(ArrayAndJsonTypes::class);
 
-        $this->assertSame('array_and_json_types', $tableName);
-        $this->assertInstanceOf(ArrayAndJsonTypes::class, $customerAR);
+        $this->assertSame('{{%array_and_json_types}}', $model->getTableName());
+        $this->assertInstanceOf(ArrayAndJsonTypes::class, $model);
+
+        $model = $model->withTableName('array_and_json_types');
+
+        $this->assertSame('array_and_json_types', $model->getTableName());
+        $this->assertInstanceOf(ArrayAndJsonTypes::class, $model);
     }
 
     public function testCreateQueryTo(): void
@@ -70,14 +75,15 @@ abstract class ActiveRecordFactoryTest extends TestCase
     public function testCreateQueryToWithTableName(): void
     {
         /** example create active query */
-        $customerQuery = $this->arFactory->createQueryTo(
-            arClass: ArrayAndJsonTypes::class,
-            tableName: 'array_and_json_types',
+        $modelQuery = $this->arFactory->createQueryTo(
+            arClass: fn (): ActiveRecordInterface => $this->arFactory
+                ->createAR(ArrayAndJsonTypes::class)
+                ->withTableName('array_and_json_types'),
         );
-        $tableName = $customerQuery->getARInstance()->getTableName();
+        $tableName = $modelQuery->getARInstance()->getTableName();
 
         $this->assertSame('array_and_json_types', $tableName);
-        $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
+        $this->assertInstanceOf(ActiveQuery::class, $modelQuery);
     }
 
     public function testGetArInstanceWithConstructor(): void

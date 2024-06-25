@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -11,6 +12,9 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Factory\Factory;
 use Yiisoft\Factory\NotFoundException;
 
+/**
+ * @psalm-import-type ARClass from ActiveQueryInterface
+ */
 final class ActiveRecordFactory
 {
     public function __construct(private Factory $factory)
@@ -21,8 +25,6 @@ final class ActiveRecordFactory
      * Allows you to create an active record instance through the factory.
      *
      * @param string $arClass active record class.
-     * @param string $tableName The name of the table associated with this ActiveRecord class, if its empty string the
-     * name will be generated automatically by calling {@see getTableName()} in the active record class.
      * @param ConnectionInterface|null $db the database connection used for creating active record instances.
      *
      * @throws CircularReferenceException
@@ -37,15 +39,10 @@ final class ActiveRecordFactory
      */
     public function createAR(
         string $arClass,
-        string $tableName = '',
         ConnectionInterface $db = null
     ): ActiveRecordInterface {
         $params = [];
         $params['class'] = $arClass;
-
-        if ($tableName !== '') {
-            $params['__construct()']['tableName'] = $tableName;
-        }
 
         if ($db !== null) {
             $params['__construct()']['db'] = $db;
@@ -57,9 +54,8 @@ final class ActiveRecordFactory
     /**
      * Allows you to create an active query instance through the factory.
      *
-     * @param string $arClass active record class.
-     * @param string $tableName The name of the table associated with this ActiveRecord class, if its empty string the
-     * name will be generated automatically by calling {@see getTableName()} in the active record class.
+     * @param string|ActiveRecordInterface|Closure $arClass the active record class, active record instance or closure
+     * returning active record instance.
      * @param string $queryClass custom query active query class.
      * @param ConnectionInterface|null $db the database connection used for creating active query instances.
      *
@@ -67,10 +63,11 @@ final class ActiveRecordFactory
      * @throws InvalidConfigException
      * @throws NotFoundException
      * @throws NotInstantiableException
+     *
+     * @psalm-param ARClass $arClass
      */
     public function createQueryTo(
-        string $arClass,
-        string $tableName = '',
+        string|ActiveRecordInterface|Closure $arClass,
         string $queryClass = ActiveQuery::class,
         ConnectionInterface $db = null
     ): ActiveQueryInterface {
@@ -80,10 +77,6 @@ final class ActiveRecordFactory
                 'arClass' => $arClass,
             ],
         ];
-
-        if ($tableName !== '') {
-            $params['__construct()']['tableName'] = $tableName;
-        }
 
         if ($db !== null) {
             $params['__construct()']['db'] = $db;

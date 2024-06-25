@@ -7,12 +7,15 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 
 /**
  * Class Order.
  */
 class Order extends ActiveRecord
 {
+    use CustomTableNameTrait;
+
     public const TABLE_NAME = 'order';
 
     protected int|null $id;
@@ -24,7 +27,7 @@ class Order extends ActiveRecord
 
     public function getTableName(): string
     {
-        return self::TABLE_NAME;
+        return $this->tableName ??= self::TABLE_NAME;
     }
 
     public function getId(): int|null
