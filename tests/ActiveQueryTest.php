@@ -2671,7 +2671,7 @@ abstract class ActiveQueryTest extends TestCase
         $query = new ActiveQuery(Customer::class, $this->db);
 
         $this->assertSame($query->getARClass(), Customer::class);
-        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertSame(Assert::invokeMethod($query, 'getARClassName'), Customer::class);
         $this->assertInstanceOf(Customer::class, $query->getARInstance());
     }
 
@@ -2681,7 +2681,7 @@ abstract class ActiveQueryTest extends TestCase
         $query = new ActiveQuery($customer, $this->db);
 
         $this->assertSame($query->getARClass(), $customer);
-        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertSame(Assert::invokeMethod($query, 'getARClassName'), Customer::class);
         $this->assertInstanceOf(Customer::class, $query->getARInstance());
     }
 
@@ -2691,7 +2691,7 @@ abstract class ActiveQueryTest extends TestCase
         $query = new ActiveQuery($closure, $this->db);
 
         $this->assertSame($query->getARClass(), $closure);
-        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertSame(Assert::invokeMethod($query, 'getARClassName'), Customer::class);
         $this->assertInstanceOf(Customer::class, $query->getARInstance());
     }
 }
