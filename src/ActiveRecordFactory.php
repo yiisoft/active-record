@@ -54,7 +54,7 @@ final class ActiveRecordFactory
     /**
      * Allows you to create an active query instance through the factory.
      *
-     * @param string|ActiveRecordInterface|Closure $arClass the active record class, active record instance or closure
+     * @param ActiveRecordInterface|Closure|string $arClass the active record class, active record instance or closure
      * returning active record instance.
      * @param string $queryClass custom query active query class.
      * @param ConnectionInterface|null $db the database connection used for creating active query instances.
