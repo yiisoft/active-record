@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
 
@@ -15,24 +16,24 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         parent::setUp();
 
         $pgsqlHelper = new PgsqlHelper();
-        $this->db = $pgsqlHelper->createConnection();
+        ConnectionProvider::set($pgsqlHelper->createConnection());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->db);
+        ConnectionProvider::unset();
     }
 
     public function testFindAsArray(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
         /** asArray */
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
         $customer = $customerQuery->where(['id' => 2])->asArray()->onePopulate();
         $this->assertEquals([
             'id' => 2,
@@ -45,7 +46,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         ], $customer);
 
         /** find all asArray */
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
         $customers = $customerQuery->asArray()->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers[0]);

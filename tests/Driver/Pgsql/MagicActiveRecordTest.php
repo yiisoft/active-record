@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 use ArrayAccess;
 use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\BoolAR;
@@ -27,23 +28,23 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         parent::setUp();
 
         $pgsqlHelper = new PgsqlHelper();
-        $this->db = $pgsqlHelper->createConnection();
+        ConnectionProvider::set($pgsqlHelper->createConnection());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->db);
+        ConnectionProvider::unset();
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
         $customer->name = 'user1337';
@@ -60,9 +61,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db, 'beta');
+        $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db);
+        $betaQuery = new ActiveQuery(Beta::class, $this->db());
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
 
@@ -80,9 +81,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testBooleanAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
         $customer->bool_status = false;
@@ -97,7 +98,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->refresh();
         $this->assertTrue($customer->bool_status);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
@@ -107,11 +108,11 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testBooleanValues(): void
     {
-        $this->checkFixture($this->db, 'bool_values');
+        $this->checkFixture($this->db(), 'bool_values');
 
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
-        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
+        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db());
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
         $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
@@ -133,11 +134,11 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testBooleanValues2(): void
     {
-        $this->checkFixture($this->db, 'bool_user');
+        $this->checkFixture($this->db(), 'bool_user');
 
-        //$this->db->setCharset('utf8');
-        $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
-        $this->db->createCommand()->createTable('bool_user', [
+        //$this->db()->setCharset('utf8');
+        $this->db()->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
+        $this->db()->createCommand()->createTable('bool_user', [
             'id' => SchemaPgsql::TYPE_PK,
             'username' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
             'auth_key' => SchemaPgsql::TYPE_STRING . '(32) NOT NULL',
@@ -149,13 +150,13 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
             'created_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
             'updated_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
         ])->execute();
-        $this->db->createCommand()->addColumn(
+        $this->db()->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
             SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
         )->execute();
 
-        $user = new UserAR($this->db);
+        $user = new UserAR();
         $user->username = 'test';
         $user->auth_key = 'test';
         $user->password_hash = 'test';
@@ -164,7 +165,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $user->updated_at = time();
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class, $this->db);
+        $userQuery = new ActiveQuery(UserAR::class, $this->db());
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
@@ -172,9 +173,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testBooleanDefaultValues(): void
     {
-        $this->checkFixture($this->db, 'bool_values');
+        $this->checkFixture($this->db(), 'bool_values');
 
-        $arClass = new BoolAR($this->db);
+        $arClass = new BoolAR();
 
         $this->assertNull($arClass->bool_col);
         $this->assertNull($arClass->default_true);
@@ -190,9 +191,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testPrimaryKeyAfterSave(): void
     {
-        $this->checkFixture($this->db, 'default_pk');
+        $this->checkFixture($this->db(), 'default_pk');
 
-        $record = new DefaultPk($this->db);
+        $record = new DefaultPk();
 
         $record->type = 'type';
 
@@ -298,9 +299,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testArrayValues($attributes): void
     {
-        $this->checkFixture($this->db, 'array_and_json_types', true);
+        $this->checkFixture($this->db(), 'array_and_json_types', true);
 
-        $type = new ArrayAndJsonTypes($this->db);
+        $type = new ArrayAndJsonTypes();
 
         foreach ($attributes as $attribute => $expected) {
             $type->$attribute = $expected[0];
@@ -308,7 +309,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $type->save();
 
-        $typeQuery = new ActiveQuery($type::class, $this->db);
+        $typeQuery = new ActiveQuery($type::class, $this->db());
 
         $type = $typeQuery->onePopulate();
 
@@ -342,9 +343,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testToArray(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -363,9 +364,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testToArrayWithClosure(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db);
+        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db());
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(

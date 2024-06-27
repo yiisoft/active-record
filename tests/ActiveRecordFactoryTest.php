@@ -24,10 +24,10 @@ abstract class ActiveRecordFactoryTest extends TestCase
 
     public function testCreateARWithConnection(): void
     {
-        $customerAR = $this->arFactory->createAR(arClass: Customer::class, db: $this->db);
+        $customerAR = $this->arFactory->createAR(Customer::class);
         $db = Assert::invokeMethod($customerAR, 'db');
 
-        $this->assertSame($this->db, $db);
+        $this->assertSame($this->db(), $db);
         $this->assertSame('customer', $customerAR->getTableName());
         $this->assertInstanceOf(Customer::class, $customerAR);
     }
@@ -64,11 +64,11 @@ abstract class ActiveRecordFactoryTest extends TestCase
         $customerQuery = $this->arFactory->createQueryTo(
             arClass: Customer::class,
             queryClass: CustomerQuery::class,
-            db: $this->db,
+            db: $this->db(),
         );
         $db = Assert::inaccessibleProperty($customerQuery, 'db');
 
-        $this->assertSame($this->db, $db);
+        $this->assertSame($this->db(), $db);
         $this->assertInstanceOf(ActiveQuery::class, $customerQuery);
     }
 
@@ -88,7 +88,7 @@ abstract class ActiveRecordFactoryTest extends TestCase
 
     public function testGetArInstanceWithConstructor(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
         $query = $this->arFactory->createQueryTo(CustomerWithConstructor::class);
         $customer = $query->onePopulate();

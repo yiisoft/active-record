@@ -8,7 +8,6 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\Aliases\Aliases;
-use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * CustomerWithConstructor.
@@ -23,9 +22,8 @@ final class CustomerWithConstructor extends ActiveRecord
     protected bool|string|null $bool_status = false;
     protected int|null $profile_id = null;
 
-    public function __construct(ConnectionInterface $db, private Aliases|null $aliases = null)
+    public function __construct(private Aliases|null $aliases = null)
     {
-        parent::__construct($db);
     }
 
     public function getTableName(): string

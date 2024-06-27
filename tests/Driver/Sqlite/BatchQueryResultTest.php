@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Sqlite;
 
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
 
 final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
@@ -13,15 +14,15 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
         parent::setUp();
 
         $sqliteHelper = new SqliteHelper();
-        $this->db = $sqliteHelper->createConnection();
+        ConnectionProvider::set($sqliteHelper->createConnection());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->db);
+        ConnectionProvider::unset();
     }
 }

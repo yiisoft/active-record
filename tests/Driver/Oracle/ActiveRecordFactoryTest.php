@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 
 final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest
@@ -13,16 +14,18 @@ final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRe
         parent::setUp();
 
         $oracleHelper = new OracleHelper();
-        $this->db = $oracleHelper->createConnection();
-        $this->arFactory = $oracleHelper->createARFactory($this->db);
+        ConnectionProvider::set($oracleHelper->createConnection());
+        $this->arFactory = $oracleHelper->createARFactory($this->db());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->arFactory, $this->db);
+        unset($this->arFactory);
+
+        ConnectionProvider::unset();
     }
 }

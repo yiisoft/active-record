@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\MysqlHelper;
 
 final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest
@@ -13,16 +14,18 @@ final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRe
         parent::setUp();
 
         $mysqlHelper = new MysqlHelper();
-        $this->db = $mysqlHelper->createConnection();
-        $this->arFactory = $mysqlHelper->createARFactory($this->db);
+        ConnectionProvider::set($mysqlHelper->createConnection());
+        $this->arFactory = $mysqlHelper->createARFactory($this->db());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->arFactory, $this->db);
+        unset($this->arFactory);
+
+        ConnectionProvider::unset();
     }
 }

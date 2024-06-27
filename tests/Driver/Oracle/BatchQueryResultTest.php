@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 
@@ -15,23 +16,23 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
         parent::setUp();
 
         $oracleHelper = new OracleHelper();
-        $this->db = $oracleHelper->createConnection();
+        ConnectionProvider::set($oracleHelper->createConnection());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->db);
+        ConnectionProvider::unset();
     }
 
     public function testBatchWithIndexBy(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
 
         $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');
 

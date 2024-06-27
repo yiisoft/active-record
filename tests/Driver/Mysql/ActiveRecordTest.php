@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Driver\Mysql\Stubs\Type;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -17,23 +18,23 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         parent::setUp();
 
         $mysqlHelper = new MysqlHelper();
-        $this->db = $mysqlHelper->createConnection();
+        ConnectionProvider::set($mysqlHelper->createConnection());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->db);
+        ConnectionProvider::unset();
     }
 
     public function testCastValues(): void
     {
-        $this->checkFixture($this->db, 'type');
+        $this->checkFixture($this->db(), 'type');
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -50,7 +51,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class, $this->db);
+        $aqClass = new ActiveQuery(Type::class, $this->db());
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -64,9 +65,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $customer->setId(1337);
         $customer->setEmail('user1337@example.com');
@@ -86,9 +87,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db, 'beta');
+        $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db);
+        $betaQuery = new ActiveQuery(Beta::class, $this->db());
 
         $betas = $betaQuery->with('alpha')->all();
 

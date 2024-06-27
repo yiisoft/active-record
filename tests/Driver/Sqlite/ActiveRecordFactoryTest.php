@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Sqlite;
 
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
 
 final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest
@@ -13,16 +14,18 @@ final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRe
         parent::setUp();
 
         $sqliteHelper = new SqliteHelper();
-        $this->db = $sqliteHelper->createConnection();
-        $this->arFactory = $sqliteHelper->createARFactory($this->db);
+        ConnectionProvider::set($sqliteHelper->createConnection());
+        $this->arFactory = $sqliteHelper->createARFactory($this->db());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->arFactory, $this->db);
+        unset($this->arFactory);
+
+        ConnectionProvider::unset();
     }
 }

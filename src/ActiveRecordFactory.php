@@ -25,7 +25,6 @@ final class ActiveRecordFactory
      * Allows you to create an active record instance through the factory.
      *
      * @param string $arClass active record class.
-     * @param ConnectionInterface|null $db the database connection used for creating active record instances.
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
@@ -38,17 +37,9 @@ final class ActiveRecordFactory
      * @psalm-return T
      */
     public function createAR(
-        string $arClass,
-        ConnectionInterface $db = null
+        string $arClass
     ): ActiveRecordInterface {
-        $params = [];
-        $params['class'] = $arClass;
-
-        if ($db !== null) {
-            $params['__construct()']['db'] = $db;
-        }
-
-        return $this->factory->create($params);
+        return $this->factory->create($arClass);
     }
 
     /**

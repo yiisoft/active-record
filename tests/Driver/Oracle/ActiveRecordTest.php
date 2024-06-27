@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
@@ -17,25 +18,25 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         parent::setUp();
 
         $oracleHelper = new OracleHelper();
-        $this->db = $oracleHelper->createConnection();
+        ConnectionProvider::set($oracleHelper->createConnection());
     }
 
     protected function tearDown(): void
     {
         parent::tearDown();
 
-        $this->db->close();
+        $this->db()->close();
 
-        unset($this->db);
+        ConnectionProvider::unset();
     }
 
     public function testCastValues(): void
     {
         $this->markTestSkipped('Cant bind floats without support from a custom PDO driver.');
 
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
         $arClass->smallint_col = 42;
@@ -49,7 +50,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->bool_col2 = 0;
         $arClass->save();
 
-        $aqClass = new ActiveQuery(Type::class, $this->db);
+        $aqClass = new ActiveQuery(Type::class, $this->db());
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -66,9 +67,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
         $arClass->loadDefaultValues();
         $this->assertEquals(1, $arClass->int_col2);
         $this->assertEquals('something', $arClass->char_col2);
@@ -78,13 +79,13 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         // not testing $arClass->time, because oci\Schema can't read default value
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
         $this->assertEquals('not something', $arClass->char_col2);
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
@@ -98,9 +99,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testBooleanAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $customer->setName('boolean customer');
         $customer->setEmail('mail@example.com');
@@ -116,20 +117,20 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->refresh();
         $this->assertEquals(0, $customer->getStatus());
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
         $customers = $customerQuery->where(['status' => 1])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
         $customers = $customerQuery->where(['status' => '0'])->all();
         $this->assertCount(1, $customers);
     }
 
     public function testToArray(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class, $this->db());
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -148,9 +149,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testToArrayWithClosure(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db);
+        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db());
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(

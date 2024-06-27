@@ -119,9 +119,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     final public function __construct(
         protected string|ActiveRecordInterface|Closure $arClass,
-        protected ConnectionInterface $db
+        ConnectionInterface|null $db = null
     ) {
-        parent::__construct($db);
+        parent::__construct($db ?? $this->getARInstance()->db());
     }
 
     /**
@@ -1001,7 +1001,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         /** @psalm-var class-string<ActiveRecordInterface> $class */
         $class = $this->arClass;
 
-        return new $class($this->db);
+        return new $class();
     }
 
     private function createInstance(): static

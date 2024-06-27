@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 use Yiisoft\Aliases\Aliases;
-use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * CustomerWithConstructor.
@@ -21,9 +20,8 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class CustomerWithConstructor extends MagicActiveRecord
 {
-    public function __construct(ConnectionInterface $db, private Aliases $aliases)
+    public function __construct(private Aliases $aliases)
     {
-        parent::__construct($db);
     }
 
     public function getTableName(): string
