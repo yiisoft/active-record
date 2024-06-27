@@ -39,7 +39,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class, $this->db());
+        $aqClass = new ActiveQuery(Type::class);
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -77,7 +77,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db());
+        $betaQuery = new ActiveQuery(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();
 

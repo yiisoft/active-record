@@ -42,7 +42,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db());
+        $betaQuery = new ActiveQuery(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();
 

@@ -77,7 +77,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class, $this->db());
+        $aqClass = new ActiveQuery(Type::class);
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -111,7 +111,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db());
+        $betaQuery = new ActiveQuery(Beta::class);
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
 
@@ -146,7 +146,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->refresh();
         $this->assertTrue($customer->getBoolStatus());
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
@@ -160,7 +160,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $command = $this->db()->createCommand();
         $command->insertBatch('bool_values', [[true], [false]], ['bool_col'])->execute();
-        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db());
+        $boolARQuery = new ActiveQuery(BoolAR::class);
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
         $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
@@ -213,7 +213,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $user->updated_at = time();
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class, $this->db());
+        $userQuery = new ActiveQuery(UserAR::class);
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
@@ -357,7 +357,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $type->save();
 
-        $typeQuery = new ActiveQuery($type::class, $this->db());
+        $typeQuery = new ActiveQuery($type::class);
 
         $type = $typeQuery->onePopulate();
 
@@ -393,7 +393,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -414,7 +414,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerClosureField::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(

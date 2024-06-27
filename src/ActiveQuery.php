@@ -8,7 +8,6 @@ use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -118,10 +117,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @psalm-param ARClass $arClass
      */
     final public function __construct(
-        protected string|ActiveRecordInterface|Closure $arClass,
-        ConnectionInterface|null $db = null
+        protected string|ActiveRecordInterface|Closure $arClass
     ) {
-        parent::__construct($db ?? $this->getARInstance()->db());
+        parent::__construct($this->getARInstance()->db());
     }
 
     /**
@@ -982,7 +980,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if ($this->arClass instanceof Closure) {
-            return ($this->arClass)($this->db)::class;
+            return ($this->arClass)()::class;
         }
 
         return $this->arClass;
@@ -995,7 +993,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if ($this->arClass instanceof Closure) {
-            return ($this->arClass)($this->db);
+            return ($this->arClass)();
         }
 
         /** @psalm-var class-string<ActiveRecordInterface> $class */
@@ -1006,7 +1004,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     private function createInstance(): static
     {
-        return (new static($this->arClass, $this->db))
+        return (new static($this->arClass))
             ->where($this->getWhere())
             ->limit($this->getLimit())
             ->offset($this->getOffset())

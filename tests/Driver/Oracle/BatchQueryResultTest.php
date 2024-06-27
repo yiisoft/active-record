@@ -20,7 +20,7 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
     {
         $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');
 

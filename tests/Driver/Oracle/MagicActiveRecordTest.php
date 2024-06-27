@@ -38,7 +38,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $arClass->bool_col2 = 0;
         $arClass->save();
 
-        $aqClass = new ActiveQuery(Type::class, $this->db());
+        $aqClass = new ActiveQuery(Type::class);
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -105,11 +105,11 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->refresh();
         $this->assertEquals('0', $customer->status);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['status' => '1'])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['status' => '0'])->all();
         $this->assertCount(1, $customers);
     }
@@ -118,7 +118,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -139,7 +139,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerClosureField::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(

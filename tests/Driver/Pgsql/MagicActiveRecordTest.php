@@ -51,7 +51,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     {
         $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db());
+        $betaQuery = new ActiveQuery(Beta::class);
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
 
@@ -86,7 +86,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->refresh();
         $this->assertTrue($customer->bool_status);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
@@ -100,7 +100,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $command = $this->db()->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
-        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db());
+        $boolARQuery = new ActiveQuery(BoolAR::class);
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
         $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
@@ -153,7 +153,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $user->updated_at = time();
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class, $this->db());
+        $userQuery = new ActiveQuery(UserAR::class);
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
@@ -297,7 +297,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $type->save();
 
-        $typeQuery = new ActiveQuery($type::class, $this->db());
+        $typeQuery = new ActiveQuery($type::class);
 
         $type = $typeQuery->onePopulate();
 
@@ -333,7 +333,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -354,7 +354,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerClosureField::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(

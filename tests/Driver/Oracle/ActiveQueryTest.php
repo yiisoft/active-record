@@ -38,7 +38,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->checkFixture($this->db(), 'order', true);
 
         /** left join and eager loading */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
@@ -60,7 +60,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** inner join filtering and eager loading */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->innerJoinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
@@ -80,7 +80,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->innerJoinWith(['customer c'], false);
 
         if ($aliasMethod === 'explicit') {
@@ -100,7 +100,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertFalse($orders[1]->isRelationPopulated('customer'));
 
         /** join with via-relation */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->innerJoinWith(['books b']);
 
         if ($aliasMethod === 'explicit') {
@@ -126,7 +126,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
         /** joining sub relations */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->innerJoinWith(
             [
                 'items i' => static function ($q) use ($aliasMethod) {
@@ -171,7 +171,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod);
 
-            $orderQuery = new ActiveQuery(Order::class, $this->db());
+            $orderQuery = new ActiveQuery(Order::class);
             $orders = $orderQuery->joinWith(["$relationName b"])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
@@ -190,7 +190,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
-            $orderQuery = new ActiveQuery(Order::class, $this->db());
+            $orderQuery = new ActiveQuery(Order::class);
             $orders = $orderQuery->joinWith([(string)$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
@@ -206,7 +206,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         }
 
         /** join with count and query */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
@@ -223,7 +223,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertCount(3, $orders);
 
         /** relational query */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findOne(1);
 
         $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
@@ -240,7 +240,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertNotNull($customer);
 
         /** join with sub-relation called inside Closure */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $orders = $orderQuery->joinWith(
             [
                 'items' => static function ($q) use ($aliasMethod) {
@@ -278,7 +278,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
          * join with the same table but different aliases alias is defined in the relation definition without eager
          * loading
          */
-        $query = new ActiveQuery(Order::class, $this->db());
+        $query = new ActiveQuery(Order::class);
         $query
             ->joinWith('bookItems', false)
             ->joinWith('movieItems', false)
@@ -294,7 +294,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertFalse($orders[0]->isRelationPopulated('movieItems'));
 
         /** with eager loading */
-        $query = new ActiveQuery(Order::class, $this->db());
+        $query = new ActiveQuery(Order::class);
         $query->joinWith('bookItems', true)->joinWith('movieItems', true)->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
@@ -312,7 +312,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
          * join with the same table but different aliases alias is defined in the call to joinWith() without eager
          * loading
          */
-        $query = new ActiveQuery(Order::class, $this->db());
+        $query = new ActiveQuery(Order::class);
         $query
             ->joinWith(
                 [
@@ -339,7 +339,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, only for one relation as it would be overwritten otherwise. */
-        $query = new ActiveQuery(Order::class, $this->db());
+        $query = new ActiveQuery(Order::class);
         $query
             ->joinWith(
                 [
@@ -364,7 +364,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, and the other relation */
-        $query = new ActiveQuery(Order::class, $this->db());
+        $query = new ActiveQuery(Order::class);
         $query
             ->joinWith(
                 [
@@ -397,11 +397,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
     {
         $this->checkFixture($this->db(), 'bit_values');
 
-        $bitValueQuery = new ActiveQuery(BitValues::class, $this->db());
+        $bitValueQuery = new ActiveQuery(BitValues::class);
         $falseBit = $bitValueQuery->findOne(1);
         $this->assertEquals('0', $falseBit->val);
 
-        $bitValueQuery = new ActiveQuery(BitValues::class, $this->db());
+        $bitValueQuery = new ActiveQuery(BitValues::class);
         $trueBit = $bitValueQuery->findOne(2);
         $this->assertEquals('1', $trueBit->val);
     }

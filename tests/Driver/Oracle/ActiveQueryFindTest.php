@@ -23,17 +23,17 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $this->checkFixture($this->db(), 'customer', true);
 
         /** one */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
         $customer = $customerQuery->orderBy('id')->onePopulate();
         $this->assertEquals('user1', $customer->getName());
 
         /** all */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
         $customers = $customerQuery->allPopulate();
         $this->assertCount(3, $customers);
 
         /** limit */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
         $customers = $customerQuery->orderBy('id')->limit(1)->allPopulate();
         $this->assertCount(1, $customers);
         $this->assertEquals('user1', $customers[0]->getName());
@@ -55,7 +55,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $this->assertCount(0, $customers);
 
         /** offset */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
         $customer = $customerQuery->orderBy('id')->offset(0)->onePopulate();
         $this->assertEquals('user1', $customer->getName());
 
@@ -73,7 +73,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->with('orders')->indexBy('id')->all();
 
         ksort($customers);
@@ -94,7 +94,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $this->assertCount(1, $customer->getRelatedRecords());
 
         /** multiple with() calls */
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $orders = $orderQuery->with('customer', 'items')->all();
         $this->assertCount(3, $orders);
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
@@ -111,7 +111,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $this->checkFixture($this->db(), 'customer');
 
         /** asArray */
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->where(['[[id]]' => 2])->asArray()->onePopulate();
         $this->assertEquals([
             'id' => 2,
@@ -124,7 +124,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         ], $customer);
 
         /** find all asArray */
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->asArray()->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers[0]);

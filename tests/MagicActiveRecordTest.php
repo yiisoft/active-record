@@ -194,7 +194,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class, $this->db());
+        $aqClass = new ActiveQuery(Type::class);
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -215,7 +215,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $dog = new Dog();
         $dog->save();
 
-        $animal = new ActiveQuery(Animal::class, $this->db());
+        $animal = new ActiveQuery(Animal::class);
 
         $animals = $animal->where(['type' => Dog::class])->onePopulate();
         $this->assertEquals('bark', $animals->getDoes());
@@ -290,7 +290,7 @@ abstract class MagicActiveRecordTest extends TestCase
     ): void {
         $this->checkFixture($this->db(), 'customer');
 
-        $activeQuery = new ActiveQuery($modelClassName, $this->db());
+        $activeQuery = new ActiveQuery($modelClassName);
 
         if ($alias !== null) {
             $activeQuery->alias('csr');
@@ -347,7 +347,7 @@ abstract class MagicActiveRecordTest extends TestCase
             '/^Key "(.+)?" is not a column name and can not be used as a filter$/'
         );
 
-        $query = new ActiveQuery($modelClassName, $this->db());
+        $query = new ActiveQuery($modelClassName);
 
         /** @var Query $query */
         $query = Assert::invokeMethod($query, 'findByCondition', $filterWithInjection);
@@ -547,11 +547,11 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->refresh();
         $this->assertEquals(0, $customer->status);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['status' => true])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['status' => false])->all();
         $this->assertCount(1, $customers);
     }
@@ -622,7 +622,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertTrue($customer->hasAttribute('email'));
         $this->assertFalse($customer->hasAttribute('notExist'));
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
         $this->assertTrue($customer->hasAttribute('id'));
         $this->assertTrue($customer->hasAttribute('email'));
@@ -637,7 +637,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertFalse($customer->refresh());
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
         $customer->name = 'to be refreshed';
 
@@ -676,7 +676,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->checkFixture($this->db(), 'order', true);
         $this->checkFixture($this->db(), 'order_item_with_null_fk', true);
 
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findOne(2);
 
         $this->assertCount(1, $order->itemsFor8);
@@ -686,7 +686,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertCount(0, $order->itemsFor8);
         $this->assertCount(2, $order->orderItemsWithNullFK);
 
-        $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class, $this->db());
+        $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class);
         $this->assertCount(1, $orderItemQuery->findAll([
             'order_id' => 2,
             'item_id' => 5,
@@ -701,7 +701,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'order', true);
 
-        $orderQuery = new ActiveQuery(Order::class, $this->db());
+        $orderQuery = new ActiveQuery(Order::class);
         /** @var Order $order */
         $order = $orderQuery->findOne(2);
 
@@ -718,14 +718,14 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
         $eagerItemsCount = 0;
         foreach ($eagerCustomers as $customer) {
             $eagerItemsCount += is_countable($customer->items2) ? count($customer->items2) : 0;
         }
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $lazyCustomers = $customerQuery->all();
         $lazyItemsCount = 0;
         foreach ($lazyCustomers as $customer) {
@@ -739,7 +739,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -760,7 +760,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerClosureField::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -781,7 +781,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerForArrayable::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerForArrayable::class);
 
         /** @var CustomerForArrayable $customer */
         $customer = $customerQuery->findOne(1);
@@ -835,7 +835,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findOne(1);
 
@@ -846,7 +846,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findOne(1);
 
@@ -858,7 +858,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findOne(1);
         $customer->id = 2;
@@ -900,7 +900,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db());
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame([], $customer->getDirtyAttributes());
@@ -929,7 +929,7 @@ abstract class MagicActiveRecordTest extends TestCase
             'address' => null,
         ], $customer->getDirtyAttributes());
 
-        $customerQuery = new ActiveQuery(CustomerWithProperties::class, $this->db());
+        $customerQuery = new ActiveQuery(CustomerWithProperties::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame([], $customer->getDirtyAttributes());

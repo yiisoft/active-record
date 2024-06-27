@@ -43,7 +43,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     {
         $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db());
+        $betaQuery = new ActiveQuery(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();
 

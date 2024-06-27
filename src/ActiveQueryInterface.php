@@ -24,7 +24,7 @@ use Yiisoft\Factory\NotFoundException;
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  *
- * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure(ConnectionInterface):ActiveRecordInterface
+ * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
  */
 interface ActiveQueryInterface extends QueryInterface
 {
