@@ -24,26 +24,34 @@ final class ConnectionProvider
     }
 
     /**
-     * Returns a connection by key.
+     * Returns a connection by name.
      */
-    public static function get(string $key = self::DEFAULT): ConnectionInterface
+    public static function get(string $name = self::DEFAULT): ConnectionInterface
     {
-        return self::$connections[$key];
+        return self::$connections[$name];
     }
 
     /**
-     * Sets a connection by key.
+     * Checks if a connection name exists.
      */
-    public static function set(ConnectionInterface $connection, string $key = self::DEFAULT): void
+    public static function isset(string $name = self::DEFAULT): bool
     {
-        self::$connections[$key] = $connection;
+        return isset(self::$connections[$name]);
     }
 
     /**
-     * Unsets a connection by key.
+     * Sets a connection by name.
      */
-    public static function unset(string $key = self::DEFAULT): void
+    public static function set(ConnectionInterface $connection, string $name = self::DEFAULT): void
     {
-        unset(self::$connections[$key]);
+        self::$connections[$name] = $connection;
+    }
+
+    /**
+     * Unsets a connection by name.
+     */
+    public static function unset(string $name = self::DEFAULT): void
+    {
+        unset(self::$connections[$name]);
     }
 }
