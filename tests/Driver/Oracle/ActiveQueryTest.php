@@ -10,26 +10,15 @@ use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\BitValues;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
 final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $oracleHelper = new OracleHelper();
-        ConnectionProvider::set($oracleHelper->createConnection());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        ConnectionProvider::unset();
+        return (new OracleHelper())->createConnection();
     }
 
     /**

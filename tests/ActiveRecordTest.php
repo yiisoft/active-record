@@ -7,12 +7,14 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
@@ -962,5 +964,21 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(2, $orders);
         $this->assertSame(2, $orders[0]->getId());
         $this->assertSame(3, $orders[1]->getId());
+    }
+
+    public function testWithCustomConnection(): void
+    {
+        $db = $this->createConnection();
+
+        ConnectionProvider::set($db, 'custom');
+        $this->checkFixture($db, 'customer');
+
+        $customer = new CustomerWithCustomConnection();
+
+        $this->assertSame($this->db(), $customer->db());
+
+        $customer = $customer->withConnectionName('custom');
+
+        $this->assertSame($db, $customer->db());
     }
 }

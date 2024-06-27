@@ -5,29 +5,17 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\MagicCustomer as Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $oracleHelper = new OracleHelper();
-        ConnectionProvider::set($oracleHelper->createConnection());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        ConnectionProvider::unset();
+        return (new OracleHelper())->createConnection();
     }
 
     public function testCastValues(): void

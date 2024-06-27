@@ -4,25 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $mssqlHelper = new MssqlHelper();
-        ConnectionProvider::set($mssqlHelper->createConnection());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        ConnectionProvider::unset();
+        return (new MssqlHelper())->createConnection();
     }
 }

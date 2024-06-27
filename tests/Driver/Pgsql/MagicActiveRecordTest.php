@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 use ArrayAccess;
 use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\BoolAR;
@@ -16,6 +15,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
@@ -23,21 +23,9 @@ use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $pgsqlHelper = new PgsqlHelper();
-        ConnectionProvider::set($pgsqlHelper->createConnection());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        ConnectionProvider::unset();
+        return (new PgsqlHelper())->createConnection();
     }
 
     public function testExplicitPkOnAutoIncrement(): void

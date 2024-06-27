@@ -5,28 +5,16 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\MysqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $mysqlHelper = new MysqlHelper();
-        ConnectionProvider::set($mysqlHelper->createConnection());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        ConnectionProvider::unset();
+        return (new MysqlHelper())->createConnection();
     }
 
     public function testExplicitPkOnAutoIncrement(): void

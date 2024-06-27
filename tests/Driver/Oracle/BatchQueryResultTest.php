@@ -5,27 +5,15 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $oracleHelper = new OracleHelper();
-        ConnectionProvider::set($oracleHelper->createConnection());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        ConnectionProvider::unset();
+        return (new OracleHelper())->createConnection();
     }
 
     public function testBatchWithIndexBy(): void

@@ -16,6 +16,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
@@ -23,21 +24,9 @@ use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $pgsqlHelper = new PgsqlHelper();
-        $this->db() = $pgsqlHelper->createConnection();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        unset($this->db());
+        return (new PgsqlHelper())->createConnection();
     }
 
     public function testDefaultValues(): void

@@ -4,29 +4,28 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveRecordFactoryTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordFactoryTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
+    {
+        return (new MssqlHelper())->createConnection();
+    }
+
+    protected function setUp(): void
     {
         parent::setUp();
 
         $mssqlHelper = new MssqlHelper();
-        ConnectionProvider::set($mssqlHelper->createConnection());
-
-        $this->arFactory = $mssqlHelper->createARFactory(ConnectionProvider::get());
+        $this->arFactory = $mssqlHelper->createARFactory($this->db());
     }
 
     protected function tearDown(): void
     {
-        parent::tearDown();
-
-        $this->db()->close();
-
         unset($this->arFactory);
 
-        ConnectionProvider::unset();
+        parent::tearDown();
     }
 }

@@ -5,27 +5,15 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $pgsqlHelper = new PgsqlHelper();
-        ConnectionProvider::set($pgsqlHelper->createConnection());
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db()->close();
-
-        ConnectionProvider::unset();
+        return (new PgsqlHelper())->createConnection();
     }
 
     public function testFindAsArray(): void
