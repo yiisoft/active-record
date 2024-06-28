@@ -106,18 +106,22 @@ final class User extends ActiveRecord
 
 For more information, follow [Create Active Record Model](docs/create-model.md).
 
-## Usage in controler with DI container autowiring
+## Usage in controller with DI container autowiring
 
 ```php
 use App\Entity\User;
 use Psr\Http\Message\ResponseInterface;
+use Yiisoft\ActiveRecord\ConnectionProvider;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class Register
 {
     public function register(
-        User $user
+        ConnectionInterface $db,
     ): ResponseInterface {
-        /** Connected AR by di autowired. */
+        ConnectionProvider::set($db);
+    
+        $user = new User();
         $user->setAttribute('username', 'yiiliveext');
         $user->setAttribute('email', 'yiiliveext@mail.ru');
         $user->save();
@@ -125,7 +129,21 @@ final class Register
 }
 ```
 
-## Usage in controler with Active Record factory
+## Usage with middleware
+
+Add the middleware to the action, for example:
+
+```php
+use Yiisoft\ActiveRecord\ConnectionProviderMiddleware;
+use Yiisoft\Router\Route;
+
+Route::methods([Method::GET, Method::POST], '/user/register')
+    ->middleware(ConnectionProviderMiddleware::class)
+    ->action([Register::class, 'register'])
+    ->name('user/register');
+```
+
+Now you can use the Active Record in the action:
 
 ```php
 use App\Entity\User;
@@ -134,12 +152,9 @@ use Yiisoft\ActiveRecord\ActiveRecordFactory;
 
 final class Register
 {
-    public function register(
-        ActiveRecordFactory $arFactory
-    ): ResponseInterface {
-        /** Connected AR by factory di. */
-        $user = $arFactory->createAR(User::class);
-
+    public function register(): ResponseInterface
+    {
+        $user = new User();
         $user->setAttribute('username', 'yiiliveext');
         $user->setAttribute('email', 'yiiliveext@mail.ru');
         $user->save();

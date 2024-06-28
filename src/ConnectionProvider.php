@@ -6,6 +6,9 @@ namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
 
+/**
+ * ConnectionProvider is used to manage DB connections.
+ */
 final class ConnectionProvider
 {
     public const DEFAULT = 'default';
@@ -34,7 +37,7 @@ final class ConnectionProvider
     /**
      * Checks if a connection name exists.
      */
-    public static function isset(string $name = self::DEFAULT): bool
+    public static function has(string $name = self::DEFAULT): bool
     {
         return isset(self::$connections[$name]);
     }
@@ -45,13 +48,5 @@ final class ConnectionProvider
     public static function set(ConnectionInterface $connection, string $name = self::DEFAULT): void
     {
         self::$connections[$name] = $connection;
-    }
-
-    /**
-     * Unsets a connection by name.
-     */
-    public static function unset(string $name = self::DEFAULT): void
-    {
-        unset(self::$connections[$name]);
     }
 }
