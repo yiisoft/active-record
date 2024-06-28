@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\BitValues;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
