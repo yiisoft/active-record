@@ -20,7 +20,6 @@ use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
-use Yiisoft\Factory\NotFoundException;
 
 use function array_column;
 use function array_combine;
@@ -161,7 +160,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws Throwable
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
@@ -285,7 +283,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      *
      * @return array The distinctive models.
@@ -471,7 +468,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -550,7 +546,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -633,7 +628,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     private function getTableNameAndAlias(): array
@@ -670,9 +664,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param string $joinType The join type.
      *
      * @throws CircularReferenceException
-     * @throws NotFoundException
      * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
     {
@@ -837,7 +830,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @throws CircularReferenceException
      * @throws InvalidArgumentException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -852,7 +844,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * @throws CircularReferenceException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -918,7 +909,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidArgumentException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     protected function findByCondition(mixed $condition): static
