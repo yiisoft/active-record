@@ -12,8 +12,6 @@ use Yiisoft\Db\Expression\JsonExpression;
 
 final class ArrayAndJsonTypes extends ActiveRecord
 {
-    use CustomTableNameTrait;
-
     public int $id;
     public array|ArrayExpression|null $intarray_col = null;
     public array|ArrayExpression|null $textarray2_col = null;
