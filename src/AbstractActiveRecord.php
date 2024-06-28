@@ -323,7 +323,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function instantiateQuery(string|ActiveRecordInterface|Closure $arClass): ActiveQueryInterface
     {
-        return new ActiveQuery($arClass, $this->db());
+        return new ActiveQuery($arClass);
     }
 
     /**
