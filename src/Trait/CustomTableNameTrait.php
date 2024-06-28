@@ -16,7 +16,7 @@ trait CustomTableNameTrait
     /**
      * Sets the table name for the ActiveRecord.
      */
-    public function withTableName($tableName): static
+    public function withTableName(string $tableName): static
     {
         $new = clone $this;
         $new->tableName = $tableName;
