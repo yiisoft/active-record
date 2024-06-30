@@ -948,4 +948,19 @@ abstract class ActiveRecordTest extends TestCase
             $customer->getDirtyAttributes(['id', 'email', 'address', 'status', 'unknown']),
         );
     }
+
+    public function testRelationWithInstance(): void
+    {
+        $this->checkFixture($this->db, 'customer');
+
+        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customer = $customerQuery->findOne(2);
+
+        $orders = $customer->getOrdersUsingInstance();
+
+        $this->assertTrue($customer->isRelationPopulated('ordersUsingInstance'));
+        $this->assertCount(2, $orders);
+        $this->assertSame(2, $orders[0]->getId());
+        $this->assertSame(3, $orders[1]->getId());
+    }
 }

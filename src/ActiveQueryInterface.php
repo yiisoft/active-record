@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -22,6 +23,8 @@ use Yiisoft\Factory\NotFoundException;
  * represents a relation between two active record classes and will return related records only.
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
+ *
+ * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure(ConnectionInterface):ActiveRecordInterface
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -298,7 +301,12 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function getSql(): string|null;
 
-    public function getARClass(): string|null;
+    /**
+     * @return ActiveRecordInterface|Closure|string The AR class associated with this query.
+     *
+     * @psalm-return ARClass
+     */
+    public function getARClass(): string|ActiveRecordInterface|Closure;
 
     /**
      * Creates an {@see ActiveQuery} instance with a given SQL statement.

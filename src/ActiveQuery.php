@@ -102,6 +102,8 @@ use function substr;
  * These methods may only be called in a relational context. Same is true for {@see inverseOf()}, which marks a relation
  * as inverse of another relation and {@see onCondition()} which adds a condition that's to be added to relational
  * query join condition.
+ *
+ * @psalm-import-type ARClass from ActiveQueryInterface
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
@@ -111,15 +113,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private string|null $sql = null;
     private array|string|null $on = null;
     private array $joinWith = [];
-    private ActiveRecordInterface|null $arInstance = null;
 
     /**
-     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     * @psalm-param ARClass $arClass
      */
     final public function __construct(
-        protected string $arClass,
+        protected string|ActiveRecordInterface|Closure $arClass,
         protected ConnectionInterface $db,
-        private ActiveRecordFactory|null $arFactory = null,
         private string $tableName = ''
     ) {
         parent::__construct($db);
@@ -301,7 +301,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $pks = $this->getARInstance()->primaryKey();
 
             if (empty($pks)) {
-                throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+                throw new InvalidConfigException('Primary key of "' . $this->getARClassName() . '" can not be empty.');
             }
 
             foreach ($pks as $pk) {
@@ -323,7 +323,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $pks = $model->getPrimaryKey(true);
 
             if (empty($pks)) {
-                throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+                throw new InvalidConfigException('Primary key of "' . $this->getARClassName() . '" can not be empty.');
             }
 
             foreach ($pks as $pk) {
@@ -803,7 +803,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function viaTable(string $tableName, array $link, callable $callable = null): self
     {
-        $arClass = $this->primaryModel ? $this->primaryModel::class : $this->arClass;
+        $arClass = $this->primaryModel ?? $this->arClass;
         $arClassInstance = new self($arClass, $this->db);
 
         /** @psalm-suppress UndefinedMethod */
@@ -882,7 +882,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->sql;
     }
 
-    public function getARClass(): string|null
+    public function getARClass(): string|ActiveRecordInterface|Closure
     {
         return $this->arClass;
     }
@@ -976,16 +976,33 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
+    public function getARClassName(): string
+    {
+        if ($this->arClass instanceof ActiveRecordInterface) {
+            return $this->arClass::class;
+        }
+
+        if ($this->arClass instanceof Closure) {
+            return ($this->arClass)($this->db)::class;
+        }
+
+        return $this->arClass;
+    }
+
     public function getARInstance(): ActiveRecordInterface
     {
-        if ($this->arFactory !== null) {
-            return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
+        if ($this->arClass instanceof ActiveRecordInterface) {
+            return clone $this->arClass;
+        }
+
+        if ($this->arClass instanceof Closure) {
+            return ($this->arClass)($this->db);
         }
 
         /** @psalm-var class-string<ActiveRecordInterface> $class */
         $class = $this->arClass;
 
-        return new $class($this->db, null, $this->tableName);
+        return new $class($this->db, $this->tableName);
     }
 
     private function createInstance(): static
