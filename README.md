@@ -143,6 +143,21 @@ Route::methods([Method::GET, Method::POST], '/user/register')
     ->name('user/register');
 ```
 
+Or, if you use `yiisoft/config` and `yiisoft/middleware-dispatcher` packages, add the middleware to the configuration, 
+for example in `config/common/params.php` file:
+
+```php
+use Yiisoft\ActiveRecord\ConnectionProviderMiddleware;
+
+return [
+    'middlewares' => [
+        ConnectionProviderMiddleware::class,
+    ],
+];
+```
+
+_For more information about how to configure middleware, follow [Middleware Documentation](https://github.com/yiisoft/docs/blob/master/guide/en/structure/middleware.md)_
+
 Now you can use the Active Record in the action:
 
 ```php
