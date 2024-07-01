@@ -35,7 +35,7 @@ final class ConnectionProvider
     }
 
     /**
-     * Checks if a connection name exists.
+     * Checks if a connection with the given name exists.
      */
     public static function has(string $name = self::DEFAULT): bool
     {
