@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 /**
  * Class Item.
  */
-final class Item extends ActiveRecord
+class Item extends ActiveRecord
 {
     protected int $id;
     protected string $name;

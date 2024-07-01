@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS "employee" CASCADE;
 DROP TABLE IF EXISTS "department" CASCADE;
 DROP TABLE IF EXISTS "alpha" CASCADE;
 DROP TABLE IF EXISTS "beta" CASCADE;
+DROP TABLE IF EXISTS "promotion" CASCADE;
 DROP VIEW IF EXISTS "animal_view" CASCADE;
 DROP TABLE IF EXISTS "T_constraints_4" CASCADE;
 DROP TABLE IF EXISTS "T_constraints_3" CASCADE;
@@ -224,6 +225,12 @@ CREATE TABLE "beta" (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE "promotion" (
+  id serial primary key,
+  item_ids integer[] not null,
+  title varchar(126) not null
+);
+
 CREATE VIEW "animal_view" AS SELECT * FROM "animal";
 
 INSERT INTO "animal" (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat');
@@ -301,6 +308,11 @@ INSERT INTO "beta" (id, alpha_string_identifier) VALUES (5, '2');
 INSERT INTO "beta" (id, alpha_string_identifier) VALUES (6, '2b');
 INSERT INTO "beta" (id, alpha_string_identifier) VALUES (7, '2b');
 INSERT INTO "beta" (id, alpha_string_identifier) VALUES (8, '02');
+
+INSERT INTO "promotion" (item_ids, title) VALUES ('{1,2}', 'Discounted items');
+INSERT INTO "promotion" (item_ids, title) VALUES ('{3,4,5}', 'New arrivals');
+INSERT INTO "promotion" (item_ids, title) VALUES ('{1,3}', 'Free shipping');
+INSERT INTO "promotion" (item_ids, title) VALUES ('{}', 'Free!');
 
 /**
  * (Postgres-)Database Schema for validator tests
