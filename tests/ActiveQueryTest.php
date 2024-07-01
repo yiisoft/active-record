@@ -1851,8 +1851,17 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->checkFixture($this->db, 'order');
 
-        $order = new Order(db: $this->db, tableName: $orderTableName);
-        $orderItem = new OrderItem(db: $this->db, tableName: $orderItemTableName);
+        $order = new Order($this->db);
+        $orderItem = new OrderItem($this->db);
+
+        $this->assertSame('order', $order->getTableName());
+        $this->assertSame('order_item', $orderItem->getTableName());
+
+        $order = $order->withTableName($orderTableName);
+        $orderItem = $orderItem->withTableName($orderItemTableName);
+
+        $this->assertSame($orderTableName, $order->getTableName());
+        $this->assertSame($orderItemTableName, $orderItem->getTableName());
 
         $orderQuery = new ActiveQuery(Order::class, $this->db);
         $order = $orderQuery->findOne(1);
