@@ -1,0 +1,8 @@
+{
+    "symbol-whitelist": [
+        "Psr\\Http\\Message\\ResponseInterface",
+        "Psr\\Http\\Message\\ServerRequestInterface",
+        "Psr\\Http\\Server\\MiddlewareInterface",
+        "Psr\\Http\\Server\\RequestHandlerInterface"
+    ]
+}

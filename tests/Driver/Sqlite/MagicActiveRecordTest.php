@@ -8,31 +8,20 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $sqliteHelper = new SqliteHelper();
-        $this->db = $sqliteHelper->createConnection();
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        $this->db->close();
-
-        unset($this->db);
+        return (new SqliteHelper())->createConnection();
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $customer->id = 1337;
         $customer->email = 'user1337@example.com';
@@ -51,9 +40,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db, 'beta');
+        $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db);
+        $betaQuery = new ActiveQuery(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();
 

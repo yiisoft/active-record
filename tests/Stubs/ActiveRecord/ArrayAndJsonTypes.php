@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
-use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
 
 final class ArrayAndJsonTypes extends ActiveRecord
 {
-    use CustomTableNameTrait;
-
     public int $id;
     public array|ArrayExpression|null $intarray_col = null;
     public array|ArrayExpression|null $textarray2_col = null;
