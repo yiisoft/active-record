@@ -43,6 +43,14 @@ final class ConnectionProvider
     }
 
     /**
+     * Removes a connection by name.
+     */
+    public static function remove(string $name = self::DEFAULT): void
+    {
+        unset(self::$connections[$name]);
+    }
+
+    /**
      * Sets a connection by name.
      */
     public static function set(ConnectionInterface $connection, string $name = self::DEFAULT): void

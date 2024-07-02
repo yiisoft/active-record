@@ -41,5 +41,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         parent::tearDown();
 
         $this->db()->close();
+
+        ConnectionProvider::remove();
     }
 }

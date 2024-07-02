@@ -980,5 +980,9 @@ abstract class ActiveRecordTest extends TestCase
         $customer = $customer->withConnectionName('custom');
 
         $this->assertSame($db, $customer->db());
+
+        $db->close();
+
+        ConnectionProvider::remove('custom');
     }
 }
