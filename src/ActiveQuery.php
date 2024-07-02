@@ -975,19 +975,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function getARClassName(): string
-    {
-        if ($this->arClass instanceof ActiveRecordInterface) {
-            return $this->arClass::class;
-        }
-
-        if ($this->arClass instanceof Closure) {
-            return ($this->arClass)($this->db)::class;
-        }
-
-        return $this->arClass;
-    }
-
     public function getARInstance(): ActiveRecordInterface
     {
         if ($this->arClass instanceof ActiveRecordInterface) {
@@ -1002,6 +989,19 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $class = $this->arClass;
 
         return new $class($this->db);
+    }
+
+    private function getARClassName(): string
+    {
+        if ($this->arClass instanceof ActiveRecordInterface) {
+            return $this->arClass::class;
+        }
+
+        if ($this->arClass instanceof Closure) {
+            return ($this->arClass)($this->db)::class;
+        }
+
+        return $this->arClass;
     }
 
     private function createInstance(): static
