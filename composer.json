@@ -45,6 +45,7 @@
         "yiisoft/cache": "^3.0",
         "yiisoft/db-sqlite": "dev-master",
         "yiisoft/di": "^1.0",
+        "yiisoft/factory": "^1.2",
         "yiisoft/json": "^1.0",
         "yiisoft/middleware-dispatcher": "^5.2"
     },
@@ -54,6 +55,7 @@
         "yiisoft/db-pgsql": "For PostgreSQL database support",
         "yiisoft/db-mssql": "For MSSQL database support",
         "yiisoft/db-oracle": "For Oracle database support",
+        "yiisoft/factory": "For factory support",
         "yiisoft/middleware-dispatcher": "For middleware support"
     },
     "autoload": {

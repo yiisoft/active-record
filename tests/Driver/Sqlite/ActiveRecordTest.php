@@ -9,12 +9,18 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
     protected function createConnection(): ConnectionInterface
     {
         return (new SqliteHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new SqliteHelper())->createFactory($this->db());
     }
 
     public function testExplicitPkOnAutoIncrement(): void
