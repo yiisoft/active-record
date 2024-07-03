@@ -7,14 +7,12 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
-use Yiisoft\Factory\NotFoundException;
 
 /**
  * Defines the common interface to be implemented by active record query classes.
@@ -24,7 +22,7 @@ use Yiisoft\Factory\NotFoundException;
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  *
- * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure(ConnectionInterface):ActiveRecordInterface
+ * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -275,7 +273,6 @@ interface ActiveQueryInterface extends QueryInterface
      * @param string $alias The table alias.
      *
      * @throws CircularReferenceException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -288,7 +285,6 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidArgumentException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -592,7 +588,6 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @return ActiveRecordInterface The model instance associated with this query.
      */

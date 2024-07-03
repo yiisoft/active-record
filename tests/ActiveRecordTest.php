@@ -7,12 +7,14 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
@@ -33,9 +35,9 @@ abstract class ActiveRecordTest extends TestCase
 {
     public function testStoreNull(): void
     {
-        $this->checkFixture($this->db, 'null_values', true);
+        $this->checkFixture($this->db(), 'null_values', true);
 
-        $record = new NullValues($this->db);
+        $record = new NullValues();
 
         $this->assertNull($record->getAttribute('var1'));
         $this->assertNull($record->getAttribute('var2'));
@@ -81,9 +83,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testStoreEmpty(): void
     {
-        $this->checkFixture($this->db, 'null_values');
+        $this->checkFixture($this->db(), 'null_values');
 
-        $record = new NullValues($this->db);
+        $record = new NullValues();
 
         /** this is to simulate empty html form submission */
         $record->var1 = '';
@@ -101,10 +103,10 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsPrimaryKey(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
-        $orderItem = new OrderItem($this->db);
+        $customer = new Customer();
+        $orderItem = new OrderItem();
 
         $this->assertTrue($customer->isPrimaryKey(['id']));
         $this->assertFalse($customer->isPrimaryKey([]));
@@ -123,9 +125,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testOutdatedRelationsAreResetForNewRecords(): void
     {
-        $this->checkFixture($this->db, 'order_item');
+        $this->checkFixture($this->db(), 'order_item');
 
-        $orderItem = new OrderItem($this->db);
+        $orderItem = new OrderItem();
 
         $orderItem->setOrderId(1);
         $orderItem->setItemId(3);
@@ -146,9 +148,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->db, 'type');
+        $this->checkFixture($this->db(), 'type');
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
 
         $arClass->loadDefaultValues();
 
@@ -159,13 +161,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(true, $arClass->bool_col2);
         $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
         $this->assertEquals('not something', $arClass->char_col2);
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
@@ -174,9 +176,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCastValues(): void
     {
-        $this->checkFixture($this->db, 'type');
+        $this->checkFixture($this->db(), 'type');
 
-        $arClass = new Type($this->db);
+        $arClass = new Type();
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -192,7 +194,7 @@ abstract class ActiveRecordTest extends TestCase
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class, $this->db);
+        $aqClass = new ActiveQuery(Type::class);
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -205,15 +207,15 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testPopulateRecordCallWhenQueryingOnParentClass(): void
     {
-        $this->checkFixture($this->db, 'cat');
+        $this->checkFixture($this->db(), 'cat');
 
-        $cat = new Cat($this->db);
+        $cat = new Cat();
         $cat->save();
 
-        $dog = new Dog($this->db);
+        $dog = new Dog();
         $dog->save();
 
-        $animal = new ActiveQuery(Animal::class, $this->db);
+        $animal = new ActiveQuery(Animal::class);
 
         $animals = $animal->where(['type' => Dog::class])->onePopulate();
         $this->assertEquals('bark', $animals->getDoes());
@@ -224,9 +226,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSaveEmpty(): void
     {
-        $this->checkFixture($this->db, 'null_values', true);
+        $this->checkFixture($this->db(), 'null_values', true);
 
-        $record = new NullValues($this->db);
+        $record = new NullValues();
 
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
@@ -237,9 +239,9 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testNoTablenameReplacement(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $customer->setName('Some {{weird}} name');
         $customer->setEmail('test@example.com');
@@ -286,9 +288,9 @@ abstract class ActiveRecordTest extends TestCase
         array $validFilter,
         ?string $alias = null
     ): void {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $activeQuery = new ActiveQuery($modelClassName, $this->db);
+        $activeQuery = new ActiveQuery($modelClassName);
 
         if ($alias !== null) {
             $activeQuery->alias('csr');
@@ -298,7 +300,7 @@ abstract class ActiveRecordTest extends TestCase
         $query = Assert::invokeMethod($activeQuery, 'findByCondition', [$validFilter]);
 
 
-        $this->db->getQueryBuilder()->build($query);
+        $this->db()->getQueryBuilder()->build($query);
 
         $this->assertTrue(true);
     }
@@ -339,25 +341,25 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testValueEscapingInFindByCondition(string $modelClassName, array $filterWithInjection): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches(
             '/^Key "(.+)?" is not a column name and can not be used as a filter$/'
         );
 
-        $query = new ActiveQuery($modelClassName, $this->db);
+        $query = new ActiveQuery($modelClassName);
 
         /** @var Query $query */
         $query = Assert::invokeMethod($query, 'findByCondition', $filterWithInjection);
 
-        $this->db->getQueryBuilder()->build($query);
+        $this->db()->getQueryBuilder()->build($query);
     }
 
     public function testRefreshQuerySetAliasFindRecord(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new CustomerWithAlias($this->db);
+        $customer = new CustomerWithAlias();
 
         $customer->id = 1;
         $customer->refresh();
@@ -367,15 +369,15 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testResetNotSavedRelation(): void
     {
-        $this->checkFixture($this->db, 'order');
+        $this->checkFixture($this->db(), 'order');
 
-        $order = new Order($this->db);
+        $order = new Order();
 
         $order->setCustomerId(1);
         $order->setCreatedAt(1_325_502_201);
         $order->setTotal(0);
 
-        $orderItem = new OrderItem($this->db);
+        $orderItem = new OrderItem();
 
         $order->getOrderItems();
 
@@ -390,9 +392,9 @@ abstract class ActiveRecordTest extends TestCase
     {
         self::markTestSkipped('There are no magic properties in the Cat class');
 
-        $this->checkFixture($this->db, 'cat');
+        $this->checkFixture($this->db(), 'cat');
 
-        $cat = new Cat($this->db);
+        $cat = new Cat();
 
         $this->expectException(Exception::class);
         isset($cat->exception);
@@ -402,9 +404,9 @@ abstract class ActiveRecordTest extends TestCase
     {
         self::markTestSkipped('There are no magic properties in the Cat class');
 
-        $this->checkFixture($this->db, 'cat');
+        $this->checkFixture($this->db(), 'cat');
 
-        $cat = new Cat($this->db);
+        $cat = new Cat();
 
         $this->expectException(DivisionByZeroError::class);
         isset($cat->throwable);
@@ -414,9 +416,9 @@ abstract class ActiveRecordTest extends TestCase
     {
         self::markTestSkipped('There are no magic properties in the Cat class');
 
-        $this->checkFixture($this->db, 'cat');
+        $this->checkFixture($this->db(), 'cat');
 
-        $cat = new Cat($this->db);
+        $cat = new Cat();
 
         $this->assertFalse(isset($cat->non_existing));
         $this->assertFalse(isset($cat->non_existing_property));
@@ -425,20 +427,20 @@ abstract class ActiveRecordTest extends TestCase
     public function testSetAttributes(): void
     {
         $attributes = [];
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
         $attributes['email'] = 'samdark@mail.ru';
         $attributes['name'] = 'samdark';
         $attributes['address'] = 'rusia';
         $attributes['status'] = 1;
 
-        if ($this->db->getDriverName() === 'pgsql') {
+        if ($this->db()->getDriverName() === 'pgsql') {
             $attributes['bool_status'] = true;
         }
 
         $attributes['profile_id'] = null;
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $customer->setAttributes($attributes);
 
@@ -449,9 +451,9 @@ abstract class ActiveRecordTest extends TestCase
     {
         self::markTestSkipped('There are no magic properties in the Cat class');
 
-        $this->checkFixture($this->db, 'cat');
+        $this->checkFixture($this->db(), 'cat');
 
-        $cat = new Cat($this->db);
+        $cat = new Cat();
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -463,9 +465,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetOldAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $this->assertEmpty($customer->getOldAttribute('name'));
 
@@ -476,9 +478,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetOldAttributeException(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $this->assertEmpty($customer->getOldAttribute('name'));
 
@@ -491,9 +493,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsAttributeChangedNotChanged(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $this->assertEmpty($customer->getAttribute('email'));
         $this->assertEmpty($customer->getOldAttribute('email'));
@@ -502,7 +504,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testTableSchemaException(): void
     {
-        $noExist = new NoExist($this->db);
+        $noExist = new NoExist();
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage('The table does not exist: NoExist');
@@ -511,9 +513,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testInsert(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $customer->setEmail('user4@example.com');
         $customer->setName('user4');
@@ -535,9 +537,9 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testBooleanAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $customer->setName('boolean customer');
         $customer->setEmail('mail@example.com');
@@ -553,11 +555,11 @@ abstract class ActiveRecordTest extends TestCase
         $customer->refresh();
         $this->assertEquals(0, $customer->getStatus());
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['status' => 1])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['status' => 0])->all();
         $this->assertCount(1, $customers);
     }
@@ -566,9 +568,9 @@ abstract class ActiveRecordTest extends TestCase
     {
         self::markTestSkipped('There are no magic properties in the Cat class');
 
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $arClass = new Customer($this->db);
+        $arClass = new Customer();
 
         $this->assertTrue($arClass->canSetProperty('name'));
         $this->assertTrue($arClass->canGetProperty('name'));
@@ -582,10 +584,10 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($arClass->name);
 
         /** {@see https://github.com/yiisoft/yii2-gii/issues/190} */
-        $baseModel = new Customer($this->db);
+        $baseModel = new Customer();
         $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertTrue($customer->canGetProperty('id'));
         $this->assertTrue($customer->canSetProperty('id'));
@@ -608,7 +610,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
-        $customer->orderItems = [new Item($this->db)];
+        $customer->orderItems = [new Item()];
 
         /** related attribute $customer->orderItems didn't change cause it's read-only */
         $this->assertSame([], $customer->orderItems);
@@ -622,15 +624,15 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testHasAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $this->assertTrue($customer->hasAttribute('id'));
         $this->assertTrue($customer->hasAttribute('email'));
         $this->assertFalse($customer->hasAttribute('notExist'));
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
         $this->assertTrue($customer->hasAttribute('id'));
         $this->assertTrue($customer->hasAttribute('email'));
@@ -639,13 +641,13 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRefresh(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $this->assertFalse($customer->refresh());
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
         $customer->setName('to be refreshed');
 
@@ -655,14 +657,14 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testEquals(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customerA = new Customer($this->db);
-        $customerB = new Customer($this->db);
+        $customerA = new Customer();
+        $customerB = new Customer();
         $this->assertFalse($customerA->equals($customerB));
 
-        $customerA = new Customer($this->db);
-        $customerB = new Item($this->db);
+        $customerA = new Customer();
+        $customerB = new Item();
         $this->assertFalse($customerA->equals($customerB));
     }
 
@@ -681,10 +683,10 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testUnlinkWithViaOnCondition($delete, $count)
     {
-        $this->checkFixture($this->db, 'order', true);
-        $this->checkFixture($this->db, 'order_item_with_null_fk', true);
+        $this->checkFixture($this->db(), 'order', true);
+        $this->checkFixture($this->db(), 'order_item_with_null_fk', true);
 
-        $orderQuery = new ActiveQuery(Order::class, $this->db);
+        $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findOne(2);
 
         $this->assertCount(1, $order->getItemsFor8());
@@ -694,7 +696,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(0, $order->getItemsFor8());
         $this->assertCount(2, $order->getOrderItemsWithNullFK());
 
-        $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class, $this->db);
+        $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class);
         $this->assertCount(1, $orderItemQuery->findAll([
             'order_id' => 2,
             'item_id' => 5,
@@ -707,9 +709,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testVirtualRelation()
     {
-        $this->checkFixture($this->db, 'order', true);
+        $this->checkFixture($this->db(), 'order', true);
 
-        $orderQuery = new ActiveQuery(Order::class, $this->db);
+        $orderQuery = new ActiveQuery(Order::class);
         /** @var Order $order */
         $order = $orderQuery->findOne(2);
 
@@ -724,16 +726,16 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testJoinWithEager()
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
         $eagerItemsCount = 0;
         foreach ($eagerCustomers as $customer) {
             $eagerItemsCount += is_countable($customer->getItems2()) ? count($customer->getItems2()) : 0;
         }
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $lazyCustomers = $customerQuery->all();
         $lazyItemsCount = 0;
         foreach ($lazyCustomers as $customer) {
@@ -745,9 +747,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testToArray(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -766,9 +768,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testToArrayWithClosure(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db);
+        $customerQuery = new ActiveQuery(CustomerClosureField::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -787,9 +789,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testToArrayForArrayable(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerForArrayable::class, $this->db);
+        $customerQuery = new ActiveQuery(CustomerForArrayable::class);
 
         /** @var CustomerForArrayable $customer */
         $customer = $customerQuery->findOne(1);
@@ -841,9 +843,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSaveWithoutChanges(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findOne(1);
 
@@ -852,9 +854,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testGetPrimaryKey(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findOne(1);
 
@@ -864,9 +866,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testGetOldPrimaryKey(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findOne(1);
         $customer->setId(2);
@@ -877,9 +879,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testGetDirtyAttributesOnNewRecord(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
         $this->assertSame(
             [
@@ -928,9 +930,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testGetDirtyAttributesAfterFind(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame([], $customer->getDirtyAttributes());
@@ -951,9 +953,9 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationWithInstance(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(2);
 
         $orders = $customer->getOrdersUsingInstance();
@@ -962,5 +964,25 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(2, $orders);
         $this->assertSame(2, $orders[0]->getId());
         $this->assertSame(3, $orders[1]->getId());
+    }
+
+    public function testWithCustomConnection(): void
+    {
+        $db = $this->createConnection();
+
+        ConnectionProvider::set($db, 'custom');
+        $this->checkFixture($db, 'customer');
+
+        $customer = new CustomerWithCustomConnection();
+
+        $this->assertSame($this->db(), $customer->db());
+
+        $customer = $customer->withConnectionName('custom');
+
+        $this->assertSame($db, $customer->db());
+
+        $db->close();
+
+        ConnectionProvider::remove('custom');
     }
 }
