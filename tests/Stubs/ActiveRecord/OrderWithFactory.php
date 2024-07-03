@@ -16,10 +16,12 @@ final class OrderWithFactory extends Order
         return match ($name) {
             'customerWithFactory' => $this->hasOne(CustomerWithFactory::class, ['id' => 'customer_id']),
             'customerWithFactoryClosure' => $this->hasOne(
-                fn () => $this->factory->create(CustomerWithFactory::class), ['id' => 'customer_id']
+                fn () => $this->factory->create(CustomerWithFactory::class),
+                ['id' => 'customer_id']
             ),
             'customerWithFactoryInstance' => $this->hasOne(
-                $this->factory->create(CustomerWithFactory::class), ['id' => 'customer_id']
+                $this->factory->create(CustomerWithFactory::class),
+                ['id' => 'customer_id']
             ),
             default => parent::relationQuery($name),
         };

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Support;
 
-use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Db\Cache\SchemaCache;
 use Yiisoft\Db\Connection\ConnectionInterface;
