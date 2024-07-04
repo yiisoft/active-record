@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
-final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
+final class ConnectionProviderTest extends \Yiisoft\ActiveRecord\Tests\ConnectionProviderTest
 {
     protected function createConnection(): ConnectionInterface
     {

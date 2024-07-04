@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql;
 use Yiisoft\ActiveRecord\Tests\Support\MysqlHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
-final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
+final class ConnectionProviderTest extends \Yiisoft\ActiveRecord\Tests\ConnectionProviderTest
 {
     protected function createConnection(): ConnectionInterface
     {

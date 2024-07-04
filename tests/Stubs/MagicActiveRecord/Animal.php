@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
-use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * Class Animal.
@@ -23,10 +22,8 @@ class Animal extends MagicActiveRecord
         return 'animal';
     }
 
-    public function __construct(ConnectionInterface $db)
+    public function __construct()
     {
-        parent::__construct($db);
-
         $this->type = static::class;
     }
 

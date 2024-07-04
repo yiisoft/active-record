@@ -38,6 +38,8 @@ use function reset;
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
  *
  * See {@see ActiveRecord} for a concrete implementation.
+ *
+ * @psalm-import-type ARClass from ActiveQueryInterface
  */
 abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
@@ -45,13 +47,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     private array $related = [];
     /** @psalm-var string[][] */
     private array $relationsDependencies = [];
-
-    public function __construct(
-        private ConnectionInterface $db,
-        private ActiveRecordFactory|null $arFactory = null,
-        private string $tableName = ''
-    ) {
-    }
 
     /**
      * Returns the public and protected property values of an Active Record object.
@@ -89,7 +84,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function deleteAll(array $condition = [], array $params = []): int
     {
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
         $command->delete($this->getTableName(), $condition, $params);
 
         return $command->execute();
@@ -261,16 +256,17 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string $class The class name of the related record
+     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of the
+     * related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param class-string<ActiveRecordInterface> $class
+     * @psalm-param ARClass $class
      */
-    public function hasMany(string $class, array $link): ActiveQueryInterface
+    public function hasMany(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($class, $link, true);
     }
@@ -299,16 +295,17 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param string $class The class name of the related record.
+     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of the
+     *  related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
      * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param class-string<ActiveRecordInterface> $class
+     * @psalm-param ARClass $class
      */
-    public function hasOne(string $class, array $link): ActiveQueryInterface
+    public function hasOne(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($class, $link, false);
     }
@@ -319,11 +316,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record, or an instance of the
+     * related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     *
+     * @psalm-param ARClass $arClass
      */
-    public function instantiateQuery(string $arClass): ActiveQueryInterface
+    public function instantiateQuery(string|ActiveRecordInterface|Closure $arClass): ActiveQueryInterface
     {
-        return new ActiveQuery($arClass, $this->db, $this->arFactory);
+        return new ActiveQuery($arClass);
     }
 
     /**
@@ -431,7 +431,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
                 $viaClass->insert();
             } elseif (is_string($viaTable)) {
-                $this->db->createCommand()->insert($viaTable, $columns)->execute();
+                $this->db()->createCommand()->insert($viaTable, $columns)->execute();
             }
         } else {
             $link = $relation->getLink();
@@ -713,7 +713,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function updateAll(array $attributes, array|string $condition = [], array $params = []): int
     {
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
 
         $command->update($this->getTableName(), $attributes, $condition, $params);
 
@@ -782,7 +782,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $n++;
         }
 
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
         $command->update($this->getTableName(), $counters, $condition, $params);
 
         return $command->execute();
@@ -878,7 +878,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                     $viaClass->updateAll($nulls, $columns);
                 }
             } elseif (is_string($viaTable)) {
-                $command = $this->db->createCommand();
+                $command = $this->db()->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $columns)->execute();
                 } else {
@@ -991,7 +991,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                     $viaClass->updateAll($nulls, $condition);
                 }
             } elseif (is_string($viaTable)) {
-                $command = $this->db->createCommand();
+                $command = $this->db()->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $condition)->execute();
                 } else {
@@ -1071,18 +1071,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param string $arClass The class name of the related record.
+     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record.
      * @param array $link The primary-foreign key constraint.
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     * @psalm-param ARClass $arClass
 
      * {@see hasOne()}
      * {@see hasMany()}
      */
-    protected function createRelationQuery(string $arClass, array $link, bool $multiple): ActiveQueryInterface
+    protected function createRelationQuery(string|ActiveRecordInterface|Closure $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
         return $this->instantiateQuery($arClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
@@ -1244,15 +1244,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function getTableName(): string
     {
-        if ($this->tableName === '') {
-            $this->tableName = '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
-        }
-
-        return $this->tableName;
+        return '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
     }
 
-    protected function db(): ConnectionInterface
+    public function db(): ConnectionInterface
     {
-        return $this->db;
+        return ConnectionProvider::get();
     }
 }

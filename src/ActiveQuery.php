@@ -8,7 +8,6 @@ use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -21,7 +20,6 @@ use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
-use Yiisoft\Factory\NotFoundException;
 
 use function array_column;
 use function array_combine;
@@ -102,6 +100,8 @@ use function substr;
  * These methods may only be called in a relational context. Same is true for {@see inverseOf()}, which marks a relation
  * as inverse of another relation and {@see onCondition()} which adds a condition that's to be added to relational
  * query join condition.
+ *
+ * @psalm-import-type ARClass from ActiveQueryInterface
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
@@ -111,18 +111,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private string|null $sql = null;
     private array|string|null $on = null;
     private array $joinWith = [];
-    private ActiveRecordInterface|null $arInstance = null;
 
     /**
-     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     * @psalm-param ARClass $arClass
      */
     final public function __construct(
-        protected string $arClass,
-        protected ConnectionInterface $db,
-        private ActiveRecordFactory|null $arFactory = null,
-        private string $tableName = ''
+        protected string|ActiveRecordInterface|Closure $arClass
     ) {
-        parent::__construct($db);
+        parent::__construct($this->getARInstance()->db());
     }
 
     /**
@@ -164,7 +160,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws Throwable
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
@@ -288,7 +283,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      *
      * @return array The distinctive models.
@@ -301,7 +295,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $pks = $this->getARInstance()->primaryKey();
 
             if (empty($pks)) {
-                throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+                throw new InvalidConfigException('Primary key of "' . $this->getARClassName() . '" can not be empty.');
             }
 
             foreach ($pks as $pk) {
@@ -323,7 +317,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $pks = $model->getPrimaryKey(true);
 
             if (empty($pks)) {
-                throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+                throw new InvalidConfigException('Primary key of "' . $this->getARClassName() . '" can not be empty.');
             }
 
             foreach ($pks as $pk) {
@@ -474,7 +468,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -553,7 +546,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -636,7 +628,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     private function getTableNameAndAlias(): array
@@ -673,9 +664,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param string $joinType The join type.
      *
      * @throws CircularReferenceException
-     * @throws NotFoundException
      * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
     {
@@ -803,8 +793,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function viaTable(string $tableName, array $link, callable $callable = null): self
     {
-        $arClass = $this->primaryModel ? $this->primaryModel::class : $this->arClass;
-        $arClassInstance = new self($arClass, $this->db);
+        $arClass = $this->primaryModel ?? $this->arClass;
+        $arClassInstance = new self($arClass);
 
         /** @psalm-suppress UndefinedMethod */
         $relation = $arClassInstance->from([$tableName])->link($link)->multiple(true)->asArray();
@@ -840,7 +830,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @throws CircularReferenceException
      * @throws InvalidArgumentException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -855,7 +844,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * @throws CircularReferenceException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -882,7 +870,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->sql;
     }
 
-    public function getARClass(): string|null
+    public function getARClass(): string|ActiveRecordInterface|Closure
     {
         return $this->arClass;
     }
@@ -921,7 +909,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidArgumentException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     protected function findByCondition(mixed $condition): static
@@ -976,21 +963,38 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
+    public function getARClassName(): string
+    {
+        if ($this->arClass instanceof ActiveRecordInterface) {
+            return $this->arClass::class;
+        }
+
+        if ($this->arClass instanceof Closure) {
+            return ($this->arClass)()::class;
+        }
+
+        return $this->arClass;
+    }
+
     public function getARInstance(): ActiveRecordInterface
     {
-        if ($this->arFactory !== null) {
-            return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
+        if ($this->arClass instanceof ActiveRecordInterface) {
+            return clone $this->arClass;
+        }
+
+        if ($this->arClass instanceof Closure) {
+            return ($this->arClass)();
         }
 
         /** @psalm-var class-string<ActiveRecordInterface> $class */
         $class = $this->arClass;
 
-        return new $class($this->db, null, $this->tableName);
+        return new $class();
     }
 
     private function createInstance(): static
     {
-        return (new static($this->arClass, $this->db))
+        return (new static($this->arClass))
             ->where($this->getWhere())
             ->limit($this->getLimit())
             ->offset($this->getOffset())

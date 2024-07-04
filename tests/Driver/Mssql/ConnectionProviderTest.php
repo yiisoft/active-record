@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
-final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
+final class ConnectionProviderTest extends \Yiisoft\ActiveRecord\Tests\ConnectionProviderTest
 {
     protected function createConnection(): ConnectionInterface
     {

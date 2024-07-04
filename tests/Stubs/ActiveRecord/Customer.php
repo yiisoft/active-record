@@ -53,6 +53,7 @@ class Customer extends ActiveRecord
             'orderItems' => $this->getOrderItemsQuery(),
             'orderItems2' => $this->getOrderItems2Query(),
             'items2' => $this->getItems2Query(),
+            'ordersUsingInstance' => $this->hasMany(new Order(), ['customer_id' => 'id']),
             default => parent::relationQuery($name),
         };
     }
@@ -260,5 +261,10 @@ class Customer extends ActiveRecord
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItems2');
+    }
+
+    public function getOrdersUsingInstance(): array
+    {
+        return $this->relation('ordersUsingInstance');
     }
 }
