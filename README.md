@@ -136,7 +136,7 @@ $user->setAttribute('email', 'yiiliveext@mail.ru');
 $user->save();
 ```
 
-Usage with ActiveQuery:
+Usage with `ActiveQuery`:
 
 ```php
 use App\Entity\User;
@@ -146,7 +146,7 @@ $userQuery = new ActiveQuery(User::class);
 
 $user = $userQuery->where(['id' => 1])->onePopulate();
 
-$username = $user->setAttribute('username');
+$username = $user->getAttribute('username');
 $email = $user->getAttribute('email');
 ```
 
