@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Sqlite;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
-final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
+final class ConnectionProviderTest extends \Yiisoft\ActiveRecord\Tests\ConnectionProviderTest
 {
     protected function createConnection(): ConnectionInterface
     {

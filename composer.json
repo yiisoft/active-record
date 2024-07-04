@@ -32,8 +32,7 @@
         "php": "^8.1",
         "ext-json": "*",
         "yiisoft/arrays": "^3.0",
-        "yiisoft/db": "dev-master",
-        "yiisoft/factory": "^1.0"
+        "yiisoft/db": "dev-master"
     },
     "require-dev": {
         "maglnet/composer-require-checker": "^4.2",
@@ -46,7 +45,18 @@
         "yiisoft/cache": "^3.0",
         "yiisoft/db-sqlite": "dev-master",
         "yiisoft/di": "^1.0",
-        "yiisoft/json": "^1.0"
+        "yiisoft/factory": "^1.2",
+        "yiisoft/json": "^1.0",
+        "yiisoft/middleware-dispatcher": "^5.2"
+    },
+    "suggest": {
+        "yiisoft/db-sqlite": "For SQLite database support",
+        "yiisoft/db-mysql": "For MySQL database support",
+        "yiisoft/db-pgsql": "For PostgreSQL database support",
+        "yiisoft/db-mssql": "For MSSQL database support",
+        "yiisoft/db-oracle": "For Oracle database support",
+        "yiisoft/factory": "For factory support",
+        "yiisoft/middleware-dispatcher": "For middleware support"
     },
     "autoload": {
         "psr-4": {

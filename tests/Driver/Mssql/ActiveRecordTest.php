@@ -8,29 +8,24 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTrigger;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTriggerAlert;
 use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $mssqlHelper = new MssqlHelper();
-        $this->db = $mssqlHelper->createConnection();
+        return (new MssqlHelper())->createConnection();
     }
 
-    protected function tearDown(): void
+    protected function createFactory(): Factory
     {
-        parent::tearDown();
-
-        $this->db->close();
-
-        unset($this->db);
+        return (new MssqlHelper())->createFactory($this->db());
     }
 
     public function testSaveWithTrigger(): void
     {
-        $this->checkFixture($this->db, 'test_trigger');
+        $this->checkFixture($this->db(), 'test_trigger');
 
         // drop trigger if exist
         $sql = <<<SQL
@@ -39,7 +34,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
             DROP TRIGGER [dbo].[test_alert];
         END
         SQL;
-        $this->db->createCommand($sql)->execute();
+        $this->db()->createCommand($sql)->execute();
 
         // create trigger
         $sql = <<<SQL
@@ -52,16 +47,16 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
             FROM [inserted]
         END
         SQL;
-        $this->db->createCommand($sql)->execute();
+        $this->db()->createCommand($sql)->execute();
 
-        $record = new TestTrigger($this->db);
+        $record = new TestTrigger($this->db());
 
         $record->stringcol = 'test';
 
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
 
-        $testRecordQuery = new ActiveQuery(TestTriggerAlert::class, $this->db);
+        $testRecordQuery = new ActiveQuery(TestTriggerAlert::class);
 
         $this->assertEquals('test', $testRecordQuery->findOne(1)->stringcol);
     }

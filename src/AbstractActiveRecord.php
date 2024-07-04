@@ -48,12 +48,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /** @psalm-var string[][] */
     private array $relationsDependencies = [];
 
-    public function __construct(
-        private ConnectionInterface $db,
-        private string $tableName = ''
-    ) {
-    }
-
     /**
      * Returns the public and protected property values of an Active Record object.
      *
@@ -90,7 +84,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function deleteAll(array $condition = [], array $params = []): int
     {
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
         $command->delete($this->getTableName(), $condition, $params);
 
         return $command->execute();
@@ -329,7 +323,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function instantiateQuery(string|ActiveRecordInterface|Closure $arClass): ActiveQueryInterface
     {
-        return new ActiveQuery($arClass, $this->db);
+        return new ActiveQuery($arClass);
     }
 
     /**
@@ -437,7 +431,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
                 $viaClass->insert();
             } elseif (is_string($viaTable)) {
-                $this->db->createCommand()->insert($viaTable, $columns)->execute();
+                $this->db()->createCommand()->insert($viaTable, $columns)->execute();
             }
         } else {
             $link = $relation->getLink();
@@ -719,7 +713,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function updateAll(array $attributes, array|string $condition = [], array $params = []): int
     {
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
 
         $command->update($this->getTableName(), $attributes, $condition, $params);
 
@@ -788,7 +782,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $n++;
         }
 
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
         $command->update($this->getTableName(), $counters, $condition, $params);
 
         return $command->execute();
@@ -884,7 +878,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                     $viaClass->updateAll($nulls, $columns);
                 }
             } elseif (is_string($viaTable)) {
-                $command = $this->db->createCommand();
+                $command = $this->db()->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $columns)->execute();
                 } else {
@@ -997,7 +991,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                     $viaClass->updateAll($nulls, $condition);
                 }
             } elseif (is_string($viaTable)) {
-                $command = $this->db->createCommand();
+                $command = $this->db()->createCommand();
                 if ($delete) {
                     $command->delete($viaTable, $condition)->execute();
                 } else {
@@ -1250,15 +1244,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function getTableName(): string
     {
-        if ($this->tableName === '') {
-            $this->tableName = '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
-        }
-
-        return $this->tableName;
+        return '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
     }
 
-    protected function db(): ConnectionInterface
+    public function db(): ConnectionInterface
     {
-        return $this->db;
+        return ConnectionProvider::get();
     }
 }
