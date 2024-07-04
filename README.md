@@ -156,7 +156,8 @@ return [
 ];
 ```
 
-_For more information about how to configure middleware, follow [Middleware Documentation](https://github.com/yiisoft/docs/blob/master/guide/en/structure/middleware.md)_
+_For more information about how to configure middleware, follow 
+[Middleware Documentation](https://github.com/yiisoft/docs/blob/master/guide/en/structure/middleware.md)_
 
 Now you can use the Active Record in the action:
 

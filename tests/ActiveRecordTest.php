@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use ArgumentCountError;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
@@ -14,6 +15,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
@@ -22,6 +24,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\Db\Exception\Exception;
@@ -30,9 +33,12 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Query\Query;
+use Yiisoft\Factory\Factory;
 
 abstract class ActiveRecordTest extends TestCase
 {
+    abstract protected function createFactory(): Factory;
+
     public function testStoreNull(): void
     {
         $this->checkFixture($this->db(), 'null_values', true);
@@ -984,5 +990,103 @@ abstract class ActiveRecordTest extends TestCase
         $db->close();
 
         ConnectionProvider::remove('custom');
+    }
+
+    public function testWithFactory(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $factory = $this->createFactory();
+
+        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
+        $order = $orderQuery->with('customerWithFactory')->findOne(2);
+
+        $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertTrue($order->isRelationPopulated('customerWithFactory'));
+        $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
+    }
+
+    public function testWithFactoryClosureRelation(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $factory = $this->createFactory();
+
+        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
+        $order = $orderQuery->findOne(2);
+
+        $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactoryClosure());
+    }
+
+    public function testWithFactoryInstanceRelation(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $factory = $this->createFactory();
+
+        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
+        $order = $orderQuery->findOne(2);
+
+        $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactoryInstance());
+    }
+
+    public function testWithFactoryRelationWithoutFactory(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $factory = $this->createFactory();
+
+        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
+        $order = $orderQuery->findOne(2);
+
+        $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertInstanceOf(Customer::class, $order->getCustomer());
+    }
+
+    public function testWithFactoryLazyRelation(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $factory = $this->createFactory();
+
+        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
+        $order = $orderQuery->findOne(2);
+
+        $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertFalse($order->isRelationPopulated('customerWithFactory'));
+        $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
+    }
+
+    public function testWithFactoryWithConstructor(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $factory = $this->createFactory();
+
+        $customerQuery = new ActiveQuery($factory->create(CustomerWithFactory::class));
+        $customer = $customerQuery->findOne(2);
+
+        $this->assertInstanceOf(CustomerWithFactory::class, $customer);
+        $this->assertFalse($customer->isRelationPopulated('ordersWithFactory'));
+        $this->assertInstanceOf(OrderWithFactory::class, $customer->getOrdersWithFactory()[0]);
+    }
+
+    public function testWithFactoryNonInitiated(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $orderQuery = new ActiveQuery(OrderWithFactory::class);
+        $order = $orderQuery->findOne(2);
+
+        $customer = $order->getCustomer();
+
+        $this->assertInstanceOf(Customer::class, $customer);
+
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        $customer = $order->getCustomerWithFactory();
     }
 }

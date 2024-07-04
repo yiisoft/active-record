@@ -9,12 +9,18 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTrigger;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\TestTriggerAlert;
 use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
     protected function createConnection(): ConnectionInterface
     {
         return (new MssqlHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new MssqlHelper())->createFactory($this->db());
     }
 
     public function testSaveWithTrigger(): void

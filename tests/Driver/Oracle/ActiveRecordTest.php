@@ -10,12 +10,18 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
     protected function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new OracleHelper())->createFactory($this->db());
     }
 
     public function testCastValues(): void

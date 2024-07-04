@@ -21,12 +21,18 @@ use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
 use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
     protected function createConnection(): ConnectionInterface
     {
         return (new PgsqlHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new PgsqlHelper())->createFactory($this->db());
     }
 
     public function testDefaultValues(): void
