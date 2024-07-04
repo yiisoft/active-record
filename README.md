@@ -49,18 +49,17 @@ Example:
 composer require yiisoft/db-sqlite
 ```
 
-## Config container interface class
+## Configure container with database connection
 
-web.php:
+Add the following code to the configuration files, for example:
+
+`config/common/di/db.php`:
 
 ```php
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
 
-/**
- * config ConnectionInterface::class
- */
 return [
     ConnectionInterface::class => [
         'class' => Connection::class,
@@ -71,7 +70,7 @@ return [
 ];
 ```
 
-params.php
+`config/common/params.php`:
 
 ```php
 return [
@@ -80,6 +79,24 @@ return [
     ]
 ]
 ```
+
+For more information about how to configure the connection, follow [Yii Database](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md).
+
+`config/common/bootstrap.php`:
+
+```php
+use Psr\Container\ContainerInterface;
+use Yiisoft\ActiveRecord\ConnectionProvider;
+use Yiisoft\Db\Connection\ConnectionInterface;
+
+return [
+    static function (ContainerInterface $container): void {
+        ConnectionProvider::set($container->get(ConnectionInterface::class));
+    }
+];
+```
+
+See other ways to [define the DB connection](docs/define-connection.md) for Active Record.
 
 ## Defined your active record class
 
@@ -106,76 +123,31 @@ final class User extends ActiveRecord
 
 For more information, follow [Create Active Record Model](docs/create-model.md).
 
-## Usage in controller with DI container autowiring
+## Usage
+
+Now you can use the Active Record:
 
 ```php
 use App\Entity\User;
-use Psr\Http\Message\ResponseInterface;
-use Yiisoft\ActiveRecord\ConnectionProvider;
-use Yiisoft\Db\Connection\ConnectionInterface;
 
-final class Register
-{
-    public function register(
-        ConnectionInterface $db,
-    ): ResponseInterface {
-        ConnectionProvider::set($db);
-    
-        $user = new User();
-        $user->setAttribute('username', 'yiiliveext');
-        $user->setAttribute('email', 'yiiliveext@mail.ru');
-        $user->save();
-    }
-}
+$user = new User();
+$user->setAttribute('username', 'yiiliveext');
+$user->setAttribute('email', 'yiiliveext@mail.ru');
+$user->save();
 ```
 
-## Usage with middleware
-
-Add the middleware to the action, for example:
-
-```php
-use Yiisoft\ActiveRecord\ConnectionProviderMiddleware;
-use Yiisoft\Router\Route;
-
-Route::methods([Method::GET, Method::POST], '/user/register')
-    ->middleware(ConnectionProviderMiddleware::class)
-    ->action([Register::class, 'register'])
-    ->name('user/register');
-```
-
-Or, if you use `yiisoft/config` and `yiisoft/middleware-dispatcher` packages, add the middleware to the configuration, 
-for example in `config/common/params.php` file:
-
-```php
-use Yiisoft\ActiveRecord\ConnectionProviderMiddleware;
-
-return [
-    'middlewares' => [
-        ConnectionProviderMiddleware::class,
-    ],
-];
-```
-
-_For more information about how to configure middleware, follow 
-[Middleware Documentation](https://github.com/yiisoft/docs/blob/master/guide/en/structure/middleware.md)_
-
-Now you can use the Active Record in the action:
+Usage with ActiveQuery:
 
 ```php
 use App\Entity\User;
-use Psr\Http\Message\ResponseInterface;
-use Yiisoft\ActiveRecord\ActiveRecordFactory;
+use Yiisoft\ActiveRecord\ActiveQuery;
 
-final class Register
-{
-    public function register(): ResponseInterface
-    {
-        $user = new User();
-        $user->setAttribute('username', 'yiiliveext');
-        $user->setAttribute('email', 'yiiliveext@mail.ru');
-        $user->save();
-    }
-}
+$userQuery = new ActiveQuery(User::class);
+
+$user = $userQuery->where(['id' => 1])->onePopulate();
+
+$username = $user->setAttribute('username');
+$email = $user->getAttribute('email');
 ```
 
 ## Documentation
