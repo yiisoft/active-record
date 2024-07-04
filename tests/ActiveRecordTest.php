@@ -1032,6 +1032,19 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactoryInstance());
     }
 
+    public function testWithFactoryRelationWithoutFactory(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $factory = $this->createFactory();
+
+        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
+        $order = $orderQuery->findOne(2);
+
+        $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertInstanceOf(Customer::class, $order->getCustomer());
+    }
+
     public function testWithFactoryLazyRelation(): void
     {
         $this->checkFixture($this->db(), 'order');

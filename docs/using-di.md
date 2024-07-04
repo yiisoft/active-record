@@ -84,11 +84,6 @@ final class User extends ActiveRecord
     {
         $this->factory = $factory;
     }
-    
-    public function getMyService(): MyService
-    {
-        return $this->myService;
-    }
 }
 ```
 
