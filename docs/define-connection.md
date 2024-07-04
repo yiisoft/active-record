@@ -74,15 +74,15 @@ final class Register
 Another way to define the DB connection for Active Record is to use dependency injection.
 
 ```php
-use Psr\Container\ContainerInterface;
+use Yiisoft\Db\Connection\ConnectionInterface;
 
 class User extends ActiveRecord
 {
-    public function __construct(private ContainerInterface $db)
+    public function __construct(private readonly ConnectionInterface $db)
     {
     }
     
-    public function db(): ContainerInterface
+    public function db(): ConnectionInterface
     {
         return $this->db;
     }
