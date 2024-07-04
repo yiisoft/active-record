@@ -441,9 +441,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testRelationViaArray()
     {
-        $this->checkFixture($this->db, 'promotion');
+        $this->checkFixture($this->db(), 'promotion');
 
-        $promotionQuery = new ActiveQuery(Promotion::class, $this->db);
+        $promotionQuery = new ActiveQuery(Promotion::class);
         /** @var Promotion[] $promotions */
         $promotions = $promotionQuery->with('items')->all();
 
