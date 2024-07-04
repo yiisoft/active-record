@@ -7,8 +7,10 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerForArrayable;
@@ -947,5 +949,35 @@ abstract class MagicActiveRecordTest extends TestCase
             ['email' => 'adam@example.com', 'address' => null],
             $customer->getDirtyAttributes(['id', 'email', 'address', 'unknown']),
         );
+    }
+
+    public function testRelationNames(): void
+    {
+        $this->checkFixture($this->db(), 'animal');
+
+        $animal = new Animal();
+
+        $this->assertEmpty($animal->relationNames());
+
+        $alpha = new Alpha();
+
+        $this->assertSame(['betas'], $alpha->relationNames());
+
+        $customer = new Customer();
+
+        $this->assertSame([
+            'profile',
+            'ordersPlain',
+            'orders',
+            'ordersNoOrder',
+            'expensiveOrders',
+            'ordersWithItems',
+            'expensiveOrdersWithNullFK',
+            'ordersWithNullFK',
+            'orders2',
+            'orderItems',
+            'orderItems2',
+            'items2',
+        ], $customer->relationNames());
     }
 }
