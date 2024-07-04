@@ -277,7 +277,7 @@ final class User extends ActiveRecord
 }
 ```
 
-Now you can use `$user->getProfile()` and `$user->getOrders()` to access the relation.
+Now you can use `$user->getProfile()` and `$user->getOrders()` to access the relations.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveQuery;

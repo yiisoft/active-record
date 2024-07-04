@@ -7,6 +7,8 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 use ArrayAccess;
 use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ArArrayHelper;
+use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Promotion;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Type;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
@@ -435,5 +437,34 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
             ],
             $customer->toArray(),
         );
+    }
+
+    public function testRelationViaArray()
+    {
+        $this->checkFixture($this->db(), 'promotion');
+
+        $promotionQuery = new ActiveQuery(Promotion::class);
+        /** @var Promotion[] $promotions */
+        $promotions = $promotionQuery->with('items')->all();
+
+        $this->assertSame([1, 2], ArArrayHelper::getColumn($promotions[0]->getItems(), 'id'));
+        $this->assertSame([3, 4, 5], ArArrayHelper::getColumn($promotions[1]->getItems(), 'id'));
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[2]->getItems(), 'id'));
+        $this->assertCount(0, $promotions[3]->getItems());
+
+        /** Test inverse relation */
+        foreach ($promotions as $promotion) {
+            foreach ($promotion->getItems() as $item) {
+                $this->assertTrue($item->isRelationPopulated('promotions'));
+            }
+        }
+
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[0]->getItems()[0]->getPromotions(), 'id'));
+        $this->assertSame([1], ArArrayHelper::getColumn($promotions[0]->getItems()[1]->getPromotions(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[1]->getItems()[0]->getPromotions(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($promotions[1]->getItems()[1]->getPromotions(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($promotions[1]->getItems()[2]->getPromotions(), 'id'));
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[2]->getItems()[0]->getPromotions(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[2]->getItems()[1]->getPromotions(), 'id'));
     }
 }
