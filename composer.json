@@ -50,6 +50,7 @@
         "yiisoft/middleware-dispatcher": "^5.2"
     },
     "suggest": {
+        "yiisoft/arrays": "For \\Yiisoft\\Arrays\\ArrayableInterface support",
         "yiisoft/db-sqlite": "For SQLite database support",
         "yiisoft/db-mysql": "For MySQL database support",
         "yiisoft/db-pgsql": "For PostgreSQL database support",
