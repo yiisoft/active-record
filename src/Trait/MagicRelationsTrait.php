@@ -84,9 +84,8 @@ trait MagicRelationsTrait
      * Returns names of all relations defined in the ActiveRecord class using getter methods with `get` prefix and
      * `Query` suffix.
      *
-     * @return string[]
-     *
      * @throws ReflectionException
+     * @return string[]
      */
     public function relationNames(): array
     {

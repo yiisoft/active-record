@@ -10,7 +10,6 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
-use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerForArrayable;
