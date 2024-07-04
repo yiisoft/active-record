@@ -4,6 +4,7 @@
         "Psr\\Http\\Message\\ServerRequestInterface",
         "Psr\\Http\\Server\\MiddlewareInterface",
         "Psr\\Http\\Server\\RequestHandlerInterface",
+        "Yiisoft\\Arrays\\ArrayableTrait",
         "Yiisoft\\Factory\\Factory"
     ]
 }

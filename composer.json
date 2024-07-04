@@ -31,7 +31,6 @@
     "require": {
         "php": "^8.1",
         "ext-json": "*",
-        "yiisoft/arrays": "^3.0",
         "yiisoft/db": "dev-master"
     },
     "require-dev": {
@@ -42,6 +41,7 @@
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^5.20",
         "yiisoft/aliases": "^2.0",
+        "yiisoft/arrays": "^3.1",
         "yiisoft/cache": "^3.0",
         "yiisoft/db-sqlite": "dev-master",
         "yiisoft/di": "^1.0",
@@ -50,6 +50,7 @@
         "yiisoft/middleware-dispatcher": "^5.2"
     },
     "suggest": {
+        "yiisoft/arrays": "For \\Yiisoft\\Arrays\\ArrayableInterface support",
         "yiisoft/db-sqlite": "For SQLite database support",
         "yiisoft/db-mysql": "For MySQL database support",
         "yiisoft/db-pgsql": "For PostgreSQL database support",
