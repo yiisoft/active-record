@@ -7,12 +7,15 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 
 /**
  * Class OrderItem.
  */
 final class OrderItem extends ActiveRecord
 {
+    use CustomTableNameTrait;
+
     protected int $order_id;
     protected int $item_id;
     protected int $quantity;
@@ -20,7 +23,7 @@ final class OrderItem extends ActiveRecord
 
     public function getTableName(): string
     {
-        return 'order_item';
+        return $this->tableName ??= 'order_item';
     }
 
     public function fields(): array
@@ -137,6 +140,6 @@ final class OrderItem extends ActiveRecord
 
     public function getCustomQuery(): ActiveQuery
     {
-        return new ActiveQuery(Order::class, $this->db());
+        return new ActiveQuery(Order::class);
     }
 }

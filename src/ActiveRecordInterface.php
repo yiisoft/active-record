@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Throwable;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -23,6 +24,11 @@ interface ActiveRecordInterface
      * @psalm-return string[]
      */
     public function attributes(): array;
+
+    /**
+     * Returns the database connection used by the Active Record instance.
+     */
+    public function db(): ConnectionInterface;
 
     /**
      * Deletes the table row corresponding to this active record.

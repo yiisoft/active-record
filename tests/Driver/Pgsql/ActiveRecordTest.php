@@ -8,6 +8,7 @@ use ArrayAccess;
 use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
+use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Item;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Promotion;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Type;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
@@ -18,35 +19,30 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
 use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $pgsqlHelper = new PgsqlHelper();
-        $this->db = $pgsqlHelper->createConnection();
+        return (new PgsqlHelper())->createConnection();
     }
 
-    protected function tearDown(): void
+    protected function createFactory(): Factory
     {
-        parent::tearDown();
-
-        $this->db->close();
-
-        unset($this->db);
+        return (new PgsqlHelper())->createFactory($this->db());
     }
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->db, 'type');
+        $this->checkFixture($this->db(), 'type');
 
-        $arClass = new Type($this->db);
+        $arClass = new Type($this->db());
 
         $arClass->loadDefaultValues();
 
@@ -57,13 +53,13 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertEquals(true, $arClass->bool_col2);
         $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
-        $arClass = new Type($this->db);
+        $arClass = new Type($this->db());
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
         $this->assertEquals('not something', $arClass->char_col2);
 
-        $arClass = new Type($this->db);
+        $arClass = new Type($this->db());
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
@@ -72,9 +68,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testCastValues(): void
     {
-        $this->checkFixture($this->db, 'type');
+        $this->checkFixture($this->db(), 'type');
 
-        $arClass = new Type($this->db);
+        $arClass = new Type($this->db());
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -90,7 +86,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class, $this->db);
+        $aqClass = new ActiveQuery(Type::class);
         $query = $aqClass->onePopulate();
 
         $this->assertSame(123, $query->int_col);
@@ -103,9 +99,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
+        $customer = new Customer($this->db());
         $customer->setId(1337);
         $customer->setEmail('user1337@example.com');
         $customer->setName('user1337');
@@ -122,9 +118,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db, 'beta');
+        $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db);
+        $betaQuery = new ActiveQuery(Beta::class);
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
 
@@ -142,9 +138,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testBooleanAttribute(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customer = new Customer($this->db);
+        $customer = new Customer($this->db());
         $customer->setName('boolean customer');
         $customer->setEmail('mail@example.com');
         $customer->setBoolStatus(false);
@@ -159,7 +155,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->refresh();
         $this->assertTrue($customer->getBoolStatus());
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
@@ -169,11 +165,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testBooleanValues(): void
     {
-        $this->checkFixture($this->db, 'bool_values');
+        $this->checkFixture($this->db(), 'bool_values');
 
-        $command = $this->db->createCommand();
+        $command = $this->db()->createCommand();
         $command->insertBatch('bool_values', [[true], [false]], ['bool_col'])->execute();
-        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
+        $boolARQuery = new ActiveQuery(BoolAR::class);
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
         $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
@@ -195,11 +191,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testBooleanValues2(): void
     {
-        $this->checkFixture($this->db, 'bool_user');
+        $this->checkFixture($this->db(), 'bool_user');
 
-        //$this->db->setCharset('utf8');
-        $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
-        $this->db->createCommand()->createTable('bool_user', [
+        //$this->db()->setCharset('utf8');
+        $this->db()->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
+        $this->db()->createCommand()->createTable('bool_user', [
             'id' => SchemaPgsql::TYPE_PK,
             'username' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
             'auth_key' => SchemaPgsql::TYPE_STRING . '(32) NOT NULL',
@@ -211,13 +207,13 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
             'created_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
             'updated_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
         ])->execute();
-        $this->db->createCommand()->addColumn(
+        $this->db()->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
             SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
         )->execute();
 
-        $user = new UserAR($this->db);
+        $user = new UserAR();
         $user->username = 'test';
         $user->auth_key = 'test';
         $user->password_hash = 'test';
@@ -226,7 +222,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $user->updated_at = time();
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class, $this->db);
+        $userQuery = new ActiveQuery(UserAR::class);
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
@@ -234,9 +230,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testBooleanDefaultValues(): void
     {
-        $this->checkFixture($this->db, 'bool_values');
+        $this->checkFixture($this->db(), 'bool_values');
 
-        $arClass = new BoolAR($this->db);
+        $arClass = new BoolAR();
 
         $this->assertNull($arClass->bool_col);
         $this->assertTrue($arClass->default_true);
@@ -252,9 +248,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testPrimaryKeyAfterSave(): void
     {
-        $this->checkFixture($this->db, 'default_pk');
+        $this->checkFixture($this->db(), 'default_pk');
 
-        $record = new DefaultPk($this->db);
+        $record = new DefaultPk();
 
         $record->type = 'type';
 
@@ -360,9 +356,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testArrayValues($attributes): void
     {
-        $this->checkFixture($this->db, 'array_and_json_types', true);
+        $this->checkFixture($this->db(), 'array_and_json_types', true);
 
-        $type = new ArrayAndJsonTypes($this->db);
+        $type = new ArrayAndJsonTypes();
 
         foreach ($attributes as $attribute => $expected) {
             $type->setAttribute($attribute, $expected[0]);
@@ -370,7 +366,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $type->save();
 
-        $typeQuery = new ActiveQuery($type::class, $this->db);
+        $typeQuery = new ActiveQuery($type::class);
 
         $type = $typeQuery->onePopulate();
 
@@ -404,9 +400,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testToArray(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
+        $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -425,9 +421,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testToArrayWithClosure(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db);
+        $customerQuery = new ActiveQuery(CustomerClosureField::class);
         $customer = $customerQuery->findOne(1);
 
         $this->assertSame(
@@ -446,9 +442,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testRelationViaArray()
     {
-        $this->checkFixture($this->db, 'promotion');
+        $this->checkFixture($this->db(), 'promotion');
 
-        $promotionQuery = new ActiveQuery(Promotion::class, $this->db);
+        $promotionQuery = new ActiveQuery(Promotion::class);
         /** @var Promotion[] $promotions */
         $promotions = $promotionQuery->with('items')->all();
 
@@ -477,7 +473,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $this->checkFixture($this->db, 'item');
 
-        $itemQuery = new ActiveQuery(Item::class, $this->db);
+        $itemQuery = new ActiveQuery(Item::class);
         /** @var Item[] $items */
         $items = $itemQuery->all();
 

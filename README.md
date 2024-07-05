@@ -49,18 +49,17 @@ Example:
 composer require yiisoft/db-sqlite
 ```
 
-## Config container interface class
+## Configure container with database connection
 
-web.php:
+Add the following code to the configuration files, for example:
+
+`config/common/di/db.php`:
 
 ```php
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Sqlite\Connection;
 use Yiisoft\Db\Sqlite\Driver;
 
-/**
- * config ConnectionInterface::class
- */
 return [
     ConnectionInterface::class => [
         'class' => Connection::class,
@@ -71,7 +70,7 @@ return [
 ];
 ```
 
-params.php
+`config/common/params.php`:
 
 ```php
 return [
@@ -80,6 +79,24 @@ return [
     ]
 ]
 ```
+
+For more information about how to configure the connection, follow [Yii Database](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md).
+
+`config/common/bootstrap.php`:
+
+```php
+use Psr\Container\ContainerInterface;
+use Yiisoft\ActiveRecord\ConnectionProvider;
+use Yiisoft\Db\Connection\ConnectionInterface;
+
+return [
+    static function (ContainerInterface $container): void {
+        ConnectionProvider::set($container->get(ConnectionInterface::class));
+    }
+];
+```
+
+See other ways to [define the DB connection](docs/define-connection.md) for Active Record.
 
 ## Defined your active record class
 
@@ -106,45 +123,31 @@ final class User extends ActiveRecord
 
 For more information, follow [Create Active Record Model](docs/create-model.md).
 
-## Usage in controler with DI container autowiring
+## Usage
+
+Now you can use the Active Record:
 
 ```php
 use App\Entity\User;
-use Psr\Http\Message\ResponseInterface;
 
-final class Register
-{
-    public function register(
-        User $user
-    ): ResponseInterface {
-        /** Connected AR by di autowired. */
-        $user->setAttribute('username', 'yiiliveext');
-        $user->setAttribute('email', 'yiiliveext@mail.ru');
-        $user->save();
-    }
-}
+$user = new User();
+$user->setAttribute('username', 'yiiliveext');
+$user->setAttribute('email', 'yiiliveext@mail.ru');
+$user->save();
 ```
 
-## Usage in controler with Active Record factory
+Usage with `ActiveQuery`:
 
 ```php
 use App\Entity\User;
-use Psr\Http\Message\ResponseInterface;
-use Yiisoft\ActiveRecord\ActiveRecordFactory;
+use Yiisoft\ActiveRecord\ActiveQuery;
 
-final class Register
-{
-    public function register(
-        ActiveRecordFactory $arFactory
-    ): ResponseInterface {
-        /** Connected AR by factory di. */
-        $user = $arFactory->createAR(User::class);
+$userQuery = new ActiveQuery(User::class);
 
-        $user->setAttribute('username', 'yiiliveext');
-        $user->setAttribute('email', 'yiiliveext@mail.ru');
-        $user->save();
-    }
-}
+$user = $userQuery->where(['id' => 1])->onePopulate();
+
+$username = $user->getAttribute('username');
+$email = $user->getAttribute('email');
 ```
 
 ## Documentation

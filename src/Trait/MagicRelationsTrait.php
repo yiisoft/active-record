@@ -10,15 +10,19 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 
+use function get_class_methods;
 use function is_a;
 use function lcfirst;
 use function method_exists;
+use function str_ends_with;
+use function str_starts_with;
 use function substr;
 use function ucfirst;
 
 /**
  * Trait to define {@see ActiveRecordInterface::relationQuery()} method to access relation queries of an ActiveRecord
- * instance.
+ * instance. Also, it defines {@see ActiveRecordInterface::relationNames()} method to get names of all relations
+ * defined in the ActiveRecord class.
  */
 trait MagicRelationsTrait
 {
@@ -74,5 +78,37 @@ trait MagicRelationsTrait
         }
 
         return $this->$getter();
+    }
+
+    /**
+     * Returns names of all relations defined in the ActiveRecord class using getter methods with `get` prefix and
+     * `Query` suffix.
+     *
+     * @throws ReflectionException
+     * @return string[]
+     */
+    public function relationNames(): array
+    {
+        $methods = get_class_methods($this);
+
+        $relations = [];
+
+        foreach ($methods as $method) {
+            if (str_starts_with($method, 'get') && str_ends_with($method, 'Query')) {
+                $reflection = new ReflectionMethod($this, $method);
+                $type = $reflection->getReturnType();
+
+                if (
+                    $type === null
+                    || !is_a('\\' . $type->getName(), ActiveQueryInterface::class, true)
+                ) {
+                    continue;
+                }
+
+                $relations[] = lcfirst(substr($method, 3, -5));
+            }
+        }
+
+        return $relations;
     }
 }

@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
-class TestCase extends \PHPUnit\Framework\TestCase
+abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    protected ConnectionInterface $db;
+    abstract protected function createConnection(): ConnectionInterface;
 
     protected function checkFixture(ConnectionInterface $db, string $tablename, bool $reset = false): void
     {
@@ -21,5 +22,26 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
             $schema->refresh();
         }
+    }
+
+    protected function db(): ConnectionInterface
+    {
+        return ConnectionProvider::get();
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        ConnectionProvider::set($this->createConnection());
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->db()->close();
+
+        ConnectionProvider::remove();
     }
 }

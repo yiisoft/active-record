@@ -289,3 +289,7 @@ $user = $userQuery->where(['id' => 1])->onePopulate();
 $profile = $user->getProfile();
 $orders = $user->getOrders();
 ```
+
+Also see [Using Dependency Injection With Active Record Model](docs/using-di.md).
+
+Back to [README](../README.md)

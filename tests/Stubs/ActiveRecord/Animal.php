@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
-use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * Class Animal.
@@ -23,10 +22,8 @@ class Animal extends ActiveRecord
         return 'animal';
     }
 
-    public function __construct(ConnectionInterface $db)
+    public function __construct()
     {
-        parent::__construct($db);
-
         $this->type = static::class;
     }
 
@@ -39,7 +36,7 @@ class Animal extends ActiveRecord
     {
         $class = $row['type'];
 
-        return new $class($this->db());
+        return new $class();
     }
 
     public function setDoes(string $value): void

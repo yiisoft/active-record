@@ -12,7 +12,7 @@ use function array_combine;
 use function array_keys;
 
 /**
- * Trait to implement {@see \Yiisoft\Arrays\ArrayableTrait} interface for ActiveRecord.
+ * Trait to implement {@see \Yiisoft\Arrays\ArrayableInterface} interface for ActiveRecord.
  *
  * @method string[] attributes()
  * @see ActiveRecordInterface::attributes()
