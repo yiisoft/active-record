@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Throwable;
+use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_diff;
@@ -87,7 +87,7 @@ class ActiveRecord extends AbstractActiveRecord
 
     public function columnType(string $propertyName): string
     {
-        return $this->getTableSchema()->getColumn($propertyName)?->getType() ?? SchemaInterface::TYPE_STRING;
+        return $this->getTableSchema()->getColumn($propertyName)?->getType() ?? ColumnType::STRING;
     }
 
     public function filterCondition(array $condition, array $aliases = []): array
@@ -153,9 +153,9 @@ class ActiveRecord extends AbstractActiveRecord
      * @throws Exception
      * @throws InvalidConfigException
      *
-     * @return self The active record instance itself.
+     * @return static The active record instance itself.
      */
-    public function loadDefaultValues(bool $skipIfSet = true): self
+    public function loadDefaultValues(bool $skipIfSet = true): static
     {
         foreach ($this->getTableSchema()->getColumns() as $name => $column) {
             if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->get($name) === null)) {
@@ -217,18 +217,19 @@ class ActiveRecord extends AbstractActiveRecord
     {
         $columnNames = [];
         $tableName = $this->getTableName();
-        $quotedTableName = $this->db()->getQuoter()->quoteTableName($tableName);
+        $quoter = $this->db()->getQuoter();
+        $quotedTableName = $quoter->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
-            $columnNames[] = $this->db()->getQuoter()->quoteColumnName($columnName);
+            $columnNames[] = $quoter->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $this->db()->getQuoter()->quoteSql("$quotedTableName.[[$columnName]]");
+            $columnNames[] = $quoter->quoteSql("$quotedTableName.[[$columnName]]");
 
             foreach ($aliases as $tableAlias) {
                 $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $this->db()->getQuoter()->quoteTableName($tableAlias);
-                $columnNames[] = $this->db()->getQuoter()->quoteSql("$quotedTableAlias.[[$columnName]]");
+                $quotedTableAlias = $quoter->quoteTableName($tableAlias);
+                $columnNames[] = $quoter->quoteSql("$quotedTableAlias.[[$columnName]]");
             }
         }
 

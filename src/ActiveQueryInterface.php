@@ -24,6 +24,7 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  *
  * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
+ * @psalm-import-type IndexKey from ArArrayHelper
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -45,7 +46,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param bool|null $value Whether to return the query results in terms of arrays instead of Active Records.
      */
-    public function asArray(bool|null $value = true): self;
+    public function asArray(bool|null $value = true): static;
 
     /**
      * Specifies the relations with which this query should be performed.
@@ -90,7 +91,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return static the query object itself.
      */
-    public function with(array|string ...$with): self;
+    public function with(array|string ...$with): static;
 
     /**
      * Specifies the relation associated with the junction table for use in a relational query.
@@ -101,7 +102,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
      */
-    public function via(string $relationName, callable $callable = null): self;
+    public function via(string $relationName, callable $callable = null): static;
 
     /**
      * @return array|string|null the join condition to be used when this query is used in a relational context.
@@ -180,7 +181,7 @@ interface ActiveQueryInterface extends QueryInterface
         array|string $with,
         array|bool $eagerLoading = true,
         array|string $joinType = 'LEFT JOIN'
-    ): self;
+    ): static;
 
     public function resetJoinWith(): void;
 
@@ -198,7 +199,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @see joinWith()
      */
-    public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): self;
+    public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): static;
 
     /**
      * Sets the ON condition for a relational query.
@@ -224,7 +225,7 @@ interface ActiveQueryInterface extends QueryInterface
      * parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      */
-    public function onCondition(array|string $condition, array $params = []): self;
+    public function onCondition(array|string $condition, array $params = []): static;
 
     /**
      * Adds ON condition to the existing one.
@@ -238,7 +239,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @see onCondition()
      * @see orOnCondition()
      */
-    public function andOnCondition(array|string $condition, array $params = []): self;
+    public function andOnCondition(array|string $condition, array $params = []): static;
 
     /**
      * Adds ON condition to the existing one.
@@ -252,7 +253,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @see onCondition()
      * @see andOnCondition()
      */
-    public function orOnCondition(array|string $condition, array $params = []): self;
+    public function orOnCondition(array|string $condition, array $params = []): static;
 
     /**
      * Specifies the junction table for a relational query.
@@ -275,7 +276,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @see via()
      */
-    public function viaTable(string $tableName, array $link, callable $callable = null): self;
+    public function viaTable(string $tableName, array $link, callable $callable = null): static;
 
     /**
      * Define an alias for the table defined in {@see arClass}.
@@ -290,7 +291,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
-    public function alias(string $alias): self;
+    public function alias(string $alias): static;
 
     /**
      * Returns table names used in {@see from} indexed by aliases.
@@ -336,11 +337,11 @@ interface ActiveQueryInterface extends QueryInterface
      * @param string $sql The SQL statement to be executed.
      * @param array $params The parameters to be bound to the SQL statement during execution.
      */
-    public function findBySql(string $sql, array $params = []): self;
+    public function findBySql(string $sql, array $params = []): static;
 
-    public function on(array|string|null $value): self;
+    public function on(array|string|null $value): static;
 
-    public function sql(string|null $value): self;
+    public function sql(string|null $value): static;
 
     /**
      * Converts the raw query results into the format as specified by this query.
@@ -348,9 +349,11 @@ interface ActiveQueryInterface extends QueryInterface
      * This method is internally used to convert the data fetched from a database into the format as required by this
      * query.
      *
-     * @param array $rows The raw query result from a database.
+     * @param array[] $rows The raw query result from a database.
      *
-     * @return array The converted query result.
+     * @psalm-param IndexKey|null $indexBy
+     *
+     * @return ActiveRecordInterface[]|array[] The converted query result.
      */
     public function populate(array $rows, Closure|string|null $indexBy = null): array;
 
@@ -365,7 +368,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws ReflectionException
      * @throws Throwable if the relation is invalid.
      *
-     * @return ActiveRecordInterface|array|null the related record(s).
+     * @return ActiveRecordInterface|ActiveRecordInterface[]|array|array[]|null the related record(s).
      */
     public function relatedRecords(): ActiveRecordInterface|array|null;
 
@@ -538,9 +541,15 @@ interface ActiveQueryInterface extends QueryInterface
     public function findAll(mixed $condition): array;
 
     /**
+     * Returns a value indicating whether the query result rows should be returned as arrays instead of Active Record
+     * models.
+     */
+    public function isAsArray(): bool|null;
+
+    /**
      * It's used to set the query options for the query.
      */
-    public function primaryModel(ActiveRecordInterface $value): self;
+    public function primaryModel(ActiveRecordInterface|null $value): static;
 
     /**
      * It's used to set the query options for the query.
@@ -551,7 +560,7 @@ interface ActiveQueryInterface extends QueryInterface
      * Don't prefix or quote the column names as Yii will do this automatically.
      * This property is only used in relational context.
      */
-    public function link(array $value): self;
+    public function link(array $value): static;
 
     /**
      * It's used to set the query options for the query.
@@ -561,7 +570,7 @@ interface ActiveQueryInterface extends QueryInterface
      * instances using {@see all()}.
      * If false, only the first row of the results will be retrieved using {@see one()}.
      */
-    public function multiple(bool $value): self;
+    public function multiple(bool $value): static;
 
     /**
      * @return ActiveQueryInterface|array|null The query associated with the junction table.
@@ -620,4 +629,18 @@ interface ActiveQueryInterface extends QueryInterface
      * of the query result, depends on {@see isAsArray()} result. `null` if the query results in nothing.
      */
     public function one(): array|ActiveRecordInterface|null;
+
+    /**
+     * Finds the related records and populates them into the primary models.
+     *
+     * @param string $name The relation name.
+     * @param ActiveRecordInterface[]|array[] $primaryModels Primary models.
+     *
+     * @return ActiveRecordInterface[]|array[] The related models.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable If {@see link()} is
+     * invalid.
+     */
+    public function populateRelation(string $name, array &$primaryModels): array;
 }

@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -25,6 +26,8 @@ interface ActiveRecordInterface
 
     /**
      * Returns the abstract type of the property.
+     *
+     * @psalm-return ColumnType::*
      */
     public function columnType(string $propertyName): string;
 
@@ -290,7 +293,7 @@ interface ActiveRecordInterface
      * Note that this method doesn't check if the relation exists or not.
      *
      * @param string $name The relation name, for example, `orders` (case-sensitive).
-     * @param array|self|null $records The related records to be populated into the relation.
+     * @param array|array[]|self|self[]|null $records The related records to be populated into the relation.
      */
     public function populateRelation(string $name, array|self|null $records): void;
 
@@ -317,7 +320,7 @@ interface ActiveRecordInterface
      *
      * @param string $name The relation name, for example, `orders` (case-sensitive).
      *
-     * @return ActiveRecordInterface|array|null The relation object.
+     * @return array|array[]|self|self[]|null The relation object.
      */
     public function relation(string $name): self|array|null;
 
@@ -364,7 +367,7 @@ interface ActiveRecordInterface
      * For example, to save a customer record:
      *
      * ```php
-     * $customer = new Customer($db);
+     * $customer = new Customer();
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->save();
@@ -394,7 +397,7 @@ interface ActiveRecordInterface
      * For example, to update a customer record:
      *
      * ```php
-     * $customer = new Customer($db);
+     * $customer = new Customer();
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
@@ -429,7 +432,7 @@ interface ActiveRecordInterface
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
      * ```php
-     * $customer = new Customer($db);
+     * $customer = new Customer();
      * $customer->updateAll(['status' => 1], 'status = 2');
      * ```
      *

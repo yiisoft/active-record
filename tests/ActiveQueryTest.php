@@ -241,6 +241,16 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals($params, $query->getParams());
     }
 
+    public function testViaWithEmptyPrimaryModel(): void
+    {
+        $query = new ActiveQuery(Customer::class);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Setting via is only supported for relational queries.');
+
+        $query->via('profile');
+    }
+
     public function testViaTable(): void
     {
         $this->checkFixture($this->db(), 'customer');
@@ -2659,8 +2669,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $query = new ActiveQuery(Customer::class);
 
-        $this->assertSame($query->getARClass(), Customer::class);
-        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertSame(Customer::class, $query->getARClass());
         $this->assertInstanceOf(Customer::class, $query->getARInstance());
     }
 
@@ -2669,8 +2678,7 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new Customer();
         $query = new ActiveQuery($customer);
 
-        $this->assertSame($query->getARClass(), $customer);
-        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertSame($customer, $query->getARClass());
         $this->assertInstanceOf(Customer::class, $query->getARInstance());
     }
 
@@ -2679,8 +2687,7 @@ abstract class ActiveQueryTest extends TestCase
         $closure = fn (): Customer => new Customer();
         $query = new ActiveQuery($closure);
 
-        $this->assertSame($query->getARClass(), $closure);
-        $this->assertSame($query->getARClassName(), Customer::class);
+        $this->assertSame($closure, $query->getARClass());
         $this->assertInstanceOf(Customer::class, $query->getARInstance());
     }
 }
