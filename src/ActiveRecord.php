@@ -92,33 +92,6 @@ class ActiveRecord extends AbstractActiveRecord
         return $this->getTableSchema()->getColumn($propertyName)?->getType() ?? ColumnType::STRING;
     }
 
-    public function filterCondition(array $condition, array $aliases = []): array
-    {
-        $result = [];
-
-        $columnNames = $this->filterValidColumnNames($aliases);
-
-        foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array($this->db()->getQuoter()->quoteSql($key), $columnNames, true)) {
-                throw new InvalidArgumentException(
-                    'Key "' . $key . '" is not a column name and can not be used as a filter'
-                );
-            }
-            $result[$key] = is_array($value) ? array_values($value) : $value;
-        }
-
-        return $result;
-    }
-
-    public function filterValidAliases(ActiveQuery $query): array
-    {
-        $tables = $query->getTablesUsedInFrom();
-
-        $aliases = array_diff(array_keys($tables), $tables);
-
-        return array_map(static fn ($alias) => preg_replace('/{{([\w]+)}}/', '$1', $alias), array_values($aliases));
-    }
-
     /**
      * Returns the schema information of the DB table associated with this AR class.
      *
@@ -194,7 +167,7 @@ class ActiveRecord extends AbstractActiveRecord
      */
     public function refresh(): bool
     {
-        $query = $this->instantiateQuery(static::class);
+        $query = $this->query($this);
 
         /** @var string $tableName */
         $tableName = key($query->getTablesUsedInFrom());
@@ -208,35 +181,6 @@ class ActiveRecord extends AbstractActiveRecord
         $query->where($pk);
 
         return $this->refreshInternal($query->one());
-    }
-
-    /**
-     * Valid column names are table column names or column names prefixed with table name or table alias.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     */
-    protected function filterValidColumnNames(array $aliases): array
-    {
-        $columnNames = [];
-        $tableName = $this->getTableName();
-        $quoter = $this->db()->getQuoter();
-        $quotedTableName = $quoter->quoteTableName($tableName);
-
-        foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
-            $columnNames[] = $columnName;
-            $columnNames[] = $quoter->quoteColumnName($columnName);
-            $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $quoter->quoteSql("$quotedTableName.[[$columnName]]");
-
-            foreach ($aliases as $tableAlias) {
-                $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $quoter->quoteTableName($tableAlias);
-                $columnNames[] = $quoter->quoteSql("$quotedTableAlias.[[$columnName]]");
-            }
-        }
-
-        return $columnNames;
     }
 
     protected function propertyValuesInternal(): array

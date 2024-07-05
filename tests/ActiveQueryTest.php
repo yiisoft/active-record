@@ -1788,38 +1788,6 @@ abstract class ActiveQueryTest extends TestCase
         }
     }
 
-    public static function filterTableNamesFromAliasesProvider(): array
-    {
-        return [
-            'table name as string' => ['customer', []],
-            'table name as array' => [['customer'], []],
-            'table names' => [['customer', 'order'], []],
-            'table name and a table alias' => [['customer', 'ord' => 'order'], ['ord']],
-            'table alias' => [['csr' => 'customer'], ['csr']],
-            'table aliases' => [['csr' => 'customer', 'ord' => 'order'], ['csr', 'ord']],
-        ];
-    }
-
-    /**
-     * @dataProvider filterTableNamesFromAliasesProvider
-     *
-     * @param array $expectedAliases
-     *
-     * @throws ReflectionException
-     */
-    public function testFilterTableNamesFromAliases(array|string $fromParams, array $expectedAliases): void
-    {
-        $this->checkFixture($this->db(), 'customer');
-
-        $customerQuery = new ActiveQuery(Customer::class);
-
-        $query = $customerQuery->from($fromParams);
-
-        $aliases = Assert::invokeMethod(new Customer(), 'filterValidAliases', [$query]);
-
-        $this->assertEquals($expectedAliases, $aliases);
-    }
-
     public function testExtraFields(): void
     {
         $this->checkFixture($this->db(), 'customer');

@@ -94,30 +94,6 @@ interface ActiveRecordInterface
     public function equals(self $record): bool;
 
     /**
-     * Filters array condition before it's assigned to a Query filter.
-     *
-     * This method will ensure that an array condition only filters on existing table columns.
-     *
-     * @param array $condition Condition to filter.
-     * @param array $aliases Aliases to be used for table names.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException In case array contains unsafe values.
-     *
-     * @return array Filtered condition.
-     */
-    public function filterCondition(array $condition, array $aliases = []): array;
-
-    /**
-     * Returns table aliases which are different from the name of the tables.
-     *
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     */
-    public function filterValidAliases(ActiveQuery $query): array;
-
-    /**
      * Returns the named property value.
      *
      * If this record is the result of a query and the property isn't loaded, `null` will be returned.

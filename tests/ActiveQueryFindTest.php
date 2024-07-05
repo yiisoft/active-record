@@ -21,11 +21,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class);
         $this->assertCount(1, $customerQuery->findAll(3));
-
-        $customerQuery = new ActiveQuery(Customer::class);
         $this->assertCount(1, $customerQuery->findAll(['id' => 1]));
-
-        $customerQuery = new ActiveQuery(Customer::class);
         $this->assertCount(3, $customerQuery->findAll(['id' => [1, 2, 3]]));
     }
 
