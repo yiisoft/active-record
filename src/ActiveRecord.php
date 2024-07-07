@@ -85,9 +85,6 @@ class ActiveRecord extends AbstractActiveRecord
         return $this->getTableSchema()->getColumnNames();
     }
 
-    /**
-     * Returns the abstract type of the column.
-     */
     public function columnType(string $columnName): string
     {
         return $this->getTableSchema()->getColumn($columnName)?->getType() ?? SchemaInterface::TYPE_STRING;
