@@ -1089,4 +1089,24 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = $order->getCustomerWithFactory();
     }
+
+    public function testSerialization(): void
+    {
+        $this->checkFixture($this->db(), 'customer');
+
+        $customer = new Customer();
+
+        $this->assertStringStartsWith(
+            'O:54:"Yiisoft\\ActiveRecord\\Tests\\Stubs\\ActiveRecord\\Customer"',
+            serialize($customer)
+        );
+
+        $customerQuery = new ActiveQuery(Customer::class);
+        $customer = $customerQuery->findOne(1);
+
+        $this->assertStringStartsWith(
+            'O:54:"Yiisoft\\ActiveRecord\\Tests\\Stubs\\ActiveRecord\\Customer"',
+            serialize($customer)
+        );
+    }
 }
