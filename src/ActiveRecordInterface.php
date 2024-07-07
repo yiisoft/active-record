@@ -11,6 +11,7 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
+use Yiisoft\Db\Schema\SchemaInterface;
 
 interface ActiveRecordInterface
 {
@@ -24,6 +25,12 @@ interface ActiveRecordInterface
      * @psalm-return string[]
      */
     public function attributes(): array;
+
+    /**
+     * Returns the abstract type of the column. See {@see SchemaInterface} constants started with prefix `TYPE_` for
+     * possible abstract types.
+     */
+    public function columnType(string $columnName): string;
 
     /**
      * Returns the database connection used by the Active Record instance.
