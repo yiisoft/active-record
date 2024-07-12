@@ -552,6 +552,7 @@ trait ActiveRelationTrait
             $values = [...$scalarValues, ...$nonScalarValues];
 
             $attribute = reset($attributes);
+            /** @var string $columnName */
             $columnName = array_key_first($this->link);
 
             match ($this->getARInstance()->columnType($columnName)) {
