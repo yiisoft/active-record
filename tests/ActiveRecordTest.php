@@ -27,6 +27,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\Db\Exception\Exception;
@@ -1090,6 +1091,26 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectExceptionMessage('Too few arguments to function');
 
         $customer = $order->getCustomerWithFactory();
+    }
+
+    public function testSerialization(): void
+    {
+        $this->checkFixture($this->db(), 'profile');
+
+        $profile = new Profile();
+
+        $this->assertEquals(
+            "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":3:{s:56:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldAttributes\";N;s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}}",
+            serialize($profile)
+        );
+
+        $profileQuery = new ActiveQuery(Profile::class);
+        $profile = $profileQuery->findOne(1);
+
+        $this->assertEquals(
+            "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":5:{s:56:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldAttributes\";a:2:{s:2:\"id\";i:1;s:11:\"description\";s:18:\"profile customer 1\";}s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}s:5:\"\0*\0id\";i:1;s:14:\"\0*\0description\";s:18:\"profile customer 1\";}",
+            serialize($profile)
+        );
     }
 
     public function testRelationViaJson()
