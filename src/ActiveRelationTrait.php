@@ -24,6 +24,7 @@ use function array_fill_keys;
 use function array_filter;
 use function array_flip;
 use function array_intersect_key;
+use function array_key_first;
 use function array_keys;
 use function array_merge;
 use function array_unique;
@@ -551,8 +552,9 @@ trait ActiveRelationTrait
             $values = [...$scalarValues, ...$nonScalarValues];
 
             $attribute = reset($attributes);
+            $columnName = array_key_first($this->link);
 
-            match ($this->getARInstance()->columnType($attribute)) {
+            match ($this->getARInstance()->columnType($columnName)) {
                 'array' => $this->andWhere(new ArrayOverlapsCondition($attribute, $values)),
                 SchemaInterface::TYPE_JSON => $this->andWhere(new JsonOverlapsCondition($attribute, $values)),
                 default => $this->andWhere(new InCondition($attribute, 'IN', $values)),
