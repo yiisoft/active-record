@@ -1,23 +1,10 @@
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'psalm.xml'
-
-  push:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'psalm.xml'
+    paths:
+      - 'src/**'
+      - '.github/workflows/rector.yml'
+      - 'composer.json'
+      - 'rector.php'
 
 name: rector
 
