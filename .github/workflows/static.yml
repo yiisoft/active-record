@@ -1,23 +1,18 @@
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'phpunit.xml.dist'
+    paths:
+      - 'src/**'
+      - '.github/workflows/static.yml'
+      - 'psalm*.xml'
+      - 'composer.json'
 
   push:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'phpunit.xml.dist'
+    branches: ['master']
+    paths:
+      - 'src/**'
+      - '.github/workflows/static.yml'
+      - 'psalm*.xml'
+      - 'composer.json'
 
 name: static analysis
 
@@ -28,17 +23,16 @@ concurrency:
 jobs:
   psalm:
     uses: yiisoft/actions/.github/workflows/psalm.yml@master
-    strategy:
-      matrix:
-        php: [8.1, 8.2]
-        config: [psalm.xml]
-        include:
-          - php: 8.3
-            config: psalm83.xml
     with:
       os: >-
         ['ubuntu-latest']
       php: >-
-        ['${{ matrix.php }}']
-      psalm-config: >-
-        ${{ matrix.config }}
+        ['8.1', '8.2']
+  psalm83:
+    uses: yiisoft/actions/.github/workflows/psalm.yml@master
+    with:
+      psalm-config: psalm83.xml
+      os: >-
+        ['ubuntu-latest']
+      php: >-
+        ['8.3']
