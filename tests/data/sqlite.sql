@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS "composite_fk";
 DROP TABLE IF EXISTS "order_item";
 DROP TABLE IF EXISTS "order_item_with_null_fk";
 DROP TABLE IF EXISTS "item";
+DROP TABLE IF EXISTS "promotion";
 DROP TABLE IF EXISTS "order";
 DROP TABLE IF EXISTS "order_with_null_fk";
 DROP TABLE IF EXISTS "category";
@@ -58,6 +59,13 @@ CREATE TABLE "item" (
   id INTEGER NOT NULL,
   name varchar(128) NOT NULL,
   category_id INTEGER NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE "promotion" (
+  id INTEGER NOT NULL,
+  json_item_ids JSON NOT NULL,
+  title varchar(126) NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -209,6 +217,11 @@ INSERT INTO "item" (name, category_id) VALUES ('Yii 1.1 Application Development 
 INSERT INTO "item" (name, category_id) VALUES ('Ice Age', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Toy Story', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Cars', 2);
+
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[1,2]', 'Discounted items');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[]', 'Free!');
 
 INSERT INTO "order" (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO "order" (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);

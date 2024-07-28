@@ -14,14 +14,14 @@ final class Item extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item
     public function relationQuery(string $name): ActiveQueryInterface
     {
         return match ($name) {
-            'promotions' => $this->hasMany(Promotion::class, ['item_ids' => 'id']),
+            'promotionsViaArray' => $this->hasMany(Promotion::class, ['array_item_ids' => 'id']),
             default => parent::relationQuery($name),
         };
     }
 
     /** @return Promotion[] */
-    public function getPromotions(): array
+    public function getPromotionsViaArray(): array
     {
-        return $this->relation('promotions');
+        return $this->relation('promotionsViaArray');
     }
 }

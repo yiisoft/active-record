@@ -5,15 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecord;
 
-final class Promotion extends ActiveRecord
+final class Promotion extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion
 {
-    public int $id;
-    /** @var int[] $item_ids */
-    public array $item_ids;
-    public string $title;
-
     public function getTableName(): string
     {
         return '{{%promotion}}';
@@ -22,14 +16,15 @@ final class Promotion extends ActiveRecord
     public function relationQuery(string $name): ActiveQueryInterface
     {
         return match ($name) {
-            'items' => $this->hasMany(Item::class, ['id' => 'item_ids'])->inverseOf('promotions'),
+            'itemsViaArray' => $this->hasMany(Item::class, ['id' => 'array_item_ids'])
+                ->inverseOf('promotionsViaArray'),
             default => parent::relationQuery($name),
         };
     }
 
     /** @return Item[] */
-    public function getItems(): array
+    public function getItemsViaArray(): array
     {
-        return $this->relation('items');
+        return $this->relation('itemsViaArray');
     }
 }
