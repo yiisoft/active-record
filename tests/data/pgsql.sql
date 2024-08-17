@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS "composite_fk" CASCADE;
 DROP TABLE IF EXISTS "order_item" CASCADE;
 DROP TABLE IF EXISTS "item" CASCADE;
 DROP SEQUENCE IF EXISTS "item_id_seq_2" CASCADE;
+DROP TABLE IF EXISTS "promotion" CASCADE;
 DROP TABLE IF EXISTS "order_item_with_null_fk" CASCADE;
 DROP TABLE IF EXISTS "order" CASCADE;
 DROP TABLE IF EXISTS "order_with_null_fk" CASCADE;
@@ -28,7 +29,6 @@ DROP TABLE IF EXISTS "employee" CASCADE;
 DROP TABLE IF EXISTS "department" CASCADE;
 DROP TABLE IF EXISTS "alpha" CASCADE;
 DROP TABLE IF EXISTS "beta" CASCADE;
-DROP TABLE IF EXISTS "promotion" CASCADE;
 DROP VIEW IF EXISTS "animal_view" CASCADE;
 DROP TABLE IF EXISTS "T_constraints_4" CASCADE;
 DROP TABLE IF EXISTS "T_constraints_3" CASCADE;
@@ -82,6 +82,13 @@ CREATE TABLE "item" (
   category_id integer NOT NULL references "category"(id) on UPDATE CASCADE on DELETE CASCADE
 );
 CREATE SEQUENCE "item_id_seq_2";
+
+CREATE TABLE "promotion" (
+  id serial primary key,
+  array_item_ids integer[] NOT NULL,
+  json_item_ids jsonb NOT NULL,
+  title varchar(126) NOT NULL
+);
 
 CREATE TABLE "order" (
   id serial not null primary key,
@@ -225,12 +232,6 @@ CREATE TABLE "beta" (
   PRIMARY KEY (id)
 );
 
-CREATE TABLE "promotion" (
-  id serial primary key,
-  item_ids integer[] not null,
-  title varchar(126) not null
-);
-
 CREATE VIEW "animal_view" AS SELECT * FROM "animal";
 
 INSERT INTO "animal" (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat');
@@ -255,6 +256,11 @@ INSERT INTO "item" (name, category_id) VALUES ('Yii 1.1 Application Development 
 INSERT INTO "item" (name, category_id) VALUES ('Ice Age', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Toy Story', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Cars', 2);
+
+INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{1,2}', '[1,2]', 'Discounted items');
+INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{3,4,5}', '[3,4,5]', 'New arrivals');
+INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{1,3}', '[1,3]', 'Free shipping');
+INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{}', '[]', 'Free!');
 
 INSERT INTO "order" (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO "order" (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);
@@ -308,11 +314,6 @@ INSERT INTO "beta" (id, alpha_string_identifier) VALUES (5, '2');
 INSERT INTO "beta" (id, alpha_string_identifier) VALUES (6, '2b');
 INSERT INTO "beta" (id, alpha_string_identifier) VALUES (7, '2b');
 INSERT INTO "beta" (id, alpha_string_identifier) VALUES (8, '02');
-
-INSERT INTO "promotion" (item_ids, title) VALUES ('{1,2}', 'Discounted items');
-INSERT INTO "promotion" (item_ids, title) VALUES ('{3,4,5}', 'New arrivals');
-INSERT INTO "promotion" (item_ids, title) VALUES ('{1,3}', 'Free shipping');
-INSERT INTO "promotion" (item_ids, title) VALUES ('{}', 'Free!');
 
 /**
  * (Postgres-)Database Schema for validator tests

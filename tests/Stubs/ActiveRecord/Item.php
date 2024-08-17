@@ -26,6 +26,7 @@ class Item extends ActiveRecord
     {
         return match ($name) {
             'category' => $this->getCategoryQuery(),
+            'promotionsViaJson' => $this->hasMany(Promotion::class, ['json_item_ids' => 'id']),
             default => parent::relationQuery($name),
         };
     }
@@ -53,5 +54,11 @@ class Item extends ActiveRecord
     public function getCategoryQuery(): ActiveQuery
     {
         return $this->hasOne(Category::class, ['id' => 'category_id']);
+    }
+
+    /** @return Promotion[] */
+    public function getPromotionsViaJson(): array
+    {
+        return $this->relation('promotionsViaJson');
     }
 }
