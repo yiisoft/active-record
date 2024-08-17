@@ -243,18 +243,9 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 /**
  * Entity User.
  **/
+#[\AllowDynamicProperties]
 final class User extends ActiveRecord
 {
-    public int $id;
-    public string $username;
-    public string $email;
-    public int $profile_id;
-    
-    public function getTableName(): string
-    {
-        return '{{%user}}';
-    }
-
     public function relationQuery(string $name): ActiveQueryInterface
     {
         return match ($name) {
@@ -290,6 +281,8 @@ $profile = $user->getProfile();
 $orders = $user->getOrders();
 ```
 
-Also see [Using Dependency Injection With Active Record Model](docs/using-di.md).
+For more information on defining relations, see [Define Relations](define-relations.md).
+
+Also see [Using Dependency Injection With Active Record Model](using-di.md).
 
 Back to [README](../README.md)

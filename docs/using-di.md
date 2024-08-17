@@ -24,31 +24,6 @@ final class User extends ActiveRecord
     public function __construct(private MyService $myService)
     {
     }
-
-    public function getTableName(): string
-    {
-        return '{{%user}}';
-    }
-    
-    public function relationQuery(string $name): ActiveQueryInterface
-    {
-        return match ($name) {
-            'profile' => $this->hasOne(Profile::class, ['id' => 'profile_id']),
-            'orders' => $this->hasMany(Order::class, ['user_id' => 'id']),
-            default => parent::relationQuery($name),
-        };
-    }
-    
-    public function getProfile(): Profile|null
-    {
-        return $this->relation('profile');
-    }
-    
-    /** @return Order[] */
-    public function getOrders(): array
-    {
-        return $this->relation('orders');
-    }
 }
 ```
 
@@ -93,4 +68,4 @@ This will allow to create the `ActiveQuery` instance without calling `ActiveReco
 $userQuery = new ActiveQuery($factory->create(User::class));
 ```
 
-Back to [Create Active Record Model](docs/create-model.md)
+Back to [Create Active Record Model](create-model.md)
