@@ -204,7 +204,7 @@ class ActiveRecord extends AbstractActiveRecord
 
         $query->where($pk);
 
-        return $this->refreshInternal($query->onePopulate());
+        return $this->refreshInternal($query->one());
     }
 
     /**

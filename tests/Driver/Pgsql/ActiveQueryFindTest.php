@@ -22,7 +22,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->where(['id' => 2])->asArray()->onePopulate();
+        $customer = $customerQuery->where(['id' => 2])->asArray()->one();
         $this->assertEquals([
             'id' => 2,
             'email' => 'user2@example.com',
