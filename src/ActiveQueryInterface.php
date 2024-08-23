@@ -34,7 +34,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws InvalidConfigException
      * @throws Throwable
      *
-     * @return array[]|ActiveRecordInterface[] All rows of the query result. Each array element is an `array` or
+     * @return ActiveRecordInterface[]|array[] All rows of the query result. Each array element is an `array` or
      * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see isAsArray()} result.
      * Empty array if the query results in nothing.
      */
@@ -616,7 +616,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @return array|ActiveRecordInterface|null The first row as an `array` or instance of {@see ActiveRecordInterface}
+     * @return ActiveRecordInterface|array|null The first row as an `array` or instance of {@see ActiveRecordInterface}
      * of the query result, depends on {@see isAsArray()} result. `null` if the query results in nothing.
      */
     public function one(): array|ActiveRecordInterface|null;
