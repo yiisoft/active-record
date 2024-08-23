@@ -31,8 +31,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @inheritdoc
      *
      * @return array[]|ActiveRecordInterface[] All rows of the query result. Each array element is an `array` or
-     * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see asArray(), isAsArray()}
-     * value. Empty array if the query results in nothing.
+     * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see isAsArray()} result.
+     * Empty array if the query results in nothing.
      *
      * @throws Exception
      * @throws InvalidConfigException
@@ -610,7 +610,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @inheritdoc
      *
      * @return array|ActiveRecordInterface|null The first row as an `array` or instance of {@see ActiveRecordInterface}
-     * of the query result, depends on {@see asArray(), isAsArray()} value. `null` if the query results in nothing.
+     * of the query result, depends on {@see isAsArray()} result. `null` if the query results in nothing.
      *
      * @throws Exception
      * @throws InvalidArgumentException
