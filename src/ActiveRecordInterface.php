@@ -63,7 +63,7 @@ interface ActiveRecordInterface
      * > Warning: If you don't specify any condition, this method will delete **all** rows in the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $aqClasses = $customerQuery->where('status = 3')->all();
      * foreach ($aqClasses as $aqClass) {
      *     $aqClass->delete();
@@ -445,7 +445,7 @@ interface ActiveRecordInterface
      * > Warning: If you don't specify any condition, this method will update **all** rows in the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->where('status = 2')->all();
      * foreach ($customers as $customer) {
      *     $customer->status = 1;

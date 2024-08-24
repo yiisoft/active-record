@@ -63,7 +63,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * ```php
      * // Create active query
-     * CustomerQuery = new ActiveQuery(Customer::class, $db);
+     * CustomerQuery = new ActiveQuery(Customer::class);
      * // find customers together with their orders and country
      * CustomerQuery->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
@@ -152,7 +152,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * ```php
      * // Find all orders that contain books, and eager loading "books".
-     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orderQuery = new ActiveQuery(Order::class);
      * $orderQuery->joinWith('books', true, 'INNER JOIN')->all();
      *
      * // find all orders, eager loading "books", and sort the orders and books by the book names.
