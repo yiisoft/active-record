@@ -453,7 +453,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 
 $userQuery = (new ActiveQuery(User::class))->where(['id' => 1]);
 
-$user = $userQuery->onePopulate();
+$user = $userQuery->one();
 
 $profile = $user->getProfile();
 $orders = $user->getOrders();
