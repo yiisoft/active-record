@@ -144,7 +144,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 
 $userQuery = new ActiveQuery(User::class);
 
-$user = $userQuery->where(['id' => 1])->onePopulate();
+$user = $userQuery->where(['id' => 1])->one();
 
 $username = $user->getAttribute('username');
 $email = $user->getAttribute('email');

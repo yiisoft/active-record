@@ -8,6 +8,7 @@ use ArgumentCountError;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
@@ -25,6 +26,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
@@ -202,7 +204,7 @@ abstract class ActiveRecordTest extends TestCase
 
         /** @var $model Type */
         $aqClass = new ActiveQuery(Type::class);
-        $query = $aqClass->onePopulate();
+        $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
         $this->assertSame(456, $query->int_col2);
@@ -224,10 +226,10 @@ abstract class ActiveRecordTest extends TestCase
 
         $animal = new ActiveQuery(Animal::class);
 
-        $animals = $animal->where(['type' => Dog::class])->onePopulate();
+        $animals = $animal->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animals->getDoes());
 
-        $animals = $animal->where(['type' => Cat::class])->onePopulate();
+        $animals = $animal->where(['type' => Cat::class])->one();
         $this->assertEquals('meow', $animals->getDoes());
     }
 
@@ -1109,5 +1111,63 @@ abstract class ActiveRecordTest extends TestCase
             "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":5:{s:56:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldAttributes\";a:2:{s:2:\"id\";i:1;s:11:\"description\";s:18:\"profile customer 1\";}s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}s:5:\"\0*\0id\";i:1;s:14:\"\0*\0description\";s:18:\"profile customer 1\";}",
             serialize($profile)
         );
+    }
+
+    public function testRelationViaJson()
+    {
+        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
+            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
+        }
+
+        $this->checkFixture($this->db(), 'promotion');
+
+        $promotionQuery = new ActiveQuery(Promotion::class);
+        /** @var Promotion[] $promotions */
+        $promotions = $promotionQuery->with('itemsViaJson')->all();
+
+        $this->assertSame([1, 2], ArArrayHelper::getColumn($promotions[0]->getItemsViaJson(), 'id'));
+        $this->assertSame([3, 4, 5], ArArrayHelper::getColumn($promotions[1]->getItemsViaJson(), 'id'));
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaJson(), 'id'));
+        $this->assertCount(0, $promotions[3]->getItemsViaJson());
+
+        /** Test inverse relation */
+        foreach ($promotions as $promotion) {
+            foreach ($promotion->getItemsViaJson() as $item) {
+                $this->assertTrue($item->isRelationPopulated('promotionsViaJson'));
+            }
+        }
+
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[0]->getItemsViaJson()[0]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([1], ArArrayHelper::getColumn($promotions[0]->getItemsViaJson()[1]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[1]->getItemsViaJson()[0]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($promotions[1]->getItemsViaJson()[1]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($promotions[1]->getItemsViaJson()[2]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaJson()[0]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaJson()[1]->getPromotionsViaJson(), 'id'));
+    }
+
+    public function testLazzyRelationViaJson()
+    {
+        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
+            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
+        }
+
+        $this->checkFixture($this->db(), 'item');
+
+        $itemQuery = new ActiveQuery(Item::class);
+        /** @var Item[] $items */
+        $items = $itemQuery->all();
+
+        $this->assertFalse($items[0]->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[1]->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[2]->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[3]->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[4]->isRelationPopulated('promotionsViaJson'));
+
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($items[0]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([1], ArArrayHelper::getColumn($items[1]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($items[2]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($items[3]->getPromotionsViaJson(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($items[4]->getPromotionsViaJson(), 'id'));
     }
 }

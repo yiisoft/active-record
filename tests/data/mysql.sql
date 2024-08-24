@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS `composite_fk` CASCADE;
 DROP TABLE IF EXISTS `order_item` CASCADE;
 DROP TABLE IF EXISTS `order_item_with_null_fk` CASCADE;
 DROP TABLE IF EXISTS `item` CASCADE;
+DROP TABLE IF EXISTS `promotion` CASCADE;
 DROP TABLE IF EXISTS `order` CASCADE;
 DROP TABLE IF EXISTS `order_with_null_fk` CASCADE;
 DROP TABLE IF EXISTS `category` CASCADE;
@@ -72,6 +73,12 @@ CREATE TABLE `item` (
   PRIMARY KEY (`id`),
   KEY `FK_item_category_id` (`category_id`),
   CONSTRAINT `FK_item_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `promotion` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `json_item_ids` json NOT NULL,
+  `title` varchar(126) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `order` (
@@ -245,6 +252,11 @@ INSERT INTO `item` (name, category_id) VALUES ('Yii 1.1 Application Development 
 INSERT INTO `item` (name, category_id) VALUES ('Ice Age', 2);
 INSERT INTO `item` (name, category_id) VALUES ('Toy Story', 2);
 INSERT INTO `item` (name, category_id) VALUES ('Cars', 2);
+
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[1,2]', 'Discounted items');
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals');
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[]', 'Free!');
 
 INSERT INTO `order` (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO `order` (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);

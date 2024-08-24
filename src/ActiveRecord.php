@@ -8,6 +8,7 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Schema\SchemaInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_diff;
@@ -82,6 +83,11 @@ class ActiveRecord extends AbstractActiveRecord
     public function attributes(): array
     {
         return $this->getTableSchema()->getColumnNames();
+    }
+
+    public function columnType(string $columnName): string
+    {
+        return $this->getTableSchema()->getColumn($columnName)?->getType() ?? SchemaInterface::TYPE_STRING;
     }
 
     public function filterCondition(array $condition, array $aliases = []): array
@@ -198,7 +204,7 @@ class ActiveRecord extends AbstractActiveRecord
 
         $query->where($pk);
 
-        return $this->refreshInternal($query->onePopulate());
+        return $this->refreshInternal($query->one());
     }
 
     /**

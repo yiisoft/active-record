@@ -11,6 +11,10 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlapsCondition;
+use Yiisoft\Db\QueryBuilder\Condition\InCondition;
+use Yiisoft\Db\QueryBuilder\Condition\JsonOverlapsCondition;
+use Yiisoft\Db\Schema\SchemaInterface;
 
 use function array_column;
 use function array_combine;
@@ -19,6 +23,7 @@ use function array_fill_keys;
 use function array_filter;
 use function array_flip;
 use function array_intersect_key;
+use function array_key_first;
 use function array_keys;
 use function array_merge;
 use function array_unique;
@@ -180,7 +185,7 @@ trait ActiveRelationTrait
      */
     public function relatedRecords(): ActiveRecordInterface|array|null
     {
-        return $this->multiple ? $this->all() : $this->onePopulate();
+        return $this->multiple ? $this->all() : $this->one();
     }
 
     /**
@@ -249,7 +254,7 @@ trait ActiveRelationTrait
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
-            $models = [$this->onePopulate()];
+            $models = [$this->one()];
             $this->populateInverseRelation($models, $primaryModels);
 
             $primaryModel = reset($primaryModels);
@@ -505,11 +510,11 @@ trait ActiveRelationTrait
 
         if (count($attributes) === 1) {
             /** single key */
-            $attribute = reset($this->link);
+            $linkedAttribute = reset($this->link);
 
             if ($model instanceof ActiveRecordInterface) {
                 foreach ($models as $model) {
-                    $value = $model->getAttribute($attribute);
+                    $value = $model->getAttribute($linkedAttribute);
 
                     if ($value !== null) {
                         if (is_array($value)) {
@@ -521,8 +526,8 @@ trait ActiveRelationTrait
                 }
             } else {
                 foreach ($models as $model) {
-                    if (isset($model[$attribute])) {
-                        $value = $model[$attribute];
+                    if (isset($model[$linkedAttribute])) {
+                        $value = $model[$linkedAttribute];
 
                         if (is_array($value)) {
                             $values = [...$values, ...$value];
@@ -533,31 +538,47 @@ trait ActiveRelationTrait
                 }
             }
 
-            if (!empty($values)) {
-                $scalarValues = array_filter($values, 'is_scalar');
-                $nonScalarValues = array_diff_key($values, $scalarValues);
+            if (empty($values)) {
+                $this->emulateExecution();
+                $this->andWhere('1=0');
+                return;
+            }
 
-                $scalarValues = array_unique($scalarValues);
-                $values = [...$scalarValues, ...$nonScalarValues];
+            $scalarValues = array_filter($values, 'is_scalar');
+            $nonScalarValues = array_diff_key($values, $scalarValues);
+
+            $scalarValues = array_unique($scalarValues);
+            $values = [...$scalarValues, ...$nonScalarValues];
+
+            $attribute = reset($attributes);
+            /** @var string $columnName */
+            $columnName = array_key_first($this->link);
+
+            match ($this->getARInstance()->columnType($columnName)) {
+                'array' => $this->andWhere(new ArrayOverlapsCondition($attribute, $values)),
+                SchemaInterface::TYPE_JSON => $this->andWhere(new JsonOverlapsCondition($attribute, $values)),
+                default => $this->andWhere(new InCondition($attribute, 'IN', $values)),
+            };
+
+            return;
+        }
+
+        $nulls = array_fill_keys($this->link, null);
+
+        if ($model instanceof ActiveRecordInterface) {
+            foreach ($models as $model) {
+                $value = $model->getAttributes($this->link);
+
+                if (!empty($value)) {
+                    $values[] = array_combine($attributes, array_merge($nulls, $value));
+                }
             }
         } else {
-            $nulls = array_fill_keys($this->link, null);
+            foreach ($models as $model) {
+                $value = array_intersect_key($model, $nulls);
 
-            if ($model instanceof ActiveRecordInterface) {
-                foreach ($models as $model) {
-                    $value = $model->getAttributes($this->link);
-
-                    if (!empty($value)) {
-                        $values[] = array_combine($attributes, array_merge($nulls, $value));
-                    }
-                }
-            } else {
-                foreach ($models as $model) {
-                    $value = array_intersect_key($model, $nulls);
-
-                    if (!empty($value)) {
-                        $values[] = array_combine($attributes, array_merge($nulls, $value));
-                    }
+                if (!empty($value)) {
+                    $values[] = array_combine($attributes, array_merge($nulls, $value));
                 }
             }
         }
@@ -568,7 +589,7 @@ trait ActiveRelationTrait
             return;
         }
 
-        $this->andWhere(['in', $attributes, $values]);
+        $this->andWhere(new InCondition($attributes, 'IN', $values));
     }
 
     private function getModelKeys(ActiveRecordInterface|array $activeRecord, array $attributes): array
