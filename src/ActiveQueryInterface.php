@@ -10,6 +10,7 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
@@ -26,6 +27,19 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  */
 interface ActiveQueryInterface extends QueryInterface
 {
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     * @throws Throwable
+     *
+     * @return ActiveRecordInterface[]|array[] All rows of the query result. Each array element is an `array` or
+     * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see isAsArray()} result.
+     * Empty array if the query results in nothing.
+     */
+    public function all(): array;
+
     /**
      * Sets the {@see asArray} property.
      *
@@ -544,23 +558,10 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param bool $value Whether this query represents a relation to more than one record.
      * This property is only used in relational context. If true, this relation will populate all query results into AR
-     * instances using {@see Query::all()|all()}.
-     * If false, only the first row of the results will be retrieved using {@see Query::one()|one()}.
+     * instances using {@see all()}.
+     * If false, only the first row of the results will be retrieved using {@see one()}.
      */
     public function multiple(bool $value): self;
-
-    /**
-     * Executes the query and returns ActiveRecord instances populated with the query result.
-     *
-     * @return ActiveRecordInterface|array|null The query results. If the query results in nothing, an empty array will
-     * be returned.
-     */
-    public function allPopulate(): array|ActiveRecordInterface|null;
-
-    /**
-     * Executes the query and returns ActiveRecord instances populated with the query result.
-     */
-    public function onePopulate(): array|ActiveRecordInterface|null;
 
     /**
      * @return ActiveQueryInterface|array|null The query associated with the junction table.
@@ -599,9 +600,24 @@ interface ActiveQueryInterface extends QueryInterface
      * This property is only used in relational context.
      *
      * If `true`, this relation will populate all query results into active record instances using
-     * {@see ActiveQuery::all()}.
+     * {@see all()}.
      *
-     * If `false`, only the first row of the results will be retrieved using {@see ActiveQuery::one()}.
+     * If `false`, only the first row of the results will be retrieved using {@see one()}.
      */
     public function getMultiple(): bool;
+
+    /**
+     * @inheritdoc
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws ReflectionException
+     * @throws Throwable
+     *
+     * @return ActiveRecordInterface|array|null The first row as an `array` or instance of {@see ActiveRecordInterface}
+     * of the query result, depends on {@see isAsArray()} result. `null` if the query results in nothing.
+     */
+    public function one(): array|ActiveRecordInterface|null;
 }

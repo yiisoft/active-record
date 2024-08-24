@@ -204,7 +204,7 @@ abstract class ActiveRecordTest extends TestCase
 
         /** @var $model Type */
         $aqClass = new ActiveQuery(Type::class);
-        $query = $aqClass->onePopulate();
+        $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
         $this->assertSame(456, $query->int_col2);
@@ -226,10 +226,10 @@ abstract class ActiveRecordTest extends TestCase
 
         $animal = new ActiveQuery(Animal::class);
 
-        $animals = $animal->where(['type' => Dog::class])->onePopulate();
+        $animals = $animal->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animals->getDoes());
 
-        $animals = $animal->where(['type' => Cat::class])->onePopulate();
+        $animals = $animal->where(['type' => Cat::class])->one();
         $this->assertEquals('meow', $animals->getDoes());
     }
 

@@ -39,7 +39,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $arClass->save();
 
         $aqClass = new ActiveQuery(Type::class);
-        $query = $aqClass->onePopulate();
+        $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
         $this->assertSame(456, $query->int_col2);

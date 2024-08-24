@@ -87,7 +87,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         /** @var $model Type */
         $aqClass = new ActiveQuery(Type::class);
-        $query = $aqClass->onePopulate();
+        $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
         $this->assertSame(456, $query->int_col2);
@@ -171,8 +171,8 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $command->insertBatch('bool_values', [[true], [false]], ['bool_col'])->execute();
         $boolARQuery = new ActiveQuery(BoolAR::class);
 
-        $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
-        $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
+        $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
+        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
 
         $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
         $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
@@ -368,7 +368,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $typeQuery = new ActiveQuery($type::class);
 
-        $type = $typeQuery->onePopulate();
+        $type = $typeQuery->one();
 
         foreach ($attributes as $attribute => $expected) {
             $expected = $expected[1] ?? $expected[0];

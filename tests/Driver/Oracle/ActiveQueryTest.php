@@ -228,11 +228,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
 
         if ($aliasMethod === 'explicit') {
-            $customer = $customerQuery->where(['{{o}}.[[id]]' => 1])->onePopulate();
+            $customer = $customerQuery->where(['{{o}}.[[id]]' => 1])->one();
         } elseif ($aliasMethod === 'querysyntax') {
-            $customer = $customerQuery->where(['{{@order}}.id' => 1])->onePopulate();
+            $customer = $customerQuery->where(['{{@order}}.id' => 1])->one();
         } elseif ($aliasMethod === 'applyAlias') {
-            $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->onePopulate();
+            $customer = $customerQuery->where([$query->applyAlias('order', 'id') => 1])->one();
         }
 
         $this->assertEquals(1, $customer->getId());

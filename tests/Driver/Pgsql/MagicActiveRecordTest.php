@@ -102,8 +102,8 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
         $boolARQuery = new ActiveQuery(BoolAR::class);
 
-        $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
-        $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
+        $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
+        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
 
         $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
         $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
@@ -299,7 +299,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $typeQuery = new ActiveQuery($type::class);
 
-        $type = $typeQuery->onePopulate();
+        $type = $typeQuery->one();
 
         foreach ($attributes as $attribute => $expected) {
             $expected = $expected[1] ?? $expected[0];

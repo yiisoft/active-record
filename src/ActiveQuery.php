@@ -121,18 +121,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         parent::__construct($this->getARInstance()->db());
     }
 
-    /**
-     * Executes a query and returns all results as an array.
-     *
-     * If null, the db connection returned by {@see arClass} will be used.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     *
-     * @psalm-suppress ImplementedReturnTypeMismatch
-     * @return ActiveRecordInterface[] The query results. If the query results in nothing, an empty array will be returned.
-     */
     public function all(): array
     {
         if ($this->shouldEmulateExecution()) {
@@ -213,11 +201,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     }
                 } else {
                     if ($viaCallableUsed) {
-                        $model = $viaQuery->onePopulate();
+                        $model = $viaQuery->one();
                     } elseif ($this->primaryModel->isRelationPopulated($viaName)) {
                         $model = $this->primaryModel->relation($viaName);
                     } else {
-                        $model = $viaQuery->onePopulate();
+                        $model = $viaQuery->one();
                         $this->primaryModel->populateRelation($viaName, $model);
                     }
                     $viaModels = $model === null ? [] : [$model];
@@ -337,43 +325,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return array_values(array_combine($hash, $models));
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
-     * @throws Throwable
-     */
-    public function allPopulate(): array
+    public function one(): array|ActiveRecordInterface|null
     {
-        $rows = $this->all();
+        $row = parent::one();
 
-        if ($rows !== []) {
-            $rows = $this->populate($rows, $this->indexBy);
+        if ($row === null) {
+            return null;
         }
 
-        return $rows;
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
-     * @throws Throwable
-     */
-    public function onePopulate(): array|ActiveRecordInterface|null
-    {
-        $row = $this->one();
-
-        if ($row !== null) {
-            $activeRecord = $this->populate([$row], $this->indexBy);
-            $row = reset($activeRecord) ?: null;
-        }
-
-        return $row;
+        return $this->populate([$row])[0];
     }
 
     /**
@@ -883,7 +843,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function findOne(mixed $condition): array|ActiveRecordInterface|null
     {
-        return $this->findByCondition($condition)->onePopulate();
+        return $this->findByCondition($condition)->one();
     }
 
     /**

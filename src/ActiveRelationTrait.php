@@ -185,7 +185,7 @@ trait ActiveRelationTrait
      */
     public function relatedRecords(): ActiveRecordInterface|array|null
     {
-        return $this->multiple ? $this->all() : $this->onePopulate();
+        return $this->multiple ? $this->all() : $this->one();
     }
 
     /**
@@ -254,7 +254,7 @@ trait ActiveRelationTrait
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
-            $models = [$this->onePopulate()];
+            $models = [$this->one()];
             $this->populateInverseRelation($models, $primaryModels);
 
             $primaryModel = reset($primaryModels);

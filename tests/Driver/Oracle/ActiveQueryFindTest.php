@@ -24,48 +24,48 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
 
         /** one */
         $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
-        $customer = $customerQuery->orderBy('id')->onePopulate();
+        $customer = $customerQuery->orderBy('id')->one();
         $this->assertEquals('user1', $customer->getName());
 
         /** all */
         $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
-        $customers = $customerQuery->allPopulate();
+        $customers = $customerQuery->all();
         $this->assertCount(3, $customers);
 
         /** limit */
         $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
-        $customers = $customerQuery->orderBy('id')->limit(1)->allPopulate();
+        $customers = $customerQuery->orderBy('id')->limit(1)->all();
         $this->assertCount(1, $customers);
         $this->assertEquals('user1', $customers[0]->getName());
 
-        $customers = $customerQuery->orderBy('id')->limit(1)->offset(1)->allPopulate();
+        $customers = $customerQuery->orderBy('id')->limit(1)->offset(1)->all();
         $this->assertCount(1, $customers);
         $this->assertEquals('user2', $customers[0]->getName());
 
-        $customers = $customerQuery->orderBy('id')->limit(1)->offset(2)->allPopulate();
+        $customers = $customerQuery->orderBy('id')->limit(1)->offset(2)->all();
         $this->assertCount(1, $customers);
         $this->assertEquals('user3', $customers[0]->getName());
 
-        $customers = $customerQuery->orderBy('id')->limit(2)->offset(1)->allPopulate();
+        $customers = $customerQuery->orderBy('id')->limit(2)->offset(1)->all();
         $this->assertCount(2, $customers);
         $this->assertEquals('user2', $customers[0]->getName());
         $this->assertEquals('user3', $customers[1]->getName());
 
-        $customers = $customerQuery->limit(2)->offset(3)->allPopulate();
+        $customers = $customerQuery->limit(2)->offset(3)->all();
         $this->assertCount(0, $customers);
 
         /** offset */
         $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
-        $customer = $customerQuery->orderBy('id')->offset(0)->onePopulate();
+        $customer = $customerQuery->orderBy('id')->offset(0)->one();
         $this->assertEquals('user1', $customer->getName());
 
-        $customer = $customerQuery->orderBy('id')->offset(1)->onePopulate();
+        $customer = $customerQuery->orderBy('id')->offset(1)->one();
         $this->assertEquals('user2', $customer->getName());
 
-        $customer = $customerQuery->orderBy('id')->offset(2)->onePopulate();
+        $customer = $customerQuery->orderBy('id')->offset(2)->one();
         $this->assertEquals('user3', $customer->getName());
 
-        $customer = $customerQuery->offset(3)->onePopulate();
+        $customer = $customerQuery->offset(3)->one();
         $this->assertNull($customer);
     }
 
@@ -88,7 +88,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $customers[1]->resetRelation('orders');
         $this->assertFalse($customers[1]->isRelationPopulated('orders'));
 
-        $customer = $customerQuery->where(['id' => 1])->with('orders')->onePopulate();
+        $customer = $customerQuery->where(['id' => 1])->with('orders')->one();
         $this->assertTrue($customer->isRelationPopulated('orders'));
         $this->assertCount(1, $customer->getOrders());
         $this->assertCount(1, $customer->getRelatedRecords());
@@ -112,7 +112,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
 
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->where(['[[id]]' => 2])->asArray()->onePopulate();
+        $customer = $customerQuery->where(['[[id]]' => 2])->asArray()->one();
         $this->assertEquals([
             'id' => 2,
             'email' => 'user2@example.com',
