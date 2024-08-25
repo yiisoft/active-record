@@ -50,7 +50,7 @@ trait ActiveQueryTrait
      *
      * ```php
      * // Create active query
-     * CustomerQuery = new ActiveQuery(Customer::class, $db);
+     * CustomerQuery = new ActiveQuery(Customer::class);
      * // find customers together with their orders and country
      * CustomerQuery->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address

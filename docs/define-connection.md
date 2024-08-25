@@ -57,9 +57,9 @@ use Psr\Http\Message\ResponseInterface;
 use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
-final class Register
+final class SomeController
 {
-    public function register(
+    public function someAction(
         ConnectionInterface $db,
     ): ResponseInterface {
         ConnectionProvider::set($db);

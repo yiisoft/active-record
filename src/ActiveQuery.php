@@ -79,7 +79,7 @@ use function substr;
  * These options can be configured using methods of the same name. For example:
  *
  * ```php
- * $customerQuery = new ActiveQuery(Customer::class, $db);
+ * $customerQuery = new ActiveQuery(Customer::class);
  * $query = $customerQuery->with('orders')->asArray()->all();
  * ```
  *
