@@ -9,18 +9,30 @@ interface TransactionalInterface
     /**
      * The insert operation. This is mainly used when overriding {@see transactions()} to specify which operations are
      * transactional.
+     *
+     * @var int
+     *
+     * @psalm-suppress MissingClassConstType
      */
     public const OP_INSERT = 0x01;
 
     /**
      * The update operation. This is mainly used when overriding {@see transactions()} to specify which operations are
      * transactional.
+     *
+     * @var int
+     *
+     * @psalm-suppress MissingClassConstType
      */
     public const OP_UPDATE = 0x02;
 
     /**
      * The delete operation. This is mainly used when overriding {@see transactions()} to specify which operations are
      * transactional.
+     *
+     * @var int
+     *
+     * @psalm-suppress MissingClassConstType
      */
     public const OP_DELETE = 0x04;
 
