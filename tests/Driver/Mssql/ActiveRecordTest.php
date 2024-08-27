@@ -49,7 +49,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         SQL;
         $this->db()->createCommand($sql)->execute();
 
-        $record = new TestTrigger($this->db());
+        $record = new TestTrigger();
 
         $record->stringcol = 'test';
 

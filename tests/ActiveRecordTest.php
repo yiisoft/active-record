@@ -13,8 +13,6 @@ use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
@@ -752,102 +750,6 @@ abstract class ActiveRecordTest extends TestCase
         }
 
         $this->assertEquals($eagerItemsCount, $lazyItemsCount);
-    }
-
-    public function testToArray(): void
-    {
-        $this->checkFixture($this->db(), 'customer', true);
-
-        $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
-
-        $this->assertSame(
-            [
-                'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 1,
-                'bool_status' => true,
-                'profile_id' => 1,
-            ],
-            $customer->toArray(),
-        );
-    }
-
-    public function testToArrayWithClosure(): void
-    {
-        $this->checkFixture($this->db(), 'customer', true);
-
-        $customerQuery = new ActiveQuery(CustomerClosureField::class);
-        $customer = $customerQuery->findOne(1);
-
-        $this->assertSame(
-            [
-                'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 'active',
-                'bool_status' => true,
-                'profile_id' => 1,
-            ],
-            $customer->toArray(),
-        );
-    }
-
-    public function testToArrayForArrayable(): void
-    {
-        $this->checkFixture($this->db(), 'customer', true);
-
-        $customerQuery = new ActiveQuery(CustomerForArrayable::class);
-
-        /** @var CustomerForArrayable $customer */
-        $customer = $customerQuery->findOne(1);
-        /** @var CustomerForArrayable $customer2 */
-        $customer2 = $customerQuery->findOne(2);
-        /** @var CustomerForArrayable $customer3 */
-        $customer3 = $customerQuery->findOne(3);
-
-        $customer->setItem($customer2);
-        $customer->setItems($customer3);
-
-        $this->assertSame(
-            [
-                'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 'active',
-                'item' => [
-                    'id' => 2,
-                    'email' => 'user2@example.com',
-                    'name' => 'user2',
-                    'status' => 'active',
-                ],
-                'items' => [
-                    [
-                        'id' => 3,
-                        'email' => 'user3@example.com',
-                        'name' => 'user3',
-                        'status' => 'inactive',
-                    ],
-                ],
-            ],
-            $customer->toArray([
-                'id',
-                'name',
-                'email',
-                'address',
-                'status',
-                'item.id',
-                'item.name',
-                'item.email',
-                'items.0.id',
-                'items.0.name',
-                'items.0.email',
-            ]),
-        );
     }
 
     public function testSaveWithoutChanges(): void

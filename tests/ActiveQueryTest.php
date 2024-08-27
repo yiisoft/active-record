@@ -2160,20 +2160,6 @@ abstract class ActiveQueryTest extends TestCase
         );
     }
 
-    public function testFields(): void
-    {
-        $this->checkFixture($this->db(), 'order_item');
-
-        $orderItem = new ActiveQuery(OrderItem::class);
-
-        $fields = $orderItem->findOne(['order_id' => 1, 'item_id' => 2])->fields();
-
-        $this->assertEquals(
-            $fields,
-            ['order_id' => 1, 'item_id' => 2, 'quantity' => 2, 'subtotal' => '40', 'price' => 20]
-        );
-    }
-
     public function testGetOldAttribute(): void
     {
         $this->checkFixture($this->db(), 'customer');
