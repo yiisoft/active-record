@@ -17,7 +17,6 @@ final class ArrayableTraitTest extends \Yiisoft\ActiveRecord\Tests\ArrayableTrai
         return (new OracleHelper())->createConnection();
     }
 
-
     public function testToArray(): void
     {
         $this->checkFixture($this->db(), 'customer', true);
