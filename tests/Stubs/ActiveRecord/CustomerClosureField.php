@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+use Yiisoft\ActiveRecord\Tests\Stubs\ArrayableActiveRecord;
 
 /**
  * Class CustomerClosureField.
  */
-final class CustomerClosureField extends ActiveRecord
+final class CustomerClosureField extends ArrayableActiveRecord
 {
     protected int $id;
     protected string $email;

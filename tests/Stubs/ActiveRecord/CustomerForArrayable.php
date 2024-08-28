@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+use Yiisoft\ActiveRecord\Tests\Stubs\ArrayableActiveRecord;
 
 /**
  * Class CustomerClosureField.
  */
-class CustomerForArrayable extends ActiveRecord
+class CustomerForArrayable extends ArrayableActiveRecord
 {
     public array $items = [];
 

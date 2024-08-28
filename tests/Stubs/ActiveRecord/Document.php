@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class Document extends ActiveRecord
 {

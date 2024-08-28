@@ -11,7 +11,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\BoolAR;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
-use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
@@ -327,47 +326,5 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         }
 
         $this->assertSame(1, $type->update(), 'The record got updated');
-    }
-
-    public function testToArray(): void
-    {
-        $this->checkFixture($this->db(), 'customer', true);
-
-        $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
-
-        $this->assertSame(
-            [
-                'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 1,
-                'bool_status' => true,
-                'profile_id' => 1,
-            ],
-            $customer->toArray(),
-        );
-    }
-
-    public function testToArrayWithClosure(): void
-    {
-        $this->checkFixture($this->db(), 'customer', true);
-
-        $customerQuery = new ActiveQuery(CustomerClosureField::class);
-        $customer = $customerQuery->findOne(1);
-
-        $this->assertSame(
-            [
-                'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 'active',
-                'bool_status' => true,
-                'profile_id' => 1,
-            ],
-            $customer->toArray(),
-        );
     }
 }

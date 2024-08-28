@@ -6,7 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 
 /**
@@ -24,20 +24,6 @@ final class OrderItem extends ActiveRecord
     public function getTableName(): string
     {
         return $this->tableName ??= 'order_item';
-    }
-
-    public function fields(): array
-    {
-        $fields = parent::fields();
-
-        // Wrong fields. Should be without values.
-        $fields['order_id'] = $this->getAttribute('order_id');
-        $fields['item_id'] = $this->getAttribute('item_id');
-        $fields['price'] = $this->getAttribute('subtotal') / $this->getAttribute('quantity');
-        $fields['quantity'] = $this->getAttribute('quantity');
-        $fields['subtotal'] = $this->getAttribute('subtotal');
-
-        return $fields;
     }
 
     public function getOrderId(): int
