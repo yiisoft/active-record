@@ -41,7 +41,7 @@ trait MagicRelationsTrait
      * }
      * ```
      *
-     * @throws InvalidArgumentException if the named relation does not exist.
+     * @throws InvalidArgumentException If the named relation doesn't exist.
      * @throws ReflectionException
      */
     public function relationQuery(string $name): ActiveQueryInterface
@@ -67,7 +67,7 @@ trait MagicRelationsTrait
             );
         }
 
-        /** relation name is case sensitive, trying to validate it when the relation is defined within this class */
+        /** Relation name is case-sensitive, trying to validate it when the relation is defined within this class. */
         $realName = lcfirst(substr($method->getName(), 3, -5));
 
         if ($realName !== $name) {

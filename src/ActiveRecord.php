@@ -41,7 +41,7 @@ use function preg_replace;
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
- * To declare an ActiveRecord class you need to extend {@see ActiveRecord} and implement the `getTableName` method:
+ * To declare an ActiveRecord class, you need to extend {@see ActiveRecord} and implement the `getTableName` method:
  *
  * ```php
  * class Customer extends ActiveRecord
@@ -65,7 +65,7 @@ use function preg_replace;
  * ```php
  * $user = new User($db);
  * $user->name = 'Qiang';
- * $user->save();  // a new row is inserted into user table
+ * $user->save(); // a new row is inserted into user table
  *
  * // the following will retrieve the user 'CeBe' from the database
  * $userQuery = new ActiveQuery(User::class);
@@ -121,7 +121,7 @@ class ActiveRecord extends AbstractActiveRecord
      * Returns the schema information of the DB table associated with this AR class.
      *
      * @throws Exception
-     * @throws InvalidConfigException If the table for the AR class does not exist.
+     * @throws InvalidConfigException If the table for the AR class doesn't exist.
      *
      * @return TableSchemaInterface The schema information of the DB table associated with this AR class.
      */

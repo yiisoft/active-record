@@ -70,7 +70,7 @@ interface TransactionalInterface
      * The above declaration specifies that in the "admin" scenario, the insert operation ({@see insert()}) should be
      * done in a transaction; and in the "api" scenario, all the operations should be done in a transaction.
      *
-     * @return array The declarations of transactional operations. The array keys are scenarios names, and the array
+     * @return array The declarations of transactional operations. The array keys are scenario names, and the array
      * values are the corresponding transaction operations.
      */
     public function transactions(): array;

@@ -86,7 +86,7 @@ use function substr;
  * Relational query
  * ----------------
  *
- * In relational context ActiveQuery represents a relation between two Active Record classes.
+ * In relational context, ActiveQuery represents a relation between two Active Record classes.
  *
  * Relational ActiveQuery instances are usually created by calling {@see ActiveRecord::hasOne()} and
  * {@see ActiveRecord::hasMany()}. An Active Record class declares a relation by defining a getter method which calls
@@ -97,8 +97,8 @@ use function substr;
  *
  * If a relation involves a junction table, it may be specified by {@see via()} or {@see viaTable()} method.
  *
- * These methods may only be called in a relational context. Same is true for {@see inverseOf()}, which marks a relation
- * as inverse of another relation and {@see onCondition()} which adds a condition that's to be added to relational
+ * These methods may only be called in a relational context. The same is true for {@see inverseOf()}, which marks a relation
+ * as inverse of another relation and {@see onCondition()} which adds a condition that is to be added to relational
  * query join condition.
  *
  * @psalm-import-type ARClass from ActiveQueryInterface
@@ -156,7 +156,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         /**
          * NOTE: Because the same ActiveQuery may be used to build different SQL statements, one for count query, the
-         * other for row data query, it's important to make sure the same ActiveQuery can be used to build SQL
+         * other for row data query, it is important to make sure the same ActiveQuery can be used to build SQL
          * statements many times.
          */
         if (!empty($this->joinWith)) {

@@ -151,8 +151,8 @@ $this->hasOne(User::class, ['id' => 'user_id']);
 
 ### Many-to-many
 
-The relationships are used when you need to link multiple records from one table to multiple records from another table.
-This is common in scenarios where entities have a bidirectional relationship, such as users belonging to multiple groups
+Use relationships when you need to link multiple records from one table to multiple records from another table.
+This is common when entities have a bidirectional relationship, such as users belonging to multiple groups
 and groups having multiple users.
 
 ```mermaid
@@ -348,8 +348,8 @@ Use this method when you don't need to store additional information in the junct
 
 ## Inverse Relations
 
-An inverse relation is a relation that is defined in the related record to link back to the current record. It is used 
-to associate the related record(s) with the current record in a more efficient way by avoiding additional queries.
+An inverse relation is a relation defined in the related record to link back to the current record.
+It associates the related record(s) with the current record in a more efficient way by avoiding additional queries.
 
 To define an inverse relation, use the `ActiveQueryInterface::inverseOf()` method.
 
@@ -393,8 +393,8 @@ final class Order extends ActiveRecord
 
 ## Eager Loading
 
-**Relations are loaded lazily**, meaning that the related record(s) are not loaded until you access them. This allows 
-you to load only the data you need and avoid unnecessary queries.
+**Relations are loaded lazily**, meaning that the related record(s) aren't loaded until you access them.
+This allows you to load only the data you need and avoid unnecessary queries.
 
 However, there are cases when you need to load the related record(s) in advance to avoid the **N+1 query problem**.
 To do this, use the `ActiveQueryInterface::with()` method.

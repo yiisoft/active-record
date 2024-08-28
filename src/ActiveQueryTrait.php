@@ -24,9 +24,9 @@ trait ActiveQueryTrait
     /**
      * Sets the {@see asArray} property.
      *
-     * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
+     * @param bool $value Whether to return the query results in terms of arrays instead of Active Records.
      *
-     * @return static the query object itself.
+     * @return static The query object itself.
      */
     public function asArray(bool|null $value = true): static
     {
@@ -73,9 +73,9 @@ trait ActiveQueryTrait
      * CustomerQuery->with('orders')->with('country')->all();
      * ```
      *
-     * @param array|string ...$with a list of relation names or relation definitions.
+     * @param array|string ...$with A list of relation names or relation definitions.
      *
-     * @return static the query object itself.
+     * @return static The query object itself.
      */
     public function with(array|string ...$with): static
     {
@@ -153,7 +153,7 @@ trait ActiveQueryTrait
 
         foreach ($relations as $name => $relation) {
             if ($relation->asArray === null) {
-                /** inherit asArray from primary query */
+                /** inherit asArray from a primary query */
                 $relation->asArray($this->asArray);
             }
 

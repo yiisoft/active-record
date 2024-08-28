@@ -190,7 +190,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
             $orderQuery = new ActiveQuery(Order::class);
-            $orders = $orderQuery->joinWith([(string)$relationName])->orderBy('order.id')->all();
+            $orders = $orderQuery->joinWith([$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->relation($relationName));

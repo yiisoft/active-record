@@ -43,11 +43,11 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
-        $this->assertEquals($query->getARClass(), Customer::class);
-        $this->assertEquals($query->getOn(), ['a' => 'b']);
-        $this->assertEquals($query->getJoinWith(), [[['profile'], true, 'LEFT JOIN']]);
+        $this->assertEquals(Customer::class, $query->getARClass());
+        $this->assertEquals(['a' => 'b'], $query->getOn());
+        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
         $customerQuery->resetJoinWith();
-        $this->assertEquals($query->getJoinWith(), []);
+        $this->assertEquals([], $query->getJoinWith());
     }
 
     public function testPrepare(): void
@@ -945,7 +945,7 @@ abstract class ActiveQueryTest extends TestCase
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
             $orderQuery = new ActiveQuery(Order::class);
-            $orders = $orderQuery->joinWith([(string)$relationName])->orderBy('order.id')->all();
+            $orders = $orderQuery->joinWith([$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->relation($relationName));
@@ -1795,7 +1795,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * @dataProvider filterTableNamesFromAliasesProvider
      *
-     * @param $expectedAliases
+     * @param array $expectedAliases
      *
      * @throws ReflectionException
      */
@@ -2054,11 +2054,11 @@ abstract class ActiveQueryTest extends TestCase
 
         $bitValueQuery = new ActiveQuery(BitValues::class);
         $falseBit = $bitValueQuery->findOne(1);
-        $this->assertEquals(false, $falseBit->val);
+        $this->assertFalse($falseBit->val);
 
         $bitValueQuery = new ActiveQuery(BitValues::class);
         $trueBit = $bitValueQuery->findOne(2);
-        $this->assertEquals(true, $trueBit->val);
+        $this->assertTrue($trueBit->val);
     }
 
     public function testUpdateAttributes(): void

@@ -157,7 +157,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals('something', $arClass->char_col2);
         $this->assertEquals(1.23, $arClass->float_col2);
         $this->assertEquals(33.22, $arClass->numeric_col);
-        $this->assertEquals(true, $arClass->bool_col2);
+        $this->assertTrue($arClass->bool_col2);
         $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
         $arClass = new Type();
@@ -657,7 +657,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($customerA->equals($customerB));
     }
 
-    public static function providerForUnlinkDelete()
+    public static function providerForUnlinkDelete(): array
     {
         return [
             'with delete' => [true, 0],
@@ -670,7 +670,7 @@ abstract class MagicActiveRecordTest extends TestCase
      *
      * @see https://github.com/yiisoft/yii2/issues/17174
      */
-    public function testUnlinkWithViaOnCondition($delete, $count)
+    public function testUnlinkWithViaOnCondition($delete, $count): void
     {
         $this->checkFixture($this->db(), 'order', true);
         $this->checkFixture($this->db(), 'order_item_with_null_fk', true);
@@ -696,7 +696,7 @@ abstract class MagicActiveRecordTest extends TestCase
         ]));
     }
 
-    public function testVirtualRelation()
+    public function testVirtualRelation(): void
     {
         $this->checkFixture($this->db(), 'order', true);
 
@@ -713,7 +713,7 @@ abstract class MagicActiveRecordTest extends TestCase
      *
      * @see https://github.com/yiisoft/yii2/issues/19507
      */
-    public function testJoinWithEager()
+    public function testJoinWithEager(): void
     {
         $this->checkFixture($this->db(), 'customer', true);
 

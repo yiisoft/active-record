@@ -1,6 +1,6 @@
 # Using Dependency Injection With Active Record
 
-Using [dependency injection](https://github.com/yiisoft/di) in the Active Record model allows to inject dependencies 
+Using [dependency injection](https://github.com/yiisoft/di) in the Active Record model allows injecting dependencies 
 into the model and use them in the model methods.
 
 To create an Active Record model with dependency injection, you need to use 
@@ -62,7 +62,7 @@ final class User extends ActiveRecord
 }
 ```
 
-This will allow to create the `ActiveQuery` instance without calling `ActiveRecord::withFactory()` method.
+This will allow creating the `ActiveQuery` instance without calling `ActiveRecord::withFactory()` method.
 
 ```php
 $userQuery = new ActiveQuery($factory->create(User::class));

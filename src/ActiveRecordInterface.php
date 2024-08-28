@@ -72,7 +72,7 @@ interface ActiveRecordInterface
      *
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
-     * @param array $condition The conditions that will be put in the WHERE part of the DELETE SQL. Please refer to
+     * @param array $condition The conditions that will be put in the `WHERE` part of the `DELETE` SQL. Please refer to
      * {@see Query::where()} on how to specify this parameter.
      *
      * @throws Exception
@@ -112,7 +112,7 @@ interface ActiveRecordInterface
     public function filterCondition(array $condition, array $aliases = []): array;
 
     /**
-     * Returns table aliases which aren't the same as the name of the tables.
+     * Returns table aliases which are different from the name of the tables.
      *
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
@@ -157,8 +157,8 @@ interface ActiveRecordInterface
     /**
      * Returns the old primary key value(s).
      *
-     * This refers to the primary key value that's populated into the record after executing a find method (for example
-     * findOne()).
+     * This refers to the primary key value that's populated into the record after executing a find method (for example,
+     * `findOne()`).
      *
      * The value remains unchanged even if the primary key attribute is manually assigned with a different value.
      *
@@ -261,7 +261,7 @@ interface ActiveRecordInterface
     /**
      * Check whether the named relation has been populated with records.
      *
-     * @param string $name The relation name, for example `orders` for a relation defined via `getOrders()` method
+     * @param string $name The relation name, for example, `orders` for a relation defined via `getOrders()` method
      * (case-sensitive).
      *
      * @return bool Whether relation has been populated with records.
@@ -283,7 +283,7 @@ interface ActiveRecordInterface
      *
      * This method requires that the primary key value isn't `null`.
      *
-     * @param string $name The case-sensitive name of the relationship, for example `orders` for a relation defined via
+     * @param string $name The case-sensitive name of the relationship, for example, `orders` for a relation defined via
      * `getOrders()` method.
      * @param self $arClass The record to be linked with the current one.
      * @param array $extraColumns More column values to be saved into the junction table. This parameter is only
@@ -297,7 +297,7 @@ interface ActiveRecordInterface
      *
      * Note that this method doesn't check if the relation exists or not.
      *
-     * @param string $name The relation name, for example `orders` for a relation defined via `getOrders()` method
+     * @param string $name The relation name, for example, `orders` for a relation defined via `getOrders()` method
      * (case-sensitive).
      * @param array|self|null $records The related records to be populated into the relation.
      */
@@ -324,7 +324,7 @@ interface ActiveRecordInterface
     /**
      * Returns the relation object with the specified name.
      *
-     * @param string $name The relation name, for example `orders` (case-sensitive).
+     * @param string $name The relation name, for example, `orders` (case-sensitive).
      *
      * @return ActiveRecordInterface|array|null The relation object.
      */
@@ -349,7 +349,7 @@ interface ActiveRecordInterface
      * }
      * ```
      *
-     * @param string $name The relation name, for example `orders` (case-sensitive).
+     * @param string $name The relation name, for example, `orders` (case-sensitive).
      *
      * @throws InvalidArgumentException
      *
@@ -360,7 +360,7 @@ interface ActiveRecordInterface
     /**
      * Resets relation data for the specified name.
      *
-     * @param string $name The relation name, for example `orders` (case-sensitive).
+     * @param string $name The relation name, for example, `orders` (case-sensitive).
      */
     public function resetRelation(string $name): void;
 
@@ -456,7 +456,7 @@ interface ActiveRecordInterface
      * For a large set of models you might consider using {@see ActiveQuery::each()} to keep memory usage within limits.
      *
      * @param array $attributes Attribute values (name-value pairs) to be saved into the table.
-     * @param array|string $condition The conditions that will be put in the WHERE part of the UPDATE SQL.
+     * @param array|string $condition The conditions that will be put in the `WHERE` part of the `UPDATE` SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      *
@@ -471,7 +471,7 @@ interface ActiveRecordInterface
     /**
      * Updates the specified attributes.
      *
-     * This method is a shortcut to {@see update()} when data validation isn't needed and only a small set attributes
+     * This method is a shortcut to {@see update()} when data validation isn't necessary and only a small set attributes
      * need to be updated.
      *
      * You may specify the attributes to be updated as name list or name-value pairs.
@@ -497,7 +497,7 @@ interface ActiveRecordInterface
      *
      * Otherwise, the foreign key will be set `null` and the record will be saved without validation.
      *
-     * @param string $name The case-sensitive name of the relationship, for example `orders` for a relation defined via
+     * @param string $name The case-sensitive name of the relationship, for example, `orders` for a relation defined via
      * `getOrders()` method.
      * @param self $arClass The active record to be unlinked from the current one.
      * @param bool $delete Whether to delete the active record that contains the foreign key.

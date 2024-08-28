@@ -49,7 +49,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertEquals('something', $arClass->char_col2);
         $this->assertEquals(1.23, $arClass->float_col2);
         $this->assertEquals(33.22, $arClass->numeric_col);
-        $this->assertEquals(true, $arClass->bool_col2);
+        $this->assertTrue($arClass->bool_col2);
         $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
         $arClass = new Type();
@@ -397,7 +397,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame(1, $type->update(), 'The record got updated');
     }
 
-    public function testRelationViaArray()
+    public function testRelationViaArray(): void
     {
         $this->checkFixture($this->db(), 'promotion');
 
@@ -426,7 +426,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaArray()[1]->getPromotionsViaArray(), 'id'));
     }
 
-    public function testLazzyRelationViaArray()
+    public function testLazzyRelationViaArray(): void
     {
         $this->checkFixture($this->db(), 'item');
 

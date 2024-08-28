@@ -9,7 +9,7 @@ use Yiisoft\Db\Query\Query;
 
 final class UnqueryableQueryMock extends Query
 {
-    public function one(): mixed
+    public function one(): array|object|null
     {
         throw new InvalidCallException('Invalid call');
     }
