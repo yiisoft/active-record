@@ -68,7 +68,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @throws InvalidConfigException
      * @throws Throwable
      *
-     * @return bool Whether the record is inserted successfully.
+     * @return bool Whether the record inserted successfully.
      */
     abstract protected function insertInternal(array $attributes = null): bool;
 
@@ -127,7 +127,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @param string $name The attribute name.
      *
-     * @return mixed the old attribute value. `null` if the attribute is not loaded before or does not exist.
+     * @return mixed The old attribute value. `null` if the attribute is not loaded before or doesn't exist.
      *
      * {@see hasAttribute()}
      */
@@ -137,11 +137,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Returns the attribute values that have been modified since they are loaded or saved most recently.
+     * Returns the attribute values that have been modified since they're loaded or saved most recently.
      *
-     * The comparison of new and old values is made for identical values using `===`.
+     * The comparison of new and old values uses `===`.
      *
-     * @param array|null $names The names of the attributes whose values may be returned if they are changed recently.
+     * @param array|null $names The names of the attributes whose values may be returned if they're changed recently.
      * If null, {@see attributes()} will be used.
      *
      * @return array The changed attribute values (name-value pairs).
@@ -235,13 +235,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Declares a `has-many` relation.
      *
-     * The declaration is returned in terms of a relational {@see ActiveQuery} instance  through which the related
+     * The declaration is returned in terms of a relational {@see ActiveQuery} instance through which the related
      * record can be queried and retrieved back.
      *
      * A `has-many` relation means that there are multiple related records matching the criteria set by this relation,
      * e.g., a customer has many orders.
      *
-     * For example, to declare the `orders` relation for `Customer` class, we can write the following code in the
+     * For example, to declare the `orders` relation for `Customer` class, you can write the following code in the
      * `Customer` class:
      *
      * ```php
@@ -251,16 +251,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * }
      * ```
      *
-     * Note that in the above, the 'customer_id' key in the `$link` parameter refers to an attribute name in the related
+     * Note that the `customer_id` key in the `$link` parameter refers to an attribute name in the related
      * class `Order`, while the 'id' value refers to an attribute name in the current AR class.
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of the
-     * related record, or a Closure to create an {@see ActiveRecordInterface} object.
-     * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
-     * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
-     * **this** AR class.
+     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of
+     * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of
+     * the record associated with the `$class` model, while the values of the array refer to the corresponding attributes
+     * in **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
      *
@@ -280,7 +280,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * A `has-one` relation means that there is at most one related record matching the criteria set by this relation,
      * e.g., a customer has one country.
      *
-     * For example, to declare the `country` relation for `Customer` class, we can write the following code in the
+     * For example, to declare the `country` relation for `Customer` class, you can write the following code in the
      * `Customer` class:
      *
      * ```php
@@ -290,15 +290,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * }
      * ```
      *
-     * Note that in the above, the 'id' key in the `$link` parameter refers to an attribute name in the related class
-     * `Country`, while the 'country_id' value refers to an attribute name in the current AR class.
+     * Note that the `id` key in the `$link` parameter refers to an attribute name in the related class
+     * `Country`, while the `country_id` value refers to an attribute name in the current AR class.
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of the
-     *  related record, or a Closure to create an {@see ActiveRecordInterface} object.
-     * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of the
-     * record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
+     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of
+     * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     * @param array $link The primary-foreign key constraint. The keys of the array refer to the attributes of
+     * the record associated with the `$class` model, while the values of the array refer to the corresponding attributes in
      * **this** AR class.
      *
      * @return ActiveQueryInterface The relational query object.
@@ -316,8 +316,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record, or an instance of the
-     * related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record, or an instance of
+     * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
      *
      * @psalm-param ARClass $arClass
      */
@@ -327,11 +327,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Returns a value indicating whether the named attribute has been changed.
+     * Returns whether the named attribute has been changed.
      *
      * @param string $name The name of the attribute.
-     * @param bool $identical Whether the comparison of new and old value is made for identical values using `===`,
-     * defaults to `true`. Otherwise `==` is used for comparison.
+     * @param bool $identical Whether the comparison of new and old value uses `===`,
+     * defaults to `true`. Otherwise, `==` is used for comparison.
      *
      * @return bool Whether the attribute has been changed.
      */
@@ -459,7 +459,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             }
         }
 
-        // update lazily loaded related objects
+        // Update lazily loaded related objects.
         if (!$relation->getMultiple()) {
             $this->related[$name] = $arClass;
         } elseif (isset($this->related[$name])) {
@@ -511,7 +511,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * 2. In the Web form that collects the user input, add a hidden field that stores the lock version of the recording
      *    being updated.
      * 3. In the controller action that does the data updating, try to catch the {@see StaleObjectException} and
-     *    implement necessary business logic (e.g. merging the changes, prompting stated data) to resolve the conflict.
+     *    implement necessary business logic (e.g., merging the changes, prompting stated data) to resolve the conflict.
      *
      * @return string|null The column name that stores the lock version of a table row. If `null` is returned (default
      * implemented), optimistic locking will not be supported.
@@ -621,7 +621,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @throws StaleObjectException
      * @throws Throwable
      *
-     * @return bool Whether the saving succeeded (i.e. no validation errors occurred).
+     * @return bool Whether the saving succeeded (i.e., no validation errors occurred).
      */
     public function save(array $attributeNames = null): bool
     {
@@ -666,7 +666,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Sets the value indicating whether the record is new.
      *
-     * @param bool $value whether the record is new and should be inserted when calling {@see save()}.
+     * @param bool $value Whether the record is new and should be inserted when calling {@see save()}.
      *
      * @see getIsNewRecord()
      */
@@ -680,7 +680,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @param string $name The attribute name.
      *
-     * @throws InvalidArgumentException If the named attribute does not exist.
+     * @throws InvalidArgumentException If the named attribute doesn't exist.
      *
      * {@see hasAttribute()}
      */
@@ -698,8 +698,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * All existing old attribute values will be discarded.
      *
-     * @param array|null $values Old attribute values to be set. If set to `null` this record is considered to be
-     * {@see isNewRecord|new}.
+     * @param array|null $values Old attribute values to be set. If set to `null` this record is {@see isNewRecord|new}.
      */
     public function setOldAttributes(array $values = null): void
     {
@@ -747,9 +746,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Updates the whole table using the provided counter changes and conditions.
+     * Updates the whole table using the provided counters and condition.
      *
-     * For example, to increment all customers' age by 1,
+     * For example, to increment all customers' age by 1:
      *
      * ```php
      * $customer = new Customer($db);
@@ -760,8 +759,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @param array $counters The counters to be updated (attribute name => increment value).
      * Use negative values if you want to decrement the counters.
-     * @param array|string $condition The conditions that will be put in the WHERE part of the UPDATE SQL. Please refer
-     * to {@see Query::where()} on how to specify this parameter.
+     * @param array|string $condition The conditions that will be put in the `WHERE` part of the `UPDATE` SQL.
+     * Please refer to {@see Query::where()} on how to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      *
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
@@ -789,7 +788,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Updates one or several counter columns for the current AR object.
+     * Updates one or several counters for the current AR object.
      *
      * Note that this method differs from {@see updateAllCounters()} in that it only saves counters for the current AR
      * object.
@@ -929,14 +928,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Destroys the relationship in current model.
+     * Destroys the relationship in the current model.
      *
      * The active record with the foreign key of the relationship will be deleted if `$delete` is `true`. Otherwise, the
      * foreign key will be set `null` and the model will be saved without validation.
      *
-     * Note that to destroy the relationship without removing records make sure your keys can be set to null.
+     * To destroy the relationship without removing records, make sure your keys can be set to `null`.
      *
-     * @param string $name The case sensitive name of the relationship, e.g. `orders` for a relation defined via
+     * @param string $name The case-sensitive name of the relationship, e.g., `orders` for a relation defined via
      * `getOrders()` method.
      * @param bool $delete Whether to delete the model that contains the foreign key.
      *
@@ -1038,9 +1037,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Sets relation dependencies for a property.
      *
-     * @param string $name property name.
-     * @param ActiveQueryInterface $relation relation instance.
-     * @param string|null $viaRelationName intermediate relation.
+     * @param string $name Property name.
+     * @param ActiveQueryInterface $relation Relation instance.
+     * @param string|null $viaRelationName Intermediate relation.
      */
     protected function setRelationDependencies(
         string $name,
@@ -1099,7 +1098,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     protected function deleteInternal(): int
     {
         /**
-         * We do not check the return value of deleteAll() because it's possible the record is already deleted in
+         * We don't check the return value of deleteAll() because it is possible the record is already deleted in
          * the database and thus the method will return 0
          */
         $condition = $this->getOldPrimaryKey(true);
@@ -1209,7 +1208,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             }
 
             /**
-             * relation via array valued attribute
+             * Relation via array valued attribute.
              */
             if (is_array($fkValue = $foreignModel->getAttribute($fk))) {
                 /** @psalm-var mixed */

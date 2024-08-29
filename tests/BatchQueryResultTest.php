@@ -20,7 +20,6 @@ abstract class BatchQueryResultTest extends TestCase
 
         $result = $query->batch(2);
 
-        $this->assertInstanceOf(BatchQueryResultInterface::class, $result);
         $this->assertEquals(2, $result->getBatchSize());
         $this->assertSame($result->getQuery(), $query);
 

@@ -1,10 +1,10 @@
-# Define the DB connection for Active Record
+# Define the database connection for Active Record
 
 To use the Active Record, you need to define the DB connection in one of the following ways:
 
 ## Using the bootstrap configuration
 
-Add the following code to the configuration file, for example in `config/common/bootstrap.php`:
+Add the following code to the configuration file, for example, in `config/common/bootstrap.php`:
 
 ```php
 use Psr\Container\ContainerInterface;

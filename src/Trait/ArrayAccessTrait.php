@@ -44,9 +44,9 @@ trait ArrayAccessTrait
      *
      * It is implicitly called when you use something like `isset($model[$offset])`.
      *
-     * @param string $offset the offset to check on.
+     * @param string $offset The offset to check on.
      *
-     * @return bool whether or not an offset exists.
+     * @return bool Whether an offset exists.
      */
     public function offsetExists(mixed $offset): bool
     {
@@ -66,7 +66,7 @@ trait ArrayAccessTrait
     }
 
     /**
-     * @param string $offset the offset to retrieve element.
+     * @param string $offset The offset to retrieve element.
      */
     public function offsetGet(mixed $offset): mixed
     {
@@ -88,7 +88,7 @@ trait ArrayAccessTrait
      *
      * It is implicitly called when you use something like `$model[$offset] = $item;`.
      *
-     * @param string $offset the offset to set element.
+     * @param string $offset The offset to set element.
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
@@ -117,7 +117,7 @@ trait ArrayAccessTrait
      *
      * It is implicitly called when you use something like `unset($model[$offset])`.
      *
-     * @param string $offset the offset to unset element
+     * @param string $offset The offset to unset element.
      */
     public function offsetUnset(mixed $offset): void
     {

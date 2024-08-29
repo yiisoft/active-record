@@ -52,7 +52,7 @@ trait ActiveRelationTrait
      * referenced through the specified relation.
      *
      * For example, `$customer->orders[0]->customer` and `$customer` will be the same object, and accessing the customer
-     * of an order will not trigger new DB query.
+     * of an order will not trigger a new DB query.
      *
      * This property is only used in relational context.
      *
@@ -67,7 +67,7 @@ trait ActiveRelationTrait
      */
     public function __clone()
     {
-        /** make a clone of "via" object so that the same query object can be reused multiple times */
+        /** Make a clone of "via" object so that the same query object can be reused multiple times. */
         if (is_object($this->via)) {
             $this->via = clone $this->via;
         } elseif (is_array($this->via)) {
@@ -122,7 +122,7 @@ trait ActiveRelationTrait
      * For example, `$customer->orders[0]->customer` and `$customer` will be the same object, and accessing the customer
      * of an order will not trigger a new DB query.
      *
-     * Use this method when declaring a relation in the {@see ActiveRecord} class, e.g. in Customer model:
+     * Use this method when declaring a relation in the {@see ActiveRecord} class, e.g., in the Customer model:
      *
      * ```php
      * public function getOrders()
@@ -131,7 +131,7 @@ trait ActiveRelationTrait
      * }
      * ```
      *
-     * This also may be used for Order model, but with caution:
+     * This also may be used for the Order model, but with caution:
      *
      * ```php
      * public function getCustomer()
@@ -171,7 +171,7 @@ trait ActiveRelationTrait
     }
 
     /**
-     * Returns query records depends on {@see $multiple} .
+     * Returns query records depending on {@see $multiple} .
      *
      * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.
      *
@@ -179,9 +179,9 @@ trait ActiveRelationTrait
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      * @throws ReflectionException
-     * @throws Throwable if the relation is invalid.
+     * @throws Throwable If the relation is invalid.
      *
-     * @return ActiveRecordInterface|array|null the related record(s).
+     * @return ActiveRecordInterface|array|null The related record(s).
      */
     public function relatedRecords(): ActiveRecordInterface|array|null
     {
@@ -223,14 +223,14 @@ trait ActiveRelationTrait
     /**
      * Finds the related records and populates them into the primary models.
      *
-     * @param string $name the relation name
-     * @param array $primaryModels primary models
+     * @param string $name The relation name.
+     * @param array $primaryModels Primary models.
      *
-     * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable if {@see link()} is
+     * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable If {@see link()} is
      * invalid.
      * @throws Exception
      *
-     * @return array the related models
+     * @return array The related models.
      */
     public function populateRelation(string $name, array &$primaryModels): array
     {
@@ -242,7 +242,7 @@ trait ActiveRelationTrait
             [$viaName, $viaQuery] = $this->via;
 
             if ($viaQuery->asArray === null) {
-                /** inherit asArray from primary query */
+                /** inherit asArray from a primary query */
                 $viaQuery->asArray($this->asArray);
             }
 
@@ -271,7 +271,7 @@ trait ActiveRelationTrait
         /**
          * {@see https://github.com/yiisoft/yii2/issues/3197}
          *
-         * delay indexing related models after buckets are built.
+         * Delay indexing related models after buckets are built.
          */
         $indexBy = $this->getIndexBy();
         $this->indexBy(null);
@@ -642,7 +642,7 @@ trait ActiveRelationTrait
         $primaryModel = reset($primaryModels);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
-            /** when primaryModels are array of arrays (asArray case) */
+            /** when primaryModels are an array of arrays (asArray case) */
             $primaryModel = $this->arClass;
         }
 

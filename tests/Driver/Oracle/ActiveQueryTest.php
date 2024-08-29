@@ -190,7 +190,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
             $orderQuery = new ActiveQuery(Order::class);
-            $orders = $orderQuery->joinWith([(string)$relationName])->orderBy('order.id')->all();
+            $orders = $orderQuery->joinWith([$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->relation($relationName));
@@ -389,19 +389,16 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
     }
 
-    /**
-     * @see https://github.com/yiisoft/yii2/issues/9006
-     */
     public function testBit(): void
     {
         $this->checkFixture($this->db(), 'bit_values');
 
         $bitValueQuery = new ActiveQuery(BitValues::class);
         $falseBit = $bitValueQuery->findOne(1);
-        $this->assertEquals('0', $falseBit->val);
+        $this->assertSame('0', $falseBit->val);
 
         $bitValueQuery = new ActiveQuery(BitValues::class);
         $trueBit = $bitValueQuery->findOne(2);
-        $this->assertEquals('1', $trueBit->val);
+        $this->assertSame('1', $trueBit->val);
     }
 }

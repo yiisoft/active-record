@@ -58,13 +58,13 @@ trait MagicPropertiesTrait
      *
      * This method is overridden so that attributes and related objects can be accessed like properties.
      *
-     * @param string $name property name.
+     * @param string $name Property name.
      *
      * @throws InvalidArgumentException|InvalidCallException|InvalidConfigException|ReflectionException|Throwable
      * @throws UnknownPropertyException
      *
      * @throws Exception
-     * @return mixed property value.
+     * @return mixed Property value.
      *
      * {@see getAttribute()}
      */
@@ -79,12 +79,12 @@ trait MagicPropertiesTrait
         }
 
         if (method_exists($this, $getter = 'get' . ucfirst($name))) {
-            /** read getter, e.g. getName() */
+            /** Read getter, e.g., getName() */
             return $this->$getter();
         }
 
         if (method_exists($this, 'get' . ucfirst($name) . 'Query')) {
-            /** read relation query getter, e.g. getUserQuery() */
+            /** Read relation query getter, e.g., getUserQuery() */
             return $this->retrieveRelation($name);
         }
 
@@ -100,9 +100,9 @@ trait MagicPropertiesTrait
      *
      * This method overrides the parent implementation by checking if the named attribute is `null` or not.
      *
-     * @param string $name the property name or the event name.
+     * @param string $name The property name or the event name.
      *
-     * @return bool whether the property value is null.
+     * @return bool Whether the property value is null.
      */
     public function __isset(string $name): bool
     {
@@ -118,7 +118,7 @@ trait MagicPropertiesTrait
      *
      * This method overrides the parent implementation by clearing the specified attribute value.
      *
-     * @param string $name the property name or the event name.
+     * @param string $name The property name or the event name.
      */
     public function __unset(string $name): void
     {
@@ -142,7 +142,7 @@ trait MagicPropertiesTrait
      *
      * This method is overridden so that AR attributes can be accessed like properties.
      *
-     * @param string $name property name.
+     * @param string $name Property name.
      *
      * @throws InvalidCallException|UnknownPropertyException
      */
@@ -191,10 +191,10 @@ trait MagicPropertiesTrait
      *   case-insensitive).
      * - the class has a member variable with the specified name (when `$checkVars` is true).
      *
-     * @param string $name the property name.
-     * @param bool $checkVars whether to treat member variables as properties.
+     * @param string $name The property name.
+     * @param bool $checkVars Whether to treat member variables as properties.
      *
-     * @return bool whether the property is defined.
+     * @return bool Whether the property is defined.
      *
      * {@see canGetProperty()}
      * {@see canSetProperty()}

@@ -1,6 +1,6 @@
 # Internals
 
-This package can be tested globally or individually for each DBMS.
+You can test this package either globally or individually for each DBMS.
 
 - [MSSQL](https://github.com/yiisoft/db-mssql)
 - [MySQL/MariaDB](https://github.com/yiisoft/db-mysql)
@@ -10,13 +10,14 @@ This package can be tested globally or individually for each DBMS.
 
 ## GitHub actions
 
-All our packages have GitHub actions by default, so you can test your [contribution](https://github.com/yiisoft/db/blob/master/.github/CONTRIBUTING.md) in the cloud.
+All packages have GitHub actions by default, so you can test your [contribution](https://github.com/yiisoft/db/blob/master/.github/CONTRIBUTING.md) in the cloud.
 
 > Note: We recommend pull requesting in draft mode until all tests pass.
 
 ## Docker images
 
-For greater ease we recommend to use Docker container for each DBMS. For this you can use the [docker-compose.yml](https://docs.docker.com/compose/compose-file/) file that's in the root directory of each package.
+For greater ease, we recommend to use Docker container for each DBMS.
+For this, you can use the [docker-compose.yml](https://docs.docker.com/compose/compose-file/) file in the root directory of each package.
 
 - [MSSQL 2022](https://github.com/yiisoft/db-mssql/blob/master/docker-compose.yml)
 - [MySQL 8](https://github.com/yiisoft/db-mysql/blob/master/docker-compose.yml)
@@ -24,7 +25,7 @@ For greater ease we recommend to use Docker container for each DBMS. For this yo
 - [Oracle 21](https://github.com/yiisoft/db-oracle/blob/master/docker-compose.yml)
 - [PostgreSQL 15](https://github.com/yiisoft/db-pgsql/blob/master/docker-compose.yml)
 
-To run Docker containers you can use the following command:
+To run Docker containers, you can use the following command:
 
 ```shell
 docker compose up -d
@@ -32,37 +33,37 @@ docker compose up -d
 
 ### Global testing
 
-The following steps are required to run tests.
+To run tests, follow these steps.
 
 1. Install all DBMS dependencies with composer.
 
-```shell
-composer require --dev yiisoft/db-mssql yiisoft/db-mysql yiisoft/db-oracle yiisoft/db-pgsql yiisoft/db-sqlite --ansi
-```
+    ```shell
+    composer require --dev yiisoft/db-mssql yiisoft/db-mysql yiisoft/db-oracle yiisoft/db-pgsql yiisoft/db-sqlite --ansi
+    ```
 
 2. Run all Docker containers for each DBMS.
 3. Run the tests.
 
-```shell
-vendor/bin/phpunit
-```
+    ```shell
+    vendor/bin/phpunit
+    ```
 
 ### Individual testing
 
-The following steps are required to run tests.
+To run tests, follow these steps.
 
 1. Install DBMS dependencies with Composer.
 
-```shell
-composer require --dev yiisoft/db-pgsql --ansi
-```
+    ```shell
+    composer require --dev yiisoft/db-pgsql --ansi
+    ```
 
 2. Run the Docker container for the DBMS you want to test.
 3. Run the tests.
 
-```shell
-vendor/bin/phpunit --testsuite=Pgsql
-```
+    ```shell
+    vendor/bin/phpunit --testsuite=Pgsql
+    ```
 
 Suites available:
 

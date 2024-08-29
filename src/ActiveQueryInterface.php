@@ -16,7 +16,7 @@ use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 
 /**
- * Defines the common interface to be implemented by active record query classes.
+ * A common interface to be implemented by active record query classes.
  *
  * That are methods for all normal queries that return active records but also relational queries in which the query
  * represents a relation between two active record classes and will return related records only.
@@ -107,7 +107,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @return array|string|null the join condition to be used when this query is used in a relational context.
      *
      * The condition will be used in the ON part when {@see joinWith()} is called. Otherwise, the condition will be used
-     * in the WHERE part of a query.
+     * in the `WHERE` part of a query.
      *
      * Please refer to {@see Query::where()} on how to specify this parameter.
      *
@@ -125,16 +125,16 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Joins with the specified relations.
      *
-     * This method allows you to reuse existing relation definitions to perform JOIN queries. Based on the definition of
-     * the specified relation(s), the method will append one or many JOIN statements to the current query.
+     * This method allows you to reuse existing relation definitions to perform `JOIN` queries. Based on the definition of
+     * the specified relation(s), the method will append one or many `JOIN` statements to the current query.
      *
      * If the `$eagerLoading` parameter is true, the method will also perform eager loading for the specified relations,
      * which is equal to calling {@see with()} using the specified relations.
      *
-     * Note: That because a JOIN query will be performed, you're responsible for disambiguated column names.
+     * Note: That because a `JOIN` query will be performed, you're responsible for disambiguated column names.
      *
-     * This method differs from {@see with()} in that it will build up and execute a JOIN SQL statement for the primary
-     * table. And when `$eagerLoading` is true, it will call {@see with()} in addition with the specified relations.
+     * This method differs from {@see with()} in that it will build up and execute a `JOIN` SQL statement for the primary
+     * table. And when `$eagerLoading` is true, it will call {@see with()} also with the specified relations.
      *
      * @param array|string $with The relations to be joined. This can either be a string, representing a relation name
      * or an array with the following semantics:
@@ -144,18 +144,18 @@ interface ActiveQueryInterface extends QueryInterface
      *   relation queries on-the-fly as the array value.
      * - If a relation query doesn't need modification, you may use the relation name as the array value.
      *
-     * The relation name may optionally contain an alias for the relation table (e.g. `books b`).
+     * The relation name may optionally contain an alias for the relation table (for example, `books b`).
      *
      * Sub-relations can also be specified, see {@see with()} for the syntax.
      *
-     * In the following you find some examples:
+     * In the following, you find some examples:
      *
      * ```php
      * // Find all orders that contain books, and eager loading "books".
      * $orderQuery = new ActiveQuery(Order::class);
      * $orderQuery->joinWith('books', true, 'INNER JOIN')->all();
      *
-     * // find all orders, eager loading "books", and sort the orders and books by the book names.
+     * // Find all orders, eagerly load "books", and sort the orders and books by the book names.
      * $orderQuery = new ActiveQuery(Order::class, $db);
      * $orderQuery->joinWith([
      *     'books' => function (ActiveQuery $query) {
@@ -170,7 +170,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @param array|bool $eagerLoading Whether to eager load the relations specified in `$with`. When this is boolean.
      * It applies to all relations specified in `$with`. Use an array to explicitly list which relations in `$with` a
      * need to be eagerly loaded.
-     * Note: That this doesn't mean that the relations are populated from the query result. An
+     * Note: This doesn't mean that the relations are populated from the query result. An
      * extra query will still be performed to bring in the related data. Defaults to `true`.
      * @param array|string $joinType The join type of the relations specified in `$with`.  When this is a string, it
      * applies to all relations specified in `$with`. Use an array in the format of `relationName => joinType` to
@@ -205,7 +205,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * The condition will be used in the ON part when {@see joinWith()} is called.
      *
-     * Otherwise, the condition will be used in the WHERE part of a query.
+     * Otherwise, the condition will be used in the `WHERE` part of a query.
      *
      * Use this method to specify more conditions when declaring a relation in the {@see ActiveRecord} class:
      *
@@ -229,9 +229,9 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Adds ON condition to the existing one.
      *
-     * The new condition and the existing one will be joined using the 'AND' operator.
+     * The new condition and the existing one will be joined using the `AND` operator.
      *
-     * @param array|string $condition The new ON condition.
+     * @param array|string $condition The new `ON` condition.
      * Please refer to {@see where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
@@ -243,9 +243,9 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Adds ON condition to the existing one.
      *
-     * The new condition and the existing one will be joined using the 'OR' operator.
+     * The new condition and the existing one will be joined using the `OR` operator.
      *
-     * @param array|string $condition The new ON condition.
+     * @param array|string $condition The new `ON` condition.
      * Please refer to {@see where()} on how to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      *
@@ -295,7 +295,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Returns table names used in {@see from} indexed by aliases.
      *
-     * Both aliases and names are enclosed into {{ and }}.
+     * Both aliases and names are enclosed into `{{` and `}}`.
      *
      * @throws CircularReferenceException
      * @throws InvalidArgumentException
@@ -439,7 +439,7 @@ interface ActiveQueryInterface extends QueryInterface
      * $query = $aqClass->findOne(['id' => $id);
      * ```
      *
-     * Do NOT use the following code!, it's possible to inject an array condition to filter by arbitrary column values!:
+     * Do NOT use the following code!, it is possible to inject an array condition to filter by arbitrary column values!:
      *
      * ```php
      * $aqClass = new ActiveQuery(Post::class, $db);
@@ -460,7 +460,7 @@ interface ActiveQueryInterface extends QueryInterface
      *  - A scalar value (integer or string): query by a single primary key value and return an array containing the
      *    corresponding record (or an empty array if not found).
      *  - A non-associative array: query by a list of primary key values and return the corresponding records (or an
-     *    empty array if none was found).
+     *    empty array if none found).
      *    Note that an empty condition will result in an empty result as it will be interpreted as a search for
      *    primary keys and not an empty `WHERE` condition.
      *  - An associative array of name-value pairs: query by a set of attribute values and return an array of records
@@ -579,7 +579,7 @@ interface ActiveQueryInterface extends QueryInterface
      * The array keys must be columns of the table for this relation, and the array values must be the corresponding
      * columns from the primary table.
      *
-     * Do not prefix or quote the column names as this will be done automatically by Yii. This property is only used in
+     * Don't prefix or quote the column names. Yii does that automatically. This property is only used in
      * relational context.
      *
      * @psalm-return string[]
