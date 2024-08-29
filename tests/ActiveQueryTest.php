@@ -2045,9 +2045,7 @@ abstract class ActiveQueryTest extends TestCase
         $document->delete();
     }
 
-    /**
-     * {@see https://github.com/yiisoft/yii2/issues/9006}
-     */
+    /** @link https://github.com/yiisoft/yii2/issues/9006 */
     public function testBit(): void
     {
         $this->checkFixture($this->db(), 'bit_values');
