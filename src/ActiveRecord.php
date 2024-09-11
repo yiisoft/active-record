@@ -267,7 +267,7 @@ class ActiveRecord extends AbstractActiveRecord
         return true;
     }
 
-    protected function assignProperty(string $name, mixed $value): void
+    protected function populateProperty(string $name, mixed $value): void
     {
         $this->$name = $value;
     }

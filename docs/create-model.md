@@ -152,7 +152,7 @@ Notes:
 
 ### Private properties
 
-To use `private` properties inside the model class, you need to copy `valuesInternal()` and `assignProperty()` 
+To use `private` properties inside the model class, you need to copy `valuesInternal()` and `populateProperty()` 
 methods from the `ActiveRecord` class and adjust them to work with the `private` properties.
 
 ```php
@@ -176,13 +176,13 @@ final class User extends ActiveRecord
     // Getters and setters as for protected properties
     // ...
 
-    // Copied `valuesInternal()` and `assignProperty()` methods from `ActiveRecord` class
+    // Copied `valuesInternal()` and `populateProperty()` methods from `ActiveRecord` class
     protected function valuesInternal(): array
     {
         return get_object_vars($this);
     }
     
-    protected function assignProperty(string $name, mixed $value): void
+    protected function populateProperty(string $name, mixed $value): void
     {
         $this->$name = $value;
     }

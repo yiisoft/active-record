@@ -78,7 +78,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @param string $name The property name.
      * @param mixed $value The property value.
      */
-    abstract protected function assignProperty(string $name, mixed $value): void;
+    abstract protected function populateProperty(string $name, mixed $value): void;
 
     public function delete(): int
     {
@@ -255,7 +255,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * ```
      *
      * Note that the `customer_id` key in the `$link` parameter refers to a property name in the related
-     * class `Order`, while the 'id' value refers to an property name in the current active record class.
+     * class `Order`, while the 'id' value refers to a property name in the current active record class.
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
@@ -484,7 +484,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Marks an property dirty.
+     * Marks a property dirty.
      *
      * This method may be called to force updating a record when calling {@see update()}, even if there is no change
      * being made to the record.
@@ -539,7 +539,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         foreach ($row as $name => $value) {
-            $this->assignProperty($name, $value);
+            $this->populateProperty($name, $value);
             $this->oldValues[$name] = $value;
         }
 
@@ -622,7 +622,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $this->resetDependentRelations($name);
         }
 
-        $this->assignProperty($name, $value);
+        $this->populateProperty($name, $value);
     }
 
     /**
@@ -638,7 +638,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         /** @psalm-var mixed $value */
         foreach ($values as $name => $value) {
-            $this->assignProperty($name, $value);
+            $this->populateProperty($name, $value);
         }
     }
 
@@ -799,7 +799,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         foreach ($counters as $name => $value) {
             $value += $this->get($name) ?? 0;
-            $this->assignProperty($name, $value);
+            $this->populateProperty($name, $value);
             $this->oldValues[$name] = $value;
         }
 
@@ -1116,7 +1116,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         foreach ($this->properties() as $name) {
-            $this->assignProperty($name, $record->get($name));
+            $this->populateProperty($name, $record->get($name));
         }
 
         $this->oldValues = $record->oldValues();
@@ -1160,7 +1160,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 throw new StaleObjectException('The object being updated is outdated.');
             }
 
-            $this->assignProperty($lock, $lockValue);
+            $this->populateProperty($lock, $lockValue);
         } else {
             $rows = $this->updateAll($values, $condition);
         }

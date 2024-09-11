@@ -212,7 +212,7 @@ trait MagicPropertiesTrait
         return array_merge($this->properties, parent::valuesInternal());
     }
 
-    protected function assignProperty(string $name, mixed $value): void
+    protected function populateProperty(string $name, mixed $value): void
     {
         if ($name !== 'properties' && property_exists($this, $name)) {
             $this->$name = $value;
