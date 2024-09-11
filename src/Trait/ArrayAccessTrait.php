@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Trait;
 use InvalidArgumentException;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
-use function get_object_vars;
 use function is_array;
 use function property_exists;
 
