@@ -138,8 +138,9 @@ interface ActiveRecordInterface
      * properties listed in {@see properties()} will be returned.
      * @param array $except List of property names whose value shouldn't be returned.
      *
-     *@throws Exception
+     * @throws Exception
      * @throws InvalidConfigException
+     *
      * @return array Property values (name => value).
      */
     public function values(array|null $names = null, array $except = []): array;
