@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
 /**
  * Active Record class which implements {@see ActiveRecordInterface} and provides additional features like:
  *
- * @see MagicPropertiesTrait to access attributes as properties;
+ * @see MagicPropertiesTrait to access column values and relations via PHP magic methods as properties;
  * @see MagicRelationsTrait to access relation queries.
  */
 class MagicActiveRecord extends ActiveRecord

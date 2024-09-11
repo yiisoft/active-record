@@ -44,7 +44,7 @@ final class Category extends ActiveRecord
 
     public function setId(int|null $id): void
     {
-        $this->setAttribute('id', $id);
+        $this->set('id', $id);
     }
 
     public function getLimitedItems(): array

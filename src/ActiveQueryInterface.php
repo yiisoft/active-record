@@ -378,7 +378,7 @@ interface ActiveQueryInterface extends QueryInterface
      *    (or `null` if not found).
      *  - A non-associative array: query by a list of primary key values and return the first record (or `null` if not
      *    found).
-     *  - An associative array of name-value pairs: query by a set of attribute values and return a single record
+     *  - An associative array of name-value pairs: query by a set of property values and return a single record
      *    matching all them (or `null` if not found).
      *
      * Note that `['id' => 1, 2]` is treated as a non-associative array.
@@ -395,27 +395,27 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * ```php
      * // find a single customer whose primary key value is 10
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $query = $customerQuery->findOne(10);
      *
      * // the above code is equal to:
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $query = $customerQuery->where(['id' => 10])->one();
      *
      * // find the customers whose primary key value is 10, 11 or 12.
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $query = $customerQuery->findOne([10, 11, 12]);
      *
      * // the above code is equal to:
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $query = $customerQuery->where(['id' => [10, 11, 12]])->one();
      *
      * // find the first customer whose age is 30 and whose status is 1
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $query = $customerQuery->findOne(['age' => 30, 'status' => 1]);
      *
      * // the above code is equal to:
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $query = $customerQuery->where(['age' => 30, 'status' => 1])->one();
      * ```
      *
@@ -427,7 +427,7 @@ interface ActiveQueryInterface extends QueryInterface
      * {
      *     $id = (string) $request->getAttribute('id');
      *
-     *     $aqClass = new ActiveQuery(Post::class, $db);
+     *     $aqClass = new ActiveQuery(Post::class);
      *     $query = $aqClass->findOne($id);
      * }
      *
@@ -435,14 +435,14 @@ interface ActiveQueryInterface extends QueryInterface
      * single record:
      *
      * ```php
-     * $aqClass = new ActiveQuery(Post::class, $db);
+     * $aqClass = new ActiveQuery(Post::class);
      * $query = $aqClass->findOne(['id' => $id);
      * ```
      *
      * Do NOT use the following code!, it is possible to inject an array condition to filter by arbitrary column values!:
      *
      * ```php
-     * $aqClass = new ActiveQuery(Post::class, $db);
+     * $aqClass = new ActiveQuery(Post::class);
      * $query = $aqClass->findOne($id);
      * ```
      *
@@ -463,7 +463,7 @@ interface ActiveQueryInterface extends QueryInterface
      *    empty array if none found).
      *    Note that an empty condition will result in an empty result as it will be interpreted as a search for
      *    primary keys and not an empty `WHERE` condition.
-     *  - An associative array of name-value pairs: query by a set of attribute values and return an array of records
+     *  - An associative array of name-value pairs: query by a set of property values and return an array of records
      *    matching all them (or an empty array if none was found).
      *
      * Note that `['id' => 1, 2]` is treated as a non-associative array.
@@ -481,27 +481,27 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * ```php
      * // find the customers whose primary key value is 10.
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->findAll(10);
      *
      * // the above code is equal to.
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->where(['id' => 10])->all();
      *
      * // find the customers whose primary key value is 10, 11 or 12.
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->findAll([10, 11, 12]);
      *
      * // the above code is equal to,
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->where(['id' => [10, 11, 12]])->all();
      *
      * // find customers whose age is 30 and whose status is 1.
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->findAll(['age' => 30, 'status' => 1]);
      *
      * // the above code is equal to.
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
+     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->where(['age' => 30, 'status' => 1])->all();
      * ```
      *
@@ -513,7 +513,7 @@ interface ActiveQueryInterface extends QueryInterface
      * {
      *     $id = (string) $request->getAttribute('id');
      *
-     *     $aqClass = new ActiveQuery(Post::class, $db);
+     *     $aqClass = new ActiveQuery(Post::class);
      *     $query = $aqClass->findOne($id);
      * }
      * ```
@@ -522,14 +522,14 @@ interface ActiveQueryInterface extends QueryInterface
      * record:
      *
      * ```php
-     * $aqClass = new ActiveQuery(Post::class, $db);
+     * $aqClass = new ActiveQuery(Post::class);
      * $aqCLass = $aqClass->findOne(['id' => $id]);
      * ```
      *
      * Do NOT use the following code! It's possible to inject an array condition to filter by arbitrary column values!:
      *
      * ```php
-     * $aqClass = new ActiveQuery(Post::class, $db);
+     * $aqClass = new ActiveQuery(Post::class);
      * $aqClass = $aqClass->findOne($id);
      * ```
      *

@@ -316,7 +316,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
             if (count($pks) === 1) {
                 $key = array_key_first($pks);
-                $hash = array_map(static fn ($model): string => (string) $model->getAttribute($key), $models);
+                $hash = array_map(static fn ($model): string => (string) $model->get($key), $models);
             } else {
                 $hash = array_map(static fn ($model): string => serialize($model->getPrimaryKey(true)), $models);
             }

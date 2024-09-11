@@ -372,7 +372,7 @@ abstract class ActiveQueryTest extends TestCase
                 ->where(['name' => 'user3'])->one();
         }
 
-        $this->assertEquals(3, $customers->getAttribute('id'));
+        $this->assertEquals(3, $customers->get('id'));
         $this->assertEquals(4, $customers->status2);
     }
 
@@ -420,8 +420,8 @@ abstract class ActiveQueryTest extends TestCase
         $items = $customers->getOrderItems();
 
         $this->assertCount(2, $items);
-        $this->assertEquals(1, $items[0]->getAttribute('id'));
-        $this->assertEquals(2, $items[1]->getAttribute('id'));
+        $this->assertEquals(1, $items[0]->get('id'));
+        $this->assertEquals(2, $items[1]->get('id'));
         $this->assertInstanceOf(Item::class, $items[0]);
         $this->assertInstanceOf(Item::class, $items[1]);
     }
@@ -446,7 +446,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Order::class, $orders[0]);
         $this->assertInstanceOf(Order::class, $orders[1]);
 
-        $ids = [$orders[0]->getId(), $orders[1]->getAttribute('id')];
+        $ids = [$orders[0]->getId(), $orders[1]->get('id')];
         sort($ids);
         $this->assertEquals([1, 3], $ids);
 
@@ -455,7 +455,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $orders = $categories->getOrders();
         $this->assertCount(1, $orders);
-        $this->assertEquals(2, $orders[0]->getAttribute('id'));
+        $this->assertEquals(2, $orders[0]->get('id'));
         $this->assertInstanceOf(Order::class, $orders[0]);
     }
 
@@ -1899,9 +1899,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orderItems->getOrder()->getId());
         $this->assertEquals(1, $orderItems->getItem()->getId());
 
-        /** Test `setAttribute()`. */
-        $orderItems->setAttribute('order_id', 3);
-        $orderItems->setAttribute('item_id', 1);
+        /** Test `set()`. */
+        $orderItems->set('order_id', 3);
+        $orderItems->set('item_id', 1);
         $this->assertEquals(3, $orderItems->getOrder()->getId());
         $this->assertEquals(1, $orderItems->getItem()->getId());
     }
@@ -2059,14 +2059,14 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($trueBit->val);
     }
 
-    public function testUpdateAttributes(): void
+    public function testUpdateProperties(): void
     {
         $this->checkFixture($this->db(), 'order');
 
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findOne(1);
         $newTotal = 978;
-        $this->assertSame(1, $order->updateAttributes(['total' => $newTotal]));
+        $this->assertSame(1, $order->updateProperties(['total' => $newTotal]));
         $this->assertEquals($newTotal, $order->getTotal());
 
         $order = $orderQuery->findOne(1);
@@ -2077,7 +2077,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($newOrder->getIsNewRecord());
 
         $newTotal = 200;
-        $this->assertSame(0, $newOrder->updateAttributes(['total' => $newTotal]));
+        $this->assertSame(0, $newOrder->updateProperties(['total' => $newTotal]));
         $this->assertTrue($newOrder->getIsNewRecord());
         $this->assertEquals($newTotal, $newOrder->getTotal());
     }
@@ -2113,156 +2113,152 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Order::class, $orderItem->getCustom());
     }
 
-    public function testGetAttributes(): void
+    public function testPropertyValues(): void
     {
-        $attributesExpected = [];
+        $expectedValues = [];
         $this->checkFixture($this->db(), 'customer');
 
-        $attributesExpected['id'] = 1;
-        $attributesExpected['email'] = 'user1@example.com';
-        $attributesExpected['name'] = 'user1';
-        $attributesExpected['address'] = 'address1';
-        $attributesExpected['status'] = 1;
-        $attributesExpected['bool_status'] = true;
-        $attributesExpected['profile_id'] = 1;
+        $expectedValues['id'] = 1;
+        $expectedValues['email'] = 'user1@example.com';
+        $expectedValues['name'] = 'user1';
+        $expectedValues['address'] = 'address1';
+        $expectedValues['status'] = 1;
+        $expectedValues['bool_status'] = true;
+        $expectedValues['profile_id'] = 1;
 
         $customer = new ActiveQuery(Customer::class);
 
-        $attributes = $customer->findOne(1)->getAttributes();
+        $values = $customer->findOne(1)->values();
 
-        $this->assertEquals($attributes, $attributesExpected);
+        $this->assertEquals($expectedValues, $values);
     }
 
-    public function testGetAttributesOnly(): void
+    public function testPropertyValuesOnly(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new ActiveQuery(Customer::class);
 
-        $attributes = $customer->findOne(1)->getAttributes(['id', 'email', 'name']);
+        $values = $customer->findOne(1)->values(['id', 'email', 'name']);
 
-        $this->assertEquals(['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1'], $attributes);
+        $this->assertEquals(['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1'], $values);
     }
 
-    public function testGetAttributesExcept(): void
+    public function testPropertyValuesExcept(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new ActiveQuery(Customer::class);
 
-        $attributes = $customer->findOne(1)->getAttributes(null, ['status', 'bool_status', 'profile_id']);
+        $values = $customer->findOne(1)->values(null, ['status', 'bool_status', 'profile_id']);
 
         $this->assertEquals(
-            $attributes,
-            ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1']
+            ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1'],
+            $values
         );
     }
 
-    public function testGetOldAttribute(): void
+    public function testGetOldValue(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findOne(1);
-        $this->assertEquals('user1', $query->getOldAttribute('name'));
-        $this->assertEquals($query->getAttributes(), $query->getOldAttributes());
+        $this->assertEquals('user1', $query->oldValue('name'));
+        $this->assertEquals($query->values(), $query->oldValues());
 
-        $query->setAttribute('name', 'samdark');
-        $this->assertEquals('samdark', $query->getAttribute('name'));
-        $this->assertEquals('user1', $query->getOldAttribute('name'));
-        $this->assertNotEquals($query->getAttribute('name'), $query->getOldAttribute('name'));
+        $query->set('name', 'samdark');
+        $this->assertEquals('samdark', $query->get('name'));
+        $this->assertEquals('user1', $query->oldValue('name'));
+        $this->assertNotEquals($query->get('name'), $query->oldValue('name'));
     }
 
-    public function testGetOldAttributes(): void
+    public function testGetOldValues(): void
     {
-        $attributes = [];
-        $attributesNew = [];
         $this->checkFixture($this->db(), 'customer');
 
-        $attributes['id'] = 1;
-        $attributes['email'] = 'user1@example.com';
-        $attributes['name'] = 'user1';
-        $attributes['address'] = 'address1';
-        $attributes['status'] = 1;
-        $attributes['bool_status'] = true;
-        $attributes['profile_id'] = 1;
+        $expectedValues = [
+            'id' => 1,
+            'email' => 'user1@example.com',
+            'name' => 'user1',
+            'address' => 'address1',
+            'status' => 1,
+            'bool_status' => true,
+            'profile_id' => 1,
+        ];
 
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findOne(1);
-        $this->assertEquals($query->getAttributes(), $attributes);
-        $this->assertEquals($query->getAttributes(), $query->getOldAttributes());
+        $this->assertEquals($expectedValues, $query->values());
+        $this->assertEquals($query->values(), $query->oldValues());
 
-        $query->setAttribute('name', 'samdark');
-        $attributesNew['id'] = 1;
-        $attributesNew['email'] = 'user1@example.com';
-        $attributesNew['name'] = 'samdark';
-        $attributesNew['address'] = 'address1';
-        $attributesNew['status'] = 1;
-        $attributesNew['bool_status'] = true;
-        $attributesNew['profile_id'] = 1;
+        $query->set('name', 'samdark');
 
-        $this->assertEquals($attributesNew, $query->getAttributes());
-        $this->assertEquals($attributes, $query->getOldAttributes());
-        $this->assertNotEquals($query->getAttributes(), $query->getOldAttributes());
+        $expectedNewValues = $expectedValues;
+        $expectedNewValues['name'] = 'samdark';
+
+        $this->assertEquals($expectedNewValues, $query->values());
+        $this->assertEquals($expectedValues, $query->oldValues());
+        $this->assertNotEquals($query->values(), $query->oldValues());
     }
 
-    public function testIsAttributeChanged(): void
+    public function testIsPropertyChanged(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findOne(1);
-        $this->assertEquals('user1', $query->getAttribute('name'));
-        $this->assertEquals('user1', $query->getOldAttribute('name'));
+        $this->assertEquals('user1', $query->get('name'));
+        $this->assertEquals('user1', $query->oldValue('name'));
 
-        $query->setAttribute('name', 'samdark');
-        $this->assertEquals('samdark', $query->getAttribute('name'));
-        $this->assertEquals('user1', $query->getOldAttribute('name'));
-        $this->assertNotEquals($query->getAttribute('name'), $query->getOldAttribute('name'));
-        $this->assertTrue($query->isAttributeChanged('name', true));
+        $query->set('name', 'samdark');
+        $this->assertEquals('samdark', $query->get('name'));
+        $this->assertEquals('user1', $query->oldValue('name'));
+        $this->assertNotEquals($query->get('name'), $query->oldValue('name'));
+        $this->assertTrue($query->isPropertyChanged('name', true));
     }
 
-    public function testIsAttributeChangedNotIdentical(): void
+    public function testIsPropertyChangedNotIdentical(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findOne(1);
-        $this->assertEquals('user1', $query->getAttribute('name'));
-        $this->assertEquals('user1', $query->getOldAttribute('name'));
+        $this->assertEquals('user1', $query->get('name'));
+        $this->assertEquals('user1', $query->oldValue('name'));
 
-        $query->setAttribute('name', 'samdark');
-        $this->assertEquals('samdark', $query->getAttribute('name'));
-        $this->assertEquals('user1', $query->getOldAttribute('name'));
-        $this->assertNotEquals($query->getAttribute('name'), $query->getOldAttribute('name'));
-        $this->assertTrue($query->isAttributeChanged('name', false));
+        $query->set('name', 'samdark');
+        $this->assertEquals('samdark', $query->get('name'));
+        $this->assertEquals('user1', $query->oldValue('name'));
+        $this->assertNotEquals($query->get('name'), $query->oldValue('name'));
+        $this->assertTrue($query->isPropertyChanged('name', false));
     }
 
-    public function testOldAttributeAfterInsertAndUpdate(): void
+    public function testOldPropertyAfterInsertAndUpdate(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new Customer();
 
-        $customer->setAttributes([
+        $customer->assignProperties([
             'email' => 'info@example.com',
             'name' => 'Jack',
             'address' => '123 Ocean Dr',
             'status' => 1,
         ]);
 
-        $this->assertNull($customer->getOldAttribute('name'));
+        $this->assertNull($customer->oldValue('name'));
         $this->assertTrue($customer->save());
-        $this->assertSame('Jack', $customer->getOldAttribute('name'));
+        $this->assertSame('Jack', $customer->oldValue('name'));
 
-        $customer->setAttribute('name', 'Harry');
+        $customer->set('name', 'Harry');
 
         $this->assertTrue($customer->save());
-        $this->assertSame('Harry', $customer->getOldAttribute('name'));
+        $this->assertSame('Harry', $customer->oldValue('name'));
     }
 
     public function testCheckRelationUnknownPropertyException(): void
@@ -2467,35 +2463,35 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(2);
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->getAttribute('name'));
+        $this->assertEquals('user2', $customer->get('name'));
         $this->assertFalse($customer->getIsNewRecord());
-        $this->assertEmpty($customer->getDirtyAttributes());
+        $this->assertEmpty($customer->dirtyValues());
 
-        $customer->setAttribute('name', 'user2x');
+        $customer->set('name', 'user2x');
         $customer->save();
-        $this->assertEquals('user2x', $customer->getAttribute('name'));
+        $this->assertEquals('user2x', $customer->get('name'));
         $this->assertFalse($customer->getIsNewRecord());
 
         $customer2 = $customerQuery->findOne(2);
-        $this->assertEquals('user2x', $customer2->getAttribute('name'));
+        $this->assertEquals('user2x', $customer2->get('name'));
 
         /** no update */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $customer->setAttribute('name', 'user1');
+        $customer->set('name', 'user1');
         $this->assertEquals(0, $customer->update());
 
         /** updateAll */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(3);
-        $this->assertEquals('user3', $customer->getAttribute('name'));
+        $this->assertEquals('user3', $customer->get('name'));
 
         $ret = $customer->updateAll(['name' => 'temp'], ['id' => 3]);
         $this->assertEquals(1, $ret);
 
         $customer = $customerQuery->findOne(3);
-        $this->assertEquals('temp', $customer->getAttribute('name'));
+        $this->assertEquals('temp', $customer->get('name'));
 
         $ret = $customer->updateAll(['name' => 'tempX']);
         $this->assertEquals(3, $ret);

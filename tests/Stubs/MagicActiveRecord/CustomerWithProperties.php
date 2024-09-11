@@ -44,7 +44,7 @@ class CustomerWithProperties extends MagicActiveRecord
 
     public function getStatus(): int|null
     {
-        return $this->getAttribute('status');
+        return $this->get('status');
     }
 
     public function getProfileQuery(): ActiveQuery
@@ -74,6 +74,6 @@ class CustomerWithProperties extends MagicActiveRecord
 
     public function setStatus(int|null $status): void
     {
-        $this->setAttribute('status', $status);
+        $this->set('status', $status);
     }
 }

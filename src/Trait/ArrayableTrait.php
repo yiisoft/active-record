@@ -14,8 +14,8 @@ use function array_keys;
 /**
  * Trait to implement {@see \Yiisoft\Arrays\ArrayableInterface} interface for ActiveRecord.
  *
- * @method string[] attributes()
- * @see ActiveRecordInterface::attributes()
+ * @method string[] properties()
+ * @see ActiveRecordInterface::properties()
  *
  * @method array getRelatedRecords()
  * @see AbstractActiveRecord::getRelatedRecords()
@@ -40,7 +40,7 @@ trait ArrayableTrait
      */
     public function fields(): array
     {
-        $fields = $this->attributes();
+        $fields = $this->properties();
 
         return array_combine($fields, $fields);
     }

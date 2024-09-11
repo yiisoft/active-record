@@ -14,14 +14,14 @@ use function property_exists;
 /**
  * Trait to implement {@see ArrayAccess} interface for ActiveRecord.
  *
- * @method mixed getAttribute(string $name)
- * @see ActiveRecordInterface::getAttribute()
+ * @method mixed get(string $name)
+ * @see ActiveRecordInterface::get()
  *
- * @method bool hasAttribute(string $name)
- * @see ActiveRecordInterface::hasAttribute()
+ * @method bool hasProperty(string $name)
+ * @see ActiveRecordInterface::hasProperty()
  *
- * @method void setAttribute(string $name, mixed $value)
- * @see ActiveRecordInterface::getAttribute()
+ * @method void set(string $name, mixed $value)
+ * @see ActiveRecordInterface::set()
  *
  * @method ActiveRecordInterface|array|null relation(string $name)
  * @see ActiveRecordInterface::relation()
@@ -50,12 +50,12 @@ trait ArrayAccessTrait
      */
     public function offsetExists(mixed $offset): bool
     {
-        if ($this->hasAttribute($offset)) {
-            return $this->getAttribute($offset) !== null;
+        if ($this->hasProperty($offset)) {
+            return $this->get($offset) !== null;
         }
 
         if (property_exists($this, $offset)) {
-            return isset(get_object_vars($this)[$offset]);
+            return isset($this->$offset);
         }
 
         if ($this->isRelationPopulated($offset)) {
@@ -70,12 +70,12 @@ trait ArrayAccessTrait
      */
     public function offsetGet(mixed $offset): mixed
     {
-        if ($this->hasAttribute($offset)) {
-            return $this->getAttribute($offset);
+        if ($this->hasProperty($offset)) {
+            return $this->get($offset);
         }
 
         if (property_exists($this, $offset)) {
-            return get_object_vars($this)[$offset] ?? null;
+            return $this->$offset ?? null;
         }
 
         return $this->relation($offset);
@@ -92,8 +92,8 @@ trait ArrayAccessTrait
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        if ($this->hasAttribute($offset)) {
-            $this->setAttribute($offset, $value);
+        if ($this->hasProperty($offset)) {
+            $this->set($offset, $value);
             return;
         }
 
@@ -121,13 +121,8 @@ trait ArrayAccessTrait
      */
     public function offsetUnset(mixed $offset): void
     {
-        if ($this->hasAttribute($offset)) {
-            $this->setAttribute($offset, null);
-            return;
-        }
-
-        if (property_exists($this, $offset)) {
-            $this->$offset = null;
+        if ($this->hasProperty($offset) || property_exists($this, $offset)) {
+            unset($this->$offset);
             return;
         }
 

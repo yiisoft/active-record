@@ -90,7 +90,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      *
      * Make sure this does not affect AR layer.
      */
-    public function testBooleanAttribute(): void
+    public function testBooleanProperty(): void
     {
         $this->checkFixture($this->db(), 'customer', true);
 

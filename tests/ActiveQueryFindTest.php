@@ -80,7 +80,7 @@ abstract class ActiveQueryFindTest extends TestCase
         /** find one() */
         $customers = $customerQuery->findBySql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC')->one();
         $this->assertInstanceOf(Customer::class, $customers);
-        $this->assertEquals('user3', $customers->getAttribute('name'));
+        $this->assertEquals('user3', $customers->get('name'));
 
         /** find all() */
         $customers = $customerQuery->findBySql('SELECT * FROM {{customer}}')->all();
@@ -91,7 +91,7 @@ abstract class ActiveQueryFindTest extends TestCase
             ->findBySql('SELECT * FROM {{customer}} WHERE [[id]]=:id', [':id' => 2])
             ->one();
         $this->assertInstanceOf(Customer::class, $customers);
-        $this->assertEquals('user2', $customers->getAttribute('name'));
+        $this->assertEquals('user2', $customers->get('name'));
     }
 
     public function testFindLazyViaTable(): void
@@ -102,7 +102,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $orders = $orderQuery->findOne(2);
         $this->assertCount(0, $orders->getBooks());
-        $this->assertEquals(2, $orders->getAttribute('id'));
+        $this->assertEquals(2, $orders->get('id'));
 
         $orders = $orderQuery->where(['id' => 1])->asArray()->one();
         $this->assertIsArray($orders);
@@ -118,18 +118,18 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $order = $orders[0];
         $this->assertCount(2, $order->getBooks());
-        $this->assertEquals(1, $order->getAttribute('id'));
-        $this->assertEquals(1, $order->getBooks()[0]->getAttribute('id'));
-        $this->assertEquals(2, $order->getBooks()[1]->getAttribute('id'));
+        $this->assertEquals(1, $order->get('id'));
+        $this->assertEquals(1, $order->getBooks()[0]->get('id'));
+        $this->assertEquals(2, $order->getBooks()[1]->get('id'));
 
         $order = $orders[1];
         $this->assertCount(0, $order->getBooks());
-        $this->assertEquals(2, $order->getAttribute('id'));
+        $this->assertEquals(2, $order->get('id'));
 
         $order = $orders[2];
         $this->assertCount(1, $order->getBooks());
-        $this->assertEquals(3, $order->getAttribute('id'));
-        $this->assertEquals(2, $order->getBooks()[0]->getAttribute('id'));
+        $this->assertEquals(3, $order->get('id'));
+        $this->assertEquals(2, $order->getBooks()[0]->get('id'));
 
         /** https://github.com/yiisoft/yii2/issues/1402 */
         $orderQuery = new ActiveQuery(Order::class);
@@ -252,7 +252,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer = $customerQuery->findOne(['name' => 'user5']);
         $this->assertNull($customer);
 
-        /** find by attributes */
+        /** find by column */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->where(['name' => 'user2'])->one();
         $this->assertInstanceOf(Customer::class, $customer);
