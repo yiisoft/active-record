@@ -632,7 +632,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * {@see properties()}
      */
-    public function assignProperties(array $values): void
+    public function populateProperties(array $values): void
     {
         $values = array_intersect_key($values, array_flip($this->properties()));
 

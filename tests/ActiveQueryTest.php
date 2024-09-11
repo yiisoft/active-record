@@ -2244,7 +2244,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new Customer();
 
-        $customer->assignProperties([
+        $customer->populateProperties([
             'email' => 'info@example.com',
             'name' => 'Jack',
             'address' => '123 Ocean Dr',

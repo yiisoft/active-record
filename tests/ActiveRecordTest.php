@@ -450,7 +450,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $customer->assignProperties($properties);
+        $customer->populateProperties($properties);
 
         $this->assertTrue($customer->save());
     }
