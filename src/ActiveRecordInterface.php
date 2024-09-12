@@ -11,7 +11,6 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
-use Yiisoft\Db\Constant\ColumnType;
 
 interface ActiveRecordInterface
 {
@@ -26,8 +25,6 @@ interface ActiveRecordInterface
 
     /**
      * Returns the abstract type of the property.
-     *
-     * @psalm-return ColumnType::*
      */
     public function columnType(string $propertyName): string;
 
