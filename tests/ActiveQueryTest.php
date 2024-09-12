@@ -2115,16 +2115,17 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPropertyValues(): void
     {
-        $expectedValues = [];
         $this->checkFixture($this->db(), 'customer');
 
-        $expectedValues['id'] = 1;
-        $expectedValues['email'] = 'user1@example.com';
-        $expectedValues['name'] = 'user1';
-        $expectedValues['address'] = 'address1';
-        $expectedValues['status'] = 1;
-        $expectedValues['bool_status'] = true;
-        $expectedValues['profile_id'] = 1;
+        $expectedValues = [
+            'id' => 1,
+            'email' => 'user1@example.com',
+            'name' => 'user1',
+            'address' => 'address1',
+            'status' => 1,
+            'bool_status' => true,
+            'profile_id' => 1,
+        ];
 
         $customer = new ActiveQuery(Customer::class);
 

@@ -630,7 +630,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @param array $values Property values (name => value) to be assigned to the model.
      *
-     * {@see propertyNames()}
+     * @see propertyNames()
      */
     public function populateProperties(array $values): void
     {

@@ -58,7 +58,7 @@ trait MagicPropertiesTrait
      * @throws Exception
      * @return mixed Property or relation value.
      *
-     * {@see get()}
+     * @see get()
      */
     public function __get(string $name)
     {
