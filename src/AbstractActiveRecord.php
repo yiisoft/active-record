@@ -102,9 +102,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->getTableName() === $record->getTableName() && $this->getPrimaryKey() === $record->getPrimaryKey();
     }
 
-    public function get(string $name): mixed
+    public function get(string $propertyName): mixed
     {
-        return $this->propertyValuesInternal()[$name] ?? null;
+        return $this->propertyValuesInternal()[$propertyName] ?? null;
     }
 
     public function propertyValues(array|null $names = null, array $except = []): array
@@ -128,15 +128,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * If this record is the result of a query and the property is not loaded, `null` will be returned.
      *
-     * @param string $name The property name.
+     * @param string $propertyName The property name.
      *
      * @return mixed The old property value. `null` if the property is not loaded before or doesn't exist.
      *
      * @see hasProperty()
      */
-    public function oldValue(string $name): mixed
+    public function oldValue(string $propertyName): mixed
     {
-        return $this->oldValues[$name] ?? null;
+        return $this->oldValues[$propertyName] ?? null;
     }
 
     /**
@@ -144,14 +144,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * The comparison of new and old values uses `===`.
      *
-     * @param array|null $names The names of the properties whose values may be returned if they're changed recently.
+     * @param array|null $propertyNames The names of the properties whose values may be returned if they're changed recently.
      * If null, {@see propertyNames()} will be used.
      *
      * @return array The changed property values (name-value pairs).
      */
-    public function dirtyValues(array|null $names = null): array
+    public function dirtyValues(array|null $propertyNames = null): array
     {
-        $values = $this->propertyValues($names);
+        $values = $this->propertyValues($propertyNames);
 
         if ($this->oldValues === null) {
             return $values;
@@ -362,11 +362,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return array_key_exists($name, $this->related);
     }
 
-    public function link(string $name, ActiveRecordInterface $arClass, array $extraColumns = []): void
+    public function link(string $relationName, ActiveRecordInterface $arClass, array $extraColumns = []): void
     {
         $viaClass = null;
         $viaTable = null;
-        $relation = $this->relationQuery($name);
+        $relation = $this->relationQuery($relationName);
         $via = $relation->getVia();
 
         if ($via !== null) {
@@ -464,8 +464,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         // Update lazily loaded related objects.
         if (!$relation->getMultiple()) {
-            $this->related[$name] = $arClass;
-        } elseif (isset($this->related[$name])) {
+            $this->related[$relationName] = $arClass;
+        } elseif (isset($this->related[$relationName])) {
             $indexBy = $relation->getIndexBy();
             if ($indexBy !== null) {
                 if ($indexBy instanceof Closure) {
@@ -475,10 +475,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 }
 
                 if ($index !== null) {
-                    $this->related[$name][$index] = $arClass;
+                    $this->related[$relationName][$index] = $arClass;
                 }
             } else {
-                $this->related[$name][] = $arClass;
+                $this->related[$relationName][] = $arClass;
             }
         }
     }
@@ -613,16 +613,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return true;
     }
 
-    public function set(string $name, mixed $value): void
+    public function set(string $propertyName, mixed $value): void
     {
         if (
-            isset($this->relationsDependencies[$name])
-            && ($value === null || $this->get($name) !== $value)
+            isset($this->relationsDependencies[$propertyName])
+            && ($value === null || $this->get($propertyName) !== $value)
         ) {
-            $this->resetDependentRelations($name);
+            $this->resetDependentRelations($propertyName);
         }
 
-        $this->populateProperty($name, $value);
+        $this->populateProperty($propertyName, $value);
     }
 
     /**
@@ -657,18 +657,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Sets the old value of the named property.
      *
-     * @param string $name The property name.
+     * @param string $propertyName The property name.
      *
      * @throws InvalidArgumentException If the named property doesn't exist.
      *
      * @see hasProperty()
      */
-    public function assignOldValue(string $name, mixed $value): void
+    public function assignOldValue(string $propertyName, mixed $value): void
     {
-        if (isset($this->oldValues[$name]) || $this->hasProperty($name)) {
-            $this->oldValues[$name] = $value;
+        if (isset($this->oldValues[$propertyName]) || $this->hasProperty($propertyName)) {
+            $this->oldValues[$propertyName] = $value;
         } else {
-            throw new InvalidArgumentException(static::class . ' has no property named "' . $name . '".');
+            throw new InvalidArgumentException(static::class . ' has no property named "' . $propertyName . '".');
         }
     }
 
@@ -677,11 +677,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * All existing old property values will be discarded.
      *
-     * @param array|null $values Old property values to be set. If set to `null` this record is {@see isNewRecord() new}.
+     * @param array|null $propertyValues Old property values (name => value) to be set. If set to `null` this record
+     * is {@see isNewRecord() new}.
      */
-    public function assignOldValues(array|null $values = null): void
+    public function assignOldValues(array|null $propertyValues = null): void
     {
-        $this->oldValues = $values;
+        $this->oldValues = $propertyValues;
     }
 
     public function update(array|null $propertyNames = null): int
@@ -806,11 +807,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return true;
     }
 
-    public function unlink(string $name, ActiveRecordInterface $arClass, bool $delete = false): void
+    public function unlink(string $relationName, ActiveRecordInterface $arClass, bool $delete = false): void
     {
         $viaClass = null;
         $viaTable = null;
-        $relation = $this->relationQuery($name);
+        $relation = $this->relationQuery($relationName);
         $viaRelation = $relation->getVia();
 
         if ($viaRelation !== null) {
@@ -894,13 +895,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         if (!$relation->getMultiple()) {
-            unset($this->related[$name]);
-        } elseif (isset($this->related[$name]) && is_array($this->related[$name])) {
+            unset($this->related[$relationName]);
+        } elseif (isset($this->related[$relationName]) && is_array($this->related[$relationName])) {
             /** @psalm-var array<array-key, ActiveRecordInterface> $related */
-            $related = $this->related[$name];
+            $related = $this->related[$relationName];
             foreach ($related as $a => $b) {
                 if ($arClass->getPrimaryKey() === $b->getPrimaryKey()) {
-                    unset($this->related[$name][$a]);
+                    unset($this->related[$relationName][$a]);
                 }
             }
         }
@@ -914,8 +915,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * To destroy the relationship without removing records, make sure your keys can be set to `null`.
      *
-     * @param string $name The case-sensitive name of the relationship, e.g., `orders` for a relation defined via
-     * `getOrders()` method.
+     * @param string $relationName The case-sensitive name of the relationship.
      * @param bool $delete Whether to delete the model that contains the foreign key.
      *
      * @throws Exception
@@ -923,11 +923,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @throws StaleObjectException
      * @throws Throwable
      */
-    public function unlinkAll(string $name, bool $delete = false): void
+    public function unlinkAll(string $relationName, bool $delete = false): void
     {
         $viaClass = null;
         $viaTable = null;
-        $relation = $this->relationQuery($name);
+        $relation = $this->relationQuery($relationName);
         $viaRelation = $relation->getVia();
 
         if ($viaRelation !== null) {
@@ -1010,7 +1010,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             }
         }
 
-        unset($this->related[$name]);
+        unset($this->related[$relationName]);
     }
 
     /**

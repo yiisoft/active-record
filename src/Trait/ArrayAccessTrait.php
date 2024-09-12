@@ -121,6 +121,7 @@ trait ArrayAccessTrait
     public function offsetUnset(mixed $offset): void
     {
         if ($this->hasProperty($offset) || property_exists($this, $offset)) {
+            $this->set($offset, null);
             unset($this->$offset);
             return;
         }

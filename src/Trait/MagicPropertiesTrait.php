@@ -26,13 +26,13 @@ use function ucfirst;
  * @method array getRelatedRecords()
  * @see AbstractActiveRecord::getRelatedRecords()
  *
- * @method bool hasDependentRelations(string $name)
+ * @method bool hasDependentRelations(string $propertyName)
  * @see AbstractActiveRecord::hasDependentRelations()
  *
  * @method bool isRelationPopulated(string $name)
  * @see ActiveRecordInterface::isRelationPopulated()
  *
- * @method void resetDependentRelations(string $name)
+ * @method void resetDependentRelations(string $propertyName)
  * @see AbstractActiveRecord::resetDependentRelations()
  *
  * @method void resetRelation(string $name)
@@ -156,12 +156,12 @@ trait MagicPropertiesTrait
         return isset($this->propertyValues[$name]) || in_array($name, $this->propertyNames(), true);
     }
 
-    public function set(string $name, mixed $value): void
+    public function set(string $propertyName, mixed $value): void
     {
-        if ($this->hasProperty($name)) {
-            parent::set($name, $value);
+        if ($this->hasProperty($propertyName)) {
+            parent::set($propertyName, $value);
         } else {
-            throw new InvalidArgumentException(static::class . ' has no property named "' . $name . '".');
+            throw new InvalidArgumentException(static::class . ' has no property named "' . $propertyName . '".');
         }
     }
 

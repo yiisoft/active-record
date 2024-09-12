@@ -120,13 +120,13 @@ interface ActiveRecordInterface
      *
      * If this record is the result of a query and the property isn't loaded, `null` will be returned.
      *
-     * @param string $name The property name.
+     * @param string $propertyName The property name.
      *
      * @return mixed The property value. `null` if the property isn't set or doesn't exist.
      *
      * @see hasProperty()
      */
-    public function get(string $name): mixed;
+    public function get(string $propertyName): mixed;
 
     /**
      * Returns property values.
@@ -255,8 +255,7 @@ interface ActiveRecordInterface
     /**
      * Check whether the named relation has been populated with records.
      *
-     * @param string $name The relation name, for example, `orders` for a relation defined via `getOrders()` method
-     * (case-sensitive).
+     * @param string $name The relation name, for example, `orders` (case-sensitive).
      *
      * @return bool Whether relation has been populated with records.
      *
@@ -277,22 +276,20 @@ interface ActiveRecordInterface
      *
      * This method requires that the primary key value isn't `null`.
      *
-     * @param string $name The case-sensitive name of the relationship, for example, `orders` for a relation defined via
-     * `getOrders()` method.
+     * @param string $relationName The relation name, for example, `orders` (case-sensitive).
      * @param self $arClass The record to be linked with the current one.
      * @param array $extraColumns More column values to be saved into the junction table. This parameter is only
      * meaningful for a relationship involving a junction table (that's a relation set with
      * {@see ActiveQueryInterface::via()}).
      */
-    public function link(string $name, self $arClass, array $extraColumns = []): void;
+    public function link(string $relationName, self $arClass, array $extraColumns = []): void;
 
     /**
      * Populates the named relation with the related records.
      *
      * Note that this method doesn't check if the relation exists or not.
      *
-     * @param string $name The relation name, for example, `orders` for a relation defined via `getOrders()` method
-     * (case-sensitive).
+     * @param string $name The relation name, for example, `orders` (case-sensitive).
      * @param array|self|null $records The related records to be populated into the relation.
      */
     public function populateRelation(string $name, array|self|null $records): void;
@@ -383,11 +380,11 @@ interface ActiveRecordInterface
     /**
      * Sets the named property value.
      *
-     * @param string $name The property name.
+     * @param string $propertyName The property name.
      *
      * @throws InvalidArgumentException If the named property doesn't exist.
      */
-    public function set(string $name, mixed $value): void;
+    public function set(string $propertyName, mixed $value): void;
 
     /**
      * Saves the changes to this active record into the associated database table.
@@ -490,14 +487,13 @@ interface ActiveRecordInterface
      *
      * Otherwise, the foreign key will be set `null` and the record will be saved without validation.
      *
-     * @param string $name The case-sensitive name of the relationship, for example, `orders` for a relation defined via
-     * `getOrders()` method.
+     * @param string $relationName The relation name, for example, `orders` (case-sensitive).
      * @param self $arClass The active record to be unlinked from the current one.
      * @param bool $delete Whether to delete the active record that contains the foreign key.
      * If false, the active record's foreign key will be set `null` and saved.
      * If true, the active record containing the foreign key will be deleted.
      */
-    public function unlink(string $name, self $arClass, bool $delete = false): void;
+    public function unlink(string $relationName, self $arClass, bool $delete = false): void;
 
     /**
      * Returns the old property values.
