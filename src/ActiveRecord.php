@@ -80,7 +80,7 @@ use function preg_replace;
  */
 class ActiveRecord extends AbstractActiveRecord
 {
-    public function properties(): array
+    public function propertyNames(): array
     {
         return $this->getTableSchema()->getColumnNames();
     }
@@ -235,7 +235,7 @@ class ActiveRecord extends AbstractActiveRecord
         return $columnNames;
     }
 
-    protected function valuesInternal(): array
+    protected function propertyValuesInternal(): array
     {
         return get_object_vars($this);
     }

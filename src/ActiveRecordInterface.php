@@ -21,7 +21,7 @@ interface ActiveRecordInterface
      *
      * @psalm-return string[]
      */
-    public function properties(): array;
+    public function propertyNames(): array;
 
     /**
      * Returns the abstract type of the property.
@@ -132,7 +132,7 @@ interface ActiveRecordInterface
      * Returns property values.
      *
      * @param array|null $names List of property names whose value needs to be returned. Defaults to `null`, meaning all
-     * properties listed in {@see properties()} will be returned.
+     * properties listed in {@see propertyNames()} will be returned.
      * @param array $except List of property names whose value shouldn't be returned.
      *
      * @throws Exception
@@ -140,7 +140,7 @@ interface ActiveRecordInterface
      *
      * @return array Property values (name => value).
      */
-    public function values(array|null $names = null, array $except = []): array;
+    public function propertyValues(array|null $names = null, array $except = []): array;
 
     /**
      * Returns a value indicating whether the current record is new (not saved in the database).

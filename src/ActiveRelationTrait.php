@@ -564,7 +564,7 @@ trait ActiveRelationTrait
 
         if ($model instanceof ActiveRecordInterface) {
             foreach ($models as $model) {
-                $value = $model->values($this->link);
+                $value = $model->propertyValues($this->link);
 
                 if (!empty($value)) {
                     $values[] = array_combine($columnNames, array_merge($nulls, $value));

@@ -10,8 +10,8 @@ use IteratorAggregate;
 /**
  * Trait to implement {@see IteratorAggregate} interface for ActiveRecord.
  *
- * @method array values(array|null $names = null, array $except = [])
- * @see ActiveRecordInterface::values()
+ * @method array propertyValues(array|null $names = null, array $except = [])
+ * @see ActiveRecordInterface::propertyValues()
  */
 trait ArrayIteratorTrait
 {
@@ -24,7 +24,7 @@ trait ArrayIteratorTrait
      */
     public function getIterator(): ArrayIterator
     {
-        $values = $this->values();
+        $values = $this->propertyValues();
 
         return new ArrayIterator($values);
     }

@@ -43,8 +43,8 @@ use function ucfirst;
  */
 trait MagicPropertiesTrait
 {
-    /** @psalm-var array<string, mixed> $properties */
-    private array $properties = [];
+    /** @psalm-var array<string, mixed> $propertyValues */
+    private array $propertyValues = [];
 
     /**
      * PHP getter magic method.
@@ -111,7 +111,7 @@ trait MagicPropertiesTrait
     public function __unset(string $name): void
     {
         if ($this->hasProperty($name)) {
-            unset($this->properties[$name]);
+            unset($this->propertyValues[$name]);
 
             if ($this->hasDependentRelations($name)) {
                 $this->resetDependentRelations($name);
@@ -153,7 +153,7 @@ trait MagicPropertiesTrait
 
     public function hasProperty(string $name): bool
     {
-        return isset($this->properties[$name]) || in_array($name, $this->properties(), true);
+        return isset($this->propertyValues[$name]) || in_array($name, $this->propertyNames(), true);
     }
 
     public function set(string $name, mixed $value): void
@@ -207,17 +207,17 @@ trait MagicPropertiesTrait
     }
 
     /** @psalm-return array<string, mixed> */
-    protected function valuesInternal(): array
+    protected function propertyValuesInternal(): array
     {
-        return array_merge($this->properties, parent::valuesInternal());
+        return array_merge($this->propertyValues, parent::propertyValuesInternal());
     }
 
     protected function populateProperty(string $name, mixed $value): void
     {
-        if ($name !== 'properties' && property_exists($this, $name)) {
+        if ($name !== 'propertyValues' && property_exists($this, $name)) {
             $this->$name = $value;
         } else {
-            $this->properties[$name] = $value;
+            $this->propertyValues[$name] = $value;
         }
     }
 }

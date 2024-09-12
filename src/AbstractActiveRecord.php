@@ -55,7 +55,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @psalm-return array<string, mixed>
      */
-    abstract protected function valuesInternal(): array;
+    abstract protected function propertyValuesInternal(): array;
 
     /**
      * Inserts Active Record values into DB without considering transaction.
@@ -104,18 +104,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function get(string $name): mixed
     {
-        return $this->valuesInternal()[$name] ?? null;
+        return $this->propertyValuesInternal()[$name] ?? null;
     }
 
-    public function values(array|null $names = null, array $except = []): array
+    public function propertyValues(array|null $names = null, array $except = []): array
     {
-        $names ??= $this->properties();
+        $names ??= $this->propertyNames();
 
         if (!empty($except)) {
             $names = array_diff($names, $except);
         }
 
-        return array_intersect_key($this->valuesInternal(), array_flip($names));
+        return array_intersect_key($this->propertyValuesInternal(), array_flip($names));
     }
 
     public function getIsNewRecord(): bool
@@ -145,13 +145,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * The comparison of new and old values uses `===`.
      *
      * @param array|null $names The names of the properties whose values may be returned if they're changed recently.
-     * If null, {@see properties()} will be used.
+     * If null, {@see propertyNames()} will be used.
      *
      * @return array The changed property values (name-value pairs).
      */
     public function dirtyValues(array|null $names = null): array
     {
-        $values = $this->values($names);
+        $values = $this->propertyValues($names);
 
         if ($this->oldValues === null) {
             return $values;
@@ -232,7 +232,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function hasProperty(string $name): bool
     {
-        return in_array($name, $this->properties(), true);
+        return in_array($name, $this->propertyNames(), true);
     }
 
     /**
@@ -340,7 +340,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function isPropertyChanged(string $name, bool $identical = true): bool
     {
-        $values = $this->valuesInternal();
+        $values = $this->propertyValuesInternal();
 
         if (empty($this->oldValues) || !array_key_exists($name, $this->oldValues)) {
             return array_key_exists($name, $values);
@@ -469,7 +469,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $indexBy = $relation->getIndexBy();
             if ($indexBy !== null) {
                 if ($indexBy instanceof Closure) {
-                    $index = $indexBy($arClass->values());
+                    $index = $indexBy($arClass->propertyValues());
                 } else {
                     $index = $arClass->get($indexBy);
                 }
@@ -535,7 +535,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function populateRecord(array|object $row): void
     {
         if ($row instanceof ActiveRecordInterface) {
-            $row = $row->values();
+            $row = $row->propertyValues();
         }
 
         foreach ($row as $name => $value) {
@@ -630,11 +630,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @param array $values Property values (name => value) to be assigned to the model.
      *
-     * {@see properties()}
+     * {@see propertyNames()}
      */
     public function populateProperties(array $values): void
     {
-        $values = array_intersect_key($values, array_flip($this->properties()));
+        $values = array_intersect_key($values, array_flip($this->propertyNames()));
 
         /** @psalm-var mixed $value */
         foreach ($values as $name => $value) {
@@ -651,7 +651,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function setIsNewRecord(bool $value): void
     {
-        $this->oldValues = $value ? null : $this->valuesInternal();
+        $this->oldValues = $value ? null : $this->propertyValuesInternal();
     }
 
     /**
@@ -1115,7 +1115,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             return false;
         }
 
-        foreach ($this->properties() as $name) {
+        foreach ($this->propertyNames() as $name) {
             $this->populateProperty($name, $record->get($name));
         }
 

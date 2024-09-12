@@ -2128,7 +2128,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->values();
+        $values = $customer->findOne(1)->propertyValues();
 
         $this->assertEquals($expectedValues, $values);
     }
@@ -2139,7 +2139,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->values(['id', 'email', 'name']);
+        $values = $customer->findOne(1)->propertyValues(['id', 'email', 'name']);
 
         $this->assertEquals(['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1'], $values);
     }
@@ -2150,7 +2150,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->values(null, ['status', 'bool_status', 'profile_id']);
+        $values = $customer->findOne(1)->propertyValues(null, ['status', 'bool_status', 'profile_id']);
 
         $this->assertEquals(
             ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1'],
@@ -2166,7 +2166,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = $customer->findOne(1);
         $this->assertEquals('user1', $query->oldValue('name'));
-        $this->assertEquals($query->values(), $query->oldValues());
+        $this->assertEquals($query->propertyValues(), $query->oldValues());
 
         $query->set('name', 'samdark');
         $this->assertEquals('samdark', $query->get('name'));
@@ -2191,17 +2191,17 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findOne(1);
-        $this->assertEquals($expectedValues, $query->values());
-        $this->assertEquals($query->values(), $query->oldValues());
+        $this->assertEquals($expectedValues, $query->propertyValues());
+        $this->assertEquals($query->propertyValues(), $query->oldValues());
 
         $query->set('name', 'samdark');
 
         $expectedNewValues = $expectedValues;
         $expectedNewValues['name'] = 'samdark';
 
-        $this->assertEquals($expectedNewValues, $query->values());
+        $this->assertEquals($expectedNewValues, $query->propertyValues());
         $this->assertEquals($expectedValues, $query->oldValues());
-        $this->assertNotEquals($query->values(), $query->oldValues());
+        $this->assertNotEquals($query->propertyValues(), $query->oldValues());
     }
 
     public function testIsPropertyChanged(): void
