@@ -132,7 +132,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return mixed The old property value. `null` if the property is not loaded before or doesn't exist.
      *
-     * {@see hasProperty()}
+     * @see hasProperty()
      */
     public function oldValue(string $name): mixed
     {
@@ -661,7 +661,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @throws InvalidArgumentException If the named property doesn't exist.
      *
-     * {@see hasProperty()}
+     * @see hasProperty()
      */
     public function assignOldValue(string $name, mixed $value): void
     {

@@ -127,7 +127,7 @@ interface ActiveRecordInterface
      *
      * @return mixed The property value. `null` if the property isn't set or doesn't exist.
      *
-     * {@see has()}
+     * @see hasProperty()
      */
     public function get(string $name): mixed;
 
