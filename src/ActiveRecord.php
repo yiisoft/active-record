@@ -207,11 +207,6 @@ class ActiveRecord extends AbstractActiveRecord
         return $this->refreshInternal($query->one());
     }
 
-    public function unset(string $propertyName): void
-    {
-        unset($this->$propertyName);
-    }
-
     /**
      * Valid column names are table column names or column names prefixed with table name or table alias.
      *
