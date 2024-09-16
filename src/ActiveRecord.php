@@ -28,13 +28,13 @@ use function preg_replace;
  * Active Record implements the [Active Record design pattern](https://en.wikipedia.org/wiki/Active_record).
  *
  * The premise behind Active Record is that an individual {@see ActiveRecord} object is associated with a specific row
- * in a database table. The object's attributes are mapped to the columns of the corresponding table.
+ * in a database table. The object's properties are mapped to the columns of the corresponding table.
  *
- * Referencing an Active Record attribute is equivalent to accessing the corresponding table column for that record.
+ * Referencing an Active Record property is equivalent to accessing the corresponding table column for that record.
  *
  * As an example, say that the `Customer` ActiveRecord class is associated with the `customer` table.
  *
- * This would mean that the class's `name` attribute is automatically mapped to the `name` column in `customer` table.
+ * This would mean that the class's `name` property is automatically mapped to the `name` column in `customer` table.
  * Thanks to Active Record, assuming the variable `$customer` is an object of type `Customer`, to get the value of the
  * `name` column for the table row, you can use the expression `$customer->name`.
  *
@@ -80,14 +80,14 @@ use function preg_replace;
  */
 class ActiveRecord extends AbstractActiveRecord
 {
-    public function attributes(): array
+    public function propertyNames(): array
     {
         return $this->getTableSchema()->getColumnNames();
     }
 
-    public function columnType(string $columnName): string
+    public function columnType(string $propertyName): string
     {
-        return $this->getTableSchema()->getColumn($columnName)?->getType() ?? SchemaInterface::TYPE_STRING;
+        return $this->getTableSchema()->getColumn($propertyName)?->getType() ?? SchemaInterface::TYPE_STRING;
     }
 
     public function filterCondition(array $condition, array $aliases = []): array
@@ -147,7 +147,7 @@ class ActiveRecord extends AbstractActiveRecord
      * $customer->loadDefaultValues();
      * ```
      *
-     * @param bool $skipIfSet Whether existing value should be preserved. This will only set defaults for attributes
+     * @param bool $skipIfSet Whether existing value should be preserved. This will only set defaults for properties
      * that are `null`.
      *
      * @throws Exception
@@ -158,8 +158,8 @@ class ActiveRecord extends AbstractActiveRecord
     public function loadDefaultValues(bool $skipIfSet = true): self
     {
         foreach ($this->getTableSchema()->getColumns() as $name => $column) {
-            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->getAttribute($name) === null)) {
-                $this->setAttribute($name, $column->getDefaultValue());
+            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->get($name) === null)) {
+                $this->set($name, $column->getDefaultValue());
             }
         }
 
@@ -235,14 +235,14 @@ class ActiveRecord extends AbstractActiveRecord
         return $columnNames;
     }
 
-    protected function getAttributesInternal(): array
+    protected function propertyValuesInternal(): array
     {
         return get_object_vars($this);
     }
 
-    protected function insertInternal(array $attributes = null): bool
+    protected function insertInternal(array $propertyNames = null): bool
     {
-        $values = $this->getDirtyAttributes($attributes);
+        $values = $this->dirtyValues($propertyNames);
         $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->getTableName(), $values);
 
         if ($primaryKeys === false) {
@@ -253,16 +253,16 @@ class ActiveRecord extends AbstractActiveRecord
 
         foreach ($primaryKeys as $name => $value) {
             $id = $columns[$name]->phpTypecast($value);
-            $this->setAttribute($name, $id);
+            $this->set($name, $id);
             $values[$name] = $id;
         }
 
-        $this->setOldAttributes($values);
+        $this->assignOldValues($values);
 
         return true;
     }
 
-    protected function populateAttribute(string $name, mixed $value): void
+    protected function populateProperty(string $name, mixed $value): void
     {
         $this->$name = $value;
     }

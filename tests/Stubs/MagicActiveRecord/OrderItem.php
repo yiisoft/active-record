@@ -26,11 +26,11 @@ final class OrderItem extends MagicActiveRecord
     {
         $fields = parent::fields();
 
-        $fields['order_id'] = $this->getAttribute('order_id');
-        $fields['item_id'] = $this->getAttribute('item_id');
-        $fields['price'] = $this->getAttribute('subtotal') / $this->getAttribute('quantity');
-        $fields['quantity'] = $this->getAttribute('quantity');
-        $fields['subtotal'] = $this->getAttribute('subtotal');
+        $fields['order_id'] = $this->get('order_id');
+        $fields['item_id'] = $this->get('item_id');
+        $fields['price'] = $this->get('subtotal') / $this->get('quantity');
+        $fields['quantity'] = $this->get('quantity');
+        $fields['subtotal'] = $this->get('subtotal');
 
         return $fields;
     }

@@ -84,7 +84,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      *
      * Make sure this does not affect AR layer.
      */
-    public function testBooleanAttribute(): void
+    public function testBooleanProperty(): void
     {
         $this->checkFixture($this->db(), 'customer', true);
 

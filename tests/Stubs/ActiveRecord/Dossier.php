@@ -50,12 +50,12 @@ final class Dossier extends ActiveRecord
 
     public function setDepartmentId(int $departmentId): void
     {
-        $this->setAttribute('department_id', $departmentId);
+        $this->set('department_id', $departmentId);
     }
 
     public function setEmployeeId(int $employeeId): void
     {
-        $this->setAttribute('employee_id', $employeeId);
+        $this->set('employee_id', $employeeId);
     }
 
     public function setSummary(string $summary): void

@@ -48,12 +48,12 @@ final class OrderItem extends ActiveRecord
 
     public function setOrderId(int $orderId): void
     {
-        $this->setAttribute('order_id', $orderId);
+        $this->set('order_id', $orderId);
     }
 
     public function setItemId(int $itemId): void
     {
-        $this->setAttribute('item_id', $itemId);
+        $this->set('item_id', $itemId);
     }
 
     public function setQuantity(int $quantity): void

@@ -38,16 +38,16 @@ trait TransactionalTrait
         }
     }
 
-    public function insert(array $attributes = null): bool
+    public function insert(array|null $propertyNames = null): bool
     {
         if (!$this->isTransactional(TransactionalInterface::OP_INSERT)) {
-            return $this->insertInternal($attributes);
+            return $this->insertInternal($propertyNames);
         }
 
         $transaction = $this->db()->beginTransaction();
 
         try {
-            $result = $this->insertInternal($attributes);
+            $result = $this->insertInternal($propertyNames);
             if ($result === false) {
                 $transaction->rollBack();
             } else {
@@ -75,16 +75,16 @@ trait TransactionalTrait
         ];
     }
 
-    public function update(array $attributeNames = null): int
+    public function update(array|null $propertyNames = null): int
     {
         if (!$this->isTransactional(TransactionalInterface::OP_UPDATE)) {
-            return $this->updateInternal($attributeNames);
+            return $this->updateInternal($propertyNames);
         }
 
         $transaction = $this->db()->beginTransaction();
 
         try {
-            $result = $this->updateInternal($attributeNames);
+            $result = $this->updateInternal($propertyNames);
             if ($result === 0) {
                 $transaction->rollBack();
             } else {

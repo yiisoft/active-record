@@ -37,7 +37,7 @@ class Customer extends MagicActiveRecord
 
     public function getName(): string
     {
-        return $this->getAttribute('name');
+        return $this->get('name');
     }
 
     public function getProfileQuery(): ActiveQuery

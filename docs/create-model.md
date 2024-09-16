@@ -118,7 +118,7 @@ final class User extends ActiveRecord
     
     public function setId(int $id): void
     {
-        $this->setAttribute('id', $id);
+        $this->set('id', $id);
     }
     
     public function setUsername(string $username): void
@@ -148,11 +148,11 @@ Notes:
 - To access properties, you need to define getter and setter methods.
 - ✔️ It allows using strict typing and define default values for properties;
 - ✔️ It allows accessing uninitialized properties, using **null coalescing operator** `return $this->id ?? null;`
-- ✔️ It allows resetting relations when setting the property, using `ActiveRecordInterface::setAttribute()` method.
+- ✔️ It allows resetting relations when setting the property, using `ActiveRecordInterface::set()` method.
 
 ### Private properties
 
-To use `private` properties inside the model class, you need to copy `getAttributesInternal()` and `populateAttribute()` 
+To use `private` properties inside the model class, you need to copy `propertyValuesInternal()` and `populateProperty()` 
 methods from the `ActiveRecord` class and adjust them to work with the `private` properties.
 
 ```php
@@ -176,13 +176,13 @@ final class User extends ActiveRecord
     // Getters and setters as for protected properties
     // ...
 
-    // Copied `getAttributesInternal()` and `populateAttribute()` methods from `ActiveRecord` class
-    protected function getAttributesInternal(): array
+    // Copied `propertyValuesInternal()` and `populateProperty()` methods from `ActiveRecord` class
+    protected function propertyValuesInternal(): array
     {
         return get_object_vars($this);
     }
     
-    protected function populateAttribute(string $name, mixed $value): void
+    protected function populateProperty(string $name, mixed $value): void
     {
         $this->$name = $value;
     }
@@ -224,7 +224,7 @@ You can use `$user->id`, `$user->username`, `$user->email` to access the propert
 
 Notes:
 - It needs to use the `MagicPropertiesTrait` to enable magic properties;
-- Compared to dynamic properties, they're stored in the `private array $attributes` property;
+- Compared to dynamic properties, they're stored in the `private array $properties` property;
 - ✔️ It allows accessing relations as properties;
 - ❌ It doesn't use strict typing and can be a reason of hard-to-detect errors;
 - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.

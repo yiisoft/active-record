@@ -469,32 +469,29 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @param array $attributes the attributes to prefix.
+     * @param array $columnNames The column names to prefix.
      *
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
-    private function prefixKeyColumns(array $attributes): array
+    private function prefixKeyColumns(array $columnNames): array
     {
         if (!empty($this->join) || !empty($this->joinWith)) {
             if (empty($this->from)) {
                 $alias = $this->getARInstance()->getTableName();
             } else {
-                foreach ($this->from as $alias => $table) {
-                    if (!is_string($alias)) {
-                        $alias = $table;
-                    }
-                    break;
+                $alias = array_key_first($this->from);
+
+                if (!is_string($alias)) {
+                    $alias = reset($this->from);
                 }
             }
 
-            if (isset($alias)) {
-                foreach ($attributes as $i => $attribute) {
-                    $attributes[$i] = "$alias.$attribute";
-                }
+            foreach ($columnNames as $i => $columnName) {
+                $columnNames[$i] = "$alias.$columnName";
             }
         }
 
-        return $attributes;
+        return $columnNames;
     }
 
     /**
@@ -502,19 +499,19 @@ trait ActiveRelationTrait
      */
     protected function filterByModels(array $models): void
     {
-        $attributes = array_keys($this->link);
-        $attributes = $this->prefixKeyColumns($attributes);
+        $properties = array_keys($this->link);
+        $columnNames = $this->prefixKeyColumns($properties);
 
         $model = reset($models);
         $values = [];
 
-        if (count($attributes) === 1) {
+        if (count($columnNames) === 1) {
             /** single key */
-            $linkedAttribute = reset($this->link);
+            $linkedProperty = reset($this->link);
 
             if ($model instanceof ActiveRecordInterface) {
                 foreach ($models as $model) {
-                    $value = $model->getAttribute($linkedAttribute);
+                    $value = $model->get($linkedProperty);
 
                     if ($value !== null) {
                         if (is_array($value)) {
@@ -526,8 +523,8 @@ trait ActiveRelationTrait
                 }
             } else {
                 foreach ($models as $model) {
-                    if (isset($model[$linkedAttribute])) {
-                        $value = $model[$linkedAttribute];
+                    if (isset($model[$linkedProperty])) {
+                        $value = $model[$linkedProperty];
 
                         if (is_array($value)) {
                             $values = [...$values, ...$value];
@@ -550,14 +547,14 @@ trait ActiveRelationTrait
             $scalarValues = array_unique($scalarValues);
             $values = [...$scalarValues, ...$nonScalarValues];
 
-            $attribute = reset($attributes);
-            /** @var string $columnName */
-            $columnName = array_key_first($this->link);
+            $columnName = reset($columnNames);
+            /** @var string $propertyName */
+            $propertyName = array_key_first($this->link);
 
-            match ($this->getARInstance()->columnType($columnName)) {
-                'array' => $this->andWhere(new ArrayOverlapsCondition($attribute, $values)),
-                SchemaInterface::TYPE_JSON => $this->andWhere(new JsonOverlapsCondition($attribute, $values)),
-                default => $this->andWhere(new InCondition($attribute, 'IN', $values)),
+            match ($this->getARInstance()->columnType($propertyName)) {
+                'array' => $this->andWhere(new ArrayOverlapsCondition($columnName, $values)),
+                SchemaInterface::TYPE_JSON => $this->andWhere(new JsonOverlapsCondition($columnName, $values)),
+                default => $this->andWhere(new InCondition($columnName, 'IN', $values)),
             };
 
             return;
@@ -567,10 +564,10 @@ trait ActiveRelationTrait
 
         if ($model instanceof ActiveRecordInterface) {
             foreach ($models as $model) {
-                $value = $model->getAttributes($this->link);
+                $value = $model->propertyValues($this->link);
 
                 if (!empty($value)) {
-                    $values[] = array_combine($attributes, array_merge($nulls, $value));
+                    $values[] = array_combine($columnNames, array_merge($nulls, $value));
                 }
             }
         } else {
@@ -578,7 +575,7 @@ trait ActiveRelationTrait
                 $value = array_intersect_key($model, $nulls);
 
                 if (!empty($value)) {
-                    $values[] = array_combine($attributes, array_merge($nulls, $value));
+                    $values[] = array_combine($columnNames, array_merge($nulls, $value));
                 }
             }
         }
@@ -589,24 +586,24 @@ trait ActiveRelationTrait
             return;
         }
 
-        $this->andWhere(new InCondition($attributes, 'IN', $values));
+        $this->andWhere(new InCondition($columnNames, 'IN', $values));
     }
 
-    private function getModelKeys(ActiveRecordInterface|array $activeRecord, array $attributes): array
+    private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
     {
         $key = [];
 
-        if (is_array($activeRecord)) {
-            foreach ($attributes as $attribute) {
-                if (isset($activeRecord[$attribute])) {
-                    $key[] = is_array($activeRecord[$attribute])
-                        ? $activeRecord[$attribute]
-                        : (string) $activeRecord[$attribute];
+        if (is_array($model)) {
+            foreach ($properties as $property) {
+                if (isset($model[$property])) {
+                    $key[] = is_array($model[$property])
+                        ? $model[$property]
+                        : (string) $model[$property];
                 }
             }
         } else {
-            foreach ($attributes as $attribute) {
-                $value = $activeRecord->getAttribute($attribute);
+            foreach ($properties as $property) {
+                $value = $model->get($property);
 
                 if ($value !== null) {
                     $key[] = is_array($value)

@@ -52,12 +52,12 @@ class Order extends ActiveRecord
 
     public function setId(int|null $id): void
     {
-        $this->setAttribute('id', $id);
+        $this->set('id', $id);
     }
 
     public function setCustomerId(int $customerId): void
     {
-        $this->setAttribute('customer_id', $customerId);
+        $this->set('customer_id', $customerId);
     }
 
     public function setCreatedAt(int $createdAt): void

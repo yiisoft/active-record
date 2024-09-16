@@ -10,13 +10,13 @@ use IteratorAggregate;
 /**
  * Trait to implement {@see IteratorAggregate} interface for ActiveRecord.
  *
- * @method array getAttributes(array|null $names = null, array $except = [])
- * @see ActiveRecordInterface::getAttributes()
+ * @method array propertyValues(array|null $names = null, array $except = [])
+ * @see ActiveRecordInterface::propertyValues()
  */
 trait ArrayIteratorTrait
 {
     /**
-     * Returns an iterator for traversing the attributes in the ActiveRecord.
+     * Returns an iterator for traversing the properties in the ActiveRecord.
      *
      * This method is required by the interface {@see IteratorAggregate}.
      *
@@ -24,8 +24,8 @@ trait ArrayIteratorTrait
      */
     public function getIterator(): ArrayIterator
     {
-        $attributes = $this->getAttributes();
+        $values = $this->propertyValues();
 
-        return new ArrayIterator($attributes);
+        return new ArrayIterator($values);
     }
 }

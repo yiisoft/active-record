@@ -125,7 +125,7 @@ class Customer extends ArrayableActiveRecord
 
     public function setProfileId(int|null $profile_id): void
     {
-        $this->setAttribute('profile_id', $profile_id);
+        $this->set('profile_id', $profile_id);
     }
 
     public function getProfile(): Profile|null

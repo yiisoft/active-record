@@ -37,46 +37,46 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $record = new NullValues();
 
-        $this->assertNull($record->getAttribute('var1'));
-        $this->assertNull($record->getAttribute('var2'));
-        $this->assertNull($record->getAttribute('var3'));
-        $this->assertNull($record->getAttribute('stringcol'));
+        $this->assertNull($record->get('var1'));
+        $this->assertNull($record->get('var2'));
+        $this->assertNull($record->get('var3'));
+        $this->assertNull($record->get('stringcol'));
 
-        $record->setAttribute('var1', 123);
-        $record->setAttribute('var2', 456);
-        $record->setAttribute('var3', 789);
-        $record->setAttribute('stringcol', 'hello!');
+        $record->set('var1', 123);
+        $record->set('var2', 456);
+        $record->set('var3', 789);
+        $record->set('stringcol', 'hello!');
         $record->save();
 
         $this->assertTrue($record->refresh());
-        $this->assertEquals(123, $record->getAttribute('var1'));
-        $this->assertEquals(456, $record->getAttribute('var2'));
-        $this->assertEquals(789, $record->getAttribute('var3'));
-        $this->assertEquals('hello!', $record->getAttribute('stringcol'));
+        $this->assertEquals(123, $record->get('var1'));
+        $this->assertEquals(456, $record->get('var2'));
+        $this->assertEquals(789, $record->get('var3'));
+        $this->assertEquals('hello!', $record->get('stringcol'));
 
-        $record->setAttribute('var1', null);
-        $record->setAttribute('var2', null);
-        $record->setAttribute('var3', null);
-        $record->setAttribute('stringcol', null);
+        $record->set('var1', null);
+        $record->set('var2', null);
+        $record->set('var3', null);
+        $record->set('stringcol', null);
         $record->save();
 
         $this->assertTrue($record->refresh());
-        $this->assertNull($record->getAttribute('var1'));
-        $this->assertNull($record->getAttribute('var2'));
-        $this->assertNull($record->getAttribute('var3'));
-        $this->assertNull($record->getAttribute('>stringcol'));
+        $this->assertNull($record->get('var1'));
+        $this->assertNull($record->get('var2'));
+        $this->assertNull($record->get('var3'));
+        $this->assertNull($record->get('>stringcol'));
 
-        $record->setAttribute('var1', 0);
-        $record->setAttribute('var2', 0);
-        $record->setAttribute('var3', 0);
-        $record->setAttribute('stringcol', '');
+        $record->set('var1', 0);
+        $record->set('var2', 0);
+        $record->set('var3', 0);
+        $record->set('stringcol', '');
         $record->save();
 
         $this->assertTrue($record->refresh());
-        $this->assertEquals(0, $record->getAttribute('var1'));
-        $this->assertEquals(0, $record->getAttribute('var2'));
-        $this->assertEquals(0, $record->getAttribute('var3'));
-        $this->assertEquals('', $record->getAttribute('stringcol'));
+        $this->assertEquals(0, $record->get('var1'));
+        $this->assertEquals(0, $record->get('var2'));
+        $this->assertEquals(0, $record->get('var3'));
+        $this->assertEquals('', $record->get('stringcol'));
     }
 
     public function testStoreEmpty(): void
@@ -138,9 +138,9 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals(2, $orderItem->order->id);
         $this->assertEquals(1, $orderItem->item->id);
 
-        /** test `setAttribute()`. */
-        $orderItem->setAttribute('order_id', 2);
-        $orderItem->setAttribute('item_id', 2);
+        /** test `set()`. */
+        $orderItem->set('order_id', 2);
+        $orderItem->set('item_id', 2);
         $this->assertEquals(2, $orderItem->order->id);
         $this->assertEquals(2, $orderItem->item->id);
     }
@@ -417,30 +417,31 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse(isset($cat->non_existing_property));
     }
 
-    public function testSetAttributes(): void
+    public function testAssignProperties(): void
     {
-        $attributes = [];
         $this->checkFixture($this->db(), 'customer');
 
-        $attributes['email'] = 'samdark@mail.ru';
-        $attributes['name'] = 'samdark';
-        $attributes['address'] = 'rusia';
-        $attributes['status'] = 1;
+        $properties = [
+            'email' => 'samdark@mail.ru',
+            'name' => 'samdark',
+            'address' => 'rusia',
+            'status' => 1,
+        ];
 
         if ($this->db()->getDriverName() === 'pgsql') {
-            $attributes['bool_status'] = true;
+            $properties['bool_status'] = true;
         }
 
-        $attributes['profile_id'] = null;
+        $properties['profile_id'] = null;
 
         $customer = new Customer();
 
-        $customer->setAttributes($attributes);
+        $customer->populateProperties($properties);
 
         $this->assertTrue($customer->save());
     }
 
-    public function testSetAttributeNoExist(): void
+    public function testSetNoExistProperty(): void
     {
         $this->checkFixture($this->db(), 'cat');
 
@@ -448,49 +449,49 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no attribute named "noExist"'
+            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"'
         );
 
-        $cat->setAttribute('noExist', 1);
+        $cat->set('noExist', 1);
     }
 
-    public function testSetOldAttribute(): void
+    public function testAssignOldValue(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->getOldAttribute('name'));
+        $this->assertEmpty($customer->oldValue('name'));
 
-        $customer->setOldAttribute('name', 'samdark');
+        $customer->assignOldValue('name', 'samdark');
 
-        $this->assertEquals('samdark', $customer->getOldAttribute('name'));
+        $this->assertEquals('samdark', $customer->oldValue('name'));
     }
 
-    public function testSetOldAttributeException(): void
+    public function testAssignOldValueException(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->getOldAttribute('name'));
+        $this->assertEmpty($customer->oldValue('name'));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer has no attribute named "noExist"'
+            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer has no property named "noExist"'
         );
-        $customer->setOldAttribute('noExist', 'samdark');
+        $customer->assignOldValue('noExist', 'samdark');
     }
 
-    public function testIsAttributeChangedNotChanged(): void
+    public function testIsPropertyChangedNotChanged(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->getAttribute('name'));
-        $this->assertEmpty($customer->getOldAttribute('name'));
-        $this->assertFalse($customer->isAttributeChanged('name', false));
+        $this->assertEmpty($customer->get('name'));
+        $this->assertEmpty($customer->oldValue('name'));
+        $this->assertFalse($customer->isPropertyChanged('name', false));
     }
 
     public function testTableSchemaException(): void
@@ -526,7 +527,7 @@ abstract class MagicActiveRecordTest extends TestCase
      *
      * Make sure this does not affect AR layer.
      */
-    public function testBooleanAttribute(): void
+    public function testBooleanProperty(): void
     {
         $this->checkFixture($this->db(), 'customer', true);
 
@@ -555,7 +556,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertCount(1, $customers);
     }
 
-    public function testAttributeAccess(): void
+    public function testPropertyAccess(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
@@ -601,7 +602,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
         $customer->orderItems = [new Item()];
 
-        /** related attribute $customer->orderItems didn't change cause it's read-only */
+        /** related property $customer->orderItems didn't change cause it's read-only */
         $this->assertSame([], $customer->orderItems);
         $this->assertFalse($customer->canGetProperty('non_existing_property'));
         $this->assertFalse($customer->canSetProperty('non_existing_property'));
@@ -611,21 +612,21 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->non_existing_property = null;
     }
 
-    public function testHasAttribute(): void
+    public function testHasProperty(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new Customer();
 
-        $this->assertTrue($customer->hasAttribute('id'));
-        $this->assertTrue($customer->hasAttribute('email'));
-        $this->assertFalse($customer->hasAttribute('notExist'));
+        $this->assertTrue($customer->hasProperty('id'));
+        $this->assertTrue($customer->hasProperty('email'));
+        $this->assertFalse($customer->hasProperty('notExist'));
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
-        $this->assertTrue($customer->hasAttribute('id'));
-        $this->assertTrue($customer->hasAttribute('email'));
-        $this->assertFalse($customer->hasAttribute('notExist'));
+        $this->assertTrue($customer->hasProperty('id'));
+        $this->assertTrue($customer->hasProperty('email'));
+        $this->assertFalse($customer->hasProperty('notExist'));
     }
 
     public function testRefresh(): void
@@ -770,59 +771,59 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
     }
 
-    public function testGetDirtyAttributesOnNewRecord(): void
+    public function testGetDirtyValuesOnNewRecord(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customer = new Customer();
 
-        $this->assertSame([], $customer->getDirtyAttributes());
+        $this->assertSame([], $customer->dirtyValues());
 
-        $customer->setAttribute('name', 'Adam');
-        $customer->setAttribute('email', 'adam@example.com');
-        $customer->setAttribute('address', null);
+        $customer->set('name', 'Adam');
+        $customer->set('email', 'adam@example.com');
+        $customer->set('address', null);
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->getDirtyAttributes()
+            $customer->dirtyValues()
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->getDirtyAttributes(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
         $this->assertTrue($customer->save());
-        $this->assertSame([], $customer->getDirtyAttributes());
+        $this->assertSame([], $customer->dirtyValues());
 
-        $customer->setAttribute('address', '');
+        $customer->set('address', '');
 
-        $this->assertSame(['address' => ''], $customer->getDirtyAttributes());
+        $this->assertSame(['address' => ''], $customer->dirtyValues());
     }
 
-    public function testGetDirtyAttributesAfterFind(): void
+    public function testGetDirtyValuesAfterFind(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->getDirtyAttributes());
+        $this->assertSame([], $customer->dirtyValues());
 
-        $customer->setAttribute('name', 'Adam');
-        $customer->setAttribute('email', 'adam@example.com');
-        $customer->setAttribute('address', null);
+        $customer->set('name', 'Adam');
+        $customer->set('email', 'adam@example.com');
+        $customer->set('address', null);
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->getDirtyAttributes(),
+            $customer->dirtyValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->getDirtyAttributes(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
         );
     }
 
-    public function testGetDirtyAttributesWithProperties(): void
+    public function testGetDirtyValuesWithProperties(): void
     {
         $this->checkFixture($this->db(), 'customer');
 
@@ -830,12 +831,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame([
             'name' => null,
             'address' => null,
-        ], $customer->getDirtyAttributes());
+        ], $customer->dirtyValues());
 
         $customerQuery = new ActiveQuery(CustomerWithProperties::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->getDirtyAttributes());
+        $this->assertSame([], $customer->dirtyValues());
 
         $customer->setEmail('adam@example.com');
         $customer->setName('Adam');
@@ -844,11 +845,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['email' => 'adam@example.com', 'name' => 'Adam', 'address' => null, 'status' => null],
-            $customer->getDirtyAttributes(),
+            $customer->dirtyValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->getDirtyAttributes(['id', 'email', 'address', 'unknown']),
+            $customer->dirtyValues(['id', 'email', 'address', 'unknown']),
         );
     }
 

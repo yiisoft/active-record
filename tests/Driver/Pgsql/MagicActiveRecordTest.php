@@ -66,7 +66,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
     }
 
-    public function testBooleanAttribute(): void
+    public function testBooleanProperty(): void
     {
         $this->checkFixture($this->db(), 'customer', true);
 
@@ -284,14 +284,14 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     /**
      * @dataProvider arrayValuesProvider
      */
-    public function testArrayValues($attributes): void
+    public function testArrayValues($properties): void
     {
         $this->checkFixture($this->db(), 'array_and_json_types', true);
 
         $type = new ArrayAndJsonTypes();
 
-        foreach ($attributes as $attribute => $expected) {
-            $type->$attribute = $expected[0];
+        foreach ($properties as $property => $expected) {
+            $type->$property = $expected[0];
         }
 
         $type->save();
@@ -300,29 +300,29 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $type = $typeQuery->one();
 
-        foreach ($attributes as $attribute => $expected) {
+        foreach ($properties as $property => $expected) {
             $expected = $expected[1] ?? $expected[0];
-            $value = $type->$attribute;
+            $value = $type->$property;
 
             if ($expected instanceof ArrayExpression) {
                 $expected = $expected->getValue();
             }
 
-            $this->assertEquals($expected, $value, 'In column ' . $attribute);
+            $this->assertEquals($expected, $value, 'In column ' . $property);
 
             if ($value instanceof ArrayExpression) {
                 $this->assertInstanceOf(ArrayAccess::class, $value);
                 $this->assertInstanceOf(Traversable::class, $value);
                 /** testing arrayaccess */
-                foreach ($type->$attribute as $key => $v) {
+                foreach ($type->$property as $key => $v) {
                     $this->assertSame($expected[$key], $value[$key]);
                 }
             }
         }
 
         /** Testing update */
-        foreach ($attributes as $attribute => $expected) {
-            $type->markAttributeDirty($attribute);
+        foreach ($properties as $property => $expected) {
+            $type->markPropertyDirty($property);
         }
 
         $this->assertSame(1, $type->update(), 'The record got updated');

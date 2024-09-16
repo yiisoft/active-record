@@ -94,8 +94,8 @@ final class ArArrayHelper
     public static function getValueByPath(ActiveRecordInterface|array $array, string $key, mixed $default = null): mixed
     {
         if ($array instanceof ActiveRecordInterface) {
-            if ($array->hasAttribute($key)) {
-                return $array->getAttribute($key);
+            if ($array->hasProperty($key)) {
+                return $array->get($key);
             }
 
             if (property_exists($array, $key)) {
@@ -180,7 +180,7 @@ final class ArArrayHelper
         }
 
         if ($object instanceof ActiveRecordInterface) {
-            return $object->getAttributes();
+            return $object->propertyValues();
         }
 
         if ($object instanceof Traversable) {

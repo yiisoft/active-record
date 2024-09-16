@@ -15,7 +15,6 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 
 use function array_merge;
-use function get_object_vars;
 use function in_array;
 use function method_exists;
 use function property_exists;
@@ -24,22 +23,16 @@ use function ucfirst;
 /**
  * Trait to define magic methods to access values of an ActiveRecord instance.
  *
- * @method array getOldAttributes()
- * @see AbstractActiveRecord::getOldAttributes()
- *
- * @method mixed getOldAttribute(string $name)
- * @see AbstractActiveRecord::getOldAttribute()
- *
  * @method array getRelatedRecords()
  * @see AbstractActiveRecord::getRelatedRecords()
  *
- * @method bool hasDependentRelations(string $attribute)
+ * @method bool hasDependentRelations(string $propertyName)
  * @see AbstractActiveRecord::hasDependentRelations()
  *
  * @method bool isRelationPopulated(string $name)
  * @see ActiveRecordInterface::isRelationPopulated()
  *
- * @method void resetDependentRelations(string $attribute)
+ * @method void resetDependentRelations(string $propertyName)
  * @see AbstractActiveRecord::resetDependentRelations()
  *
  * @method void resetRelation(string $name)
@@ -50,28 +43,27 @@ use function ucfirst;
  */
 trait MagicPropertiesTrait
 {
-    /** @psalm-var array<string, mixed> $attributes */
-    private array $attributes = [];
+    /** @psalm-var array<string, mixed> $propertyValues */
+    private array $propertyValues = [];
 
     /**
      * PHP getter magic method.
+     * This method is overridden so that values and related objects can be accessed like properties.
      *
-     * This method is overridden so that attributes and related objects can be accessed like properties.
-     *
-     * @param string $name Property name.
+     * @param string $name Property or relation name.
      *
      * @throws InvalidArgumentException|InvalidCallException|InvalidConfigException|ReflectionException|Throwable
      * @throws UnknownPropertyException
      *
      * @throws Exception
-     * @return mixed Property value.
+     * @return mixed Property or relation value.
      *
-     * {@see getAttribute()}
+     * @see get()
      */
     public function __get(string $name)
     {
-        if ($this->hasAttribute($name)) {
-            return $this->getAttribute($name);
+        if ($this->hasProperty($name)) {
+            return $this->get($name);
         }
 
         if ($this->isRelationPopulated($name)) {
@@ -92,17 +84,14 @@ trait MagicPropertiesTrait
             throw new InvalidCallException('Getting write-only property: ' . static::class . '::' . $name);
         }
 
-        throw new UnknownPropertyException('Getting unknown property: ' . static::class . '::' . $name);
+        throw new UnknownPropertyException('Getting unknown property or relation: ' . static::class . '::' . $name);
     }
 
     /**
-     * Checks if a property value is null.
+     * PHP isset magic method.
+     * Checks if a property or relation exists and its value is not `null`.
      *
-     * This method overrides the parent implementation by checking if the named attribute is `null` or not.
-     *
-     * @param string $name The property name or the event name.
-     *
-     * @return bool Whether the property value is null.
+     * @param string $name The property or relation name.
      */
     public function __isset(string $name): bool
     {
@@ -114,20 +103,15 @@ trait MagicPropertiesTrait
     }
 
     /**
-     * Sets a component property to be null.
+     * PHP unset magic method.
+     * Unsets the property or relation.
      *
-     * This method overrides the parent implementation by clearing the specified attribute value.
-     *
-     * @param string $name The property name or the event name.
+     * @param string $name The property or relation name.
      */
     public function __unset(string $name): void
     {
-        if ($this->hasAttribute($name)) {
-            unset($this->attributes[$name]);
-
-            if ($name !== 'attributes' && isset(get_object_vars($this)[$name])) {
-                $this->$name = null;
-            }
+        if ($this->hasProperty($name)) {
+            unset($this->propertyValues[$name]);
 
             if ($this->hasDependentRelations($name)) {
                 $this->resetDependentRelations($name);
@@ -139,8 +123,7 @@ trait MagicPropertiesTrait
 
     /**
      * PHP setter magic method.
-     *
-     * This method is overridden so that AR attributes can be accessed like properties.
+     * Sets the value of a property.
      *
      * @param string $name Property name.
      *
@@ -148,8 +131,8 @@ trait MagicPropertiesTrait
      */
     public function __set(string $name, mixed $value): void
     {
-        if ($this->hasAttribute($name)) {
-            $this->setAttributeInternal($name, $value);
+        if ($this->hasProperty($name)) {
+            parent::set($name, $value);
             return;
         }
 
@@ -168,17 +151,17 @@ trait MagicPropertiesTrait
         throw new UnknownPropertyException('Setting unknown property: ' . static::class . '::' . $name);
     }
 
-    public function hasAttribute(string $name): bool
+    public function hasProperty(string $name): bool
     {
-        return isset($this->attributes[$name]) || in_array($name, $this->attributes(), true);
+        return isset($this->propertyValues[$name]) || in_array($name, $this->propertyNames(), true);
     }
 
-    public function setAttribute(string $name, mixed $value): void
+    public function set(string $propertyName, mixed $value): void
     {
-        if ($this->hasAttribute($name)) {
-            $this->setAttributeInternal($name, $value);
+        if ($this->hasProperty($propertyName)) {
+            parent::set($propertyName, $value);
         } else {
-            throw new InvalidArgumentException(static::class . ' has no attribute named "' . $name . '".');
+            throw new InvalidArgumentException(static::class . ' has no property named "' . $propertyName . '".');
         }
     }
 
@@ -199,13 +182,13 @@ trait MagicPropertiesTrait
      * {@see canGetProperty()}
      * {@see canSetProperty()}
      */
-    public function hasProperty(string $name, bool $checkVars = true): bool
+    public function isProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, 'get' . ucfirst($name))
             || method_exists($this, 'set' . ucfirst($name))
             || method_exists($this, 'get' . ucfirst($name) . 'Query')
             || ($checkVars && property_exists($this, $name))
-            || $this->hasAttribute($name);
+            || $this->hasProperty($name);
     }
 
     public function canGetProperty(string $name, bool $checkVars = true): bool
@@ -213,39 +196,28 @@ trait MagicPropertiesTrait
         return method_exists($this, 'get' . ucfirst($name))
             || method_exists($this, 'get' . ucfirst($name) . 'Query')
             || ($checkVars && property_exists($this, $name))
-            || $this->hasAttribute($name);
+            || $this->hasProperty($name);
     }
 
     public function canSetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, 'set' . ucfirst($name))
             || ($checkVars && property_exists($this, $name))
-            || $this->hasAttribute($name);
+            || $this->hasProperty($name);
     }
 
     /** @psalm-return array<string, mixed> */
-    protected function getAttributesInternal(): array
+    protected function propertyValuesInternal(): array
     {
-        return array_merge($this->attributes, parent::getAttributesInternal());
+        return array_merge($this->propertyValues, parent::propertyValuesInternal());
     }
 
-    protected function populateAttribute(string $name, mixed $value): void
+    protected function populateProperty(string $name, mixed $value): void
     {
-        if ($name !== 'attributes' && property_exists($this, $name)) {
+        if ($name !== 'propertyValues' && property_exists($this, $name)) {
             $this->$name = $value;
         } else {
-            $this->attributes[$name] = $value;
+            $this->propertyValues[$name] = $value;
         }
-    }
-
-    private function setAttributeInternal(string $name, mixed $value): void
-    {
-        if ($this->hasDependentRelations($name)
-            && ($value === null || $this->getAttribute($name) !== $value)
-        ) {
-            $this->resetDependentRelations($name);
-        }
-
-        $this->populateAttribute($name, $value);
     }
 }

@@ -131,8 +131,8 @@ Now you can use the Active Record:
 use App\Entity\User;
 
 $user = new User();
-$user->setAttribute('username', 'yiiliveext');
-$user->setAttribute('email', 'yiiliveext@mail.ru');
+$user->set('username', 'yiiliveext');
+$user->set('email', 'yiiliveext@mail.ru');
 $user->save();
 ```
 
@@ -146,8 +146,8 @@ $userQuery = new ActiveQuery(User::class);
 
 $user = $userQuery->where(['id' => 1])->one();
 
-$username = $user->getAttribute('username');
-$email = $user->getAttribute('email');
+$username = $user->get('username');
+$email = $user->get('email');
 ```
 
 ## Documentation
