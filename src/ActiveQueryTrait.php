@@ -105,9 +105,8 @@ trait ActiveQueryTrait
      *
      * @param array[] $rows The rows to be converted.
      *
-     * @return ActiveRecordInterface[]|array[] The model instances.
-     *
      * @throws InvalidConfigException
+     * @return ActiveRecordInterface[]|array[] The model instances.
      */
     protected function createModels(array $rows): array
     {

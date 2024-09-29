@@ -636,11 +636,10 @@ interface ActiveQueryInterface extends QueryInterface
      * @param string $name The relation name.
      * @param ActiveRecordInterface[]|array[] $primaryModels Primary models.
      *
-     * @return ActiveRecordInterface[]|array[] The related models.
-     *
      * @throws Exception
      * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable If {@see link()} is
      * invalid.
+     * @return ActiveRecordInterface[]|array[] The related models.
      */
     public function populateRelation(string $name, array &$primaryModels): array;
 }

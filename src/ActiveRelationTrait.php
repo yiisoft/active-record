@@ -59,7 +59,7 @@ trait ActiveRelationTrait
      */
     private string|null $inverseOf = null;
     /**
-     * @var array|ActiveQueryInterface|null the relation associated with the junction table.
+     * @var ActiveQueryInterface|array|null the relation associated with the junction table.
      * @psalm-var array{string, ActiveQueryInterface, bool}|ActiveQueryInterface|null
      */
     private array|ActiveQueryInterface|null $via = null;
@@ -636,11 +636,10 @@ trait ActiveRelationTrait
     /**
      * @param ActiveRecordInterface[]|array[] $primaryModels either array of AR instances or arrays.
      *
-     * @return array[]
-     *
      * @throws Exception
      * @throws Throwable
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @return array[]
      */
     private function findJunctionRows(array $primaryModels): array
     {
