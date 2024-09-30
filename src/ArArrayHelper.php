@@ -21,7 +21,7 @@ use function substr;
  * Array manipulation methods for ActiveRecord.
  *
  * @psalm-type Row = ActiveRecordInterface|array
- * @psalm-type IndexKey = string|Closure(Row, mixed=):mixed
+ * @psalm-type IndexKey = string|Closure(Row):array-key
  */
 final class ArArrayHelper
 {
@@ -41,10 +41,8 @@ final class ArArrayHelper
      * // the result is: ['123', '345']
      * ```
      *
-     * @param array $array Array to extract values from.
+     * @param ActiveRecordInterface[]|array[] $array Array to extract values from.
      * @param string $name The column name.
-     *
-     * @psalm-param Row[] $array
      *
      * @return array The list of column values.
      */
@@ -86,8 +84,6 @@ final class ArArrayHelper
      * @param string $key Key name of the array element or a property or relation name
      * of the {@see ActiveRecordInterface} instance.
      * @param mixed|null $default The default value to be returned if the specified `$key` doesn't exist.
-     *
-     * @psalm-param Row $array
      *
      * @return mixed The value of the element if found, default value otherwise
      */
@@ -135,16 +131,16 @@ final class ArArrayHelper
      * // the result is: ['123' => ['id' => '123', 'data' => 'abc'], '345' => ['id' => '345', 'data' => 'def']]
      * ```
      *
-     * @param array[] $rows Array to populate.
+     * @param ActiveRecordInterface[]|array[] $rows Array to populate.
      * @param Closure|string|null $indexBy The column name or anonymous function that specifies the index by which to
      * populate the array of rows.
+     *
+     * @return ActiveRecordInterface[]|array[]
      *
      * @psalm-template TRow of Row
      * @psalm-param array<TRow> $rows
      * @psalm-param IndexKey|null $indexBy
      * @psalm-return array<TRow>
-     *
-     * @return array[]
      */
     public static function index(array $rows, Closure|string|null $indexBy = null): array
     {

@@ -49,9 +49,7 @@ trait FactoryTrait
         }
 
         if ($arClass instanceof ActiveRecordInterface && method_exists($arClass, 'withFactory')) {
-            return new ActiveQuery(
-                $arClass->withFactory($this->factory)
-            );
+            return new ActiveQuery($arClass->withFactory($this->factory));
         }
 
         return new ActiveQuery($arClass);

@@ -103,9 +103,12 @@ trait ActiveQueryTrait
     /**
      * Converts found rows into model instances.
      *
+     * @param array[] $rows The rows to be converted.
+     *
      * @throws InvalidConfigException
+     * @return ActiveRecordInterface[]|array[] The model instances.
      */
-    protected function createModels(array $rows): array|null
+    protected function createModels(array $rows): array
     {
         if ($this->asArray) {
             return $rows;
@@ -133,13 +136,15 @@ trait ActiveQueryTrait
      *
      * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
      * for details about specifying this parameter.
-     * @param ActiveRecord[]|array $models the primary models (can be either AR instances or arrays)
+     * @param ActiveRecordInterface[]|array[] $models the primary models (can be either AR instances or arrays)
      *
      * @throws Exception
      * @throws InvalidArgumentException
      * @throws NotSupportedException
      * @throws ReflectionException
      * @throws Throwable
+     *
+     * @param-out ActiveRecordInterface[]|array[] $models
      */
     public function findWith(array $with, array &$models): void
     {
@@ -152,7 +157,7 @@ trait ActiveQueryTrait
         $relations = $this->normalizeRelations($primaryModel, $with);
 
         foreach ($relations as $name => $relation) {
-            if ($relation->asArray === null) {
+            if ($relation->isAsArray() === null) {
                 /** inherit asArray from a primary query */
                 $relation->asArray($this->asArray);
             }
@@ -161,6 +166,9 @@ trait ActiveQueryTrait
         }
     }
 
+    /**
+     * @return ActiveQueryInterface[]
+     */
     private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
         $relations = [];

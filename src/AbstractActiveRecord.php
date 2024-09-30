@@ -44,8 +44,12 @@ use function reset;
 abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
     private array|null $oldValues = null;
+    /**
+     * @var ActiveRecordInterface[]|ActiveRecordInterface[][]|array[]|array[][]
+     * @psalm-var array<string, ActiveRecordInterface|ActiveRecordInterface[]|array|array[]|null>
+     */
     private array $related = [];
-    /** @psalm-var string[][] */
+    /** @var string[][] */
     private array $relationsDependencies = [];
 
     /**
@@ -466,6 +470,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if (!$relation->getMultiple()) {
             $this->related[$relationName] = $arClass;
         } elseif (isset($this->related[$relationName])) {
+            /** @psalm-var ActiveRecordInterface[] $this->related[$relationName] */
             $indexBy = $relation->getIndexBy();
             if ($indexBy !== null) {
                 if ($indexBy instanceof Closure) {
@@ -880,7 +885,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                     $values = $this->get($b);
                     /** relation via array valued property */
                     if (is_array($values)) {
-                        if (($key = array_search($arClass->get($a), $values, false)) !== false) {
+                        if (($key = array_search($arClass->get($a), $values)) !== false) {
                             unset($values[$key]);
                             $this->set($b, array_values($values));
                         }
@@ -1020,7 +1025,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @param ActiveQueryInterface $relation Relation instance.
      * @param string|null $viaRelationName Intermediate relation.
      */
-    protected function setRelationDependencies(
+    private function setRelationDependencies(
         string $name,
         ActiveQueryInterface $relation,
         string $viaRelationName = null
