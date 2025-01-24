@@ -334,15 +334,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Returns whether the named property has been changed.
+     * Returns whether the named property has been changed using the not identical operator `!==`.
      *
      * @param string $name The name of the property.
-     * @param bool $identical Whether the comparison of new and old value uses `===`,
-     * defaults to `true`. Otherwise, `==` is used for comparison.
      *
      * @return bool Whether the property value has been changed.
      */
-    public function isPropertyChanged(string $name, bool $identical = true): bool
+    public function isPropertyChanged(string $name): bool
     {
         $values = $this->propertyValuesInternal();
 
@@ -351,6 +349,24 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         return !array_key_exists($name, $values) || $values[$name] !== $this->oldValues[$name];
+    }
+
+    /**
+     * Returns whether the named property has been changed using the not equal operator `!=`.
+     *
+     * @param string $name The name of the property.
+     *
+     * @return bool Whether the property value has been changed.
+     */
+    public function isPropertyChangedEqual(string $name): bool
+    {
+        $values = $this->propertyValuesInternal();
+
+        if (empty($this->oldValues) || !array_key_exists($name, $this->oldValues)) {
+            return array_key_exists($name, $values);
+        }
+
+        return !array_key_exists($name, $values) || $values[$name] != $this->oldValues[$name];
     }
 
     public function isPrimaryKey(array $keys): bool

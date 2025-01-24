@@ -506,7 +506,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer = new Customer();
 
         $this->assertEmpty($customer->get('email'));
-        $this->assertEmpty($customer->oldValue('email'));
+        $this->assertEmpty($customer->oldoldValue('email'));
         $this->assertFalse($customer->isPropertyChanged('email', false));
     }
 

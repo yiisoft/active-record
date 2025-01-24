@@ -2217,36 +2217,23 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testIsPropertyChanged(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customer = new ActiveQuery(Customer::class);
+        $query = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(1);
-        $this->assertEquals('user1', $query->get('name'));
-        $this->assertEquals('user1', $query->oldValue('name'));
+        $customer = $query->findOne(1);
+        $this->assertEquals(true, $customer->get('bool_status'));
+        $this->assertEquals(true, $customer->oldValue('bool_status'));
 
-        $query->set('name', 'samdark');
-        $this->assertEquals('samdark', $query->get('name'));
-        $this->assertEquals('user1', $query->oldValue('name'));
-        $this->assertNotEquals($query->get('name'), $query->oldValue('name'));
-        $this->assertTrue($query->isPropertyChanged('name', true));
-    }
+        $customer->set('bool_status', 1);
 
-    public function testIsPropertyChangedNotIdentical(): void
-    {
-        $this->checkFixture($this->db(), 'customer');
+        $this->assertTrue($customer->isPropertyChanged('bool_status'));
+        $this->assertFalse($customer->isPropertyChangedEqual('bool_status'));
 
-        $customer = new ActiveQuery(Customer::class);
+        $customer->set('bool_status', 0);
 
-        $query = $customer->findOne(1);
-        $this->assertEquals('user1', $query->get('name'));
-        $this->assertEquals('user1', $query->oldValue('name'));
-
-        $query->set('name', 'samdark');
-        $this->assertEquals('samdark', $query->get('name'));
-        $this->assertEquals('user1', $query->oldValue('name'));
-        $this->assertNotEquals($query->get('name'), $query->oldValue('name'));
-        $this->assertTrue($query->isPropertyChanged('name', false));
+        $this->assertTrue($customer->isPropertyChanged('bool_status'));
+        $this->assertTrue($customer->isPropertyChangedEqual('bool_status'));
     }
 
     public function testOldPropertyAfterInsertAndUpdate(): void
