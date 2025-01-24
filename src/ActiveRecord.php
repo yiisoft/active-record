@@ -243,7 +243,7 @@ class ActiveRecord extends AbstractActiveRecord
 
     protected function insertInternal(array $propertyNames = null): bool
     {
-        $values = $this->dirtyValues($propertyNames);
+        $values = $this->newValues($propertyNames);
         $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->getTableName(), $values);
 
         if ($primaryKeys === false) {

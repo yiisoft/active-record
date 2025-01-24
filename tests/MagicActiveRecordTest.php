@@ -778,7 +778,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
@@ -786,19 +786,19 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues()
+            $customer->newValues()
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
         $this->assertTrue($customer->save());
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('address', '');
 
-        $this->assertSame(['address' => ''], $customer->dirtyValues());
+        $this->assertSame(['address' => ''], $customer->newValues());
     }
 
     public function testGetDirtyValuesAfterFind(): void
@@ -808,7 +808,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
@@ -816,11 +816,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(),
+            $customer->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
     }
 
@@ -832,12 +832,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame([
             'name' => null,
             'address' => null,
-        ], $customer->dirtyValues());
+        ], $customer->newValues());
 
         $customerQuery = new ActiveQuery(CustomerWithProperties::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->setEmail('adam@example.com');
         $customer->setName('Adam');
@@ -846,11 +846,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['email' => 'adam@example.com', 'name' => 'Adam', 'address' => null, 'status' => null],
-            $customer->dirtyValues(),
+            $customer->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(['id', 'email', 'address', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'unknown']),
         );
     }
 
