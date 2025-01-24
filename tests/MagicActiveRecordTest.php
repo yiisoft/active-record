@@ -894,6 +894,6 @@ abstract class MagicActiveRecordTest extends TestCase
         $order->created_at = $datetime;
 
         $this->assertSame(1_325_502_201, $order->get('created_at'));
-        $this->assertEquals($datetime, $order->getCreated_at());
+        $this->assertEquals($datetime, $order->created_at);
     }
 }
