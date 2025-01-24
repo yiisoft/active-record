@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use DateTimeImmutable;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
@@ -881,5 +882,18 @@ abstract class MagicActiveRecordTest extends TestCase
             'orderItems2',
             'items2',
         ], $customer->relationNames());
+    }
+
+    public function testGetSetMethodsPriority(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $datetime = DateTimeImmutable::createFromFormat('U', '1325502201');
+
+        $order = new Order();
+        $order->created_at = $datetime;
+
+        $this->assertSame(1_325_502_201, $order->get('created_at'));
+        $this->assertEquals($datetime, $order->getCreated_at());
     }
 }
