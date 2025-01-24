@@ -153,7 +153,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return array The changed property values (name-value pairs).
      */
-    public function dirtyValues(array|null $propertyNames = null): array
+    public function newValues(array|null $propertyNames = null): array
     {
         $values = $this->propertyValues($propertyNames);
 
@@ -489,14 +489,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Marks a property dirty.
+     * Marks a property as changed.
      *
      * This method may be called to force updating a record when calling {@see update()}, even if there is no change
      * being made to the record.
      *
      * @param string $name The property name.
      */
-    public function markPropertyDirty(string $name): void
+    public function markPropertyChanged(string $name): void
     {
         if ($this->oldValues !== null && $name !== '') {
             unset($this->oldValues[$name]);
@@ -717,7 +717,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             }
         }
 
-        $values = $this->dirtyValues($names);
+        $values = $this->newValues($names);
 
         if (empty($values) || $this->getIsNewRecord()) {
             return 0;
@@ -1144,7 +1144,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     protected function updateInternal(array|null $propertyNames = null): int
     {
-        $values = $this->dirtyValues($propertyNames);
+        $values = $this->newValues($propertyNames);
 
         if (empty($values)) {
             return 0;

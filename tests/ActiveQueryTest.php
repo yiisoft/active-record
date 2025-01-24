@@ -2476,7 +2476,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->get('name'));
         $this->assertFalse($customer->getIsNewRecord());
-        $this->assertEmpty($customer->dirtyValues());
+        $this->assertEmpty($customer->newValues());
 
         $customer->set('name', 'user2x');
         $customer->save();

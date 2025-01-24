@@ -803,14 +803,14 @@ abstract class ActiveRecordTest extends TestCase
                 'bool_status' => false,
                 'profile_id' => null,
             ],
-            $customer->dirtyValues()
+            $customer->newValues()
         );
 
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
         $customer->set('address', null);
 
-        $this->assertEquals([], $customer->dirtyValues([]));
+        $this->assertEquals([], $customer->newValues([]));
 
         $this->assertEquals(
             [
@@ -821,7 +821,7 @@ abstract class ActiveRecordTest extends TestCase
                 'bool_status' => false,
                 'profile_id' => null,
             ],
-            $customer->dirtyValues()
+            $customer->newValues()
         );
         $this->assertEquals(
             [
@@ -829,15 +829,15 @@ abstract class ActiveRecordTest extends TestCase
                 'address' => null,
                 'status' => 0,
             ],
-            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
         $this->assertTrue($customer->save());
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('address', '');
 
-        $this->assertSame(['address' => ''], $customer->dirtyValues());
+        $this->assertSame(['address' => ''], $customer->newValues());
     }
 
     public function testGetDirtyValuesAfterFind(): void
@@ -847,7 +847,7 @@ abstract class ActiveRecordTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
@@ -855,11 +855,11 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(),
+            $customer->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
     }
 
