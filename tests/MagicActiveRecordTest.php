@@ -492,6 +492,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEmpty($customer->get('name'));
         $this->assertEmpty($customer->oldValue('name'));
         $this->assertFalse($customer->isPropertyChanged('name'));
+        $this->assertFalse($customer->isPropertyChangedEqual('name'));
     }
 
     public function testTableSchemaException(): void
