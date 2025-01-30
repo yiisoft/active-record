@@ -1073,4 +1073,28 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame([2], ArArrayHelper::getColumn($items[3]->getPromotionsViaJson(), 'id'));
         $this->assertSame([2], ArArrayHelper::getColumn($items[4]->getPromotionsViaJson(), 'id'));
     }
+
+    public function testIsChanged(): void
+    {
+        $this->checkFixture($this->db(), 'item');
+
+        $itemQuery = new ActiveQuery(Item::class);
+        $item = $itemQuery->findOne(1);
+
+        $this->assertFalse($item->isChanged());
+
+        $item->set('name', 'New name');
+
+        $this->assertTrue($item->isChanged());
+
+        $newItem = new Item();
+
+        $this->assertFalse($newItem->isChanged());
+
+        $newItem->set('name', 'New name');
+
+        $this->assertTrue($newItem->isChanged());
+
+        $this->assertTrue((new Customer())->isChanged());
+    }
 }

@@ -896,4 +896,26 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame(1_325_502_201, $order->get('created_at'));
         $this->assertEquals($datetime, $order->created_at);
     }
+
+    public function testIsChanged(): void
+    {
+        $this->checkFixture($this->db(), 'item');
+
+        $itemQuery = new ActiveQuery(Item::class);
+        $item = $itemQuery->findOne(1);
+
+        $this->assertFalse($item->isChanged());
+
+        $item->set('name', 'New name');
+
+        $this->assertTrue($item->isChanged());
+
+        $newItem = new Item();
+
+        $this->assertFalse($newItem->isChanged());
+
+        $newItem->set('name', 'New name');
+
+        $this->assertTrue($newItem->isChanged());
+    }
 }
