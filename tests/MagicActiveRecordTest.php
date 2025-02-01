@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use DateTimeImmutable;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
@@ -778,7 +779,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
@@ -786,19 +787,19 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues()
+            $customer->newValues()
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
         $this->assertTrue($customer->save());
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('address', '');
 
-        $this->assertSame(['address' => ''], $customer->dirtyValues());
+        $this->assertSame(['address' => ''], $customer->newValues());
     }
 
     public function testGetDirtyValuesAfterFind(): void
@@ -808,7 +809,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
@@ -816,11 +817,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(),
+            $customer->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
     }
 
@@ -832,12 +833,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame([
             'name' => null,
             'address' => null,
-        ], $customer->dirtyValues());
+        ], $customer->newValues());
 
         $customerQuery = new ActiveQuery(CustomerWithProperties::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->dirtyValues());
+        $this->assertSame([], $customer->newValues());
 
         $customer->setEmail('adam@example.com');
         $customer->setName('Adam');
@@ -846,11 +847,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['email' => 'adam@example.com', 'name' => 'Adam', 'address' => null, 'status' => null],
-            $customer->dirtyValues(),
+            $customer->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->dirtyValues(['id', 'email', 'address', 'unknown']),
+            $customer->newValues(['id', 'email', 'address', 'unknown']),
         );
     }
 
@@ -882,5 +883,40 @@ abstract class MagicActiveRecordTest extends TestCase
             'orderItems2',
             'items2',
         ], $customer->relationNames());
+    }
+
+    public function testGetSetMethodsPriority(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $datetime = DateTimeImmutable::createFromFormat('U', '1325502201');
+
+        $order = new Order();
+        $order->created_at = $datetime;
+
+        $this->assertSame(1_325_502_201, $order->get('created_at'));
+        $this->assertEquals($datetime, $order->created_at);
+    }
+
+    public function testIsChanged(): void
+    {
+        $this->checkFixture($this->db(), 'item');
+
+        $itemQuery = new ActiveQuery(Item::class);
+        $item = $itemQuery->findOne(1);
+
+        $this->assertFalse($item->isChanged());
+
+        $item->set('name', 'New name');
+
+        $this->assertTrue($item->isChanged());
+
+        $newItem = new Item();
+
+        $this->assertFalse($newItem->isChanged());
+
+        $newItem->set('name', 'New name');
+
+        $this->assertTrue($newItem->isChanged());
     }
 }

@@ -221,7 +221,7 @@ interface ActiveRecordInterface
     /**
      * Inserts a row into the associated database table using the property values of this record.
      *
-     * Only the {@see dirtyValues() changed property values} will be inserted into a database.
+     * Only the {@see newValues() changed property values} will be inserted into a database.
      *
      * If the table's primary key is auto incremental and is `null` during insertion, it will be populated with the
      * actual value after insertion.
@@ -244,6 +244,12 @@ interface ActiveRecordInterface
      * @return bool Whether the record is inserted successfully.
      */
     public function insert(array|null $propertyNames = null): bool;
+
+    /**
+     * Checks if any property returned by {@see propertyNames()} method has changed.
+     * A new active record instance is considered changed if any property has been set including default values.
+     */
+    public function isChanged(): bool;
 
     /**
      * Returns a value indicating whether the given set of property names represents the primary key for this active
@@ -392,7 +398,7 @@ interface ActiveRecordInterface
     /**
      * Saves the changes to this active record into the associated database table.
      *
-     * Only the {@see dirtyValues() changed property values} will be saved into a database.
+     * Only the {@see newValues() changed property values} will be saved into a database.
      *
      * For example, to update a customer record:
      *

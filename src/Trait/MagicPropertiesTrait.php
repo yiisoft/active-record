@@ -18,7 +18,6 @@ use function array_merge;
 use function in_array;
 use function method_exists;
 use function property_exists;
-use function ucfirst;
 
 /**
  * Trait to define magic methods to access values of an ActiveRecord instance.
@@ -62,6 +61,11 @@ trait MagicPropertiesTrait
      */
     public function __get(string $name)
     {
+        if (method_exists($this, $getter = "get$name")) {
+            /** Read getter, e.g., getName() */
+            return $this->$getter();
+        }
+
         if ($this->hasProperty($name)) {
             return $this->get($name);
         }
@@ -70,17 +74,12 @@ trait MagicPropertiesTrait
             return $this->getRelatedRecords()[$name];
         }
 
-        if (method_exists($this, $getter = 'get' . ucfirst($name))) {
-            /** Read getter, e.g., getName() */
-            return $this->$getter();
-        }
-
-        if (method_exists($this, 'get' . ucfirst($name) . 'Query')) {
+        if (method_exists($this, "get{$name}Query")) {
             /** Read relation query getter, e.g., getUserQuery() */
             return $this->retrieveRelation($name);
         }
 
-        if (method_exists($this, 'set' . ucfirst($name))) {
+        if (method_exists($this, "set$name")) {
             throw new InvalidCallException('Getting write-only property: ' . static::class . '::' . $name);
         }
 
@@ -131,19 +130,19 @@ trait MagicPropertiesTrait
      */
     public function __set(string $name, mixed $value): void
     {
+        if (method_exists($this, $setter = "set$name")) {
+            $this->$setter($value);
+            return;
+        }
+
         if ($this->hasProperty($name)) {
             parent::set($name, $value);
             return;
         }
 
-        if (method_exists($this, $setter = 'set' . ucfirst($name))) {
-            $this->$setter($value);
-            return;
-        }
-
         if (
-            method_exists($this, 'get' . ucfirst($name))
-            || method_exists($this, 'get' . ucfirst($name) . 'Query')
+            method_exists($this, "get$name")
+            || method_exists($this, "get{$name}Query")
         ) {
             throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
@@ -184,24 +183,24 @@ trait MagicPropertiesTrait
      */
     public function isProperty(string $name, bool $checkVars = true): bool
     {
-        return method_exists($this, 'get' . ucfirst($name))
-            || method_exists($this, 'set' . ucfirst($name))
-            || method_exists($this, 'get' . ucfirst($name) . 'Query')
+        return method_exists($this, "get$name")
+            || method_exists($this, "set$name")
+            || method_exists($this, "get{$name}Query")
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
     }
 
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
-        return method_exists($this, 'get' . ucfirst($name))
-            || method_exists($this, 'get' . ucfirst($name) . 'Query')
+        return method_exists($this, "get$name")
+            || method_exists($this, "get{$name}Query")
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
     }
 
     public function canSetProperty(string $name, bool $checkVars = true): bool
     {
-        return method_exists($this, 'set' . ucfirst($name))
+        return method_exists($this, "set$name")
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
     }

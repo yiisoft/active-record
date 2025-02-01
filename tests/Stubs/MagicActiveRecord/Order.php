@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
@@ -24,6 +26,18 @@ class Order extends MagicActiveRecord
     public function getTableName(): string
     {
         return self::TABLE_NAME;
+    }
+
+    public function getCreated_at(): DateTimeImmutable
+    {
+        return DateTimeImmutable::createFromFormat('U', (string) $this->get('created_at'));
+    }
+
+    public function setCreated_at(DateTimeInterface|int $createdAt): void
+    {
+        $this->set('created_at', $createdAt instanceof DateTimeInterface
+            ? $createdAt->getTimestamp()
+            : $createdAt);
     }
 
     public function setVirtualCustomerId(string|int|null $virtualCustomerId = null): void

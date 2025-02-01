@@ -322,7 +322,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         /** Testing update */
         foreach ($properties as $property => $expected) {
-            $type->markPropertyDirty($property);
+            $type->markPropertyChanged($property);
         }
 
         $this->assertSame(1, $type->update(), 'The record got updated');

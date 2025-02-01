@@ -35,11 +35,6 @@ class Customer extends MagicActiveRecord
         return 'customer';
     }
 
-    public function getName(): string
-    {
-        return $this->get('name');
-    }
-
     public function getProfileQuery(): ActiveQuery
     {
         return $this->hasOne(Profile::class, ['id' => 'profile_id']);
