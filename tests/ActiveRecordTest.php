@@ -508,7 +508,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEmpty($customer->get('email'));
         $this->assertEmpty($customer->oldValue('email'));
         $this->assertFalse($customer->isPropertyChanged('email'));
-        $this->assertFalse($customer->isPropertyChangedEqual('email'));
+        $this->assertFalse($customer->isPropertyChangedNonStrict('email'));
     }
 
     public function testTableSchemaException(): void

@@ -338,13 +338,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return !empty($this->newValues());
     }
 
-    /**
-     * Returns whether the named property has been changed using the not identical operator `!==`.
-     *
-     * @param string $name The name of the property.
-     *
-     * @return bool Whether the property value has been changed.
-     */
     public function isPropertyChanged(string $name): bool
     {
         $values = $this->propertyValuesInternal();
@@ -356,14 +349,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return !array_key_exists($name, $values) || $values[$name] !== $this->oldValues[$name];
     }
 
-    /**
-     * Returns whether the named property has been changed using the not equal operator `!=`.
-     *
-     * @param string $name The name of the property.
-     *
-     * @return bool Whether the property value has been changed.
-     */
-    public function isPropertyChangedEqual(string $name): bool
+    public function isPropertyChangedNonStrict(string $name): bool
     {
         $values = $this->propertyValuesInternal();
 

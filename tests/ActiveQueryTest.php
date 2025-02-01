@@ -2228,12 +2228,12 @@ abstract class ActiveQueryTest extends TestCase
         $customer->set('bool_status', 1);
 
         $this->assertTrue($customer->isPropertyChanged('bool_status'));
-        $this->assertFalse($customer->isPropertyChangedEqual('bool_status'));
+        $this->assertFalse($customer->isPropertyChangedNonStrict('bool_status'));
 
         $customer->set('bool_status', 0);
 
         $this->assertTrue($customer->isPropertyChanged('bool_status'));
-        $this->assertTrue($customer->isPropertyChangedEqual('bool_status'));
+        $this->assertTrue($customer->isPropertyChangedNonStrict('bool_status'));
     }
 
     public function testOldPropertyAfterInsertAndUpdate(): void
