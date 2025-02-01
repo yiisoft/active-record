@@ -335,7 +335,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function isChanged(): bool
     {
-        return count($this->newValues()) > 0;
+        return !empty($this->newValues());
     }
 
     /**
