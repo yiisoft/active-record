@@ -333,6 +333,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return new ActiveQuery($arClass);
     }
 
+    public function isChanged(): bool
+    {
+        return !empty($this->newValues());
+    }
+
     /**
      * Returns whether the named property has been changed.
      *

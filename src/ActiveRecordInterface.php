@@ -246,6 +246,12 @@ interface ActiveRecordInterface
     public function insert(array|null $propertyNames = null): bool;
 
     /**
+     * Checks if any property returned by {@see propertyNames()} method has changed.
+     * A new active record instance is considered changed if any property has been set including default values.
+     */
+    public function isChanged(): bool;
+
+    /**
      * Returns a value indicating whether the given set of property names represents the primary key for this active
      * record.
      *
