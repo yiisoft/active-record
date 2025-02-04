@@ -96,17 +96,20 @@ return [
 ];
 ```
 
-If you have not previously defined the `config/common/bootstrap.php` file in `configuration.php`,
-define it in the following path in `configuration.php` to use the items in the `config/common/bootstrap.php`
-and run `composer yii-config-rebuild`:
+If you have not previously defined the `config/common/bootstrap.php` file in `.merge-plan.php`,
+define it in the following path in `.merge-plan.php` to use the items in the `config/common/bootstrap.php`:
 
 ```
 return [
-    'config-plugin' => [
+    ...
+    '/' => [
         'bootstrap' => [
-            'common/bootstrap.php',
+            ...
+            '/' => [
+                'common/bootstrap.php',
+            ],
+            ...
         ],
-        ...
     ],
     ...
 ];
