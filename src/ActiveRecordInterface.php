@@ -262,6 +262,24 @@ interface ActiveRecordInterface
     public function isPrimaryKey(array $keys): bool;
 
     /**
+     * Returns whether the named property has been changed using the not identical operator `!==`.
+     *
+     * @param string $name The name of the property.
+     *
+     * @return bool Whether the property value has been changed.
+     */
+    public function isPropertyChanged(string $name): bool;
+
+    /**
+     * Returns whether the named property has been changed using the not equal operator `!=`.
+     *
+     * @param string $name The name of the property.
+     *
+     * @return bool Whether the property value has been changed non-strictly.
+     */
+    public function isPropertyChangedNonStrict(string $name): bool;
+
+    /**
      * Check whether the named relation has been populated with records.
      *
      * @param string $name The relation name, for example, `orders` (case-sensitive).

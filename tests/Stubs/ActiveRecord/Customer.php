@@ -21,7 +21,7 @@ class Customer extends ArrayableActiveRecord
     protected string|null $name = null;
     protected string|null $address = null;
     protected int|null $status = 0;
-    protected bool|string|null $bool_status = false;
+    protected bool|int|string|null $bool_status = false;
     protected int|null $profile_id = null;
 
     /**
