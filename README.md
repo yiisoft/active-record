@@ -96,6 +96,25 @@ return [
 ];
 ```
 
+If you have not previously defined the `config/common/bootstrap.php` file in `.merge-plan.php`,
+define it in the following path in `.merge-plan.php` to use the items in the `config/common/bootstrap.php`:
+
+```
+return [
+    ...
+    '/' => [
+        'bootstrap' => [
+            ...
+            '/' => [
+                'common/bootstrap.php',
+            ],
+            ...
+        ],
+    ],
+    ...
+];
+```
+
 See other ways to [define the DB connection](docs/define-connection.md) for Active Record.
 
 ## Defined your active record class
