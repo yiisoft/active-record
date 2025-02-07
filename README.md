@@ -96,19 +96,31 @@ return [
 ];
 ```
 
-If you have not previously defined the `config/common/bootstrap.php` file in `configuration.php`,
-define it in the following path in `configuration.php` to use the items in the `config/common/bootstrap.php`
-and run `composer yii-config-rebuild`:
+Be sure to include `bootstrap.php` file using `config-plugin` in `extra` section of `composer.json` (see [yiisoft/config](https://github.com/yiisoft/config)):
 
 ```
+"extra": {
+    "config-plugin": {
+        "bootstrap": "common/bootstrap.php"
+    }
+}
+```
+
+Or if you use `config-plugin-file` in `extra` section of `composer.json` as follows:
+
+```
+"extra": {
+    "config-plugin-file": "configuration.php"
+}
+```
+
+add the line `'bootstrap' => 'common/bootstrap.php',` to `configuration.php` file:
+
+```php
 return [
     'config-plugin' => [
-        'bootstrap' => [
-            'common/bootstrap.php',
-        ],
-        ...
+        'bootstrap' => 'common/bootstrap.php',
     ],
-    ...
 ];
 ```
 
