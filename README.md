@@ -96,6 +96,34 @@ return [
 ];
 ```
 
+Be sure to include `bootstrap.php` file using `config-plugin` in `extra` section of `composer.json` (see [yiisoft/config](https://github.com/yiisoft/config)):
+
+```
+"extra": {
+    "config-plugin": {
+        "bootstrap": "common/bootstrap.php"
+    }
+}
+```
+
+Or if you use `config-plugin-file` in `extra` section of `composer.json` as follows:
+
+```
+"extra": {
+    "config-plugin-file": "configuration.php"
+}
+```
+
+add the line `'bootstrap' => 'common/bootstrap.php',` to `configuration.php` file:
+
+```php
+return [
+    'config-plugin' => [
+        'bootstrap' => 'common/bootstrap.php',
+    ],
+];
+```
+
 See other ways to [define the DB connection](docs/define-connection.md) for Active Record.
 
 ## Defined your active record class
