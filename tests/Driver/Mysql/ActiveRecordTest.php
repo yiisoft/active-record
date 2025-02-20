@@ -30,6 +30,8 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $arClass = new Type();
 
+        $arClass->deleteAll();
+
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
         $arClass->smallint_col = 42;
@@ -41,6 +43,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->float_col2 = 42.1337;
         $arClass->bool_col = true;
         $arClass->bool_col2 = false;
+        $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
 
         $arClass->save();
 
@@ -54,7 +57,12 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame('1337', trim($query->char_col));
         $this->assertSame('test', $query->char_col2);
         $this->assertSame('test123', $query->char_col3);
+        $this->assertSame(3.742, $query->float_col);
+        $this->assertSame(42.1337, $query->float_col2);
+        $this->assertEquals(true, $query->bool_col);
+        $this->assertEquals(false, $query->bool_col2);
         $this->assertSame('B', $query->enum_col);
+        $this->assertSame(['a' => 'b', 'c' => null, 'd' => [1, 2, 3]], $query->json_col);
     }
 
     public function testExplicitPkOnAutoIncrement(): void

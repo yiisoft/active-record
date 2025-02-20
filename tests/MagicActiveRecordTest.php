@@ -161,6 +161,10 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertTrue($arClass->bool_col2);
         $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
+        if ($this->db()->getDriverName() !== 'mysql') {
+            $this->assertSame(['a' => 1], $arClass->json_col);
+        }
+
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
@@ -180,6 +184,8 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $arClass = new Type();
 
+        $arClass->deleteAll();
+
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
         $arClass->smallint_col = 42;
@@ -190,6 +196,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $arClass->float_col2 = 42.1337;
         $arClass->bool_col = true;
         $arClass->bool_col2 = false;
+        $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
 
         $arClass->save();
 
@@ -203,6 +210,11 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame('1337', trim($query->char_col));
         $this->assertSame('test', $query->char_col2);
         $this->assertSame('test123', $query->char_col3);
+        $this->assertSame(3.742, $query->float_col);
+        $this->assertSame(42.1337, $query->float_col2);
+        $this->assertEquals(true, $query->bool_col);
+        $this->assertEquals(false, $query->bool_col2);
+        $this->assertSame(['a' => 'b', 'c' => null, 'd' => [1, 2, 3]], $query->json_col);
     }
 
     public function testPopulateRecordCallWhenQueryingOnParentClass(): void

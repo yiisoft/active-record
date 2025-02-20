@@ -22,6 +22,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  * @property string $time DEFAULT '2002-01-01 00:00:00'
  * @property bool $bool_col
  * @property bool $bool_col2 DEFAULT 1
+ * @property mixed $json_col
  */
 final class Type extends MagicActiveRecord
 {

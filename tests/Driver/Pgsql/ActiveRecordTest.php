@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
-use ArrayAccess;
-use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Item;
@@ -81,6 +79,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->float_col2 = 42.1337;
         $arClass->bool_col = true;
         $arClass->bool_col2 = false;
+        $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
 
         $arClass->save();
 
@@ -94,6 +93,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame('1337', trim($query->char_col));
         $this->assertSame('test', $query->char_col2);
         $this->assertSame('test123', $query->char_col3);
+        $this->assertSame(3.742, $query->float_col);
+        $this->assertSame(42.1337, $query->float_col2);
+        $this->assertEquals(true, $query->bool_col);
+        $this->assertEquals(false, $query->bool_col2);
+        $this->assertSame(['a' => 'b', 'c' => null, 'd' => [1, 2, 3]], $query->json_col);
     }
 
     public function testExplicitPkOnAutoIncrement(): void
@@ -263,12 +267,12 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         return [
             'simple arrays values' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int4', 1),
-                    new ArrayExpression([1,-2,null,42], 'int4', 1),
+                    new ArrayExpression([1,-2,null,'42'], 'int4'),
+                    [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
+                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    [['text'], [null], ['1']],
                 ],
                 'json_col' => [['a' => 1, 'b' => null, 'c' => [1,3,5]]],
                 'jsonb_col' => [[null, 'a', 'b', '\"', '{"af"}']],
@@ -280,7 +284,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 ],
                 'textarray2_col' => [
                     [null, null],
-                    new ArrayExpression([null, null], 'text', 2),
+                    [null, null],
                 ],
                 'json_col' => [
                     null,
@@ -292,39 +296,17 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
             'empty arrays values' => [[
                 'textarray2_col' => [
                     [[], []],
-                    new ArrayExpression([], 'text', 2),
-                ],
-            ]],
-            'nested objects' => [[
-                'intarray_col' => [
-                    new ArrayExpression(new ArrayExpression([1,2,3]), 'int', 1),
-                    new ArrayExpression([1,2,3], 'int4', 1),
-                ],
-                'textarray2_col' => [
-                    new ArrayExpression([new ArrayExpression(['text']), [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
-                ],
-                'json_col' => [
-                    new JsonExpression(new JsonExpression(new JsonExpression(['a' => 1, 'b' => null, 'c' => new JsonExpression([1,3,5])]))),
-                    ['a' => 1, 'b' => null, 'c' => [1,3,5]],
-                ],
-                'jsonb_col' => [
-                    new JsonExpression(new ArrayExpression([1,2,3])),
-                    [1,2,3],
-                ],
-                'jsonarray_col' => [
-                    new ArrayExpression([new JsonExpression(['1', 2]), [3,4,5]], 'json'),
-                    new ArrayExpression([['1', 2], [3,4,5]], 'json'),
+                    [],
                 ],
             ]],
             'arrays packed in classes' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int', 1),
-                    new ArrayExpression([1,-2,null,42], 'int4', 1),
+                    new ArrayExpression([1,-2,null,'42'], 'int[]'),
+                    [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
+                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    [['text'], [null], ['1']],
                 ],
                 'json_col' => [
                     new JsonExpression(['a' => 1, 'b' => null, 'c' => [1,3,5]]),
@@ -336,7 +318,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 ],
                 'jsonarray_col' => [
                     new Expression("array['[\",\",\"null\",true,\"false\",\"f\"]'::json]::json[]"),
-                    new ArrayExpression([[',', 'null', true, 'false', 'f']], 'json'),
+                    [[',', 'null', true, 'false', 'f']],
                 ],
             ]],
             'scalars' => [[
@@ -377,16 +359,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 $expected = $expected->getValue();
             }
 
-            $this->assertEquals($expected, $value, 'In column ' . $property);
-
-            if ($value instanceof ArrayExpression) {
-                $this->assertInstanceOf(ArrayAccess::class, $value);
-                $this->assertInstanceOf(Traversable::class, $value);
-                /** testing arrayaccess */
-                foreach ($type->get($property) as $key => $v) {
-                    $this->assertSame($expected[$key], $value[$key]);
-                }
-            }
+            $this->assertSame($expected, $value, 'In column ' . $property);
         }
 
         /** Testing update */

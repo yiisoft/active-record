@@ -149,7 +149,8 @@ CREATE TABLE [dbo].[type] (
     [numeric_col] [decimal](5,2) DEFAULT '33.22',
     [time] [datetime] NOT NULL DEFAULT '2002-01-01 00:00:00',
     [bool_col] [bit] NOT NULL,
-    [bool_col2] [bit] DEFAULT '1'
+    [bool_col2] [bit] DEFAULT '1',
+    [json_col] [nvarchar](MAX) CHECK (ISJSON([json_col]) > 0) DEFAULT '{"a":1}'
 );
 
 CREATE TABLE [dbo].[animal] (

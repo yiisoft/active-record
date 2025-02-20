@@ -194,12 +194,12 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         return [
             'simple arrays values' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int4', 1),
-                    new ArrayExpression([1,-2,null,42], 'int4', 1),
+                    new ArrayExpression([1,-2,null,'42'], 'int4'),
+                    [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
+                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    [['text'], [null], ['1']],
                 ],
                 'json_col' => [['a' => 1, 'b' => null, 'c' => [1,3,5]]],
                 'jsonb_col' => [[null, 'a', 'b', '\"', '{"af"}']],
@@ -211,7 +211,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
                 ],
                 'textarray2_col' => [
                     [null, null],
-                    new ArrayExpression([null, null], 'text', 2),
+                    [null, null],
                 ],
                 'json_col' => [
                     null,
@@ -223,39 +223,17 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
             'empty arrays values' => [[
                 'textarray2_col' => [
                     [[], []],
-                    new ArrayExpression([], 'text', 2),
-                ],
-            ]],
-            'nested objects' => [[
-                'intarray_col' => [
-                    new ArrayExpression(new ArrayExpression([1,2,3]), 'int', 1),
-                    new ArrayExpression([1,2,3], 'int4', 1),
-                ],
-                'textarray2_col' => [
-                    new ArrayExpression([new ArrayExpression(['text']), [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
-                ],
-                'json_col' => [
-                    new JsonExpression(new JsonExpression(new JsonExpression(['a' => 1, 'b' => null, 'c' => new JsonExpression([1,3,5])]))),
-                    ['a' => 1, 'b' => null, 'c' => [1,3,5]],
-                ],
-                'jsonb_col' => [
-                    new JsonExpression(new ArrayExpression([1,2,3])),
-                    [1,2,3],
-                ],
-                'jsonarray_col' => [
-                    new ArrayExpression([new JsonExpression(['1', 2]), [3,4,5]], 'json'),
-                    new ArrayExpression([['1', 2], [3,4,5]], 'json'),
+                    [],
                 ],
             ]],
             'arrays packed in classes' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int', 1),
-                    new ArrayExpression([1,-2,null,42], 'int4', 1),
+                    new ArrayExpression([1,-2,null,'42'], 'int'),
+                    [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
+                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    [['text'], [null], ['1']],
                 ],
                 'json_col' => [
                     new JsonExpression(['a' => 1, 'b' => null, 'c' => [1,3,5]]),
@@ -267,7 +245,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
                 ],
                 'jsonarray_col' => [
                     new Expression("array['[\",\",\"null\",true,\"false\",\"f\"]'::json]::json[]"),
-                    new ArrayExpression([[',', 'null', true, 'false', 'f']], 'json'),
+                    [[',', 'null', true, 'false', 'f']],
                 ],
             ]],
             'scalars' => [[
@@ -308,16 +286,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
                 $expected = $expected->getValue();
             }
 
-            $this->assertEquals($expected, $value, 'In column ' . $property);
-
-            if ($value instanceof ArrayExpression) {
-                $this->assertInstanceOf(ArrayAccess::class, $value);
-                $this->assertInstanceOf(Traversable::class, $value);
-                /** testing arrayaccess */
-                foreach ($type->$property as $key => $v) {
-                    $this->assertSame($expected[$key], $value[$key]);
-                }
-            }
+            $this->assertSame($expected, $value, 'In column ' . $property);
         }
 
         /** Testing update */

@@ -23,41 +23,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         return (new OracleHelper())->createFactory($this->db());
     }
 
-    public function testCastValues(): void
-    {
-        $this->markTestSkipped('Cant bind floats without support from a custom PDO driver.');
-
-        $this->checkFixture($this->db(), 'customer');
-
-        $arClass = new Type();
-        $arClass->int_col = 123;
-        $arClass->int_col2 = 456;
-        $arClass->smallint_col = 42;
-        $arClass->char_col = '1337';
-        $arClass->char_col2 = 'test';
-        $arClass->char_col3 = 'test123';
-        /** can't bind floats without support from a custom PDO driver */
-        $arClass->float_col = 2;
-        $arClass->float_col2 = 1;
-        $arClass->bool_col = 1;
-        $arClass->bool_col2 = 0;
-        $arClass->save();
-
-        $aqClass = new ActiveQuery(Type::class);
-        $query = $aqClass->one();
-
-        $this->assertSame(123, $query->int_col);
-        $this->assertSame(456, $query->int_col2);
-        $this->assertSame(42, $query->smallint_col);
-        $this->assertSame('1337', trim($query->char_col));
-        $this->assertSame('test', $query->char_col2);
-        $this->assertSame('test123', $query->char_col3);
-        $this->assertSame(2.0, $query->float_col);
-        $this->assertSame(1.0, $query->float_col2);
-        $this->assertEquals('1', $query->bool_col);
-        $this->assertEquals('0', $query->bool_col2);
-    }
-
     public function testDefaultValues(): void
     {
         $this->checkFixture($this->db(), 'customer');
