@@ -169,7 +169,8 @@ CREATE TABLE "type" (
   "bool_col" char NOT NULL check ("bool_col" in (0,1)),
   "bool_col2" char DEFAULT 1 check("bool_col2" in (0,1)),
   "ts_default" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "bit_col" char(3) DEFAULT 130 NOT NULL
+  "bit_col" char(3) DEFAULT 130 NOT NULL,
+  "json_col" clob DEFAULT '{"a":1}' CHECK ("json_col" is json)
 );
 
 CREATE TABLE "bool_values" (

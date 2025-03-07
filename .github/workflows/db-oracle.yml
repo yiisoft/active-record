@@ -55,6 +55,9 @@ jobs:
           --health-retries 10
 
     steps:
+      - name: Configure Database.
+        run: docker exec -i oci bash -c "sqlplus -s system/root@XE <<< 'ALTER USER system DEFAULT TABLESPACE USERS;'"
+
       - name: Checkout.
         uses: actions/checkout@v3
 
@@ -65,13 +68,21 @@ jobs:
           extensions: ${{ env.extensions }}
           ini-values: date.timezone='UTC'
           coverage: pcov
-          tools: composer:v2, pecl
 
       - name: Update composer.
         run: composer self-update
 
       - name: Set environment variables pull request linux.
         uses: yiisoft/actions/db/environment-linux@master
+
+      - name: Install db.
+        uses: yiisoft/actions/db/subpackage-install@master
+        with:
+          BRANCH_NAME: ${{ env.BRANCH_NAME }}
+          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
+          CURRENT_PACKAGE: db
+          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
+          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
 
       - name: Install db-oracle.
         uses: yiisoft/actions/db/subpackage-install@master
