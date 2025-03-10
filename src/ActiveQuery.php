@@ -105,6 +105,7 @@ use function substr;
  * @psalm-import-type IndexKey from ArArrayHelper
  *
  * @psalm-property IndexKey $indexBy
+ * @psalm-suppress ClassMustBeFinal
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {

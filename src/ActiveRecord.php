@@ -77,6 +77,8 @@ use function preg_replace;
  *
  * For more details and usage information on ActiveRecord,
  * {@see the [guide article on ActiveRecord](guide:db-active-record)}
+ *
+ * @psalm-suppress ClassMustBeFinal
  */
 class ActiveRecord extends AbstractActiveRecord
 {

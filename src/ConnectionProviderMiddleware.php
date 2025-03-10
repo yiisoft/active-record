@@ -10,7 +10,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
-class ConnectionProviderMiddleware implements MiddlewareInterface
+final class ConnectionProviderMiddleware implements MiddlewareInterface
 {
     public function __construct(private readonly ConnectionInterface $db)
     {
