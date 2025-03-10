@@ -267,7 +267,10 @@ trait ActiveRelationTrait
             if ($primaryModel instanceof ActiveRecordInterface) {
                 $primaryModel->populateRelation($name, $models[0]);
             } else {
-                /** @var array[] $primaryModels */
+                /**
+                 * @var array[] $primaryModels
+                 * @psalm-suppress PossiblyNullArrayOffset
+                 */
                 $primaryModels[key($primaryModels)][$name] = $models[0];
             }
 
@@ -515,7 +518,7 @@ trait ActiveRelationTrait
         $values = [];
 
         if (count($columnNames) === 1) {
-            /** single key */
+            /** @var string $linkedProperty single key */
             $linkedProperty = reset($this->link);
 
             if ($model instanceof ActiveRecordInterface) {
