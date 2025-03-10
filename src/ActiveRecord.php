@@ -196,6 +196,7 @@ class ActiveRecord extends AbstractActiveRecord
     {
         $query = $this->instantiateQuery(static::class);
 
+        /** @var string $tableName */
         $tableName = key($query->getTablesUsedInFrom());
         $pk = [];
 
