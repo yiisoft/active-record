@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use ReflectionClass;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -15,7 +16,6 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Helper\DbStringHelper;
 
 use function array_diff_key;
 use function array_diff;
@@ -32,7 +32,10 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_int;
+use function ltrim;
+use function preg_replace;
 use function reset;
+use function strtolower;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
@@ -1234,7 +1237,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function getTableName(): string
     {
-        return '{{%' . DbStringHelper::pascalCaseToId(DbStringHelper::baseName(static::class)) . '}}';
+        $name = (new ReflectionClass($this))->getShortName();
+        /** @var string $name */
+        $name = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $name);
+        $name = strtolower(ltrim($name, '_'));
+
+        return '{{%' . $name . '}}';
     }
 
     public function db(): ConnectionInterface
