@@ -218,7 +218,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
 
             $query = $this->createInstance();
-            $this->where($where);
+            $this->setWhere($where);
         }
 
         if (!empty($this->on)) {
@@ -919,7 +919,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $condition = $arInstance->filterCondition($condition, $aliases);
         }
 
-        return $this->where($condition);
+        return $this->setWhere($condition);
     }
 
     public function findBySql(string $sql, array $params = []): static
