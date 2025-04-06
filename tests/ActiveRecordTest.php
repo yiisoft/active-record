@@ -162,12 +162,12 @@ abstract class ActiveRecordTest extends TestCase
 
         $arClass->loadDefaultValues();
 
-        $this->assertEquals(1, $arClass->int_col2);
-        $this->assertEquals('something', $arClass->char_col2);
-        $this->assertEquals(1.23, $arClass->float_col2);
-        $this->assertEquals(33.22, $arClass->numeric_col);
+        $this->assertSame(1, $arClass->int_col2);
+        $this->assertSame('something', $arClass->char_col2);
+        $this->assertSame(1.23, $arClass->float_col2);
+        $this->assertSame(33.22, $arClass->numeric_col);
         $this->assertTrue($arClass->bool_col2);
-        $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
+        $this->assertSame('2002-01-01 00:00:00', $arClass->time);
 
         if ($this->db()->getDriverName() !== 'mysql') {
             $this->assertSame(['a' => 1], $arClass->json_col);
@@ -177,13 +177,13 @@ abstract class ActiveRecordTest extends TestCase
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
-        $this->assertEquals('not something', $arClass->char_col2);
+        $this->assertSame('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
-        $this->assertEquals('something', $arClass->char_col2);
+        $this->assertSame('something', $arClass->char_col2);
     }
 
     public function testCastValues(): void
@@ -219,8 +219,8 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame('test123', $query->char_col3);
         $this->assertSame(3.742, $query->float_col);
         $this->assertSame(42.1337, $query->float_col2);
-        $this->assertEquals(true, $query->bool_col);
-        $this->assertEquals(false, $query->bool_col2);
+        $this->assertTrue($query->bool_col);
+        $this->assertFalse($query->bool_col2);
         $this->assertSame(['a' => 'b', 'c' => null, 'd' => [1, 2, 3]], $query->json_col);
     }
 
@@ -452,11 +452,8 @@ abstract class ActiveRecordTest extends TestCase
             'name' => 'samdark',
             'address' => 'rusia',
             'status' => 1,
+            'bool_status' => true,
         ];
-
-        if ($this->db()->getDriverName() === 'pgsql') {
-            $properties['bool_status'] = true;
-        }
 
         $properties['profile_id'] = null;
 
@@ -564,25 +561,25 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer->setName('boolean customer');
         $customer->setEmail('mail@example.com');
-        $customer->setStatus(1);
+        $customer->setBoolStatus(true);
 
         $customer->save();
         $customer->refresh();
-        $this->assertEquals(1, $customer->getStatus());
+        $this->assertTrue($customer->getBoolStatus());
 
-        $customer->setStatus(0);
+        $customer->setBoolStatus(false);
         $customer->save();
 
         $customer->refresh();
-        $this->assertEquals(0, $customer->getStatus());
+        $this->assertFalse($customer->getBoolStatus());
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->where(['status' => 1])->all();
+        $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(2, $customers);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->where(['status' => 0])->all();
-        $this->assertCount(1, $customers);
+        $customers = $customerQuery->where(['bool_status' => false])->all();
+        $this->assertCount(2, $customers);
     }
 
     public function testPropertyAccess(): void
@@ -823,7 +820,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer->set('email', 'adam@example.com');
         $customer->set('address', null);
 
-        $this->assertEquals([], $customer->newValues([]));
+        $this->assertSame([], $customer->newValues([]));
 
         $this->assertEquals(
             [
@@ -836,7 +833,7 @@ abstract class ActiveRecordTest extends TestCase
             ],
             $customer->newValues()
         );
-        $this->assertEquals(
+        $this->assertSame(
             [
                 'email' => 'adam@example.com',
                 'address' => null,

@@ -549,25 +549,25 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
-        $customer->status = true;
+        $customer->bool_status = true;
 
         $customer->save();
         $customer->refresh();
-        $this->assertEquals(1, $customer->status);
+        $this->assertTrue($customer->bool_status);
 
-        $customer->status = false;
+        $customer->bool_status = false;
         $customer->save();
 
         $customer->refresh();
-        $this->assertEquals(0, $customer->status);
+        $this->assertFalse($customer->bool_status);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->where(['status' => true])->all();
+        $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(2, $customers);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->where(['status' => false])->all();
-        $this->assertCount(1, $customers);
+        $customers = $customerQuery->where(['bool_status' => false])->all();
+        $this->assertCount(2, $customers);
     }
 
     public function testPropertyAccess(): void

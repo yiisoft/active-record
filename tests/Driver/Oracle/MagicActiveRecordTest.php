@@ -23,11 +23,11 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $arClass = new Type();
         $arClass->loadDefaultValues();
-        $this->assertEquals(1, $arClass->int_col2);
-        $this->assertEquals('something', $arClass->char_col2);
-        $this->assertEquals(1.23, $arClass->float_col2);
-        $this->assertEquals(33.22, $arClass->numeric_col);
-        $this->assertEquals('1', $arClass->bool_col2);
+        $this->assertSame(1, $arClass->int_col2);
+        $this->assertSame('something', $arClass->char_col2);
+        $this->assertSame(1.23, $arClass->float_col2);
+        $this->assertSame(33.22, $arClass->numeric_col);
+        $this->assertSame(true, $arClass->bool_col2);
 
         // not testing $arClass->time, because oci\Schema can't read default value
 
@@ -35,13 +35,13 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
-        $this->assertEquals('not something', $arClass->char_col2);
+        $this->assertSame('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
-        $this->assertEquals('something', $arClass->char_col2);
+        $this->assertSame('something', $arClass->char_col2);
     }
 
     /**
@@ -57,24 +57,24 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
-        $customer->status = '1';
+        $customer->bool_status = true;
 
         $customer->save();
         $customer->refresh();
-        $this->assertEquals('1', $customer->status);
+        $this->assertTrue($customer->bool_status);
 
-        $customer->status = '0';
+        $customer->bool_status = false;
         $customer->save();
 
         $customer->refresh();
-        $this->assertEquals('0', $customer->status);
+        $this->assertFalse($customer->bool_status);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->where(['status' => '1'])->all();
+        $customers = $customerQuery->where(['bool_status' => '1'])->all();
         $this->assertCount(2, $customers);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->where(['status' => '0'])->all();
-        $this->assertCount(1, $customers);
+        $customers = $customerQuery->where(['bool_status' => '0'])->all();
+        $this->assertCount(2, $customers);
     }
 }
