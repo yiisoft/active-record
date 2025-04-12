@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS "composite_fk";
 DROP TABLE IF EXISTS "order_item";
 DROP TABLE IF EXISTS "order_item_with_null_fk";
 DROP TABLE IF EXISTS "item";
+DROP TABLE IF EXISTS "promotion";
 DROP TABLE IF EXISTS "order";
 DROP TABLE IF EXISTS "order_with_null_fk";
 DROP TABLE IF EXISTS "category";
@@ -43,6 +44,7 @@ CREATE TABLE "customer" (
   name varchar(128),
   address text,
   status INTEGER DEFAULT 0,
+  bool_status bool DEFAULT FALSE,
   profile_id INTEGER,
   PRIMARY KEY (id)
 );
@@ -57,6 +59,13 @@ CREATE TABLE "item" (
   id INTEGER NOT NULL,
   name varchar(128) NOT NULL,
   category_id INTEGER NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE "promotion" (
+  id INTEGER NOT NULL,
+  json_item_ids JSON NOT NULL,
+  title varchar(126) NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -131,7 +140,8 @@ CREATE TABLE "type" (
   time timestamp NOT NULL DEFAULT '2002-01-01 00:00:00',
   bool_col tinyint(1) NOT NULL,
   bool_col2 tinyint(1) DEFAULT '1',
-  ts_default TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  ts_default TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  json_col json NOT NULL DEFAULT '{"a":1}'
 );
 
 CREATE TABLE "animal" (
@@ -196,9 +206,9 @@ INSERT INTO "animal" ("type") VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRe
 INSERT INTO "profile" (description) VALUES ('profile customer 1');
 INSERT INTO "profile" (description) VALUES ('profile customer 3');
 
-INSERT INTO "customer" (email, name, address, status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1);
-INSERT INTO "customer" (email, name, address, status) VALUES ('user2@example.com', 'user2', 'address2', 1);
-INSERT INTO "customer" (email, name, address, status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 2);
+INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
+INSERT INTO "customer" (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
+INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
 
 INSERT INTO "category" (name) VALUES ('Books');
 INSERT INTO "category" (name) VALUES ('Movies');
@@ -208,6 +218,11 @@ INSERT INTO "item" (name, category_id) VALUES ('Yii 1.1 Application Development 
 INSERT INTO "item" (name, category_id) VALUES ('Ice Age', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Toy Story', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Cars', 2);
+
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[1,2]', 'Discounted items');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[]', 'Free!');
 
 INSERT INTO "order" (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO "order" (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);

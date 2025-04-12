@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Throwable;
+use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -14,6 +15,7 @@ use function array_diff;
 use function array_keys;
 use function array_map;
 use function array_values;
+use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -21,29 +23,27 @@ use function key;
 use function preg_replace;
 
 /**
- * ActiveRecord is the base class for classes representing relational data in terms of objects.
+ * Active Record class which implements {@see ActiveRecordInterface} interface with the minimum set of methods.
  *
  * Active Record implements the [Active Record design pattern](https://en.wikipedia.org/wiki/Active_record).
  *
  * The premise behind Active Record is that an individual {@see ActiveRecord} object is associated with a specific row
- * in a database table. The object's attributes are mapped to the columns of the corresponding table.
+ * in a database table. The object's properties are mapped to the columns of the corresponding table.
  *
- * Referencing an Active Record attribute is equivalent to accessing the corresponding table column for that record.
+ * Referencing an Active Record property is equivalent to accessing the corresponding table column for that record.
  *
  * As an example, say that the `Customer` ActiveRecord class is associated with the `customer` table.
  *
- * This would mean that the class's `name` attribute is automatically mapped to the `name` column in `customer` table.
+ * This would mean that the class's `name` property is automatically mapped to the `name` column in `customer` table.
  * Thanks to Active Record, assuming the variable `$customer` is an object of type `Customer`, to get the value of the
  * `name` column for the table row, you can use the expression `$customer->name`.
  *
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
- * To declare an ActiveRecord class you need to extend {@see ActiveRecord} and implement the `getTableName` method:
+ * To declare an ActiveRecord class, you need to extend {@see ActiveRecord} and implement the `getTableName` method:
  *
  * ```php
- * <?php
- *
  * class Customer extends ActiveRecord
  * {
  *     public static function getTableName(): string
@@ -65,10 +65,10 @@ use function preg_replace;
  * ```php
  * $user = new User($db);
  * $user->name = 'Qiang';
- * $user->save();  // a new row is inserted into user table
+ * $user->save(); // a new row is inserted into user table
  *
  * // the following will retrieve the user 'CeBe' from the database
- * $userQuery = new ActiveQuery(User::class, $db);
+ * $userQuery = new ActiveQuery(User::class);
  * $user = $userQuery->where(['name' => 'CeBe'])->one();
  *
  * // this will get related records from orders table when relation is defined
@@ -78,58 +78,18 @@ use function preg_replace;
  * For more details and usage information on ActiveRecord,
  * {@see the [guide article on ActiveRecord](guide:db-active-record)}
  *
- * @method ActiveQuery hasMany($class, array $link) {@see BaseActiveRecord::hasMany()} for more info.
- * @method ActiveQuery hasOne($class, array $link) {@see BaseActiveRecord::hasOne()} for more info.
+ * @psalm-suppress ClassMustBeFinal
  */
-class ActiveRecord extends BaseActiveRecord
+class ActiveRecord extends AbstractActiveRecord
 {
-    /**
-     * The insert operation. This is mainly used when overriding {@see transactions()} to specify which operations are
-     * transactional.
-     */
-    public const OP_INSERT = 0x01;
-
-    /**
-     * The update operation. This is mainly used when overriding {@see transactions()} to specify which operations are
-     * transactional.
-     */
-    public const OP_UPDATE = 0x02;
-
-    /**
-     * The delete operation. This is mainly used when overriding {@see transactions()} to specify which operations are
-     * transactional.
-     */
-    public const OP_DELETE = 0x04;
-
-    /**
-     * All three operations: insert, update, delete.
-     *
-     * This is a shortcut of the expression: OP_INSERT | OP_UPDATE | OP_DELETE.
-     */
-    public const OP_ALL = 0x07;
-
-    public function attributes(): array
+    public function propertyNames(): array
     {
         return $this->getTableSchema()->getColumnNames();
     }
 
-    public function delete(): int
+    public function columnType(string $propertyName): string
     {
-        if (!$this->isTransactional(self::OP_DELETE)) {
-            return $this->deleteInternal();
-        }
-
-        $transaction = $this->db->beginTransaction();
-
-        try {
-            $result = $this->deleteInternal();
-            $transaction->commit();
-
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
+        return $this->getTableSchema()->getColumn($propertyName)?->getType() ?? ColumnType::STRING;
     }
 
     public function filterCondition(array $condition, array $aliases = []): array
@@ -139,7 +99,7 @@ class ActiveRecord extends BaseActiveRecord
         $columnNames = $this->filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array($this->db->getQuoter()->quoteSql($key), $columnNames, true)) {
+            if (is_string($key) && !in_array($this->db()->getQuoter()->quoteSql($key), $columnNames, true)) {
                 throw new InvalidArgumentException(
                     'Key "' . $key . '" is not a column name and can not be used as a filter'
                 );
@@ -163,55 +123,19 @@ class ActiveRecord extends BaseActiveRecord
      * Returns the schema information of the DB table associated with this AR class.
      *
      * @throws Exception
-     * @throws InvalidConfigException If the table for the AR class does not exist.
+     * @throws InvalidConfigException If the table for the AR class doesn't exist.
      *
      * @return TableSchemaInterface The schema information of the DB table associated with this AR class.
      */
     public function getTableSchema(): TableSchemaInterface
     {
-        $tableSchema = $this->db->getSchema()->getTableSchema($this->getTableName());
+        $tableSchema = $this->db()->getSchema()->getTableSchema($this->getTableName());
 
         if ($tableSchema === null) {
             throw new InvalidConfigException('The table does not exist: ' . $this->getTableName());
         }
 
         return $tableSchema;
-    }
-
-    public function insert(array $attributes = null): bool
-    {
-        if (!$this->isTransactional(self::OP_INSERT)) {
-            return $this->insertInternal($attributes);
-        }
-
-        $transaction = $this->db->beginTransaction();
-
-        try {
-            $result = $this->insertInternal($attributes);
-            if ($result === false) {
-                $transaction->rollBack();
-            } else {
-                $transaction->commit();
-            }
-
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
-    }
-
-    /**
-     * Returns a value indicating whether the specified operation is transactional.
-     *
-     * @param int $operation The operation to check. Possible values are {@see OP_INSERT}, {@see OP_UPDATE} and
-     * {@see OP_DELETE}.
-     *
-     * @return array|bool Whether the specified operation is transactional.
-     */
-    public function isTransactional(int $operation): array|bool
-    {
-        return $this->transactions();
     }
 
     /**
@@ -225,19 +149,19 @@ class ActiveRecord extends BaseActiveRecord
      * $customer->loadDefaultValues();
      * ```
      *
-     * @param bool $skipIfSet Whether existing value should be preserved. This will only set defaults for attributes
+     * @param bool $skipIfSet Whether existing value should be preserved. This will only set defaults for properties
      * that are `null`.
      *
      * @throws Exception
      * @throws InvalidConfigException
      *
-     * @return self The active record instance itself.
+     * @return static The active record instance itself.
      */
-    public function loadDefaultValues(bool $skipIfSet = true): self
+    public function loadDefaultValues(bool $skipIfSet = true): static
     {
-        foreach ($this->getTableSchema()->getColumns() as $column) {
-            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->getAttribute($column->getName()) === null)) {
-                $this->setAttribute($column->getName(), $column->getDefaultValue());
+        foreach ($this->getTableSchema()->getColumns() as $name => $column) {
+            if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->get($name) === null)) {
+                $this->set($name, $column->getDefaultValue());
             }
         }
 
@@ -246,16 +170,15 @@ class ActiveRecord extends BaseActiveRecord
 
     public function populateRecord(array|object $row): void
     {
+        $row = ArArrayHelper::toArray($row);
         $columns = $this->getTableSchema()->getColumns();
+        $rowColumns = array_intersect_key($row, $columns);
 
-        /** @psalm-var array[][] $row */
-        foreach ($row as $name => $value) {
-            if (isset($columns[$name])) {
-                $row[$name] = $columns[$name]->phpTypecast($value);
-            }
+        foreach ($rowColumns as $name => &$value) {
+            $value = $columns[$name]->phpTypecast($value);
         }
 
-        parent::populateRecord($row);
+        parent::populateRecord($rowColumns + $row);
     }
 
     public function primaryKey(): array
@@ -273,6 +196,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         $query = $this->instantiateQuery(static::class);
 
+        /** @var string $tableName */
         $tableName = key($query->getTablesUsedInFrom());
         $pk = [];
 
@@ -283,62 +207,7 @@ class ActiveRecord extends BaseActiveRecord
 
         $query->where($pk);
 
-        return $this->refreshInternal($query->onePopulate());
-    }
-
-    /**
-     * Declares which DB operations should be performed within a transaction in different scenarios.
-     *
-     * The supported DB operations are: {@see OP_INSERT}, {@see OP_UPDATE} and {@see OP_DELETE}, which correspond to the
-     * {@see insert()}, {@see update()} and {@see delete()} methods, respectively.
-     *
-     * By default, these methods are NOT enclosed in a DB transaction.
-     *
-     * In some scenarios, to ensure data consistency, you may want to enclose some or all of them in transactions. You
-     * can do so by overriding this method and returning the operations that need to be transactional. For example,
-     *
-     * ```php
-     * return [
-     *     'admin' => self::OP_INSERT,
-     *     'api' => self::OP_INSERT | self::OP_UPDATE | self::OP_DELETE,
-     *     // the above is equivalent to the following:
-     *     // 'api' => self::OP_ALL,
-     *
-     * ];
-     * ```
-     *
-     * The above declaration specifies that in the "admin" scenario, the insert operation ({@see insert()}) should be
-     * done in a transaction; and in the "api" scenario, all the operations should be done in a transaction.
-     *
-     * @return array The declarations of transactional operations. The array keys are scenarios names, and the array
-     * values are the corresponding transaction operations.
-     */
-    public function transactions(): array
-    {
-        return [];
-    }
-
-    public function update(array $attributeNames = null): int
-    {
-        if (!$this->isTransactional(self::OP_UPDATE)) {
-            return $this->updateInternal($attributeNames);
-        }
-
-        $transaction = $this->db->beginTransaction();
-
-        try {
-            $result = $this->updateInternal($attributeNames);
-            if ($result === 0) {
-                $transaction->rollBack();
-            } else {
-                $transaction->commit();
-            }
-
-            return $result;
-        } catch (Throwable $e) {
-            $transaction->rollBack();
-            throw $e;
-        }
+        return $this->refreshInternal($query->one());
     }
 
     /**
@@ -351,53 +220,54 @@ class ActiveRecord extends BaseActiveRecord
     {
         $columnNames = [];
         $tableName = $this->getTableName();
-        $quotedTableName = $this->db->getQuoter()->quoteTableName($tableName);
+        $quoter = $this->db()->getQuoter();
+        $quotedTableName = $quoter->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
             $columnNames[] = $columnName;
-            $columnNames[] = $this->db->getQuoter()->quoteColumnName($columnName);
+            $columnNames[] = $quoter->quoteColumnName($columnName);
             $columnNames[] = "$tableName.$columnName";
-            $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableName.[[$columnName]]");
+            $columnNames[] = $quoter->quoteSql("$quotedTableName.[[$columnName]]");
 
             foreach ($aliases as $tableAlias) {
                 $columnNames[] = "$tableAlias.$columnName";
-                $quotedTableAlias = $this->db->getQuoter()->quoteTableName($tableAlias);
-                $columnNames[] = $this->db->getQuoter()->quoteSql("$quotedTableAlias.[[$columnName]]");
+                $quotedTableAlias = $quoter->quoteTableName($tableAlias);
+                $columnNames[] = $quoter->quoteSql("$quotedTableAlias.[[$columnName]]");
             }
         }
 
         return $columnNames;
     }
 
-    /**
-     * Inserts an ActiveRecord into DB without considering transaction.
-     *
-     * @param array|null $attributes List of attributes that need to be saved. Defaults to `null`, meaning all
-     * attributes that are loaded from DB will be saved.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     *
-     * @return bool Whether the record is inserted successfully.
-     */
-    protected function insertInternal(array $attributes = null): bool
+    protected function propertyValuesInternal(): array
     {
-        $values = $this->getDirtyAttributes($attributes);
+        return get_object_vars($this);
+    }
 
-        if (($primaryKeys = $this->db->createCommand()->insertWithReturningPks($this->getTableName(), $values)) === false) {
+    protected function insertInternal(array $propertyNames = null): bool
+    {
+        $values = $this->newValues($propertyNames);
+        $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->getTableName(), $values);
+
+        if ($primaryKeys === false) {
             return false;
         }
 
+        $columns = $this->getTableSchema()->getColumns();
+
         foreach ($primaryKeys as $name => $value) {
-            $id = $this->getTableSchema()->getColumn($name)?->phpTypecast($value);
-            $this->setAttribute($name, $id);
+            $id = $columns[$name]->phpTypecast($value);
+            $this->set($name, $id);
             $values[$name] = $id;
         }
 
-        $this->setOldAttributes($values);
+        $this->assignOldValues($values);
 
         return true;
+    }
+
+    protected function populateProperty(string $name, mixed $value): void
+    {
+        $this->$name = $value;
     }
 }

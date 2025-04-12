@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS `composite_fk` CASCADE;
 DROP TABLE IF EXISTS `order_item` CASCADE;
 DROP TABLE IF EXISTS `order_item_with_null_fk` CASCADE;
 DROP TABLE IF EXISTS `item` CASCADE;
+DROP TABLE IF EXISTS `promotion` CASCADE;
 DROP TABLE IF EXISTS `order` CASCADE;
 DROP TABLE IF EXISTS `order_with_null_fk` CASCADE;
 DROP TABLE IF EXISTS `category` CASCADE;
@@ -20,19 +21,19 @@ DROP TABLE IF EXISTS `animal` CASCADE;
 DROP TABLE IF EXISTS `default_pk` CASCADE;
 DROP TABLE IF EXISTS `document` CASCADE;
 DROP TABLE IF EXISTS `comment` CASCADE;
-DROP TABLE IF EXISTS `dossier`;
-DROP TABLE IF EXISTS `employee`;
-DROP TABLE IF EXISTS `department`;
-DROP TABLE IF EXISTS `storage`;
-DROP TABLE IF EXISTS `alpha`;
-DROP TABLE IF EXISTS `beta`;
-DROP VIEW IF EXISTS `animal_view`;
+DROP TABLE IF EXISTS `dossier` CASCADE;
+DROP TABLE IF EXISTS `employee` CASCADE;
+DROP TABLE IF EXISTS `department` CASCADE;
+DROP TABLE IF EXISTS `storage` CASCADE;
+DROP TABLE IF EXISTS `alpha` CASCADE;
+DROP TABLE IF EXISTS `beta` CASCADE;
+DROP VIEW IF EXISTS `animal_view` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_4` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_3` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_2` CASCADE;
 DROP TABLE IF EXISTS `T_constraints_1` CASCADE;
 DROP TABLE IF EXISTS `T_upsert` CASCADE;
-DROP TABLE IF EXISTS `T_upsert_1`;
+DROP TABLE IF EXISTS `T_upsert_1` CASCADE;
 
 CREATE TABLE `constraints`
 (
@@ -53,6 +54,7 @@ CREATE TABLE `customer` (
   `name` varchar(128),
   `address` text,
   `status` int (11) DEFAULT 0,
+  `bool_status` bit(1) DEFAULT 0,
   `profile_id` int(11),
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_customer_profile_id` FOREIGN KEY (`profile_id`) REFERENCES `profile` (`id`)
@@ -71,6 +73,12 @@ CREATE TABLE `item` (
   PRIMARY KEY (`id`),
   KEY `FK_item_category_id` (`category_id`),
   CONSTRAINT `FK_item_category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `promotion` (
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `json_item_ids` json NOT NULL,
+  `title` varchar(126) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `order` (
@@ -149,8 +157,8 @@ CREATE TABLE `type` (
   `blob_col` blob,
   `numeric_col` decimal(5,2) DEFAULT '33.22',
   `time` timestamp NOT NULL DEFAULT '2002-01-01 00:00:00',
-  `bool_col` tinyint(1) NOT NULL,
-  `bool_col2` tinyint(1) DEFAULT '1',
+  `bool_col` bit(1) NOT NULL,
+  `bool_col2` bit(1) DEFAULT b'1',
   `ts_default` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `bit_col` BIT(8) NOT NULL DEFAULT b'10000010',
   `json_col` json
@@ -232,9 +240,9 @@ INSERT INTO `animal` (`type`) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRe
 INSERT INTO `profile` (description) VALUES ('profile customer 1');
 INSERT INTO `profile` (description) VALUES ('profile customer 3');
 
-INSERT INTO `customer` (email, name, address, status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1);
-INSERT INTO `customer` (email, name, address, status) VALUES ('user2@example.com', 'user2', 'address2', 1);
-INSERT INTO `customer` (email, name, address, status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 2);
+INSERT INTO `customer` (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
+INSERT INTO `customer` (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
+INSERT INTO `customer` (email, name, address, status, bool_status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
 
 INSERT INTO `category` (name) VALUES ('Books');
 INSERT INTO `category` (name) VALUES ('Movies');
@@ -244,6 +252,11 @@ INSERT INTO `item` (name, category_id) VALUES ('Yii 1.1 Application Development 
 INSERT INTO `item` (name, category_id) VALUES ('Ice Age', 2);
 INSERT INTO `item` (name, category_id) VALUES ('Toy Story', 2);
 INSERT INTO `item` (name, category_id) VALUES ('Cars', 2);
+
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[1,2]', 'Discounted items');
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals');
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
+INSERT INTO `promotion` (json_item_ids, title) VALUES ('[]', 'Free!');
 
 INSERT INTO `order` (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO `order` (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);

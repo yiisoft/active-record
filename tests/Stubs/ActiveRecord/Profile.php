@@ -8,13 +8,13 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
  * Class Profile.
- *
- * @property int $id
- * @property string $description
  */
 final class Profile extends ActiveRecord
 {
     public const TABLE_NAME = 'profile';
+
+    protected int $id;
+    protected string $description;
 
     public function getTableName(): string
     {

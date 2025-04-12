@@ -6,15 +6,14 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-/**
- * @property int $id
- * @property string $title
- * @property string $content
- * @property int $version
- * @property array $properties
- */
 final class Document extends ActiveRecord
 {
+    public int $id;
+    public string $title;
+    public string $content;
+    public int $version;
+    public array $properties;
+
     public function optimisticLock(): ?string
     {
         return 'version';

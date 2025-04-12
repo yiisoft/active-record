@@ -8,6 +8,9 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class DefaultPk extends ActiveRecord
 {
+    public int $id;
+    public string $type;
+
     public function getTableName(): string
     {
         return 'default_pk';

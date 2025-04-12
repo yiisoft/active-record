@@ -24,9 +24,9 @@ trait ActiveQueryTrait
     /**
      * Sets the {@see asArray} property.
      *
-     * @param bool $value whether to return the query results in terms of arrays instead of Active Records.
+     * @param bool $value Whether to return the query results in terms of arrays instead of Active Records.
      *
-     * @return static the query object itself.
+     * @return static The query object itself.
      */
     public function asArray(bool|null $value = true): static
     {
@@ -50,7 +50,7 @@ trait ActiveQueryTrait
      *
      * ```php
      * // Create active query
-     * CustomerQuery = new ActiveQuery(Customer::class, $db);
+     * CustomerQuery = new ActiveQuery(Customer::class);
      * // find customers together with their orders and country
      * CustomerQuery->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
@@ -73,9 +73,9 @@ trait ActiveQueryTrait
      * CustomerQuery->with('orders')->with('country')->all();
      * ```
      *
-     * @param array|string $with
+     * @param array|string ...$with A list of relation names or relation definitions.
      *
-     * @return static the query object itself.
+     * @return static The query object itself.
      */
     public function with(array|string ...$with): static
     {
@@ -103,23 +103,32 @@ trait ActiveQueryTrait
     /**
      * Converts found rows into model instances.
      *
+     * @param array[] $rows The rows to be converted.
+     *
      * @throws InvalidConfigException
+     * @return ActiveRecordInterface[]|array[] The model instances.
      */
-    protected function createModel(array $row): array
+    protected function createModels(array $rows): array
     {
         if ($this->asArray) {
-            return $row;
+            return $rows;
         }
 
-        $arClass = $this->getARInstance();
+        $arClassInstance = [];
 
-        if (method_exists($arClass, 'instantiate')) {
-            $arClass = $arClass->instantiate($row);
+        foreach ($rows as $row) {
+            $arClass = $this->getARInstance();
+
+            if (method_exists($arClass, 'instantiate')) {
+                $arClass = $arClass->instantiate($row);
+            }
+
+            $arClass->populateRecord($row);
+
+            $arClassInstance[] = $arClass;
         }
 
-        $arClass->populateRecord($row);
-
-        return $arClass;
+        return $arClassInstance;
     }
 
     /**
@@ -127,13 +136,15 @@ trait ActiveQueryTrait
      *
      * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
      * for details about specifying this parameter.
-     * @param ActiveRecord[]|array $models the primary models (can be either AR instances or arrays)
+     * @param ActiveRecordInterface[]|array[] $models the primary models (can be either AR instances or arrays)
      *
      * @throws Exception
      * @throws InvalidArgumentException
      * @throws NotSupportedException
      * @throws ReflectionException
      * @throws Throwable
+     *
+     * @param-out ActiveRecordInterface[]|array[] $models
      */
     public function findWith(array $with, array &$models): void
     {
@@ -146,8 +157,8 @@ trait ActiveQueryTrait
         $relations = $this->normalizeRelations($primaryModel, $with);
 
         foreach ($relations as $name => $relation) {
-            if ($relation->asArray === null) {
-                /** inherit asArray from primary query */
+            if ($relation->isAsArray() === null) {
+                /** inherit asArray from a primary query */
                 $relation->asArray($this->asArray);
             }
 
@@ -155,6 +166,9 @@ trait ActiveQueryTrait
         }
     }
 
+    /**
+     * @return ActiveQueryInterface[]
+     */
     private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
         $relations = [];
@@ -175,7 +189,7 @@ trait ActiveQueryTrait
 
             if (!isset($relations[$name])) {
                 /** @var ActiveQuery $relation */
-                $relation = $model->getRelation($name);
+                $relation = $model->relationQuery($name);
                 $relation->primaryModel = null;
                 $relations[$name] = $relation;
             } else {

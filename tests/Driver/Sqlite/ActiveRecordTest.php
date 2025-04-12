@@ -8,42 +8,37 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $sqliteHelper = new SqliteHelper();
-        $this->db = $sqliteHelper->createConnection();
+        return (new SqliteHelper())->createConnection();
     }
 
-    protected function tearDown(): void
+    protected function createFactory(): Factory
     {
-        parent::tearDown();
-
-        $this->db->close();
-
-        unset($this->db);
+        return (new SqliteHelper())->createFactory($this->db());
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'customer', true);
 
-        $customer = new Customer($this->db);
+        $customer = new Customer();
 
-        $customer->id = 1337;
-        $customer->email = 'user1337@example.com';
-        $customer->name = 'user1337';
-        $customer->address = 'address1337';
+        $customer->setId(1337);
+        $customer->setEmail('user1337@example.com');
+        $customer->setName('user1337');
+        $customer->setAddress('address1337');
 
-        $this->assertTrue($customer->isNewRecord);
+        $this->assertTrue($customer->getIsNewRecord());
         $customer->save();
 
-        $this->assertEquals(1337, $customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertEquals(1337, $customer->getId());
+        $this->assertFalse($customer->getIsNewRecord());
     }
 
     /**
@@ -51,9 +46,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db, 'beta');
+        $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db);
+        $betaQuery = new ActiveQuery(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();
 
@@ -63,9 +58,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         /** @var Beta[] $betas */
         foreach ($betas as $beta) {
-            $this->assertNotNull($beta->alpha);
-            $this->assertEquals($beta->alpha_string_identifier, $beta->alpha->string_identifier);
-            $alphaIdentifiers[] = $beta->alpha->string_identifier;
+            $this->assertNotNull($beta->getAlpha());
+            $this->assertEquals($beta->getAlphaStringIdentifier(), $beta->getAlpha()->getStringIdentifier());
+            $alphaIdentifiers[] = $beta->getAlpha()->getStringIdentifier();
         }
 
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);

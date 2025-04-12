@@ -15,6 +15,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  * @property int $var3
  * @property string $stringcol
  */
+#[\AllowDynamicProperties]
 final class NullValues extends ActiveRecord
 {
     public function getTableName(): string

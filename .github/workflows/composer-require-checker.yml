@@ -1,25 +1,18 @@
 on:
   pull_request:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'phpunit.xml.dist'
-      - 'psalm.xml'
+    paths:
+      - 'src/**'
+      - '.github/workflows/composer-require-checker.yml'
+      - 'composer.json'
+      - 'composer-require-checker.json'
 
   push:
-    paths-ignore:
-      - 'docs/**'
-      - 'README.md'
-      - 'CHANGELOG.md'
-      - '.gitignore'
-      - '.gitattributes'
-      - 'infection.json.dist'
-      - 'phpunit.xml.dist'
-      - 'psalm.xml'
+    branches: ['master']
+    paths:
+      - 'src/**'
+      - '.github/workflows/composer-require-checker.yml'
+      - 'composer.json'
+      - 'composer-require-checker.json'
 
 name: Composer require checker
 
@@ -34,4 +27,4 @@ jobs:
       os: >-
         ['ubuntu-latest']
       php: >-
-        ['8.1', '8.2', '8.3']
+        ['8.1', '8.2', '8.3', '8.4']

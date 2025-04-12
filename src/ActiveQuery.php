@@ -8,7 +8,6 @@ use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -22,8 +21,13 @@ use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
-use Yiisoft\Factory\NotFoundException;
 
+use function array_column;
+use function array_combine;
+use function array_flip;
+use function array_intersect_key;
+use function array_key_first;
+use function array_map;
 use function array_merge;
 use function array_values;
 use function count;
@@ -76,14 +80,14 @@ use function substr;
  * These options can be configured using methods of the same name. For example:
  *
  * ```php
- * $customerQuery = new ActiveQuery(Customer::class, $db);
+ * $customerQuery = new ActiveQuery(Customer::class);
  * $query = $customerQuery->with('orders')->asArray()->all();
  * ```
  *
  * Relational query
  * ----------------
  *
- * In relational context ActiveQuery represents a relation between two Active Record classes.
+ * In relational context, ActiveQuery represents a relation between two Active Record classes.
  *
  * Relational ActiveQuery instances are usually created by calling {@see ActiveRecord::hasOne()} and
  * {@see ActiveRecord::hasMany()}. An Active Record class declares a relation by defining a getter method which calls
@@ -94,9 +98,15 @@ use function substr;
  *
  * If a relation involves a junction table, it may be specified by {@see via()} or {@see viaTable()} method.
  *
- * These methods may only be called in a relational context. Same is true for {@see inverseOf()}, which marks a relation
- * as inverse of another relation and {@see onCondition()} which adds a condition that's to be added to relational
+ * These methods may only be called in a relational context. The same is true for {@see inverseOf()}, which marks a relation
+ * as inverse of another relation and {@see onCondition()} which adds a condition that is to be added to relational
  * query join condition.
+ *
+ * @psalm-import-type ARClass from ActiveQueryInterface
+ * @psalm-import-type IndexKey from ArArrayHelper
+ *
+ * @psalm-property IndexKey $indexBy
+ * @psalm-suppress ClassMustBeFinal
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
@@ -106,33 +116,16 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private string|null $sql = null;
     private array|string|null $on = null;
     private array $joinWith = [];
-    private ActiveRecordInterface|null $arInstance = null;
 
     /**
-     * @psalm-param class-string<ActiveRecordInterface> $arClass
+     * @psalm-param ARClass $arClass
      */
     final public function __construct(
-        protected string $arClass,
-        protected ConnectionInterface $db,
-        private ActiveRecordFactory|null $arFactory = null,
-        private string $tableName = ''
+        protected string|ActiveRecordInterface|Closure $arClass
     ) {
-        parent::__construct($db);
+        parent::__construct($this->getARInstance()->db());
     }
 
-    /**
-     * Executes a query and returns all results as an array.
-     *
-     * If null, the db connection returned by {@see arClass} will be used.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     *
-     * @return array The query results. If the query results in nothing, an empty array will be returned.
-     *
-     * @psalm-return ActiveRecord[]|array
-     */
     public function all(): array
     {
         if ($this->shouldEmulateExecution()) {
@@ -144,9 +137,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function batch(int $batchSize = 100): BatchQueryResultInterface
     {
-        return parent::batch($batchSize)->setPopulatedMethod(
-            fn (array $rows, null|Closure|string $indexBy) => $this->populate($rows, $indexBy)
-        );
+        return parent::batch($batchSize)->setPopulatedMethod($this->populate(...));
     }
 
     public function each(): DataReaderInterface
@@ -162,7 +153,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws Throwable
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
@@ -171,7 +161,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         /**
          * NOTE: Because the same ActiveQuery may be used to build different SQL statements, one for count query, the
-         * other for row data query, it's important to make sure the same ActiveQuery can be used to build SQL
+         * other for row data query, it is important to make sure the same ActiveQuery can be used to build SQL
          * statements many times.
          */
         if (!empty($this->joinWith)) {
@@ -197,8 +187,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         } else {
             $where = $this->getWhere();
 
-            if ($this->via instanceof self) {
+            if ($this->via instanceof ActiveQueryInterface) {
                 /** via junction table */
+                /** @var self $this->via */
                 $viaModels = $this->via->findJunctionRows([$this->primaryModel]);
 
                 $this->filterByModels($viaModels);
@@ -209,18 +200,19 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     if ($viaCallableUsed) {
                         $viaModels = $viaQuery->all();
                     } elseif ($this->primaryModel->isRelationPopulated($viaName)) {
-                        $viaModels = $this->primaryModel->$viaName;
+                        /** @var ActiveRecordInterface[]|array[] $viaModels */
+                        $viaModels = $this->primaryModel->relation($viaName);
                     } else {
                         $viaModels = $viaQuery->all();
                         $this->primaryModel->populateRelation($viaName, $viaModels);
                     }
                 } else {
                     if ($viaCallableUsed) {
-                        $model = $viaQuery->onePopulate();
+                        $model = $viaQuery->one();
                     } elseif ($this->primaryModel->isRelationPopulated($viaName)) {
-                        $model = $this->primaryModel->$viaName;
+                        $model = $this->primaryModel->relation($viaName);
                     } else {
-                        $model = $viaQuery->onePopulate();
+                        $model = $viaQuery->one();
                         $this->primaryModel->populateRelation($viaName, $model);
                     }
                     $viaModels = $model === null ? [] : [$model];
@@ -249,13 +241,21 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function populate(array $row): array|object
+    public function populate(array $rows, Closure|string|null $indexBy = null): array
     {
-        // if (!empty($this->join) && $this->getIndexBy() === null) {
-        //     $models = $this->removeDuplicatedModels($models);
-        // }
+        if (empty($rows)) {
+            return [];
+        }
 
-        $models = [$this->createModel($row)];
+        $models = $this->createModels($rows);
+
+        if (empty($models)) {
+            return [];
+        }
+
+        if (!empty($this->join) && $this->getIndexBy() === null) {
+            $models = $this->removeDuplicatedModels($models);
+        }
 
         if (!empty($this->with)) {
             $this->findWith($this->with, $models);
@@ -265,7 +265,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return reset($models);
+        return ArArrayHelper::index($models, $indexBy);
     }
 
     /**
@@ -273,84 +273,86 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
      *
-     * @param array $models The models to be checked.
+     * @param ActiveRecordInterface[]|array[] $models The models to be checked.
      *
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      *
-     * @return array The distinctive models.
+     * @return ActiveRecordInterface[]|array[] The distinctive models.
      */
     private function removeDuplicatedModels(array $models): array
     {
-        $hash = [];
+        $model = reset($models);
 
-        $pks = $this->getARInstance()->primaryKey();
+        if ($this->asArray) {
+            $instance = $this->getARInstance();
+            $pks = $instance->primaryKey();
 
-        if (count($pks) > 1) {
-            // Composite primary key.
-            foreach ($models as $i => $model) {
-                $key = [];
-                foreach ($pks as $pk) {
-                    if (!isset($model[$pk])) {
-                        // Don't continue if the primary key isn't part of the result set.
-                        break 2;
-                    }
-                    $key[] = $model[$pk];
-                }
+            if (empty($pks)) {
+                throw new InvalidConfigException('Primary key of "' . $instance::class . '" can not be empty.');
+            }
 
-                $key = serialize($key);
-
-                if (isset($hash[$key])) {
-                    unset($models[$i]);
-                } else {
-                    $hash[$key] = true;
+            foreach ($pks as $pk) {
+                /** @var array $model */
+                if (!isset($model[$pk])) {
+                    return $models;
                 }
             }
-        } elseif (empty($pks)) {
-            throw new InvalidConfigException("Primary key of '$this->arClass' can not be empty.");
+
+            /** @var array[] $models */
+            if (count($pks) === 1) {
+                $hash = array_column($models, reset($pks));
+            } else {
+                $flippedPks = array_flip($pks);
+                $hash = array_map(
+                    static fn (array $model): string => serialize(array_intersect_key($model, $flippedPks)),
+                    $models
+                );
+            }
         } else {
-            // Single column primary key.
-            $pk = reset($pks);
+            /** @var ActiveRecordInterface $model */
+            $pks = $model->getPrimaryKey(true);
 
-            foreach ($models as $i => $model) {
-                if (!isset($model[$pk])) {
-                    // Don't continue if the primary key isn't part of the result set.
-                    break;
+            if (empty($pks)) {
+                throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
+            }
+
+            /** @var ActiveRecordInterface[] $models */
+            foreach ($pks as $pk) {
+                if ($pk === null) {
+                    return $models;
                 }
+            }
 
-                $key = $model[$pk];
-
-                if (isset($hash[$key])) {
-                    unset($models[$i]);
-                } else {
-                    $hash[$key] = true;
-                }
+            if (count($pks) === 1) {
+                $key = array_key_first($pks);
+                $hash = array_map(
+                    static fn (ActiveRecordInterface $model): string => (string) $model->get($key),
+                    $models
+                );
+            } else {
+                $hash = array_map(
+                    static fn (ActiveRecordInterface $model): string => serialize($model->getPrimaryKey(true)),
+                    $models
+                );
             }
         }
 
-        return array_values($models);
+        return array_values(array_combine($hash, $models));
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
-     * @throws Throwable
-     */
-    public function onePopulate(): array|ActiveRecordInterface|null
+    public function one(): array|ActiveRecordInterface|null
     {
-        $row = $this->one();
+        /** @var array|null $row */
+        $row = parent::one();
 
-        if ($row !== null) {
-            return $this->populate($row);
+        if ($row === null) {
+            return null;
         }
 
-        return null;
+        return $this->populate([$row])[0];
     }
 
     /**
@@ -401,7 +403,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         array|string $with,
         array|bool $eagerLoading = true,
         array|string $joinType = 'LEFT JOIN'
-    ): self {
+    ): static {
         $relations = [];
 
         foreach ((array) $with as $name => $callback) {
@@ -416,7 +418,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 $name = $relation;
 
-                $callback = static function (self $query) use ($callback, $alias): void {
+                $callback = static function (ActiveQueryInterface $query) use ($callback, $alias): void {
                     $query->alias($alias);
 
                     if ($callback !== null) {
@@ -445,7 +447,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -510,7 +511,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
     }
 
-    public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): self
+    public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): static
     {
         return $this->joinWith($with, $eagerLoading, 'INNER JOIN');
     }
@@ -524,7 +525,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -548,7 +548,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $fullName = $prefix === '' ? $name : "$prefix.$name";
 
                 if (!isset($relations[$fullName])) {
-                    $relations[$fullName] = $relation = $primaryModel->getRelation($name);
+                    $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
                     if ($relation instanceof ActiveQueryInterface) {
                         $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
                     }
@@ -568,7 +568,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $fullName = $prefix === '' ? $name : "$prefix.$name";
 
             if (!isset($relations[$fullName])) {
-                $relations[$fullName] = $relation = $primaryModel->getRelation($name);
+                $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
 
                 if ($callback !== null) {
                     $callback($relation);
@@ -607,7 +607,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     private function getTableNameAndAlias(): array
@@ -644,9 +643,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param string $joinType The join type.
      *
      * @throws CircularReferenceException
-     * @throws NotFoundException
      * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     * @throws InvalidConfigException
      */
     private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
     {
@@ -654,7 +652,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         /** @var ActiveQuery $child */
         $child->via = null;
 
-        if ($via instanceof self) {
+        if ($via instanceof ActiveQueryInterface) {
             // via table
             $this->joinWithRelation($parent, $via, $joinType);
             $this->joinWithRelation($via, $child, $joinType);
@@ -737,7 +735,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
     }
 
-    public function onCondition(array|string $condition, array $params = []): self
+    public function onCondition(array|string $condition, array $params = []): static
     {
         $this->on = $condition;
 
@@ -746,7 +744,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function andOnCondition(array|string $condition, array $params = []): self
+    public function andOnCondition(array|string $condition, array $params = []): static
     {
         if ($this->on === null) {
             $this->on = $condition;
@@ -759,7 +757,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function orOnCondition(array|string $condition, array $params = []): self
+    public function orOnCondition(array|string $condition, array $params = []): static
     {
         if ($this->on === null) {
             $this->on = $condition;
@@ -772,13 +770,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function viaTable(string $tableName, array $link, callable $callable = null): self
+    public function viaTable(string $tableName, array $link, callable $callable = null): static
     {
-        $arClass = $this->primaryModel ? $this->primaryModel::class : $this->arClass;
-        $arClassInstance = new self($arClass, $this->db);
+        $arClass = $this->primaryModel ?? $this->arClass;
 
-        /** @psalm-suppress UndefinedMethod */
-        $relation = $arClassInstance->from([$tableName])->link($link)->multiple(true)->asArray();
+        $relation = (new static($arClass))
+            ->from([$tableName])
+            ->link($link)
+            ->multiple(true)
+            ->asArray();
 
         $this->via = $relation;
 
@@ -789,9 +789,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function alias(string $alias): self
+    public function alias(string $alias): static
     {
-        if (empty($this->from) || count($this->from) < 2) {
+        if (count($this->from) < 2) {
             [$tableName] = $this->getTableNameAndAlias();
             $this->from = [$alias => $tableName];
         } else {
@@ -811,7 +811,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @throws CircularReferenceException
      * @throws InvalidArgumentException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -826,7 +825,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * @throws CircularReferenceException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
@@ -853,7 +851,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->sql;
     }
 
-    public function getARClass(): string|null
+    public function getARClass(): string|ActiveRecordInterface|Closure
     {
         return $this->arClass;
     }
@@ -866,7 +864,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function findOne(mixed $condition): array|ActiveRecordInterface|null
     {
-        return $this->findByCondition($condition)->onePopulate();
+        return $this->findByCondition($condition)->one();
     }
 
     /**
@@ -889,12 +887,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * This method is internally called by {@see findOne()} and {@see findAll()}.
      *
-     * @param mixed $condition Please refer to {@see findOne()} for the explanation of this parameter.
-     *
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidArgumentException
-     * @throws NotFoundException
      * @throws NotInstantiableException
      */
     protected function findByCondition(mixed $condition): static
@@ -905,7 +900,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $condition = [$condition];
         }
 
-        if (!DbArrayHelper::isAssociative($condition) && !$condition instanceof ExpressionInterface) {
+        if (!DbArrayHelper::isAssociative($condition)) {
             /** query by primary key */
             $primaryKey = $arInstance->primaryKey();
 
@@ -932,18 +927,18 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->where($condition);
     }
 
-    public function findBySql(string $sql, array $params = []): self
+    public function findBySql(string $sql, array $params = []): static
     {
         return $this->sql($sql)->params($params);
     }
 
-    public function on(array|string|null $value): self
+    public function on(array|string|null $value): static
     {
         $this->on = $value;
         return $this;
     }
 
-    public function sql(string|null $value): self
+    public function sql(string|null $value): static
     {
         $this->sql = $value;
         return $this;
@@ -951,19 +946,23 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function getARInstance(): ActiveRecordInterface
     {
-        if ($this->arFactory !== null) {
-            return $this->arFactory->createAR($this->arClass, $this->tableName, $this->db);
+        if ($this->arClass instanceof ActiveRecordInterface) {
+            return clone $this->arClass;
+        }
+
+        if ($this->arClass instanceof Closure) {
+            return ($this->arClass)();
         }
 
         /** @psalm-var class-string<ActiveRecordInterface> $class */
         $class = $this->arClass;
 
-        return new $class($this->db, null, $this->tableName);
+        return new $class();
     }
 
     private function createInstance(): static
     {
-        return (new static($this->arClass, $this->db))
+        return (new static($this->arClass))
             ->where($this->getWhere())
             ->limit($this->getLimit())
             ->offset($this->getOffset())

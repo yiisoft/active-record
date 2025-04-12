@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <psalm
   errorLevel="2"
+  ensureOverrideAttribute="false"
   findUnusedBaselineEntry="true"
   findUnusedCode="false"
   resolveFromConfigFile="true"
@@ -10,8 +11,8 @@
 >
   <projectFiles>
     <directory name="src" />
-      <ignoreFiles>
-        <directory name="vendor" />
+    <ignoreFiles>
+      <directory name="vendor" />
     </ignoreFiles>
   </projectFiles>
   <issueHandlers>

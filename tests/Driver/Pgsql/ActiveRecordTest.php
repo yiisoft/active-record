@@ -4,55 +4,117 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
-use ArrayAccess;
-use Traversable;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ArArrayHelper;
+use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Item;
+use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Promotion;
+use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Type;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BoolAR;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
+use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\JsonExpression;
 use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
+use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    public function setUp(): void
+    protected function createConnection(): ConnectionInterface
     {
-        parent::setUp();
-
-        $pgsqlHelper = new PgsqlHelper();
-        $this->db = $pgsqlHelper->createConnection();
+        return (new PgsqlHelper())->createConnection();
     }
 
-    protected function tearDown(): void
+    protected function createFactory(): Factory
     {
-        parent::tearDown();
+        return (new PgsqlHelper())->createFactory($this->db());
+    }
 
-        $this->db->close();
+    public function testDefaultValues(): void
+    {
+        $this->checkFixture($this->db(), 'type');
 
-        unset($this->db);
+        $arClass = new Type();
+
+        $arClass->loadDefaultValues();
+
+        $this->assertSame(1, $arClass->int_col2);
+        $this->assertSame('something', $arClass->char_col2);
+        $this->assertSame(1.23, $arClass->float_col2);
+        $this->assertSame(33.22, $arClass->numeric_col);
+        $this->assertTrue($arClass->bool_col2);
+        $this->assertSame('2002-01-01 00:00:00', $arClass->time);
+        $this->assertSame(['a' => 1], $arClass->json_col);
+
+        $arClass = new Type();
+        $arClass->char_col2 = 'not something';
+
+        $arClass->loadDefaultValues();
+        $this->assertSame('not something', $arClass->char_col2);
+
+        $arClass = new Type();
+        $arClass->char_col2 = 'not something';
+
+        $arClass->loadDefaultValues(false);
+        $this->assertSame('something', $arClass->char_col2);
+    }
+
+    public function testCastValues(): void
+    {
+        $this->checkFixture($this->db(), 'type');
+
+        $arClass = new Type();
+
+        $arClass->int_col = 123;
+        $arClass->int_col2 = 456;
+        $arClass->smallint_col = 42;
+        $arClass->char_col = '1337';
+        $arClass->char_col2 = 'test';
+        $arClass->char_col3 = 'test123';
+        $arClass->float_col = 3.742;
+        $arClass->float_col2 = 42.1337;
+        $arClass->bool_col = true;
+        $arClass->bool_col2 = false;
+        $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
+
+        $arClass->save();
+
+        /** @var $model Type */
+        $aqClass = new ActiveQuery(Type::class);
+        $query = $aqClass->one();
+
+        $this->assertSame(123, $query->int_col);
+        $this->assertSame(456, $query->int_col2);
+        $this->assertSame(42, $query->smallint_col);
+        $this->assertSame('1337', trim($query->char_col));
+        $this->assertSame('test', $query->char_col2);
+        $this->assertSame('test123', $query->char_col3);
+        $this->assertSame(3.742, $query->float_col);
+        $this->assertSame(42.1337, $query->float_col2);
+        $this->assertTrue($query->bool_col);
+        $this->assertFalse($query->bool_col2);
+        $this->assertSame(['a' => 'b', 'c' => null, 'd' => [1, 2, 3]], $query->json_col);
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db, 'customer');
+        $this->checkFixture($this->db(), 'customer');
 
-        $customer = new Customer($this->db);
-        $customer->id = 1337;
-        $customer->email = 'user1337@example.com';
-        $customer->name = 'user1337';
-        $customer->address = 'address1337';
-        $this->assertTrue($customer->isNewRecord);
+        $customer = new Customer();
+        $customer->setId(1337);
+        $customer->setEmail('user1337@example.com');
+        $customer->setName('user1337');
+        $customer->setAddress('address1337');
+        $this->assertTrue($customer->getIsNewRecord());
 
         $customer->save();
-        $this->assertEquals(1337, $customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertEquals(1337, $customer->getId());
+        $this->assertFalse($customer->getIsNewRecord());
     }
 
     /**
@@ -60,9 +122,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db, 'beta');
+        $this->checkFixture($this->db(), 'beta');
 
-        $betaQuery = new ActiveQuery(Beta::class, $this->db);
+        $betaQuery = new ActiveQuery(Beta::class);
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
 
@@ -70,51 +132,24 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         /** @var Beta[] $betas */
         foreach ($betas as $beta) {
-            $this->assertNotNull($beta->alpha);
-            $this->assertEquals($beta->alpha_string_identifier, $beta->alpha->string_identifier);
-            $alphaIdentifiers[] = $beta->alpha->string_identifier;
+            $this->assertNotNull($beta->getAlpha());
+            $this->assertEquals($beta->getAlphaStringIdentifier(), $beta->getAlpha()->getStringIdentifier());
+            $alphaIdentifiers[] = $beta->getAlpha()->getStringIdentifier();
         }
 
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
     }
 
-    public function testBooleanAttribute(): void
-    {
-        $this->checkFixture($this->db, 'customer', true);
-
-        $customer = new Customer($this->db);
-        $customer->name = 'boolean customer';
-        $customer->email = 'mail@example.com';
-        $customer->bool_status = false;
-        $customer->save();
-
-        $customer->refresh();
-        $this->assertFalse($customer->bool_status);
-
-        $customer->bool_status = true;
-
-        $customer->save();
-        $customer->refresh();
-        $this->assertTrue($customer->bool_status);
-
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customers = $customerQuery->where(['bool_status' => true])->all();
-        $this->assertCount(3, $customers);
-
-        $customers = $customerQuery->where(['bool_status' => false])->all();
-        $this->assertCount(1, $customers);
-    }
-
     public function testBooleanValues(): void
     {
-        $this->checkFixture($this->db, 'bool_values');
+        $this->checkFixture($this->db(), 'bool_values');
 
-        $command = $this->db->createCommand();
-        $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
-        $boolARQuery = new ActiveQuery(BoolAR::class, $this->db);
+        $command = $this->db()->createCommand();
+        $command->insertBatch('bool_values', [[true], [false]], ['bool_col'])->execute();
+        $boolARQuery = new ActiveQuery(BoolAR::class);
 
-        $this->assertTrue($boolARQuery->where(['bool_col' => true])->onePopulate()->bool_col);
-        $this->assertFalse($boolARQuery->where(['bool_col' => false])->onePopulate()->bool_col);
+        $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
+        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
 
         $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
         $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
@@ -133,11 +168,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testBooleanValues2(): void
     {
-        $this->checkFixture($this->db, 'bool_user');
+        $this->checkFixture($this->db(), 'bool_user');
 
-        //$this->db->setCharset('utf8');
-        $this->db->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
-        $this->db->createCommand()->createTable('bool_user', [
+        //$this->db()->setCharset('utf8');
+        $this->db()->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
+        $this->db()->createCommand()->createTable('bool_user', [
             'id' => SchemaPgsql::TYPE_PK,
             'username' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
             'auth_key' => SchemaPgsql::TYPE_STRING . '(32) NOT NULL',
@@ -149,13 +184,13 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
             'created_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
             'updated_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
         ])->execute();
-        $this->db->createCommand()->addColumn(
+        $this->db()->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
             SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
         )->execute();
 
-        $user = new UserAR($this->db);
+        $user = new UserAR();
         $user->username = 'test';
         $user->auth_key = 'test';
         $user->password_hash = 'test';
@@ -164,7 +199,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $user->updated_at = time();
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class, $this->db);
+        $userQuery = new ActiveQuery(UserAR::class);
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
@@ -172,13 +207,13 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testBooleanDefaultValues(): void
     {
-        $this->checkFixture($this->db, 'bool_values');
+        $this->checkFixture($this->db(), 'bool_values');
 
-        $arClass = new BoolAR($this->db);
+        $arClass = new BoolAR();
 
         $this->assertNull($arClass->bool_col);
-        $this->assertNull($arClass->default_true);
-        $this->assertNull($arClass->default_false);
+        $this->assertTrue($arClass->default_true);
+        $this->assertFalse($arClass->default_false);
 
         $arClass->loadDefaultValues();
 
@@ -190,15 +225,15 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testPrimaryKeyAfterSave(): void
     {
-        $this->checkFixture($this->db, 'default_pk');
+        $this->checkFixture($this->db(), 'default_pk');
 
-        $record = new DefaultPk($this->db);
+        $record = new DefaultPk();
 
         $record->type = 'type';
 
         $record->save();
 
-        $this->assertEquals(5, $record->primaryKey);
+        $this->assertEquals(5, $record->getPrimaryKey());
     }
 
     public static function arrayValuesProvider(): array
@@ -206,12 +241,12 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         return [
             'simple arrays values' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int4', 1),
-                    new ArrayExpression([1,-2,null,42], 'int4', 1),
+                    new ArrayExpression([1,-2,null,'42'], 'int4'),
+                    [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
+                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    [['text'], [null], ['1']],
                 ],
                 'json_col' => [['a' => 1, 'b' => null, 'c' => [1,3,5]]],
                 'jsonb_col' => [[null, 'a', 'b', '\"', '{"af"}']],
@@ -223,7 +258,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 ],
                 'textarray2_col' => [
                     [null, null],
-                    new ArrayExpression([null, null], 'text', 2),
+                    [null, null],
                 ],
                 'json_col' => [
                     null,
@@ -235,39 +270,17 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
             'empty arrays values' => [[
                 'textarray2_col' => [
                     [[], []],
-                    new ArrayExpression([], 'text', 2),
-                ],
-            ]],
-            'nested objects' => [[
-                'intarray_col' => [
-                    new ArrayExpression(new ArrayExpression([1,2,3]), 'int', 1),
-                    new ArrayExpression([1,2,3], 'int4', 1),
-                ],
-                'textarray2_col' => [
-                    new ArrayExpression([new ArrayExpression(['text']), [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
-                ],
-                'json_col' => [
-                    new JsonExpression(new JsonExpression(new JsonExpression(['a' => 1, 'b' => null, 'c' => new JsonExpression([1,3,5])]))),
-                    ['a' => 1, 'b' => null, 'c' => [1,3,5]],
-                ],
-                'jsonb_col' => [
-                    new JsonExpression(new ArrayExpression([1,2,3])),
-                    [1,2,3],
-                ],
-                'jsonarray_col' => [
-                    new ArrayExpression([new JsonExpression(['1', 2]), [3,4,5]], 'json'),
-                    new ArrayExpression([['1', 2], [3,4,5]], 'json'),
+                    [],
                 ],
             ]],
             'arrays packed in classes' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int', 1),
-                    new ArrayExpression([1,-2,null,42], 'int4', 1),
+                    new ArrayExpression([1,-2,null,'42'], 'int[]'),
+                    [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text', 2),
-                    new ArrayExpression([['text'], [null], ['1']], 'text', 2),
+                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    [['text'], [null], ['1']],
                 ],
                 'json_col' => [
                     new JsonExpression(['a' => 1, 'b' => null, 'c' => [1,3,5]]),
@@ -279,7 +292,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
                 ],
                 'jsonarray_col' => [
                     new Expression("array['[\",\",\"null\",true,\"false\",\"f\"]'::json]::json[]"),
-                    new ArrayExpression([[',', 'null', true, 'false', 'f']], 'json'),
+                    [[',', 'null', true, 'false', 'f']],
                 ],
             ]],
             'scalars' => [[
@@ -296,89 +309,88 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     /**
      * @dataProvider arrayValuesProvider
      */
-    public function testArrayValues($attributes): void
+    public function testArrayValues($properties): void
     {
-        $this->checkFixture($this->db, 'array_and_json_types', true);
+        $this->checkFixture($this->db(), 'array_and_json_types', true);
 
-        $type = new ArrayAndJsonTypes($this->db);
+        $type = new ArrayAndJsonTypes();
 
-        foreach ($attributes as $attribute => $expected) {
-            $type->$attribute = $expected[0];
+        foreach ($properties as $property => $expected) {
+            $type->set($property, $expected[0]);
         }
 
         $type->save();
 
-        $typeQuery = new ActiveQuery($type::class, $this->db);
+        $typeQuery = new ActiveQuery($type::class);
 
-        $type = $typeQuery->onePopulate();
+        $type = $typeQuery->one();
 
-        foreach ($attributes as $attribute => $expected) {
+        foreach ($properties as $property => $expected) {
             $expected = $expected[1] ?? $expected[0];
-            $value = $type->$attribute;
+            $value = $type->get($property);
 
             if ($expected instanceof ArrayExpression) {
                 $expected = $expected->getValue();
             }
 
-            $this->assertEquals($expected, $value, 'In column ' . $attribute);
-
-            if ($value instanceof ArrayExpression) {
-                $this->assertInstanceOf(ArrayAccess::class, $value);
-                $this->assertInstanceOf(Traversable::class, $value);
-                /** testing arrayaccess */
-                foreach ($type->$attribute as $key => $v) {
-                    $this->assertSame($expected[$key], $value[$key]);
-                }
-            }
+            $this->assertSame($expected, $value, 'In column ' . $property);
         }
 
         /** Testing update */
-        foreach ($attributes as $attribute => $expected) {
-            $type->markAttributeDirty($attribute);
+        foreach ($properties as $property => $expected) {
+            $type->markPropertyChanged($property);
         }
 
         $this->assertSame(1, $type->update(), 'The record got updated');
     }
 
-    public function testToArray(): void
+    public function testRelationViaArray(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'promotion');
 
-        $customerQuery = new ActiveQuery(Customer::class, $this->db);
-        $customer = $customerQuery->findOne(1);
+        $promotionQuery = new ActiveQuery(Promotion::class);
+        /** @var Promotion[] $promotions */
+        $promotions = $promotionQuery->with('itemsViaArray')->all();
 
-        $this->assertSame(
-            [
-                'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 1,
-                'bool_status' => true,
-                'profile_id' => 1,
-            ],
-            $customer->toArray(),
-        );
+        $this->assertSame([1, 2], ArArrayHelper::getColumn($promotions[0]->getItemsViaArray(), 'id'));
+        $this->assertSame([3, 4, 5], ArArrayHelper::getColumn($promotions[1]->getItemsViaArray(), 'id'));
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaArray(), 'id'));
+        $this->assertCount(0, $promotions[3]->getItemsViaArray());
+
+        /** Test inverse relation */
+        foreach ($promotions as $promotion) {
+            foreach ($promotion->getItemsViaArray() as $item) {
+                $this->assertTrue($item->isRelationPopulated('promotionsViaArray'));
+            }
+        }
+
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[0]->getItemsViaArray()[0]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([1], ArArrayHelper::getColumn($promotions[0]->getItemsViaArray()[1]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[1]->getItemsViaArray()[0]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($promotions[1]->getItemsViaArray()[1]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($promotions[1]->getItemsViaArray()[2]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaArray()[0]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaArray()[1]->getPromotionsViaArray(), 'id'));
     }
 
-    public function testToArrayWithClosure(): void
+    public function testLazzyRelationViaArray(): void
     {
-        $this->checkFixture($this->db, 'customer', true);
+        $this->checkFixture($this->db(), 'item');
 
-        $customerQuery = new ActiveQuery(CustomerClosureField::class, $this->db);
-        $customer = $customerQuery->findOne(1);
+        $itemQuery = new ActiveQuery(Item::class);
+        /** @var Item[] $items */
+        $items = $itemQuery->all();
 
-        $this->assertSame(
-            [
-                'id' => 1,
-                'email' => 'user1@example.com',
-                'name' => 'user1',
-                'address' => 'address1',
-                'status' => 'active',
-                'bool_status' => true,
-                'profile_id' => 1,
-            ],
-            $customer->toArray(),
-        );
+        $this->assertFalse($items[0]->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[1]->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[2]->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[3]->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[4]->isRelationPopulated('promotionsViaArray'));
+
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($items[0]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([1], ArArrayHelper::getColumn($items[1]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([2, 3], ArArrayHelper::getColumn($items[2]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($items[3]->getPromotionsViaArray(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($items[4]->getPromotionsViaArray(), 'id'));
     }
 }

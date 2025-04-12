@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Tests\Stubs\ArrayableActiveRecord;
 
 /**
  * Class CustomerClosureField.
- *
- * @property int $id
- * @property string $name
- * @property string $email
- * @property string $address
- * @property int $status
  */
-final class CustomerClosureField extends ActiveRecord
+final class CustomerClosureField extends ArrayableActiveRecord
 {
+    protected int $id;
+    protected string $email;
+    protected string|null $name = null;
+    protected string|null $address = null;
+    protected int|null $status = 0;
+    protected bool|string|null $bool_status = false;
+    protected int|null $profile_id = null;
+
     public function getTableName(): string
     {
         return 'customer';
