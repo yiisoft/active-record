@@ -69,7 +69,7 @@ CREATE TABLE "customer" (
   "name" varchar2(128),
   "address" varchar(4000),
   "status" integer DEFAULT 0,
-  "bool_status" char DEFAULT 0 check ("bool_status" in (0,1)),
+  "bool_status" char(1) DEFAULT 0 check ("bool_status" in (0,1)),
   "profile_id" integer,
   CONSTRAINT "customer_PK" PRIMARY KEY ("id") ENABLE
 );
@@ -169,7 +169,7 @@ CREATE TABLE "type" (
   "bool_col" char NOT NULL check ("bool_col" in (0,1)),
   "bool_col2" char DEFAULT 1 check("bool_col2" in (0,1)),
   "ts_default" TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "bit_col" char(3) DEFAULT 130 NOT NULL,
+  "bit_col" number(3) DEFAULT 130 NOT NULL,
   "json_col" clob DEFAULT '{"a":1}' CHECK ("json_col" is json)
 );
 
@@ -242,7 +242,7 @@ CREATE TABLE "bit_values" (
   "id" integer not null,
   "val" char(1) NOT NULL,
   CONSTRAINT "bit_values_PK" PRIMARY KEY ("id") ENABLE,
-  CONSTRAINT "bit_values_val" CHECK ("val" IN ('1','0'))
+  CONSTRAINT "bit_values_val" CHECK ("val" IN (0,1))
 );
 
 CREATE TABLE "T_constraints_1"
@@ -382,9 +382,9 @@ INSERT INTO "animal" ("type") VALUES ('yiiunit\data\ar\Dog');
 INSERT INTO "profile" ("description") VALUES ('profile customer 1');
 INSERT INTO "profile" ("description") VALUES ('profile customer 3');
 
-INSERT INTO "customer" ("email", "name", "address", "status", "bool_status", "profile_id") VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
-INSERT INTO "customer" ("email", "name", "address", "status", "bool_status") VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
-INSERT INTO "customer" ("email", "name", "address", "status", "bool_status", "profile_id") VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
+INSERT INTO "customer" ("email", "name", "address", "status", "bool_status", "profile_id") VALUES ('user1@example.com', 'user1', 'address1', 1, '1', 1);
+INSERT INTO "customer" ("email", "name", "address", "status", "bool_status") VALUES ('user2@example.com', 'user2', 'address2', 1, '1');
+INSERT INTO "customer" ("email", "name", "address", "status", "bool_status", "profile_id") VALUES ('user3@example.com', 'user3', 'address3', 2, '0', 2);
 
 INSERT INTO "category" ("name") VALUES ('Books');
 INSERT INTO "category" ("name") VALUES ('Movies');

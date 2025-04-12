@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
-use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\BitValues;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
@@ -387,18 +386,5 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertCount(0, $orders[0]->getItemsIndexed());
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
-    }
-
-    public function testBit(): void
-    {
-        $this->checkFixture($this->db(), 'bit_values');
-
-        $bitValueQuery = new ActiveQuery(BitValues::class);
-        $falseBit = $bitValueQuery->findOne(1);
-        $this->assertSame('0', $falseBit->val);
-
-        $bitValueQuery = new ActiveQuery(BitValues::class);
-        $trueBit = $bitValueQuery->findOne(2);
-        $this->assertSame('1', $trueBit->val);
     }
 }

@@ -15,6 +15,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  * @property string $email
  * @property string $address
  * @property int $status
+ * @property bool $bool_status
  */
 class Customer extends MagicActiveRecord
 {

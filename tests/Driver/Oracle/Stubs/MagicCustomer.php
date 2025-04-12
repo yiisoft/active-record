@@ -14,6 +14,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
  * @property string $email
  * @property string $address
  * @property int $status
+ * @property bool $bool_status
  */
 final class MagicCustomer extends \Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer
 {
