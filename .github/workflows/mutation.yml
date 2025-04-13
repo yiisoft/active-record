@@ -61,8 +61,15 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
+      - name: Install db.
+        uses: yiisoft/actions/install-subpackage@install-subpackage
+        with:
+          subpackage: db
+
       - name: Install db-pgsql.
-        run: composer require yiisoft/db-pgsql --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+        uses: yiisoft/actions/install-subpackage@install-subpackage
+        with:
+          subpackage: db-pgsql
 
       - name: Run infection.
         run: |
