@@ -107,6 +107,9 @@ trait ActiveQueryTrait
      *
      * @throws InvalidConfigException
      * @return ActiveRecordInterface[]|array[] The model instances.
+     *
+     * @psalm-param non-empty-list<array> $rows
+     * @psalm-return non-empty-list<ActiveRecordInterface|array>
      */
     protected function createModels(array $rows): array
     {
@@ -116,10 +119,11 @@ trait ActiveQueryTrait
 
         if ($this->resultCallback !== null) {
             $rows = ($this->resultCallback)($rows);
-        }
 
-        if ($rows[0] instanceof ActiveRecordInterface) {
-            return $rows;
+            if ($rows[0] instanceof ActiveRecordInterface) {
+                /** @psalm-var non-empty-list<ActiveRecordInterface> */
+                return $rows;
+            }
         }
 
         $models = [];
@@ -147,7 +151,8 @@ trait ActiveQueryTrait
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @param-out ActiveRecordInterface[]|array[] $models
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $models
      */
     public function findWith(array $with, array &$models): void
     {

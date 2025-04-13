@@ -103,7 +103,7 @@ use function substr;
  * @psalm-import-type ARClass from ActiveQueryInterface
  * @psalm-import-type IndexKey from ArArrayHelper
  *
- * @psalm-property IndexKey $indexBy
+ * @psalm-property IndexKey|null $indexBy
  * @psalm-suppress ClassMustBeFinal
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
@@ -126,6 +126,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function each(int $batchSize = 100): DataReaderInterface
     {
+        /** @psalm-suppress InvalidArgument */
         return $this->createCommand()
             ->query()
             ->indexBy($this->indexBy)
@@ -223,6 +224,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws NotSupportedException
      * @throws ReflectionException
      * @throws Throwable
+     *
+     * @psalm-param list<array> $rows
+     * @psalm-return (
+     *     $rows is non-empty-list<array>
+     *         ? non-empty-list<ActiveRecordInterface|array>
+     *         : list<ActiveRecordInterface|array>
+     * )
      */
     public function populate(array $rows): array
     {
@@ -260,6 +268,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws NotInstantiableException
      *
      * @return array[] The distinctive rows.
+     *
+     * @psalm-param non-empty-list<array> $rows
+     * @psalm-return non-empty-list<array>
      */
     private function removeDuplicatedRows(array $rows): array
     {
@@ -286,6 +297,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             );
         }
 
+        /** @psalm-var non-empty-list<array> */
         return array_values(array_combine($hash, $rows));
     }
 
