@@ -16,8 +16,6 @@ jobs:
   rector:
     uses: yiisoft/actions/.github/workflows/rector.yml@install-subpackage
     with:
-      os: >-
-        ['ubuntu-latest']
       php: >-
         ['8.4']
       subpackage: db
