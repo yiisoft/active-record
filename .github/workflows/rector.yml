@@ -6,7 +6,7 @@ on:
       - 'composer.json'
       - 'rector.php'
 
-name: rector
+name: Rector
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
