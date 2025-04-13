@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   composer-require-checker:
-    uses: yiisoft/actions/.github/workflows/composer-require-checker.yml@master
+    uses: yiisoft/actions/.github/workflows/composer-require-checker.yml@install-subpackage
     with:
       os: >-
         ['ubuntu-latest']
