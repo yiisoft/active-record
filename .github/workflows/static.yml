@@ -14,7 +14,7 @@ on:
       - 'psalm*.xml'
       - 'composer.json'
 
-name: static analysis
+name: Static analysis
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
