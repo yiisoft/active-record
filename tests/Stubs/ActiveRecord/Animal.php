@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
-use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
  * Class Animal.

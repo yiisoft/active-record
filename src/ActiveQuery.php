@@ -25,7 +25,6 @@ use function array_column;
 use function array_combine;
 use function array_flip;
 use function array_intersect_key;
-use function array_key_first;
 use function array_map;
 use function array_merge;
 use function array_values;
