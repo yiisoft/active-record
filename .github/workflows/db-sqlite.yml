@@ -60,31 +60,17 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Set environment variables pull request linux.
-        if: matrix.os == 'ubuntu-latest'
-        uses: yiisoft/actions/db/environment-linux@master
-
-      - name: Set environment variables pull request windows.
-        if: matrix.os == 'windows-latest'
-        uses: yiisoft/actions/db/environment-windows@master
-
       - name: Install db.
-        uses: yiisoft/actions/db/subpackage-install@master
+        uses: yiisoft/actions/install-subpackage@install-subpackage
         with:
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
-          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
-          CURRENT_PACKAGE: db
-          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
-          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+          subpackage: db
+          os: ${{ matrix.os }}
 
       - name: Install db-sqlite.
-        uses: yiisoft/actions/db/subpackage-install@master
+        uses: yiisoft/actions/install-subpackage@install-subpackage
         with:
-          BRANCH_NAME: ${{ env.BRANCH_NAME }}
-          COMPOSER_ROOT_VERSION: ${{ env.COMPOSER_ROOT_VERSION }}
-          CURRENT_PACKAGE: db-sqlite
-          FULL_BRANCH_NAME: ${{ env.FULL_BRANCH_NAME }}
-          WORK_PACKAGE_URL: ${{ env.WORK_PACKAGE_URL }}
+          subpackage: db-sqlite
+          os: ${{ matrix.os }}
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Sqlite --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
