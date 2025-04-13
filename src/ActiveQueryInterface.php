@@ -351,11 +351,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param array[] $rows The raw query result from a database.
      *
-     * @psalm-param IndexKey|null $indexBy
-     *
      * @return ActiveRecordInterface[]|array[] The converted query result.
      */
-    public function populate(array $rows, Closure|string|null $indexBy = null): array;
+    public function populate(array $rows): array;
 
     /**
      * Returns related record(s).

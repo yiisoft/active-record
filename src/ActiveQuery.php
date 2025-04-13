@@ -14,8 +14,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Helper\DbArrayHelper;
-use Yiisoft\Db\Query\BatchQueryResultInterface;
-use Yiisoft\Db\Query\Data\DataReaderInterface;
+use Yiisoft\Db\Query\DataReaderInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
@@ -126,27 +125,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         parent::__construct($this->getARInstance()->db());
     }
 
-    public function all(): array
-    {
-        if ($this->shouldEmulateExecution()) {
-            return [];
-        }
-
-        return $this->populate($this->createCommand()->queryAll(), $this->indexBy);
-    }
-
-    public function batch(int $batchSize = 100): BatchQueryResultInterface
-    {
-        return parent::batch($batchSize)->setPopulatedMethod($this->populate(...));
-    }
-
     public function each(): DataReaderInterface
     {
-        if ($this->getCallback() === null) {
-            $this->setCallback(fn (array $row) => $this->populate($row));
-        }
-
-        return parent::each();
+        return $this->createCommand()
+            ->query()
+            ->indexBy($this->indexBy)
+            ->resultCallback($this->populate(...));
     }
 
     /**
@@ -241,21 +225,17 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws ReflectionException
      * @throws Throwable
      */
-    public function populate(array $rows, Closure|string|null $indexBy = null): array
+    public function populate(array $rows): array
     {
         if (empty($rows)) {
             return [];
         }
 
+        if (!empty($this->join) && $this->indexBy === null) {
+            $rows = $this->removeDuplicatedRows($rows);
+        }
+
         $models = $this->createModels($rows);
-
-        if (empty($models)) {
-            return [];
-        }
-
-        if (!empty($this->join) && $this->getIndexBy() === null) {
-            $models = $this->removeDuplicatedModels($models);
-        }
 
         if (!empty($this->with)) {
             $this->findWith($this->with, $models);
@@ -265,88 +245,58 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return ArArrayHelper::index($models, $indexBy);
+        return $models;
     }
 
     /**
-     * Removes duplicated models by checking their primary key values.
+     * Removes duplicated rows by checking their primary key values.
      *
      * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
      *
-     * @param ActiveRecordInterface[]|array[] $models The models to be checked.
+     * @param array[] $rows The rows to be checked.
      *
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      *
-     * @return ActiveRecordInterface[]|array[] The distinctive models.
+     * @return array[] The distinctive rows.
      */
-    private function removeDuplicatedModels(array $models): array
+    private function removeDuplicatedRows(array $rows): array
     {
-        $model = reset($models);
+        $instance = $this->getARInstance();
+        $pks = $instance->primaryKey();
 
-        if ($this->asArray) {
-            $instance = $this->getARInstance();
-            $pks = $instance->primaryKey();
+        if (empty($pks)) {
+            throw new InvalidConfigException('Primary key of "' . $instance::class . '" can not be empty.');
+        }
 
-            if (empty($pks)) {
-                throw new InvalidConfigException('Primary key of "' . $instance::class . '" can not be empty.');
-            }
-
-            foreach ($pks as $pk) {
-                /** @var array $model */
-                if (!isset($model[$pk])) {
-                    return $models;
-                }
-            }
-
-            /** @var array[] $models */
-            if (count($pks) === 1) {
-                $hash = array_column($models, reset($pks));
-            } else {
-                $flippedPks = array_flip($pks);
-                $hash = array_map(
-                    static fn (array $model): string => serialize(array_intersect_key($model, $flippedPks)),
-                    $models
-                );
-            }
-        } else {
-            /** @var ActiveRecordInterface $model */
-            $pks = $model->getPrimaryKey(true);
-
-            if (empty($pks)) {
-                throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
-            }
-
-            /** @var ActiveRecordInterface[] $models */
-            foreach ($pks as $pk) {
-                if ($pk === null) {
-                    return $models;
-                }
-            }
-
-            if (count($pks) === 1) {
-                $key = array_key_first($pks);
-                $hash = array_map(
-                    static fn (ActiveRecordInterface $model): string => (string) $model->get($key),
-                    $models
-                );
-            } else {
-                $hash = array_map(
-                    static fn (ActiveRecordInterface $model): string => serialize($model->getPrimaryKey(true)),
-                    $models
-                );
+        foreach ($pks as $pk) {
+            if (!isset($rows[0][$pk])) {
+                return $rows;
             }
         }
 
-        return array_values(array_combine($hash, $models));
+        if (count($pks) === 1) {
+            $hash = array_column($rows, reset($pks));
+        } else {
+            $flippedPks = array_flip($pks);
+            $hash = array_map(
+                static fn (array $row): string => serialize(array_intersect_key($row, $flippedPks)),
+                $rows
+            );
+        }
+
+        return array_values(array_combine($hash, $rows));
     }
 
     public function one(): array|ActiveRecordInterface|null
     {
-        /** @var array|null $row */
-        $row = parent::one();
+        if ($this->shouldEmulateExecution()) {
+            return null;
+        }
+
+        $row = $this->createCommand()->queryOne();
 
         if ($row === null) {
             return null;
@@ -958,6 +908,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $class = $this->arClass;
 
         return new $class();
+    }
+
+    protected function index(array $rows): array
+    {
+        return ArArrayHelper::index($this->populate($rows), $this->indexBy);
     }
 
     private function createInstance(): static

@@ -32,13 +32,6 @@ class Animal extends MagicActiveRecord
         return $this->does;
     }
 
-    public function instantiate($row): ActiveRecordInterface
-    {
-        $class = $row['type'];
-
-        return new $class($this->db());
-    }
-
     public function setDoes(string $value): void
     {
         $this->does = $value;

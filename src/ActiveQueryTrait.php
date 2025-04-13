@@ -114,21 +114,24 @@ trait ActiveQueryTrait
             return $rows;
         }
 
-        $arClassInstance = [];
+        if ($this->resultCallback !== null) {
+            $rows = ($this->resultCallback)($rows);
+        }
+
+        if ($rows[0] instanceof ActiveRecordInterface) {
+            return $rows;
+        }
+
+        $models = [];
 
         foreach ($rows as $row) {
             $arClass = $this->getARInstance();
-
-            if (method_exists($arClass, 'instantiate')) {
-                $arClass = $arClass->instantiate($row);
-            }
-
             $arClass->populateRecord($row);
 
-            $arClassInstance[] = $arClass;
+            $models[] = $arClass;
         }
 
-        return $arClassInstance;
+        return $models;
     }
 
     /**

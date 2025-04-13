@@ -32,13 +32,6 @@ class Animal extends ActiveRecord
         return $this->does;
     }
 
-    public function instantiate($row): ActiveRecordInterface
-    {
-        $class = $row['type'];
-
-        return new $class();
-    }
-
     public function setDoes(string $value): void
     {
         $this->does = $value;

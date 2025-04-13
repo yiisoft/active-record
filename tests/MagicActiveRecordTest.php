@@ -23,6 +23,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
+use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -227,7 +228,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $dog = new Dog();
         $dog->save();
 
-        $animal = new ActiveQuery(Animal::class);
+        $animal = (new ActiveQuery(Animal::class))->resultCallback(ModelFactory::create(...));
 
         $animals = $animal->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animals->getDoes());
