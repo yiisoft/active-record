@@ -87,7 +87,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
-        $customers = $customerQuery->where(['bool_status' => false])->all();
+        $customers = $customerQuery->setWhere(['bool_status' => false])->all();
         $this->assertCount(1, $customers);
     }
 
@@ -100,18 +100,18 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $boolARQuery = new ActiveQuery(BoolAR::class);
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
-        $this->assertFalse($boolARQuery->where(['bool_col' => false])->one()->bool_col);
+        $this->assertFalse($boolARQuery->setWhere(['bool_col' => false])->one()->bool_col);
 
-        $this->assertEquals(1, $boolARQuery->where('bool_col = TRUE')->count('*'));
-        $this->assertEquals(1, $boolARQuery->where('bool_col = FALSE')->count('*'));
-        $this->assertEquals(2, $boolARQuery->where('bool_col IN (TRUE, FALSE)')->count('*'));
+        $this->assertEquals(1, $boolARQuery->setWhere('bool_col = TRUE')->count('*'));
+        $this->assertEquals(1, $boolARQuery->setWhere('bool_col = FALSE')->count('*'));
+        $this->assertEquals(2, $boolARQuery->setWhere('bool_col IN (TRUE, FALSE)')->count('*'));
 
-        $this->assertEquals(1, $boolARQuery->where(['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolARQuery->where(['bool_col' => false])->count('*'));
-        $this->assertEquals(2, $boolARQuery->where(['bool_col' => [true, false]])->count('*'));
+        $this->assertEquals(1, $boolARQuery->setWhere(['bool_col' => true])->count('*'));
+        $this->assertEquals(1, $boolARQuery->setWhere(['bool_col' => false])->count('*'));
+        $this->assertEquals(2, $boolARQuery->setWhere(['bool_col' => [true, false]])->count('*'));
 
-        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => true])->count('*'));
-        $this->assertEquals(1, $boolARQuery->where('bool_col = :bool_col', ['bool_col' => false])->count('*'));
+        $this->assertEquals(1, $boolARQuery->setWhere('bool_col = :bool_col', ['bool_col' => true])->count('*'));
+        $this->assertEquals(1, $boolARQuery->setWhere('bool_col = :bool_col', ['bool_col' => false])->count('*'));
     }
 
     /**
@@ -152,8 +152,8 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $userQuery = new ActiveQuery(UserAR::class);
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
-        $this->assertCount(0, $userQuery->where(['is_deleted' => true])->all());
-        $this->assertCount(1, $userQuery->where(['is_deleted' => [true, false]])->all());
+        $this->assertCount(0, $userQuery->setWhere(['is_deleted' => true])->all());
+        $this->assertCount(1, $userQuery->setWhere(['is_deleted' => [true, false]])->all());
     }
 
     public function testBooleanDefaultValues(): void

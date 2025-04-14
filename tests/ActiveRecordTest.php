@@ -239,7 +239,7 @@ abstract class ActiveRecordTest extends TestCase
         $animals = $animal->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animals->getDoes());
 
-        $animals = $animal->where(['type' => Cat::class])->one();
+        $animals = $animal->setWhere(['type' => Cat::class])->one();
         $this->assertEquals('meow', $animals->getDoes());
     }
 
