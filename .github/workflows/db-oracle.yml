@@ -74,14 +74,14 @@ jobs:
         run: composer self-update
 
       - name: Install db.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: db
+          required-package: db
 
       - name: Install db-oracle.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: db-oracle
+          required-package: db-oracle
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Oracle --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations

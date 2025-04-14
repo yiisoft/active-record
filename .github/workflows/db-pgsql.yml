@@ -68,14 +68,14 @@ jobs:
         run: composer self-update
 
       - name: Install db.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: db
+          required-package: db
 
       - name: Install db-pgsql.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: db-pgsql
+          required-package: db-pgsql
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Pgsql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations

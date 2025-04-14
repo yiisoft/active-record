@@ -18,4 +18,4 @@ jobs:
     with:
       php: >-
         ['8.4']
-      subpackage: db
+      required-package: db

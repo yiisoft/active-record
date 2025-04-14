@@ -61,15 +61,15 @@ jobs:
         run: composer self-update
 
       - name: Install db.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: db
+          required-package: db
           os: ${{ matrix.os }}
 
       - name: Install db-sqlite.
-        uses: yiisoft/actions/install-subpackage@install-subpackage
+        uses: yiisoft/actions/install-required-package@install-subpackage
         with:
-          subpackage: db-sqlite
+          required-package: db-sqlite
           os: ${{ matrix.os }}
 
       - name: Run tests with phpunit.
