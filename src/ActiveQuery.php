@@ -130,7 +130,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->createCommand()
             ->query()
             ->indexBy($this->indexBy)
-            ->resultCallback($this->populate(...));
+            ->resultCallback($this->populateOne(...));
     }
 
     /**
@@ -313,7 +313,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return null;
         }
 
-        return $this->populate([$row])[0];
+        return $this->populateOne($row);
     }
 
     /**
@@ -944,5 +944,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->setUnions($this->union)
             ->params($this->params)
             ->withQueries($this->withQueries);
+    }
+
+    private function populateOne(array $row): ActiveRecordInterface|array
+    {
+        return $this->populate([$row])[0];
     }
 }
