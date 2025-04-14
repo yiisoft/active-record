@@ -43,24 +43,25 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $arClass->loadDefaultValues();
 
-        $this->assertEquals(1, $arClass->int_col2);
-        $this->assertEquals('something', $arClass->char_col2);
-        $this->assertEquals(1.23, $arClass->float_col2);
-        $this->assertEquals(33.22, $arClass->numeric_col);
+        $this->assertSame(1, $arClass->int_col2);
+        $this->assertSame('something', $arClass->char_col2);
+        $this->assertSame(1.23, $arClass->float_col2);
+        $this->assertSame(33.22, $arClass->numeric_col);
         $this->assertTrue($arClass->bool_col2);
-        $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
+        $this->assertSame('2002-01-01 00:00:00', $arClass->time);
+        $this->assertSame(['a' => 1], $arClass->json_col);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues();
-        $this->assertEquals('not something', $arClass->char_col2);
+        $this->assertSame('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
         $arClass->loadDefaultValues(false);
-        $this->assertEquals('something', $arClass->char_col2);
+        $this->assertSame('something', $arClass->char_col2);
     }
 
     public function testCastValues(): void
@@ -95,8 +96,8 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame('test123', $query->char_col3);
         $this->assertSame(3.742, $query->float_col);
         $this->assertSame(42.1337, $query->float_col2);
-        $this->assertEquals(true, $query->bool_col);
-        $this->assertEquals(false, $query->bool_col2);
+        $this->assertTrue($query->bool_col);
+        $this->assertFalse($query->bool_col2);
         $this->assertSame(['a' => 'b', 'c' => null, 'd' => [1, 2, 3]], $query->json_col);
     }
 

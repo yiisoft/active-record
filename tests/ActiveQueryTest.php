@@ -2220,8 +2220,8 @@ abstract class ActiveQueryTest extends TestCase
         $query = new ActiveQuery(Customer::class);
 
         $customer = $query->findOne(1);
-        $this->assertEquals(true, $customer->get('bool_status'));
-        $this->assertEquals(true, $customer->oldValue('bool_status'));
+        $this->assertTrue($customer->get('bool_status'));
+        $this->assertTrue($customer->oldValue('bool_status'));
 
         $customer->set('bool_status', 1);
 
