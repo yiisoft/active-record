@@ -12,7 +12,7 @@ on:
       - '.github/workflows/mutation.yml'
       - 'composer.json'
 
-name: mutation
+name: Mutation
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
