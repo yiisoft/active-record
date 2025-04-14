@@ -67,15 +67,11 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Install db.
-        uses: yiisoft/actions/install-required-package@install-subpackage
+      - name: Install db and db-mysql.
+        uses: yiisoft/actions/install-packages@install-subpackage
         with:
-          required-package: db
-
-      - name: Install db-mysql.
-        uses: yiisoft/actions/install-required-package@install-subpackage
-        with:
-          required-package: db-mysql
+          packages: >-
+            ['db', 'db-mysql']
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Mysql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations

@@ -75,15 +75,11 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Install db.
-        uses: yiisoft/actions/install-required-package@install-subpackage
+      - name: Install db and db-mssql.
+        uses: yiisoft/actions/install-packages@install-subpackage
         with:
-          required-package: db
-
-      - name: Install db-mssql.
-        uses: yiisoft/actions/install-required-package@install-subpackage
-        with:
-          required-package: db-mssql
+          packages: >-
+            ['db', 'db-mssql']
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Mssql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations

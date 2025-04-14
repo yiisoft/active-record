@@ -60,17 +60,11 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Install db.
-        uses: yiisoft/actions/install-required-package@install-subpackage
+      - name: Install db and db-sqlite.
+        uses: yiisoft/actions/install-packages@install-subpackage
         with:
-          required-package: db
-          os: ${{ matrix.os }}
-
-      - name: Install db-sqlite.
-        uses: yiisoft/actions/install-required-package@install-subpackage
-        with:
-          required-package: db-sqlite
-          os: ${{ matrix.os }}
+          packages: >-
+            ['db', 'db-sqlite']
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Sqlite --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
