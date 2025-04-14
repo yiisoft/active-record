@@ -140,33 +140,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
     }
 
-    public function testBooleanProperty(): void
-    {
-        $this->checkFixture($this->db(), 'customer', true);
-
-        $customer = new Customer();
-        $customer->setName('boolean customer');
-        $customer->setEmail('mail@example.com');
-        $customer->setBoolStatus(false);
-        $customer->save();
-
-        $customer->refresh();
-        $this->assertFalse($customer->getBoolStatus());
-
-        $customer->setBoolStatus(true);
-
-        $customer->save();
-        $customer->refresh();
-        $this->assertTrue($customer->getBoolStatus());
-
-        $customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->where(['bool_status' => true])->all();
-        $this->assertCount(3, $customers);
-
-        $customers = $customerQuery->setWhere(['bool_status' => false])->all();
-        $this->assertCount(1, $customers);
-    }
-
     public function testBooleanValues(): void
     {
         $this->checkFixture($this->db(), 'bool_values');
