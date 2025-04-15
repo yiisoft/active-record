@@ -12,7 +12,7 @@ on:
       - '.github/workflows/mutation.yml'
       - 'composer.json'
 
-name: mutation
+name: Mutation
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -37,7 +37,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_USER: root
           POSTGRES_PASSWORD: root
@@ -61,8 +61,11 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Install db-pgsql.
-        run: composer require yiisoft/db-pgsql --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
+      - name: Install db and db-pgsql.
+        uses: yiisoft/actions/install-packages@master
+        with:
+          packages: >-
+            ['db', 'db-pgsql']
 
       - name: Run infection.
         run: |

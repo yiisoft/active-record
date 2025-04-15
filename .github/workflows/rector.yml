@@ -6,7 +6,7 @@ on:
       - 'composer.json'
       - 'rector.php'
 
-name: rector
+name: Rector
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,7 +16,7 @@ jobs:
   rector:
     uses: yiisoft/actions/.github/workflows/rector.yml@master
     with:
-      os: >-
-        ['ubuntu-latest']
       php: >-
         ['8.4']
+      required-packages: >-
+        ['db']
