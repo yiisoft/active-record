@@ -48,10 +48,10 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $this->assertTrue($customerQuery->where(['[[id]]' => 2])->exists());
-        $this->assertTrue($customerQuery->where(['[[id]]' => 2])->select('[[name]]')->exists());
+        $this->assertTrue($customerQuery->setWhere(['[[id]]' => 2])->select('[[name]]')->exists());
 
-        $this->assertFalse($customerQuery->where(['[[id]]' => 42])->exists());
-        $this->assertFalse($customerQuery->where(['[[id]]' => 42])->select('[[name]]')->exists());
+        $this->assertFalse($customerQuery->setWhere(['[[id]]' => 42])->exists());
+        $this->assertFalse($customerQuery->setWhere(['[[id]]' => 42])->select('[[name]]')->exists());
     }
 
     public function testFindColumn(): void
@@ -104,7 +104,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertCount(0, $orders->getBooks());
         $this->assertEquals(2, $orders->get('id'));
 
-        $orders = $orderQuery->where(['id' => 1])->asArray()->one();
+        $orders = $orderQuery->setWhere(['id' => 1])->asArray()->one();
         $this->assertIsArray($orders);
     }
 
@@ -234,7 +234,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer = $customerQuery->findOne(['id' => [5, 6, 1]]);
         $this->assertInstanceOf(Customer::class, $customer);
 
-        $customer = $customerQuery->where(['id' => [5, 6, 1]])->one();
+        $customer = $customerQuery->setWhere(['id' => [5, 6, 1]])->one();
         $this->assertNotNull($customer);
 
         /** find by column values */
@@ -380,9 +380,9 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $this->assertEquals(3, $customerQuery->count());
         $this->assertEquals(1, $customerQuery->where(['id' => 1])->count());
-        $this->assertEquals(2, $customerQuery->where(['id' => [1, 2]])->count());
-        $this->assertEquals(2, $customerQuery->where(['id' => [1, 2]])->offset(1)->count());
-        $this->assertEquals(2, $customerQuery->where(['id' => [1, 2]])->offset(2)->count());
+        $this->assertEquals(2, $customerQuery->setWhere(['id' => [1, 2]])->count());
+        $this->assertEquals(2, $customerQuery->setWhere(['id' => [1, 2]])->offset(1)->count());
+        $this->assertEquals(2, $customerQuery->setWhere(['id' => [1, 2]])->offset(2)->count());
 
         $customerQuery = new ActiveQuery(Customer::class);
         $this->assertEquals(3, $customerQuery->limit(1)->count());
@@ -455,27 +455,27 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $this->assertCount(
             2,
-            $customerQuery->where(['OR', ['name' => 'user1'], ['name' => 'user2']])->all()
+            $customerQuery->setWhere(['OR', ['name' => 'user1'], ['name' => 'user2']])->all()
         );
 
         $this->assertEquals(
             2,
-            $customerQuery->where(['name' => ['user1', 'user2']])->count()
+            $customerQuery->setWhere(['name' => ['user1', 'user2']])->count()
         );
 
         $this->assertCount(
             2,
-            $customerQuery->where(['name' => ['user1', 'user2']])->all()
+            $customerQuery->setWhere(['name' => ['user1', 'user2']])->all()
         );
 
         $this->assertEquals(
             1,
-            $customerQuery->where(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->count()
+            $customerQuery->setWhere(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->count()
         );
 
         $this->assertCount(
             1,
-            $customerQuery->where(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->all()
+            $customerQuery->setWhere(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->all()
         );
     }
 
@@ -489,7 +489,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer->setName(null);
         $customer->save();
 
-        $result = $customerQuery->where(['name' => null])->all();
+        $result = $customerQuery->setWhere(['name' => null])->all();
         $this->assertCount(1, $result);
         $this->assertEquals(2, reset($result)->getPrimaryKey());
     }
@@ -652,13 +652,13 @@ abstract class ActiveQueryFindTest extends TestCase
         $customers = $customerQuery->where(['id' => [1]])->all();
         $this->assertCount(1, $customers);
 
-        $customers = $customerQuery->where(['id' => []])->all();
+        $customers = $customerQuery->setWhere(['id' => []])->all();
         $this->assertCount(0, $customers);
 
-        $customers = $customerQuery->where(['IN', 'id', [1]])->all();
+        $customers = $customerQuery->setWhere(['IN', 'id', [1]])->all();
         $this->assertCount(1, $customers);
 
-        $customers = $customerQuery->where(['IN', 'id', []])->all();
+        $customers = $customerQuery->setWhere(['IN', 'id', []])->all();
         $this->assertCount(0, $customers);
     }
 
@@ -675,7 +675,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertTrue(isset($items[1]));
         $this->assertTrue(isset($items[2]));
 
-        $order = $orderQuery->with('itemsIndexed')->where(['id' => 2])->one();
+        $order = $orderQuery->with('itemsIndexed')->setWhere(['id' => 2])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
 
         $items = $order->getItemsIndexed();

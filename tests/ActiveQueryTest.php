@@ -425,7 +425,6 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $customers = $customerQuery->findOne(1);
-        $this->assertNotNull($customerQuery);
 
         $items = $customers->getOrderItems();
 
@@ -460,7 +459,7 @@ abstract class ActiveQueryTest extends TestCase
         sort($ids);
         $this->assertEquals([1, 3], $ids);
 
-        $categories = $categoryQuery->where(['id' => 2])->one();
+        $categories = $categoryQuery->setWhere(['id' => 2])->one();
         $this->assertNotNull($categories);
 
         $orders = $categories->getOrders();
@@ -1393,8 +1392,7 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->with('orders2')->where(['id' => 1])->one();
         $this->assertSame($customer->getOrders2()[0]->getCustomer2(), $customer);
 
-        //$customerQuery = new ActiveQuery(Customer::class);
-        $customers = $customerQuery->with('orders2')->where(['id' => [1, 3]])->all();
+        $customers = $customerQuery->with('orders2')->setWhere(['id' => [1, 3]])->all();
         $this->assertEmpty($customers[1]->getOrders2());
         $this->assertSame($customers[0]->getOrders2()[0]->getCustomer2(), $customers[0]);
 
@@ -1730,7 +1728,7 @@ abstract class ActiveQueryTest extends TestCase
         $category->unlinkAll('limitedItems', true);
 
         /** Make sure that only one item was unlinked */
-        $itemsCount = $itemQuery->where(['category_id' => 2])->count();
+        $itemsCount = $itemQuery->setWhere(['category_id' => 2])->count();
         $this->assertEquals(2, $itemsCount);
 
         /** Call $categoryQuery again to ensure no items were found */
@@ -1765,7 +1763,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(0, $orderQuery->one()->getLimitedItems());
 
         /** Make sure that only links were removed, the items were not removed */
-        $this->assertEquals(3, $itemQuery->where(['category_id' => 2])->count());
+        $this->assertEquals(3, $itemQuery->setWhere(['category_id' => 2])->count());
     }
 
     /**
@@ -2350,12 +2348,12 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new ActiveQuery(Customer::class);
 
         $this->assertTrue($customer->where(['id' => 2])->exists());
-        $this->assertFalse($customer->where(['id' => 5])->exists());
-        $this->assertTrue($customer->where(['name' => 'user1'])->exists());
-        $this->assertFalse($customer->where(['name' => 'user5'])->exists());
-        $this->assertTrue($customer->where(['id' => [2, 3]])->exists());
-        $this->assertTrue($customer->where(['id' => [2, 3]])->offset(1)->exists());
-        $this->assertFalse($customer->where(['id' => [2, 3]])->offset(2)->exists());
+        $this->assertFalse($customer->setWhere(['id' => 5])->exists());
+        $this->assertTrue($customer->setWhere(['name' => 'user1'])->exists());
+        $this->assertFalse($customer->setWhere(['name' => 'user5'])->exists());
+        $this->assertTrue($customer->setWhere(['id' => [2, 3]])->exists());
+        $this->assertTrue($customer->setWhere(['id' => [2, 3]])->offset(1)->exists());
+        $this->assertFalse($customer->setWhere(['id' => [2, 3]])->offset(2)->exists());
     }
 
     public function testUnlink(): void
