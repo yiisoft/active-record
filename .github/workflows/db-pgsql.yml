@@ -68,7 +68,7 @@ jobs:
         run: composer self-update
 
       - name: Install db and db-pgsql.
-        uses: yiisoft/actions/install-packages@install-subpackage
+        uses: yiisoft/actions/install-packages@master
         with:
           packages: >-
             ['db', 'db-pgsql']
