@@ -202,7 +202,8 @@ trait ActiveRelationTrait
      *
      * @throws InvalidConfigException
      *
-     * @param-out ActiveRecordInterface[]|array[] $result
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $result
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $result
      */
     private function addInverseRelations(array &$result): void
     {
@@ -232,9 +233,10 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @return ActiveRecordInterface[]|array[]
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
      *
-     * @param-out ActiveRecordInterface[]|array[] $primaryModels
+     * @return ActiveRecordInterface[]|array[]
      */
     public function populateRelation(string $name, array &$primaryModels): array
     {
@@ -262,16 +264,16 @@ trait ActiveRelationTrait
             $models = [$this->one()];
             $this->populateInverseRelation($models, $primaryModels);
 
-            $primaryModel = reset($primaryModels);
+            $primaryModel = $primaryModels[0];
 
             if ($primaryModel instanceof ActiveRecordInterface) {
                 $primaryModel->populateRelation($name, $models[0]);
             } else {
                 /**
-                 * @var array[] $primaryModels
-                 * @psalm-suppress PossiblyNullArrayOffset
+                 * @psalm-var non-empty-list<array> $primaryModels
+                 * @psalm-suppress UndefinedInterfaceMethod
                  */
-                $primaryModels[key($primaryModels)][$name] = $models[0];
+                $primaryModels[0][$name] = $models[0];
             }
 
             return $models;
@@ -319,12 +321,14 @@ trait ActiveRelationTrait
 
     /**
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     *
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
      */
     private function populateInverseRelation(
         array &$models,
         array $primaryModels,
     ): void {
-        if ($this->inverseOf === null || empty($models) || empty($primaryModels)) {
+        if ($this->inverseOf === null || empty($models)) {
             return;
         }
 
@@ -643,13 +647,11 @@ trait ActiveRelationTrait
      * @throws Throwable
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      * @return array[]
+     *
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
      */
     private function findJunctionRows(array $primaryModels): array
     {
-        if (empty($primaryModels)) {
-            return [];
-        }
-
         $this->filterByModels($primaryModels);
 
         /** @var array[] */

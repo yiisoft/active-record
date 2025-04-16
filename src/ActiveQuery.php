@@ -14,7 +14,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Helper\DbArrayHelper;
-use Yiisoft\Db\Query\BatchQueryResultInterface;
+use Yiisoft\Db\Query\DataReaderInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\QueryBuilderInterface;
@@ -25,7 +25,6 @@ use function array_column;
 use function array_combine;
 use function array_flip;
 use function array_intersect_key;
-use function array_key_first;
 use function array_map;
 use function array_merge;
 use function array_values;
@@ -104,7 +103,7 @@ use function substr;
  * @psalm-import-type ARClass from ActiveQueryInterface
  * @psalm-import-type IndexKey from ArArrayHelper
  *
- * @psalm-property IndexKey $indexBy
+ * @psalm-property IndexKey|null $indexBy
  * @psalm-suppress ClassMustBeFinal
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
@@ -125,23 +124,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         parent::__construct($this->getARInstance()->db());
     }
 
-    public function all(): array
+    public function each(): DataReaderInterface
     {
-        if ($this->shouldEmulateExecution()) {
-            return [];
-        }
-
-        return $this->populate($this->createCommand()->queryAll(), $this->indexBy);
-    }
-
-    public function batch(int $batchSize = 100): BatchQueryResultInterface
-    {
-        return parent::batch($batchSize)->setPopulatedMethod($this->populate(...));
-    }
-
-    public function each(int $batchSize = 100): BatchQueryResultInterface
-    {
-        return parent::each($batchSize)->setPopulatedMethod($this->populate(...));
+        /** @psalm-suppress InvalidArgument */
+        return $this->createCommand()
+            ->query()
+            ->indexBy($this->indexBy)
+            ->resultCallback($this->populateOne(...));
     }
 
     /**
@@ -235,22 +224,25 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws NotSupportedException
      * @throws ReflectionException
      * @throws Throwable
+     *
+     * @psalm-param list<array> $rows
+     * @psalm-return (
+     *     $rows is non-empty-list<array>
+     *         ? non-empty-list<ActiveRecordInterface|array>
+     *         : list<ActiveRecordInterface|array>
+     * )
      */
-    public function populate(array $rows, Closure|string|null $indexBy = null): array
+    public function populate(array $rows): array
     {
         if (empty($rows)) {
             return [];
         }
 
+        if (!empty($this->join) && $this->indexBy === null) {
+            $rows = $this->removeDuplicatedRows($rows);
+        }
+
         $models = $this->createModels($rows);
-
-        if (empty($models)) {
-            return [];
-        }
-
-        if (!empty($this->join) && $this->getIndexBy() === null) {
-            $models = $this->removeDuplicatedModels($models);
-        }
 
         if (!empty($this->with)) {
             $this->findWith($this->with, $models);
@@ -260,94 +252,68 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->addInverseRelations($models);
         }
 
-        return ArArrayHelper::index($models, $indexBy);
+        return $models;
     }
 
     /**
-     * Removes duplicated models by checking their primary key values.
+     * Removes duplicated rows by checking their primary key values.
      *
      * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
      *
-     * @param ActiveRecordInterface[]|array[] $models The models to be checked.
+     * @param array[] $rows The rows to be checked.
      *
      * @throws CircularReferenceException
      * @throws Exception
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      *
-     * @return ActiveRecordInterface[]|array[] The distinctive models.
+     * @return array[] The distinctive rows.
+     *
+     * @psalm-param non-empty-list<array> $rows
+     * @psalm-return non-empty-list<array>
      */
-    private function removeDuplicatedModels(array $models): array
+    private function removeDuplicatedRows(array $rows): array
     {
-        $model = reset($models);
+        $instance = $this->getARInstance();
+        $pks = $instance->primaryKey();
 
-        if ($this->asArray) {
-            $instance = $this->getARInstance();
-            $pks = $instance->primaryKey();
+        if (empty($pks)) {
+            throw new InvalidConfigException('Primary key of "' . $instance::class . '" can not be empty.');
+        }
 
-            if (empty($pks)) {
-                throw new InvalidConfigException('Primary key of "' . $instance::class . '" can not be empty.');
-            }
-
-            foreach ($pks as $pk) {
-                /** @var array $model */
-                if (!isset($model[$pk])) {
-                    return $models;
-                }
-            }
-
-            /** @var array[] $models */
-            if (count($pks) === 1) {
-                $hash = array_column($models, reset($pks));
-            } else {
-                $flippedPks = array_flip($pks);
-                $hash = array_map(
-                    static fn (array $model): string => serialize(array_intersect_key($model, $flippedPks)),
-                    $models
-                );
-            }
-        } else {
-            /** @var ActiveRecordInterface $model */
-            $pks = $model->getPrimaryKey(true);
-
-            if (empty($pks)) {
-                throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
-            }
-
-            /** @var ActiveRecordInterface[] $models */
-            foreach ($pks as $pk) {
-                if ($pk === null) {
-                    return $models;
-                }
-            }
-
-            if (count($pks) === 1) {
-                $key = array_key_first($pks);
-                $hash = array_map(
-                    static fn (ActiveRecordInterface $model): string => (string) $model->get($key),
-                    $models
-                );
-            } else {
-                $hash = array_map(
-                    static fn (ActiveRecordInterface $model): string => serialize($model->getPrimaryKey(true)),
-                    $models
-                );
+        foreach ($pks as $pk) {
+            if (!isset($rows[0][$pk])) {
+                return $rows;
             }
         }
 
-        return array_values(array_combine($hash, $models));
+        if (count($pks) === 1) {
+            $hash = array_column($rows, reset($pks));
+        } else {
+            $flippedPks = array_flip($pks);
+            $hash = array_map(
+                static fn (array $row): string => serialize(array_intersect_key($row, $flippedPks)),
+                $rows
+            );
+        }
+
+        /** @psalm-var non-empty-list<array> */
+        return array_values(array_combine($hash, $rows));
     }
 
     public function one(): array|ActiveRecordInterface|null
     {
-        /** @var array|null $row */
-        $row = parent::one();
+        if ($this->shouldEmulateExecution()) {
+            return null;
+        }
+
+        $row = $this->createCommand()->queryOne();
 
         if ($row === null) {
             return null;
         }
 
-        return $this->populate([$row])[0];
+        return $this->populateOne($row);
     }
 
     /**
@@ -955,6 +921,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return new $class();
     }
 
+    protected function index(array $rows): array
+    {
+        return ArArrayHelper::index($this->populate($rows), $this->indexBy);
+    }
+
     private function createInstance(): static
     {
         return (new static($this->arClass))
@@ -973,5 +944,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->setUnions($this->union)
             ->params($this->params)
             ->withQueries($this->withQueries);
+    }
+
+    private function populateOne(array $row): ActiveRecordInterface|array
+    {
+        return $this->populate([$row])[0];
     }
 }

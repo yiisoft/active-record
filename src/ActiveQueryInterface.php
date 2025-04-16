@@ -351,11 +351,16 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param array[] $rows The raw query result from a database.
      *
-     * @psalm-param IndexKey|null $indexBy
-     *
      * @return ActiveRecordInterface[]|array[] The converted query result.
+     *
+     * @psalm-param list<array> $rows
+     * @psalm-return (
+     *     $rows is non-empty-list<array>
+     *         ? non-empty-list<ActiveRecordInterface|array>
+     *         : list<ActiveRecordInterface|array>
+     * )
      */
-    public function populate(array $rows, Closure|string|null $indexBy = null): array;
+    public function populate(array $rows): array;
 
     /**
      * Returns related record(s).
@@ -640,6 +645,9 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable If {@see link()} is
      * invalid.
      * @return ActiveRecordInterface[]|array[] The related models.
+     *
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
      */
     public function populateRelation(string $name, array &$primaryModels): array;
 }

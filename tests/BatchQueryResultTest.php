@@ -50,8 +50,8 @@ abstract class BatchQueryResultTest extends TestCase
 
         $this->assertCount(3, $allRows);
 
-        /** reset */
-        $batch->reset();
+        /** rewind */
+        $batch->rewind();
 
         /** empty query */
         $query = $customerQuery->where(['id' => 100]);
@@ -89,7 +89,7 @@ abstract class BatchQueryResultTest extends TestCase
 
         $allRows = [];
 
-        foreach ($query->each(2) as $index => $row) {
+        foreach ($query->each() as $index => $row) {
             $allRows[$index] = $row;
         }
         $this->assertCount(3, $allRows);
@@ -104,7 +104,7 @@ abstract class BatchQueryResultTest extends TestCase
 
         $allRows = [];
 
-        foreach ($query->each(100) as $key => $row) {
+        foreach ($query->each() as $key => $row) {
             $allRows[$key] = $row;
         }
 
