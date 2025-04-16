@@ -124,7 +124,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         parent::__construct($this->getARInstance()->db());
     }
 
-    public function each(int $batchSize = 100): DataReaderInterface
+    public function each(): DataReaderInterface
     {
         /** @psalm-suppress InvalidArgument */
         return $this->createCommand()
