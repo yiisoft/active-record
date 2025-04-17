@@ -514,32 +514,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Returns the name of the column that stores the lock version for implementing optimistic locking.
-     *
-     * Optimistic locking allows multiple users to access the same record for edits and avoids potential conflicts. In
-     * case when a user attempts to save the record upon some staled data (because another user has modified the data),
-     * a {@see StaleObjectException} exception will be thrown, and the update or deletion is skipped.
-     *
-     * Optimistic locking is only supported by {@see update()} and {@see delete()}.
-     *
-     * To use Optimistic locking:
-     *
-     * 1. Create a column to store the version number of each row. The column type should be `BIGINT DEFAULT 0`.
-     *    Override this method to return the name of this column.
-     * 2. In the Web form that collects the user input, add a hidden field that stores the lock version of the recording
-     *    being updated.
-     * 3. In the controller action that does the data updating, try to catch the {@see StaleObjectException} and
-     *    implement necessary business logic (e.g., merging the changes, prompting stated data) to resolve the conflict.
-     *
-     * @return string|null The column name that stores the lock version of a table row. If `null` is returned (default
-     * implemented), optimistic locking will not be supported.
-     */
-    public function optimisticLock(): string|null
-    {
-        return null;
-    }
-
-    /**
      * Populates an active record object using a row of data from the database/storage.
      *
      * This is an internal method meant to be called to create active record objects after fetching data from the
@@ -1096,15 +1070,17 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
          * the database and thus the method will return 0
          */
         $condition = $this->getOldPrimaryKey(true);
-        $lock = $this->optimisticLock();
 
-        if ($lock !== null) {
+        if ($this instanceof OptimisticLockInterface) {
+            $lock = $this->optimisticLock();
             $condition[$lock] = $this->get($lock);
 
             $result = $this->deleteAll($condition);
 
             if ($result === 0) {
-                throw new StaleObjectException('The object being deleted is outdated.');
+                throw new OptimisticLockException(
+                    'The object being deleted is outdated. The record was changed by another process.'
+                );
             }
         } else {
             $result = $this->deleteAll($condition);
@@ -1161,9 +1137,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         $condition = $this->getOldPrimaryKey(true);
-        $lock = $this->optimisticLock();
 
-        if ($lock !== null) {
+        if ($this instanceof OptimisticLockInterface) {
+            $lock = $this->optimisticLock();
             $lockValue = $this->get($lock);
 
             $condition[$lock] = $lockValue;
@@ -1172,7 +1148,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $rows = $this->updateAll($values, $condition);
 
             if ($rows === 0) {
-                throw new StaleObjectException('The object being updated is outdated.');
+                throw new OptimisticLockException(
+                    'The object being updated is outdated. The record was changed by another process.'
+                );
             }
 
             $this->populateProperty($lock, $lockValue);

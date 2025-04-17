@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\OptimisticLockInterface;
 
-final class Document extends ActiveRecord
+final class Document extends ActiveRecord implements OptimisticLockInterface
 {
     public int $id;
     public string $title;
@@ -14,7 +15,7 @@ final class Document extends ActiveRecord
     public int $version;
     public array $properties;
 
-    public function optimisticLock(): ?string
+    public function optimisticLock(): string
     {
         return 'version';
     }
