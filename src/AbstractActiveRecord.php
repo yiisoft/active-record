@@ -1079,7 +1079,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if ($result === 0) {
                 throw new OptimisticLockException(
-                    'The object being deleted is outdated. The record was changed by another process.'
+                    'The object being deleted is outdated.'
                 );
             }
         } else {
@@ -1149,7 +1149,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if ($rows === 0) {
                 throw new OptimisticLockException(
-                    'The object being updated is outdated. The record was changed by another process.'
+                    'The object being updated is outdated.'
                 );
             }
 

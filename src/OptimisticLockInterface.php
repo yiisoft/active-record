@@ -7,13 +7,13 @@ namespace Yiisoft\ActiveRecord;
 /**
  * The interface should be implemented by Active Record classes to support optimistic locking.
  *
- * Optimistic locking allows multiple users to access the same record for edits and avoids potential conflicts. In case
- * when a user attempts to save the record upon some staled data (because another user has modified the data), a
+ * Optimistic locking allows multiple users to access the same record for edits and avoids potential conflicts.
+ * If a user attempts to save the record upon some stale data (because another user has modified the data), an
  * {@see OptimisticLockException} exception will be thrown, and the update or deletion is skipped.
  *
  * Optimistic locking is only supported by {@see update()} and {@see delete()} methods.
  *
- * To use Optimistic locking:
+ * To use optimistic locking:
  *
  * 1. Create a column to store the version number of each row. The column type should be `BIGINT DEFAULT 0`.
  *    Implement {@see optimisticLock()} method to return the name of this column.
