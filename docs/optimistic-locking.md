@@ -18,10 +18,10 @@ To implement optimistic locking in your Active Record model you need to follow t
 ### 1. Add a version column
 
 Add a version column to your database table. This column will be used to track changes to the record.
-For example, you can add a `version` column of type `int`.
+For example, you can add a `version` column of type `bigint`.
 
 ```sql
-ALTER TABLE document ADD COLUMN version INT DEFAULT 0;
+ALTER TABLE document ADD COLUMN version BIGINT DEFAULT 0;
 ```
 ### 2. Define the version property
 
@@ -60,5 +60,56 @@ try {
 
     $document->refresh();
     // Retry logic
+}
+```
+
+## Usage with Web Application
+
+In a web application, you can use optimistic locking in your controllers or services where you handle the business logic.
+
+For example, when updating a document:
+
+```php
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Yiisoft\ActiveRecord\ActiveQuery;
+
+final class DocumentController
+{
+    public function edit(
+        ServerRequestInterface $request,
+    ): ResponseInterface {
+        $id = (int) $request->getAttribute('id');
+
+        $document = (new ActiveQuery(Document::class))->findOne($id);
+
+        if ($document === null) {
+            throw new NotFoundException('Document not found.');
+        }
+
+        // Render the document edit form with the current version
+    }
+
+    public function save(
+        ServerRequestInterface $request,
+    ): ResponseInterface {
+        $data = $request->getParsedBody();
+    
+        $document = new Document();
+        $document->title = $data['title'] ?? '';
+        $document->content = $data['content'] ?? '';
+        $document->version = (int) ($data['version'] ?? 0);
+
+        try {
+            $document->save();
+        } catch (OptimisticLockException $e) {
+            // Handle the exception, e.g. reload the record and retry logic or inform the user about the conflict
+
+            $document->refresh();
+            // Retry logic
+        }
+
+        // Redirect or render success message
+    }
 }
 ```
