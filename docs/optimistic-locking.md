@@ -6,10 +6,43 @@ for resources is low, and it helps to improve performance by reducing the overhe
 
 ## How It Works
 
-In optimistic locking a version number is used to track changes to a record. When a record is updated the version 
-number is incremented. Before committing the changes the application checks if the version number in the database 
-matches the version number in the application. If they match the changes are committed otherwise an exception is thrown
-indicating that the record has been modified by another transaction since it was read.
+In optimistic locking a version number is used to track changes to a record.
+
+1. When a record is updated the version number is incremented;
+2. Before committing the changes the application checks if the version number in the database matches the version number
+   in the application;
+3. If they match the changes are committed otherwise an exception is thrown indicating that the record has been modified
+   by another transaction since it was read.
+
+```mermaid
+sequenceDiagram
+    participant A as Application 1
+    participant DB as Database
+    participant B as Application 2
+    
+    Note over A,DB: Initial state: Record with version=1
+    
+    A->>DB: Read record (version=1)
+    B->>DB: Read same record (version=1)
+    
+    Note over A: Modify record locally
+    Note over B: Modify record locally
+    
+    A->>DB: Update record with changes<br/>(Check version=1)
+    Note over DB: Versions match!<br/>Update succeeds<br/>Increment version to 2
+    DB-->>A: Commit successful
+    
+    B->>DB: Update record with changes<br/>(Check version=1)
+    Note over DB: Versions don't match!<br/>(DB has version=2)
+    DB-->>B: Throw OptimisticLockException<br/>"Record modified by another transaction"
+    
+    Note over B: Must re-read record<br/>and retry operation
+    B->>DB: Read record (version=2)
+    Note over B: Resolve conflict and<br/>apply changes
+    B->>DB: Update record with new changes<br/>(Check version=2)
+    Note over DB: Versions match!<br/>Update succeeds<br/>Increment version to 3
+    DB-->>B: Commit successful
+```
 
 ## Implementation
 
