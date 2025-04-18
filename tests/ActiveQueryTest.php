@@ -8,6 +8,7 @@ use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
+use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -27,7 +28,6 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Query\QueryInterface;
 
@@ -2019,7 +2019,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $record->content = 'Rewrite attempt content';
         $record->version = 0;
-        $this->expectException(StaleObjectException::class);
+        $this->expectException(OptimisticLockException::class);
         $record->save();
     }
 
@@ -2034,7 +2034,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $document->version = 1;
 
-        $this->expectException(StaleObjectException::class);
+        $this->expectException(OptimisticLockException::class);
         $document->delete();
     }
 
@@ -2049,7 +2049,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame(1, $document->delete());
         $this->assertTrue($document->getIsNewRecord());
 
-        $this->expectException(StaleObjectException::class);
+        $this->expectException(OptimisticLockException::class);
         $document->delete();
     }
 
