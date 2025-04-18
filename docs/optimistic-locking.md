@@ -127,8 +127,14 @@ final class DocumentController
         ServerRequestInterface $request,
     ): ResponseInterface {
         $data = $request->getParsedBody();
+        
+        $id = (int) $data['id'];
+        $document = (new ActiveQuery(Document::class))->findOne($id);
+
+        if ($document === null) {
+            throw new NotFoundException('Document not found.');
+        }
     
-        $document = new Document();
         $document->title = $data['title'] ?? '';
         $document->content = $data['content'] ?? '';
         $document->version = (int) ($data['version'] ?? 0);
