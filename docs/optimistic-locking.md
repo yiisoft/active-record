@@ -72,7 +72,7 @@ final class Document extends ActiveRecord implements OptimisticLockInterface
    public string $content;
    public int $version;
 
-   public function optimisticLock(): string
+   public function optimisticLockPropertyName(): string
    {
        return 'version';
    }

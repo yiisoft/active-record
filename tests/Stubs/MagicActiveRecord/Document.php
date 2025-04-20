@@ -16,7 +16,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Document extends MagicActiveRecord implements OptimisticLockInterface
 {
-    public function optimisticLock(): string
+    public function optimisticLockPropertyName(): string
     {
         return 'version';
     }

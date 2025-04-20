@@ -39,8 +39,8 @@ interface ActiveRecordInterface
     /**
      * Deletes the table row corresponding to this active record.
      *
-     * @throws StaleObjectException If {@see optimisticLock|optimistic locking} is enabled and the data being deleted
-     * is outdated.
+     * @throws OptimisticLockException If the instance implements {@see OptimisticLockInterface} and the data being
+     * deleted is outdated.
      * @throws Throwable In case delete failed.
      *
      * @return int The number of rows deleted.
@@ -442,8 +442,8 @@ interface ActiveRecordInterface
      * @param array|null $propertyNames List of property names that need to be saved. Defaults to `null`, meaning all
      * changed property values will be saved.
      *
-     * @throws StaleObjectException If {@see optimisticLock() optimistic locking} is enabled and the data being updated is
-     * outdated.
+     * @throws OptimisticLockException If the instance implements {@see OptimisticLockInterface} and the data being
+     * updated is outdated.
      * @throws Throwable In case update failed.
      *
      * @return int The number of rows affected.

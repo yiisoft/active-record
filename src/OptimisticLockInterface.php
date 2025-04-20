@@ -16,7 +16,7 @@ namespace Yiisoft\ActiveRecord;
  * To use optimistic locking:
  *
  * 1. Create a column to store the version number of each row. The column type should be `BIGINT DEFAULT 0`.
- *    Implement {@see optimisticLock()} method to return the name of this column.
+ *    Implement {@see optimisticLockPropertyName()} method to return the name of this column.
  * 2. In the Web form that collects the user input, add a hidden field that stores the lock version of the recording
  *    being updated.
  * 3. In the controller action that does the data updating, try to catch the {@see OptimisticLockException} and
@@ -25,9 +25,9 @@ namespace Yiisoft\ActiveRecord;
 interface OptimisticLockInterface
 {
     /**
-     * Returns the name of the column that stores the lock version for implementing optimistic locking.
+     * Returns the name of the property that stores the lock version for implementing optimistic locking.
      *
-     * @return string The column name that stores the lock version of a table row.
+     * @return string The property name that stores the lock version of a table row.
      */
-    public function optimisticLock(): string;
+    public function optimisticLockPropertyName(): string;
 }

@@ -1072,7 +1072,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $condition = $this->getOldPrimaryKey(true);
 
         if ($this instanceof OptimisticLockInterface) {
-            $lock = $this->optimisticLock();
+            $lock = $this->optimisticLockPropertyName();
             $condition[$lock] = $this->get($lock);
 
             $result = $this->deleteAll($condition);
@@ -1139,7 +1139,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $condition = $this->getOldPrimaryKey(true);
 
         if ($this instanceof OptimisticLockInterface) {
-            $lock = $this->optimisticLock();
+            $lock = $this->optimisticLockPropertyName();
             $lockValue = $this->get($lock);
 
             $condition[$lock] = $lockValue;
