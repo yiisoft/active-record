@@ -720,7 +720,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * For example, to increment all customers' age by 1:
      *
      * ```php
-     * $customer = new Customer($db);
+     * $customer = new Customer();
      * $customer->updateAllCounters(['age' => 1]);
      * ```
      *
@@ -765,7 +765,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * An example usage is as follows:
      *
      * ```php
-     * $post = new Post($db);
+     * $post = new Post();
      * $post->updateCounters(['view_count' => 1]);
      * ```
      *
@@ -1012,7 +1012,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     private function setRelationDependencies(
         string $name,
         ActiveQueryInterface $relation,
-        string $viaRelationName = null
+        string|null $viaRelationName = null
     ): void {
         $via = $relation->getVia();
 

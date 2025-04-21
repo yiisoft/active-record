@@ -731,7 +731,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function viaTable(string $tableName, array $link, callable $callable = null): static
+    public function viaTable(string $tableName, array $link, callable|null $callable = null): static
     {
         $arClass = $this->primaryModel ?? $this->arClass;
 
