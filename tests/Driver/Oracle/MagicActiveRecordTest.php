@@ -22,7 +22,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $this->checkFixture($this->db(), 'customer');
 
         $arClass = new Type();
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
         $this->assertSame(1, $arClass->int_col2);
         $this->assertSame('something', $arClass->char_col2);
         $this->assertSame(1.23, $arClass->float_col2);
@@ -34,13 +34,13 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
         $this->assertSame('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues(false);
+        $arClass->activeRecord()->loadDefaultValues(false);
         $this->assertSame('something', $arClass->char_col2);
     }
 
@@ -59,14 +59,14 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->email = 'mail@example.com';
         $customer->bool_status = true;
 
-        $customer->save();
-        $customer->refresh();
+        $customer->activeRecord()->save();
+        $customer->activeRecord()->refresh();
         $this->assertTrue($customer->bool_status);
 
         $customer->bool_status = false;
-        $customer->save();
+        $customer->activeRecord()->save();
 
-        $customer->refresh();
+        $customer->activeRecord()->refresh();
         $this->assertFalse($customer->bool_status);
 
         $customerQuery = new ActiveQuery(Customer::class);

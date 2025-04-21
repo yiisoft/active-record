@@ -6,17 +6,17 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 
 /**
  * Class Category.
  */
-final class Category extends ActiveRecord
+final class Category extends ActiveRecordModel
 {
     protected int|null $id;
     protected string $name;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'category';
     }
@@ -44,46 +44,46 @@ final class Category extends ActiveRecord
 
     public function setId(int|null $id): void
     {
-        $this->set('id', $id);
+        $this->activeRecord()->set('id', $id);
     }
 
     public function getLimitedItems(): array
     {
-        return $this->relation('limitedItems');
+        return $this->activeRecord()->relation('limitedItems');
     }
 
     public function getLimitedItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
+        return $this->activeRecord()->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
     }
 
     public function getItems(): array
     {
-        return $this->relation('items');
+        return $this->activeRecord()->relation('items');
     }
 
     public function getItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['category_id' => 'id']);
+        return $this->activeRecord()->hasMany(Item::class, ['category_id' => 'id']);
     }
 
     public function getOrderItems(): array
     {
-        return $this->relation('orderItems');
+        return $this->activeRecord()->relation('orderItems');
     }
 
     public function getOrderItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(OrderItem::class, ['item_id' => 'id'])->via('items');
+        return $this->activeRecord()->hasMany(OrderItem::class, ['item_id' => 'id'])->via('items');
     }
 
     public function getOrders(): array
     {
-        return $this->relation('orders');
+        return $this->activeRecord()->relation('orders');
     }
 
     public function getOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['id' => 'order_id'])->via('orderItems');
+        return $this->activeRecord()->hasMany(Order::class, ['id' => 'order_id'])->via('orderItems');
     }
 }

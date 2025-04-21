@@ -18,14 +18,14 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Dossier extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'dossier';
     }
 
     public function getEmployeeQuery(): ActiveQuery
     {
-        return $this->hasOne(
+        return $this->activeRecord()->hasOne(
             Employee::class,
             [
                 'department_id' => 'department_id',

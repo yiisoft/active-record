@@ -34,11 +34,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->setName('user1337');
         $customer->setAddress('address1337');
 
-        $this->assertTrue($customer->getIsNewRecord());
-        $customer->save();
+        $this->assertTrue($customer->activeRecord()->isNewRecord());
+        $customer->activeRecord()->save();
 
         $this->assertEquals(1337, $customer->getId());
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
     }
 
     /**

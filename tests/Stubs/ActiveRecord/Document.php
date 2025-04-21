@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 use Yiisoft\ActiveRecord\OptimisticLockInterface;
 
-final class Document extends ActiveRecord implements OptimisticLockInterface
+final class Document extends ActiveRecordModel implements OptimisticLockInterface
 {
     public int $id;
     public string $title;

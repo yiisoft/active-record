@@ -17,7 +17,7 @@ class CustomerWithProperties extends MagicActiveRecord
     protected string|null $name = null;
     public string|null $address = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }
@@ -44,17 +44,17 @@ class CustomerWithProperties extends MagicActiveRecord
 
     public function getStatus(): int|null
     {
-        return $this->get('status');
+        return $this->activeRecord()->get('status');
     }
 
     public function getProfileQuery(): ActiveQuery
     {
-        return $this->hasOne(Profile::class, ['id' => 'profile_id']);
+        return $this->activeRecord()->hasOne(Profile::class, ['id' => 'profile_id']);
     }
 
     public function getOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
     public function setEmail(string $email): void
@@ -74,6 +74,6 @@ class CustomerWithProperties extends MagicActiveRecord
 
     public function setStatus(int|null $status): void
     {
-        $this->set('status', $status);
+        $this->activeRecord()->set('status', $status);
     }
 }

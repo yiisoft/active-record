@@ -39,46 +39,46 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $record = new NullValues();
 
-        $this->assertNull($record->get('var1'));
-        $this->assertNull($record->get('var2'));
-        $this->assertNull($record->get('var3'));
-        $this->assertNull($record->get('stringcol'));
+        $this->assertNull($record->activeRecord()->get('var1'));
+        $this->assertNull($record->activeRecord()->get('var2'));
+        $this->assertNull($record->activeRecord()->get('var3'));
+        $this->assertNull($record->activeRecord()->get('stringcol'));
 
-        $record->set('var1', 123);
-        $record->set('var2', 456);
-        $record->set('var3', 789);
-        $record->set('stringcol', 'hello!');
-        $record->save();
+        $record->activeRecord()->set('var1', 123);
+        $record->activeRecord()->set('var2', 456);
+        $record->activeRecord()->set('var3', 789);
+        $record->activeRecord()->set('stringcol', 'hello!');
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
-        $this->assertEquals(123, $record->get('var1'));
-        $this->assertEquals(456, $record->get('var2'));
-        $this->assertEquals(789, $record->get('var3'));
-        $this->assertEquals('hello!', $record->get('stringcol'));
+        $this->assertTrue($record->activeRecord()->refresh());
+        $this->assertEquals(123, $record->activeRecord()->get('var1'));
+        $this->assertEquals(456, $record->activeRecord()->get('var2'));
+        $this->assertEquals(789, $record->activeRecord()->get('var3'));
+        $this->assertEquals('hello!', $record->activeRecord()->get('stringcol'));
 
-        $record->set('var1', null);
-        $record->set('var2', null);
-        $record->set('var3', null);
-        $record->set('stringcol', null);
-        $record->save();
+        $record->activeRecord()->set('var1', null);
+        $record->activeRecord()->set('var2', null);
+        $record->activeRecord()->set('var3', null);
+        $record->activeRecord()->set('stringcol', null);
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
-        $this->assertNull($record->get('var1'));
-        $this->assertNull($record->get('var2'));
-        $this->assertNull($record->get('var3'));
-        $this->assertNull($record->get('>stringcol'));
+        $this->assertTrue($record->activeRecord()->refresh());
+        $this->assertNull($record->activeRecord()->get('var1'));
+        $this->assertNull($record->activeRecord()->get('var2'));
+        $this->assertNull($record->activeRecord()->get('var3'));
+        $this->assertNull($record->activeRecord()->get('>stringcol'));
 
-        $record->set('var1', 0);
-        $record->set('var2', 0);
-        $record->set('var3', 0);
-        $record->set('stringcol', '');
-        $record->save();
+        $record->activeRecord()->set('var1', 0);
+        $record->activeRecord()->set('var2', 0);
+        $record->activeRecord()->set('var3', 0);
+        $record->activeRecord()->set('stringcol', '');
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
-        $this->assertEquals(0, $record->get('var1'));
-        $this->assertEquals(0, $record->get('var2'));
-        $this->assertEquals(0, $record->get('var3'));
-        $this->assertEquals('', $record->get('stringcol'));
+        $this->assertTrue($record->activeRecord()->refresh());
+        $this->assertEquals(0, $record->activeRecord()->get('var1'));
+        $this->assertEquals(0, $record->activeRecord()->get('var2'));
+        $this->assertEquals(0, $record->activeRecord()->get('var3'));
+        $this->assertEquals('', $record->activeRecord()->get('stringcol'));
     }
 
     public function testStoreEmpty(): void
@@ -92,9 +92,9 @@ abstract class MagicActiveRecordTest extends TestCase
         $record->var2 = '';
         $record->var3 = '';
         $record->stringcol = '';
-        $record->save();
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
+        $this->assertTrue($record->activeRecord()->refresh());
 
         /** {@see https://github.com/yiisoft/yii2/commit/34945b0b69011bc7cab684c7f7095d837892a0d4#commitcomment-4458225} */
         $this->assertSame($record->var1, $record->var2);
@@ -108,19 +108,19 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer = new Customer();
         $orderItem = new OrderItem();
 
-        $this->assertTrue($customer->isPrimaryKey(['id']));
-        $this->assertFalse($customer->isPrimaryKey([]));
-        $this->assertFalse($customer->isPrimaryKey(['id', 'name']));
-        $this->assertFalse($customer->isPrimaryKey(['name']));
-        $this->assertFalse($customer->isPrimaryKey(['name', 'email']));
+        $this->assertTrue($customer->activeRecord()->isPrimaryKey(['id']));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey([]));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey(['id', 'name']));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey(['name']));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey(['name', 'email']));
 
-        $this->assertTrue($orderItem->isPrimaryKey(['order_id', 'item_id']));
-        $this->assertFalse($orderItem->isPrimaryKey([]));
-        $this->assertFalse($orderItem->isPrimaryKey(['order_id']));
-        $this->assertFalse($orderItem->isPrimaryKey(['item_id']));
-        $this->assertFalse($orderItem->isPrimaryKey(['quantity']));
-        $this->assertFalse($orderItem->isPrimaryKey(['quantity', 'subtotal']));
-        $this->assertFalse($orderItem->isPrimaryKey(['order_id', 'item_id', 'quantity']));
+        $this->assertTrue($orderItem->activeRecord()->isPrimaryKey(['order_id', 'item_id']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey([]));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['order_id']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['item_id']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['quantity']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['quantity', 'subtotal']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['order_id', 'item_id', 'quantity']));
     }
 
     public function testOutdatedRelationsAreResetForNewRecords(): void
@@ -141,8 +141,8 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals(1, $orderItem->item->id);
 
         /** test `set()`. */
-        $orderItem->set('order_id', 2);
-        $orderItem->set('item_id', 2);
+        $orderItem->activeRecord()->set('order_id', 2);
+        $orderItem->activeRecord()->set('item_id', 2);
         $this->assertEquals(2, $orderItem->order->id);
         $this->assertEquals(2, $orderItem->item->id);
     }
@@ -153,7 +153,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $arClass = new Type();
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
 
         $this->assertEquals(1, $arClass->int_col2);
         $this->assertEquals('something', $arClass->char_col2);
@@ -169,13 +169,13 @@ abstract class MagicActiveRecordTest extends TestCase
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
         $this->assertEquals('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues(false);
+        $arClass->activeRecord()->loadDefaultValues(false);
         $this->assertEquals('something', $arClass->char_col2);
     }
 
@@ -185,7 +185,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $arClass = new Type();
 
-        $arClass->deleteAll();
+        $arClass->activeRecord()->deleteAll();
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -199,7 +199,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $arClass->bool_col2 = false;
         $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
 
-        $arClass->save();
+        $arClass->activeRecord()->save();
 
         /** @var $model Type */
         $aqClass = new ActiveQuery(Type::class);
@@ -223,10 +223,10 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->checkFixture($this->db(), 'cat');
 
         $cat = new Cat();
-        $cat->save();
+        $cat->activeRecord()->save();
 
         $dog = new Dog();
-        $dog->save();
+        $dog->activeRecord()->save();
 
         $animal = (new ActiveQuery(Animal::class))->resultCallback(ModelFactory::create(...));
 
@@ -243,7 +243,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $record = new NullValues();
 
-        $this->assertTrue($record->save());
+        $this->assertTrue($record->activeRecord()->save());
         $this->assertEquals(1, $record->id);
     }
 
@@ -259,15 +259,15 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->name = 'Some {{weird}} name';
         $customer->email = 'test@example.com';
         $customer->address = 'Some {{%weird}} address';
-        $customer->insert();
-        $customer->refresh();
+        $customer->activeRecord()->insert();
+        $customer->activeRecord()->refresh();
 
         $this->assertEquals('Some {{weird}} name', $customer->name);
         $this->assertEquals('Some {{%weird}} address', $customer->address);
 
         $customer->name = 'Some {{updated}} name';
         $customer->address = 'Some {{%updated}} address';
-        $customer->update();
+        $customer->activeRecord()->update();
 
         $this->assertEquals('Some {{updated}} name', $customer->name);
         $this->assertEquals('Some {{%updated}} address', $customer->address);
@@ -375,7 +375,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer = new CustomerWithAlias();
 
         $customer->id = 1;
-        $customer->refresh();
+        $customer->activeRecord()->refresh();
 
         $this->assertEquals(1, $customer->id);
     }
@@ -394,9 +394,9 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $order->orderItems;
 
-        $order->populateRelation('orderItems', [$orderItem]);
+        $order->activeRecord()->populateRelation('orderItems', [$orderItem]);
 
-        $order->save();
+        $order->activeRecord()->save();
 
         $this->assertCount(1, $order->orderItems);
     }
@@ -450,9 +450,9 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $customer->populateProperties($properties);
+        $customer->activeRecord()->populateProperties($properties);
 
-        $this->assertTrue($customer->save());
+        $this->assertTrue($customer->activeRecord()->save());
     }
 
     public function testSetNoExistProperty(): void
@@ -466,7 +466,7 @@ abstract class MagicActiveRecordTest extends TestCase
             'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"'
         );
 
-        $cat->set('noExist', 1);
+        $cat->activeRecord()->set('noExist', 1);
     }
 
     public function testAssignOldValue(): void
@@ -475,11 +475,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->oldValue('name'));
+        $this->assertEmpty($customer->activeRecord()->oldValue('name'));
 
-        $customer->assignOldValue('name', 'samdark');
+        $customer->activeRecord()->assignOldValue('name', 'samdark');
 
-        $this->assertEquals('samdark', $customer->oldValue('name'));
+        $this->assertEquals('samdark', $customer->activeRecord()->oldValue('name'));
     }
 
     public function testAssignOldValueException(): void
@@ -488,13 +488,13 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->oldValue('name'));
+        $this->assertEmpty($customer->activeRecord()->oldValue('name'));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer has no property named "noExist"'
         );
-        $customer->assignOldValue('noExist', 'samdark');
+        $customer->activeRecord()->assignOldValue('noExist', 'samdark');
     }
 
     public function testIsPropertyChangedNotChanged(): void
@@ -503,10 +503,10 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->get('name'));
-        $this->assertEmpty($customer->oldValue('name'));
-        $this->assertFalse($customer->isPropertyChanged('name'));
-        $this->assertFalse($customer->isPropertyChangedNonStrict('name'));
+        $this->assertEmpty($customer->activeRecord()->get('name'));
+        $this->assertEmpty($customer->activeRecord()->oldValue('name'));
+        $this->assertFalse($customer->activeRecord()->isPropertyChanged('name'));
+        $this->assertFalse($customer->activeRecord()->isPropertyChangedNonStrict('name'));
     }
 
     public function testTableSchemaException(): void
@@ -515,7 +515,8 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage('The table does not exist: NoExist');
-        $noExist->getTableSchema();
+
+        $noExist->activeRecord()->getTableSchema();
     }
 
     public function testInsert(): void
@@ -529,12 +530,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->address = 'address4';
 
         $this->assertNull($customer->id);
-        $this->assertTrue($customer->isNewRecord);
+        $this->assertTrue($customer->activeRecord()->isNewRecord());
 
-        $customer->save();
+        $customer->activeRecord()->save();
 
         $this->assertNotNull($customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
     }
 
     /**
@@ -552,14 +553,14 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->email = 'mail@example.com';
         $customer->bool_status = true;
 
-        $customer->save();
-        $customer->refresh();
+        $customer->activeRecord()->save();
+        $customer->activeRecord()->refresh();
         $this->assertTrue($customer->bool_status);
 
         $customer->bool_status = false;
-        $customer->save();
+        $customer->activeRecord()->save();
 
-        $customer->refresh();
+        $customer->activeRecord()->refresh();
         $this->assertFalse($customer->bool_status);
 
         $customerQuery = new ActiveQuery(Customer::class);
@@ -590,7 +591,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         /** {@see https://github.com/yiisoft/yii2-gii/issues/190} */
         $baseModel = new Customer();
-        $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
+        $this->assertFalse($baseModel->activeRecord()->hasProperty('unExistingColumn'));
 
         $customer = new Customer();
         $this->assertInstanceOf(Customer::class, $customer);
@@ -633,15 +634,15 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertTrue($customer->hasProperty('id'));
-        $this->assertTrue($customer->hasProperty('email'));
-        $this->assertFalse($customer->hasProperty('notExist'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('id'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('email'));
+        $this->assertFalse($customer->activeRecord()->hasProperty('notExist'));
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
-        $this->assertTrue($customer->hasProperty('id'));
-        $this->assertTrue($customer->hasProperty('email'));
-        $this->assertFalse($customer->hasProperty('notExist'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('id'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('email'));
+        $this->assertFalse($customer->activeRecord()->hasProperty('notExist'));
     }
 
     public function testRefresh(): void
@@ -650,13 +651,13 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertFalse($customer->refresh());
+        $this->assertFalse($customer->activeRecord()->refresh());
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
         $customer->name = 'to be refreshed';
 
-        $this->assertTrue($customer->refresh());
+        $this->assertTrue($customer->activeRecord()->refresh());
         $this->assertEquals('user1', $customer->name);
     }
 
@@ -666,11 +667,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customerA = new Customer();
         $customerB = new Customer();
-        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerA->activeRecord()->equals($customerB));
 
         $customerA = new Customer();
         $customerB = new Item();
-        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerA->activeRecord()->equals($customerB));
     }
 
     public static function providerForUnlinkDelete(): array
@@ -695,7 +696,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $order = $orderQuery->findOne(2);
 
         $this->assertCount(1, $order->itemsFor8);
-        $order->unlink('itemsFor8', $order->itemsFor8[0], $delete);
+        $order->activeRecord()->unlink('itemsFor8', $order->itemsFor8[0], $delete);
 
         $order = $orderQuery->findOne(2);
         $this->assertCount(0, $order->itemsFor8);
@@ -758,7 +759,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = $customerQuery->findOne(1);
 
-        $this->assertTrue($customer->save());
+        $this->assertTrue($customer->activeRecord()->save());
     }
 
     public function testGetPrimaryKey(): void
@@ -769,8 +770,8 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame(1, $customer->getPrimaryKey());
-        $this->assertSame(['id' => 1], $customer->getPrimaryKey(true));
+        $this->assertSame(1, $customer->activeRecord()->getPrimaryKey());
+        $this->assertSame(['id' => 1], $customer->activeRecord()->getPrimaryKey(true));
     }
 
     public function testGetOldPrimaryKey(): void
@@ -782,8 +783,8 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer = $customerQuery->findOne(1);
         $customer->id = 2;
 
-        $this->assertSame(1, $customer->getOldPrimaryKey());
-        $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
+        $this->assertSame(1, $customer->activeRecord()->getOldPrimaryKey());
+        $this->assertSame(['id' => 1], $customer->activeRecord()->getOldPrimaryKey(true));
     }
 
     public function testGetDirtyValuesOnNewRecord(): void
@@ -792,27 +793,27 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertSame([], $customer->newValues());
+        $this->assertSame([], $customer->activeRecord()->newValues());
 
-        $customer->set('name', 'Adam');
-        $customer->set('email', 'adam@example.com');
-        $customer->set('address', null);
+        $customer->activeRecord()->set('name', 'Adam');
+        $customer->activeRecord()->set('email', 'adam@example.com');
+        $customer->activeRecord()->set('address', null);
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->newValues()
+            $customer->activeRecord()->newValues()
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->activeRecord()->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
-        $this->assertTrue($customer->save());
-        $this->assertSame([], $customer->newValues());
+        $this->assertTrue($customer->activeRecord()->save());
+        $this->assertSame([], $customer->activeRecord()->newValues());
 
-        $customer->set('address', '');
+        $customer->activeRecord()->set('address', '');
 
-        $this->assertSame(['address' => ''], $customer->newValues());
+        $this->assertSame(['address' => ''], $customer->activeRecord()->newValues());
     }
 
     public function testGetDirtyValuesAfterFind(): void
@@ -822,19 +823,19 @@ abstract class MagicActiveRecordTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->newValues());
+        $this->assertSame([], $customer->activeRecord()->newValues());
 
-        $customer->set('name', 'Adam');
-        $customer->set('email', 'adam@example.com');
-        $customer->set('address', null);
+        $customer->activeRecord()->set('name', 'Adam');
+        $customer->activeRecord()->set('email', 'adam@example.com');
+        $customer->activeRecord()->set('address', null);
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->newValues(),
+            $customer->activeRecord()->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->activeRecord()->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
     }
 
@@ -846,12 +847,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame([
             'name' => null,
             'address' => null,
-        ], $customer->newValues());
+        ], $customer->activeRecord()->newValues());
 
         $customerQuery = new ActiveQuery(CustomerWithProperties::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->newValues());
+        $this->assertSame([], $customer->activeRecord()->newValues());
 
         $customer->setEmail('adam@example.com');
         $customer->setName('Adam');
@@ -860,11 +861,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['email' => 'adam@example.com', 'name' => 'Adam', 'address' => null, 'status' => null],
-            $customer->newValues(),
+            $customer->activeRecord()->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->newValues(['id', 'email', 'address', 'unknown']),
+            $customer->activeRecord()->newValues(['id', 'email', 'address', 'unknown']),
         );
     }
 
@@ -907,7 +908,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $order = new Order();
         $order->created_at = $datetime;
 
-        $this->assertSame(1_325_502_201, $order->get('created_at'));
+        $this->assertSame(1_325_502_201, $order->activeRecord()->get('created_at'));
         $this->assertEquals($datetime, $order->created_at);
     }
 
@@ -918,18 +919,18 @@ abstract class MagicActiveRecordTest extends TestCase
         $itemQuery = new ActiveQuery(Item::class);
         $item = $itemQuery->findOne(1);
 
-        $this->assertFalse($item->isChanged());
+        $this->assertFalse($item->activeRecord()->isChanged());
 
-        $item->set('name', 'New name');
+        $item->activeRecord()->set('name', 'New name');
 
-        $this->assertTrue($item->isChanged());
+        $this->assertTrue($item->activeRecord()->isChanged());
 
         $newItem = new Item();
 
-        $this->assertFalse($newItem->isChanged());
+        $this->assertFalse($newItem->activeRecord()->isChanged());
 
-        $newItem->set('name', 'New name');
+        $newItem->activeRecord()->set('name', 'New name');
 
-        $this->assertTrue($newItem->isChanged());
+        $this->assertTrue($newItem->activeRecord()->isChanged());
     }
 }

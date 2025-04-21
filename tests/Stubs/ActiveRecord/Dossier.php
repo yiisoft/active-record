@@ -6,19 +6,19 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 
 /**
  * Class Dossier
  */
-final class Dossier extends ActiveRecord
+final class Dossier extends ActiveRecordModel
 {
     protected int $id;
     protected int $department_id;
     protected int $employee_id;
     protected string $summary;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'dossier';
     }
@@ -50,12 +50,12 @@ final class Dossier extends ActiveRecord
 
     public function setDepartmentId(int $departmentId): void
     {
-        $this->set('department_id', $departmentId);
+        $this->activeRecord()->set('department_id', $departmentId);
     }
 
     public function setEmployeeId(int $employeeId): void
     {
-        $this->set('employee_id', $employeeId);
+        $this->activeRecord()->set('employee_id', $employeeId);
     }
 
     public function setSummary(string $summary): void
@@ -73,12 +73,12 @@ final class Dossier extends ActiveRecord
 
     public function getEmployee(): Employee|null
     {
-        return $this->relation('employee');
+        return $this->activeRecord()->relation('employee');
     }
 
     public function getEmployeeQuery(): ActiveQuery
     {
-        return $this->hasOne(
+        return $this->activeRecord()->hasOne(
             Employee::class,
             [
                 'department_id' => 'department_id',

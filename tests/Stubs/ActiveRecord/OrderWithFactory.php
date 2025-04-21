@@ -14,12 +14,12 @@ final class OrderWithFactory extends Order
     public function relationQuery(string $name): ActiveQueryInterface
     {
         return match ($name) {
-            'customerWithFactory' => $this->hasOne(CustomerWithFactory::class, ['id' => 'customer_id']),
-            'customerWithFactoryClosure' => $this->hasOne(
+            'customerWithFactory' => $this->activeRecord()->hasOne(CustomerWithFactory::class, ['id' => 'customer_id']),
+            'customerWithFactoryClosure' => $this->activeRecord()->hasOne(
                 fn () => $this->factory->create(CustomerWithFactory::class),
                 ['id' => 'customer_id']
             ),
-            'customerWithFactoryInstance' => $this->hasOne(
+            'customerWithFactoryInstance' => $this->activeRecord()->hasOne(
                 $this->factory->create(CustomerWithFactory::class),
                 ['id' => 'customer_id']
             ),
@@ -29,16 +29,16 @@ final class OrderWithFactory extends Order
 
     public function getCustomerWithFactory(): CustomerWithFactory|null
     {
-        return $this->relation('customerWithFactory');
+        return $this->activeRecord()->relation('customerWithFactory');
     }
 
     public function getCustomerWithFactoryClosure(): CustomerWithFactory|null
     {
-        return $this->relation('customerWithFactoryClosure');
+        return $this->activeRecord()->relation('customerWithFactoryClosure');
     }
 
     public function getCustomerWithFactoryInstance(): CustomerWithFactory|null
     {
-        return $this->relation('customerWithFactoryInstance');
+        return $this->activeRecord()->relation('customerWithFactoryInstance');
     }
 }

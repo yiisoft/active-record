@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 
 /**
  * Class Order.
  */
-final class OrderWithNullFK extends ActiveRecord
+final class OrderWithNullFK extends ActiveRecordModel
 {
     protected int $id;
     protected int|null $customer_id = null;
     protected int $created_at;
     protected float $total;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'order_with_null_fk';
     }

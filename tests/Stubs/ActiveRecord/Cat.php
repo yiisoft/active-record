@@ -8,10 +8,8 @@ use Yiisoft\Db\Exception\Exception;
 
 final class Cat extends Animal
 {
-    public function populateRecord($row): void
+    public function initialize(): void
     {
-        parent::populateRecord($row);
-
         $this->setDoes('meow');
     }
 

@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 
 /**
  * Class Animal.
  */
-class Animal extends ActiveRecord
+class Animal extends ActiveRecordModel
 {
     private string $does;
 
     protected int $id;
     protected string $type;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'animal';
     }

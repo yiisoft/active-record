@@ -15,28 +15,28 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Category extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'category';
     }
 
     public function getLimitedItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
+        return $this->activeRecord()->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
     }
 
     public function getItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['category_id' => 'id']);
+        return $this->activeRecord()->hasMany(Item::class, ['category_id' => 'id']);
     }
 
     public function getOrderItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(OrderItem::class, ['item_id' => 'id'])->via('items');
+        return $this->activeRecord()->hasMany(OrderItem::class, ['item_id' => 'id'])->via('items');
     }
 
     public function getOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['id' => 'order_id'])->via('orderItems');
+        return $this->activeRecord()->hasMany(Order::class, ['id' => 'order_id'])->via('orderItems');
     }
 }

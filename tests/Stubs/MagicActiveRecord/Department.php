@@ -16,14 +16,14 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Department extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'department';
     }
 
     public function getEmployeesQuery(): ActiveQuery
     {
-        return $this->hasMany(
+        return $this->activeRecord()->hasMany(
             Employee::class,
             [
                 'department_id' => 'id',

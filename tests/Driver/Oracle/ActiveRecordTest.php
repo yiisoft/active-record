@@ -28,7 +28,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->checkFixture($this->db(), 'customer');
 
         $arClass = new Type();
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
         $this->assertSame(1, $arClass->int_col2);
         $this->assertSame('something', $arClass->char_col2);
         $this->assertSame(1.23, $arClass->float_col2);
@@ -40,13 +40,13 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
         $this->assertSame('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues(false);
+        $arClass->activeRecord()->loadDefaultValues(false);
         $this->assertSame('something', $arClass->char_col2);
     }
 
@@ -65,14 +65,14 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->setEmail('mail@example.com');
         $customer->setBoolStatus(true);
 
-        $customer->save();
-        $customer->refresh();
+        $customer->activeRecord()->save();
+        $customer->activeRecord()->refresh();
         $this->assertTrue($customer->getBoolStatus());
 
         $customer->setBoolStatus(false);
-        $customer->save();
+        $customer->activeRecord()->save();
 
-        $customer->refresh();
+        $customer->activeRecord()->refresh();
         $this->assertFalse($customer->getBoolStatus());
 
         $customerQuery = new ActiveQuery(Customer::class);

@@ -106,10 +106,11 @@ trait ActiveQueryTrait
      * @param array[] $rows The rows to be converted.
      *
      * @throws InvalidConfigException
-     * @return ActiveRecordInterface[]|array[] The model instances.
+     *
+     * @return ActiveRecordModelInterface[]|array[] The model instances.
      *
      * @psalm-param non-empty-list<array> $rows
-     * @psalm-return non-empty-list<ActiveRecordInterface|array>
+     * @psalm-return non-empty-list<ActiveRecordModelInterface|array>
      */
     protected function createModels(array $rows): array
     {
@@ -120,8 +121,8 @@ trait ActiveQueryTrait
         if ($this->resultCallback !== null) {
             $rows = ($this->resultCallback)($rows);
 
-            if ($rows[0] instanceof ActiveRecordInterface) {
-                /** @psalm-var non-empty-list<ActiveRecordInterface> */
+            if ($rows[0] instanceof ActiveRecordModelInterface) {
+                /** @psalm-var non-empty-list<ActiveRecordModelInterface> */
                 return $rows;
             }
         }
@@ -129,8 +130,8 @@ trait ActiveQueryTrait
         $models = [];
 
         foreach ($rows as $row) {
-            $arClass = $this->getARInstance();
-            $arClass->populateRecord($row);
+            $arClass = $this->getModelInstance();
+            $arClass->activeRecord()->populateRecord($row);
 
             $models[] = $arClass;
         }
@@ -143,7 +144,7 @@ trait ActiveQueryTrait
      *
      * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
      * for details about specifying this parameter.
-     * @param ActiveRecordInterface[]|array[] $models the primary models (can be either AR instances or arrays)
+     * @param ActiveRecordModelInterface[]|array[] $models the primary models (can be either AR instances or arrays)
      *
      * @throws Exception
      * @throws InvalidArgumentException
@@ -151,15 +152,15 @@ trait ActiveQueryTrait
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param non-empty-list<ActiveRecordModelInterface|array> $models
+     * @psalm-param-out non-empty-list<ActiveRecordModelInterface|array> $models
      */
     public function findWith(array $with, array &$models): void
     {
         $primaryModel = reset($models);
 
-        if (!$primaryModel instanceof ActiveRecordInterface) {
-            $primaryModel = $this->getARInstance();
+        if (!$primaryModel instanceof ActiveRecordModelInterface) {
+            $primaryModel = $this->getModelInstance();
         }
 
         $relations = $this->normalizeRelations($primaryModel, $with);
@@ -177,7 +178,7 @@ trait ActiveQueryTrait
     /**
      * @return ActiveQueryInterface[]
      */
-    private function normalizeRelations(ActiveRecordInterface $model, array $with): array
+    private function normalizeRelations(ActiveRecordModelInterface $model, array $with): array
     {
         $relations = [];
 

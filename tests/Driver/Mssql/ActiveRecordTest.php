@@ -53,7 +53,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $record->stringcol = 'test';
 
-        $this->assertTrue($record->save());
+        $this->assertTrue($record->activeRecord()->save());
         $this->assertEquals(1, $record->id);
 
         $testRecordQuery = new ActiveQuery(TestTriggerAlert::class);

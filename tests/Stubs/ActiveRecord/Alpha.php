@@ -6,9 +6,9 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 
-final class Alpha extends ActiveRecord
+final class Alpha extends ActiveRecordModel
 {
     public const TABLE_NAME = 'alpha';
 
@@ -16,7 +16,7 @@ final class Alpha extends ActiveRecord
 
     protected string $string_identifier;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return self::TABLE_NAME;
     }
@@ -41,11 +41,11 @@ final class Alpha extends ActiveRecord
 
     public function getBetas(): array|null
     {
-        return $this->relation('betas');
+        return $this->activeRecord()->relation('betas');
     }
 
     public function getBetasQuery(): ActiveQuery
     {
-        return $this->hasMany(Beta::class, ['alpha_string_identifier' => 'string_identifier']);
+        return $this->activeRecord()->hasMany(Beta::class, ['alpha_string_identifier' => 'string_identifier']);
     }
 }

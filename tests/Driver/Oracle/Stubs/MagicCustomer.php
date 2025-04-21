@@ -20,6 +20,6 @@ final class MagicCustomer extends \Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveR
 {
     public function getOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('{{customer}}.[[id]]');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('{{customer}}.[[id]]');
     }
 }

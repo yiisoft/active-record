@@ -18,6 +18,6 @@ final class MagicOrder extends \Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveReco
 {
     public function getCustomerQuery(): ActiveQuery
     {
-        return $this->hasOne(MagicCustomer::class, ['id' => 'customer_id']);
+        return $this->activeRecord()->hasOne(MagicCustomer::class, ['id' => 'customer_id']);
     }
 }

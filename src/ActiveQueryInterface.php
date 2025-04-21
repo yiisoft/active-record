@@ -23,7 +23,7 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  *
- * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
+ * @psalm-type ModelClass = class-string<ActiveRecordModelInterface>|ActiveRecordModelInterface|Closure():ActiveRecordModelInterface
  * @psalm-import-type IndexKey from ArArrayHelper
  */
 interface ActiveQueryInterface extends QueryInterface
@@ -35,8 +35,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws InvalidConfigException
      * @throws Throwable
      *
-     * @return ActiveRecordInterface[]|array[] All rows of the query result. Each array element is an `array` or
-     * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see isAsArray()} result.
+     * @return ActiveRecordModelInterface[]|array[] All rows of the query result. Each array element is an `array` or
+     * instance of {@see ActiveRecordModelInterface} representing a row of data, depends on {@see isAsArray()} result.
      * Empty array if the query results in nothing.
      */
     public function all(): array;
@@ -102,7 +102,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
      */
-    public function via(string $relationName, callable $callable = null): static;
+    public function via(string $relationName, callable|null $callable = null): static;
 
     /**
      * @return array|string|null the join condition to be used when this query is used in a relational context.
@@ -208,7 +208,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * Otherwise, the condition will be used in the `WHERE` part of a query.
      *
-     * Use this method to specify more conditions when declaring a relation in the {@see ActiveRecord} class:
+     * Use this method to specify more conditions when declaring a relation in the {@see ActiveRecordModel} class:
      *
      * ```php
      * public function getActiveUsers(): ActiveQuery
@@ -258,7 +258,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Specifies the junction table for a relational query.
      *
-     * Use this method to specify a junction table when declaring a relation in the {@see ActiveRecord} class:
+     * Use this method to specify a junction table when declaring a relation in the {@see ActiveRecordModel} class:
      *
      * ```php
      * public function getItems()
@@ -276,10 +276,10 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @see via()
      */
-    public function viaTable(string $tableName, array $link, callable $callable = null): static;
+    public function viaTable(string $tableName, array $link, callable|null $callable = null): static;
 
     /**
-     * Define an alias for the table defined in {@see arClass}.
+     * Define an alias for the table defined in {@see modelClass}.
      *
      * This method will adjust {@see from()} so that an already defined alias will be overwritten.
      *
@@ -313,11 +313,11 @@ interface ActiveQueryInterface extends QueryInterface
     public function getSql(): string|null;
 
     /**
-     * @return ActiveRecordInterface|Closure|string The AR class associated with this query.
+     * @return ActiveRecordModelInterface|Closure|string The AR class associated with this query.
      *
-     * @psalm-return ARClass
+     * @psalm-return ModelClass
      */
-    public function getARClass(): string|ActiveRecordInterface|Closure;
+    public function getModelClass(): string|ActiveRecordModelInterface|Closure;
 
     /**
      * Creates an {@see ActiveQuery} instance with a given SQL statement.
@@ -351,13 +351,13 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param array[] $rows The raw query result from a database.
      *
-     * @return ActiveRecordInterface[]|array[] The converted query result.
+     * @return ActiveRecordModelInterface[]|array[] The converted query result.
      *
      * @psalm-param list<array> $rows
      * @psalm-return (
      *     $rows is non-empty-list<array>
-     *         ? non-empty-list<ActiveRecordInterface|array>
-     *         : list<ActiveRecordInterface|array>
+     *         ? non-empty-list<ActiveRecordModelInterface|array>
+     *         : list<ActiveRecordModelInterface|array>
      * )
      */
     public function populate(array $rows): array;
@@ -365,7 +365,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Returns related record(s).
      *
-     * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.
+     * This method is invoked when a relation of an ActiveRecordModel is being accessed in a lazy fashion.
      *
      * @throws Exception
      * @throws InvalidArgumentException
@@ -373,9 +373,9 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws ReflectionException
      * @throws Throwable if the relation is invalid.
      *
-     * @return ActiveRecordInterface|ActiveRecordInterface[]|array|array[]|null the related record(s).
+     * @return ActiveRecordModelInterface|ActiveRecordModelInterface[]|array|array[]|null the related record(s).
      */
-    public function relatedRecords(): ActiveRecordInterface|array|null;
+    public function relatedRecords(): ActiveRecordModelInterface|array|null;
 
     /**
      * Returns a single active record instance by a primary key or an array of column values.
@@ -394,7 +394,7 @@ interface ActiveQueryInterface extends QueryInterface
      * Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited to
      * simple filter conditions.
      *
-     * That this method will automatically call the `one()` method and return an {@see ActiveRecordInterface} instance.
+     * That this method will automatically call the `one()` method and return an {@see ActiveRecordModelInterface} instance.
      *
      * Note: As this is a shorthand method only, using more complex conditions, `like ['!=', 'id', 1]` will not work.
      * If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()} instead.
@@ -456,9 +456,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @throws InvalidConfigException
      *
-     * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
+     * @return ActiveRecordModelInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
-    public function findOne(mixed $condition): array|ActiveRecordInterface|null;
+    public function findOne(mixed $condition): array|ActiveRecordModelInterface|null;
 
     /**
      * Returns a list of active record that matches the specified primary key value(s) or a set of column values.
@@ -479,7 +479,7 @@ interface ActiveQueryInterface extends QueryInterface
      * Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited
      * to simple filter conditions.
      *
-     * This method will automatically call the `all()` method and return an array of {@see ActiveRecordInterface}
+     * This method will automatically call the `all()` method and return an array of {@see ActiveRecordModelInterface}
      * instances.
      *
      * Note: As this is a shorthand method only, using more complex conditions, `like ['!=', 'id', 1]` will not work.
@@ -554,7 +554,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * It's used to set the query options for the query.
      */
-    public function primaryModel(ActiveRecordInterface|null $value): static;
+    public function primaryModel(ActiveRecordModelInterface|null $value): static;
 
     /**
      * It's used to set the query options for the query.
@@ -604,9 +604,9 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotInstantiableException
-     * @return ActiveRecordInterface The model instance associated with this query.
+     * @return ActiveRecordModelInterface The model instance associated with this query.
      */
-    public function getARInstance(): ActiveRecordInterface;
+    public function getModelInstance(): ActiveRecordModelInterface;
 
     /**
      * @return bool Whether this query represents a relation to more than one record.
@@ -630,24 +630,25 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @return ActiveRecordInterface|array|null The first row as an `array` or instance of {@see ActiveRecordInterface}
+     * @return ActiveRecordModelInterface|array|null The first row as an `array` or instance of {@see ActiveRecordModelInterface}
      * of the query result, depends on {@see isAsArray()} result. `null` if the query results in nothing.
      */
-    public function one(): array|ActiveRecordInterface|null;
+    public function one(): array|ActiveRecordModelInterface|null;
 
     /**
      * Finds the related records and populates them into the primary models.
      *
      * @param string $name The relation name.
-     * @param ActiveRecordInterface[]|array[] $primaryModels Primary models.
+     * @param ActiveRecordModelInterface[]|array[] $primaryModels Primary models.
      *
      * @throws Exception
      * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable If {@see link()} is
      * invalid.
-     * @return ActiveRecordInterface[]|array[] The related models.
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @return ActiveRecordModelInterface[]|array[] The related models.
+     *
+     * @psalm-param non-empty-list<ActiveRecordModelInterface|array> $primaryModels
+     * @psalm-param-out non-empty-list<ActiveRecordModelInterface|array> $primaryModels
      */
     public function populateRelation(string $name, array &$primaryModels): array;
 }

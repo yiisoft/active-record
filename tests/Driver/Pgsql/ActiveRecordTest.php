@@ -41,7 +41,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $arClass = new Type();
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
 
         $this->assertSame(1, $arClass->int_col2);
         $this->assertSame('something', $arClass->char_col2);
@@ -54,13 +54,13 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
         $this->assertSame('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues(false);
+        $arClass->activeRecord()->loadDefaultValues(false);
         $this->assertSame('something', $arClass->char_col2);
     }
 
@@ -82,7 +82,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->bool_col2 = false;
         $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
 
-        $arClass->save();
+        $arClass->activeRecord()->save();
 
         /** @var $model Type */
         $aqClass = new ActiveQuery(Type::class);
@@ -110,11 +110,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->setEmail('user1337@example.com');
         $customer->setName('user1337');
         $customer->setAddress('address1337');
-        $this->assertTrue($customer->getIsNewRecord());
+        $this->assertTrue($customer->activeRecord()->isNewRecord());
 
-        $customer->save();
+        $customer->activeRecord()->save();
         $this->assertEquals(1337, $customer->getId());
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
     }
 
     /**
@@ -197,7 +197,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $user->email = 'test@example.com';
         $user->created_at = time();
         $user->updated_at = time();
-        $user->save();
+        $user->activeRecord()->save();
 
         $userQuery = new ActiveQuery(UserAR::class);
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
@@ -215,12 +215,12 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertTrue($arClass->default_true);
         $this->assertFalse($arClass->default_false);
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
 
         $this->assertNull($arClass->bool_col);
         $this->assertTrue($arClass->default_true);
         $this->assertFalse($arClass->default_false);
-        $this->assertTrue($arClass->save());
+        $this->assertTrue($arClass->activeRecord()->save());
     }
 
     public function testPrimaryKeyAfterSave(): void
@@ -231,9 +231,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $record->type = 'type';
 
-        $record->save();
+        $record->activeRecord()->save();
 
-        $this->assertEquals(5, $record->getPrimaryKey());
+        $this->assertEquals(5, $record->activeRecord()->getPrimaryKey());
     }
 
     public static function arrayValuesProvider(): array
@@ -316,10 +316,10 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $type = new ArrayAndJsonTypes();
 
         foreach ($properties as $property => $expected) {
-            $type->set($property, $expected[0]);
+            $type->activeRecord()->set($property, $expected[0]);
         }
 
-        $type->save();
+        $type->activeRecord()->save();
 
         $typeQuery = new ActiveQuery($type::class);
 
@@ -327,7 +327,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         foreach ($properties as $property => $expected) {
             $expected = $expected[1] ?? $expected[0];
-            $value = $type->get($property);
+            $value = $type->activeRecord()->get($property);
 
             if ($expected instanceof ArrayExpression) {
                 $expected = $expected->getValue();
@@ -338,10 +338,10 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         /** Testing update */
         foreach ($properties as $property => $expected) {
-            $type->markPropertyChanged($property);
+            $type->activeRecord()->markPropertyChanged($property);
         }
 
-        $this->assertSame(1, $type->update(), 'The record got updated');
+        $this->assertSame(1, $type->activeRecord()->update(), 'The record got updated');
     }
 
     public function testRelationViaArray(): void
@@ -360,7 +360,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         /** Test inverse relation */
         foreach ($promotions as $promotion) {
             foreach ($promotion->getItemsViaArray() as $item) {
-                $this->assertTrue($item->isRelationPopulated('promotionsViaArray'));
+                $this->assertTrue($item->activeRecord()->isRelationPopulated('promotionsViaArray'));
             }
         }
 
@@ -381,11 +381,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         /** @var Item[] $items */
         $items = $itemQuery->all();
 
-        $this->assertFalse($items[0]->isRelationPopulated('promotionsViaArray'));
-        $this->assertFalse($items[1]->isRelationPopulated('promotionsViaArray'));
-        $this->assertFalse($items[2]->isRelationPopulated('promotionsViaArray'));
-        $this->assertFalse($items[3]->isRelationPopulated('promotionsViaArray'));
-        $this->assertFalse($items[4]->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[0]->activeRecord()->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[1]->activeRecord()->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[2]->activeRecord()->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[3]->activeRecord()->isRelationPopulated('promotionsViaArray'));
+        $this->assertFalse($items[4]->activeRecord()->isRelationPopulated('promotionsViaArray'));
 
         $this->assertSame([1, 3], ArArrayHelper::getColumn($items[0]->getPromotionsViaArray(), 'id'));
         $this->assertSame([1], ArArrayHelper::getColumn($items[1]->getPromotionsViaArray(), 'id'));

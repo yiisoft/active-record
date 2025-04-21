@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Trait;
 
 /**
- * Trait to implement custom table name for ActiveRecord.
+ * Trait to implement custom table name for ActiveRecordModel.
  *
- * @see ActiveRecordInterface::getTableName()
+ * @see ActiveRecordModelInterface::tableName()
  */
 trait CustomTableNameTrait
 {
@@ -23,8 +23,8 @@ trait CustomTableNameTrait
         return $new;
     }
 
-    public function getTableName(): string
+    public function tableName(): string
     {
-        return $this->tableName ??= parent::getTableName();
+        return $this->tableName ??= parent::tableName();
     }
 }

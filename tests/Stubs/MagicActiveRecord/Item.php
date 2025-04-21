@@ -16,13 +16,13 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Item extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'item';
     }
 
     public function getCategoryQuery(): ActiveQuery
     {
-        return $this->hasOne(Category::class, ['id' => 'category_id']);
+        return $this->activeRecord()->hasOne(Category::class, ['id' => 'category_id']);
     }
 }

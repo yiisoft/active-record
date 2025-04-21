@@ -6,8 +6,8 @@ namespace Yiisoft\ActiveRecord\Trait;
 
 use ReflectionException;
 use Throwable;
-use Yiisoft\ActiveRecord\AbstractActiveRecord;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
+use Yiisoft\ActiveRecord\ActiveRecordModelInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -15,30 +15,14 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 
 use function array_merge;
-use function in_array;
 use function method_exists;
 use function property_exists;
 
 /**
  * Trait to define magic methods to access values of an ActiveRecord instance.
  *
- * @method array getRelatedRecords()
- * @see AbstractActiveRecord::getRelatedRecords()
- *
- * @method bool hasDependentRelations(string $propertyName)
- * @see AbstractActiveRecord::hasDependentRelations()
- *
- * @method bool isRelationPopulated(string $name)
- * @see ActiveRecordInterface::isRelationPopulated()
- *
- * @method void resetDependentRelations(string $propertyName)
- * @see AbstractActiveRecord::resetDependentRelations()
- *
- * @method void resetRelation(string $name)
- * @see ActiveRecordInterface::resetRelation()
- *
- * @method ActiveRecordInterface|array|null retrieveRelation(string $name)
- * @see AbstractActiveRecord::retrieveRelation()
+ * @method ActiveRecordInterface activeRecord()
+ * @see ActiveRecordModelInterface::activeRecord()
  */
 trait MagicPropertiesTrait
 {
@@ -66,17 +50,19 @@ trait MagicPropertiesTrait
             return $this->$getter();
         }
 
-        if ($this->hasProperty($name)) {
-            return $this->get($name);
+        $activeRecord = $this->activeRecord();
+
+        if (isset($this->propertyValues[$name]) || $activeRecord->hasProperty($name)) {
+            return $activeRecord->get($name);
         }
 
-        if ($this->isRelationPopulated($name)) {
-            return $this->getRelatedRecords()[$name];
+        if ($activeRecord->isRelationPopulated($name)) {
+            return $activeRecord->getRelatedRecords()[$name];
         }
 
         if (method_exists($this, "get{$name}Query")) {
             /** Read relation query getter, e.g., getUserQuery() */
-            return $this->retrieveRelation($name);
+            return $activeRecord->retrieveRelation($name);
         }
 
         if (method_exists($this, "set$name")) {
@@ -109,14 +95,14 @@ trait MagicPropertiesTrait
      */
     public function __unset(string $name): void
     {
-        if ($this->hasProperty($name)) {
+        $activeRecord = $this->activeRecord();
+
+        if (isset($this->propertyValues[$name])) {
             unset($this->propertyValues[$name]);
 
-            if ($this->hasDependentRelations($name)) {
-                $this->resetDependentRelations($name);
-            }
-        } elseif ($this->isRelationPopulated($name)) {
-            $this->resetRelation($name);
+            $activeRecord->resetDependentRelations($name);
+        } elseif ($activeRecord->isRelationPopulated($name)) {
+            $activeRecord->resetRelation($name);
         }
     }
 
@@ -135,8 +121,10 @@ trait MagicPropertiesTrait
             return;
         }
 
-        if ($this->hasProperty($name)) {
-            parent::set($name, $value);
+        $activeRecord = $this->activeRecord();
+
+        if ($activeRecord->hasProperty($name)) {
+            $activeRecord->set($name, $value);
             return;
         }
 
@@ -148,20 +136,6 @@ trait MagicPropertiesTrait
         }
 
         throw new UnknownPropertyException('Setting unknown property: ' . static::class . '::' . $name);
-    }
-
-    public function hasProperty(string $name): bool
-    {
-        return isset($this->propertyValues[$name]) || in_array($name, $this->propertyNames(), true);
-    }
-
-    public function set(string $propertyName, mixed $value): void
-    {
-        if ($this->hasProperty($propertyName)) {
-            parent::set($propertyName, $value);
-        } else {
-            throw new InvalidArgumentException(static::class . ' has no property named "' . $propertyName . '".');
-        }
     }
 
     /**
@@ -183,40 +157,44 @@ trait MagicPropertiesTrait
      */
     public function isProperty(string $name, bool $checkVars = true): bool
     {
-        return method_exists($this, "get$name")
+        return isset($this->propertyValues[$name])
+            || ($checkVars && property_exists($this, $name))
+            || method_exists($this, "get$name")
             || method_exists($this, "set$name")
             || method_exists($this, "get{$name}Query")
-            || ($checkVars && property_exists($this, $name))
-            || $this->hasProperty($name);
+            || $this->activeRecord()->hasProperty($name);
     }
 
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
-        return method_exists($this, "get$name")
-            || method_exists($this, "get{$name}Query")
+        return isset($this->propertyValues[$name])
             || ($checkVars && property_exists($this, $name))
-            || $this->hasProperty($name);
+            || method_exists($this, "get$name")
+            || method_exists($this, "get{$name}Query")
+            || $this->activeRecord()->hasProperty($name);
     }
 
     public function canSetProperty(string $name, bool $checkVars = true): bool
     {
-        return method_exists($this, "set$name")
+        return isset($this->propertyValues[$name])
             || ($checkVars && property_exists($this, $name))
-            || $this->hasProperty($name);
+            || method_exists($this, "set$name")
+            || $this->activeRecord()->hasProperty($name);
     }
 
-    /** @psalm-return array<string, mixed> */
-    protected function propertyValuesInternal(): array
+    public function propertyValues(): array
     {
-        return array_merge($this->propertyValues, parent::propertyValuesInternal());
+        return array_merge($this->propertyValues, parent::propertyValues());
     }
 
-    protected function populateProperty(string $name, mixed $value): void
+    public function populateProperty(string $name, mixed $value): void
     {
         if ($name !== 'propertyValues' && property_exists($this, $name)) {
             $this->$name = $value;
-        } else {
+        } elseif (isset($this->propertyValues[$name]) || $this->activeRecord()->hasProperty($name)) {
             $this->propertyValues[$name] = $value;
+        } else {
+            throw new InvalidArgumentException(static::class . ' has no property named "' . $name . '".');
         }
     }
 }

@@ -7,14 +7,14 @@ namespace Yiisoft\ActiveRecord\Trait;
 use Closure;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecordInterface;
+use Yiisoft\ActiveRecord\ActiveRecordModelInterface;
 use Yiisoft\Factory\Factory;
 
 use function is_string;
 use function method_exists;
 
 /**
- * Trait to add factory support to ActiveRecord.
+ * Trait to add factory support to ActiveRecordModel.
  *
  * @see AbstractActiveRecord::instantiateQuery()
  */
@@ -32,26 +32,26 @@ trait FactoryTrait
         return $new;
     }
 
-    public function instantiateQuery(string|ActiveRecordInterface|Closure $arClass): ActiveQueryInterface
+    public function instantiateQuery(string|ActiveRecordModelInterface|Closure $modelClass): ActiveQueryInterface
     {
         if (!isset($this->factory)) {
-            return new ActiveQuery($arClass);
+            return new ActiveQuery($modelClass);
         }
 
-        if (is_string($arClass)) {
-            if (method_exists($arClass, 'withFactory')) {
+        if (is_string($modelClass)) {
+            if (method_exists($modelClass, 'withFactory')) {
                 return new ActiveQuery(
-                    fn (): ActiveRecordInterface => $this->factory->create($arClass)->withFactory($this->factory)
+                    fn (): ActiveRecordModelInterface => $this->factory->create($modelClass)->withFactory($this->factory)
                 );
             }
 
-            return new ActiveQuery(fn (): ActiveRecordInterface => $this->factory->create($arClass));
+            return new ActiveQuery(fn (): ActiveRecordModelInterface => $this->factory->create($modelClass));
         }
 
-        if ($arClass instanceof ActiveRecordInterface && method_exists($arClass, 'withFactory')) {
-            return new ActiveQuery($arClass->withFactory($this->factory));
+        if ($modelClass instanceof ActiveRecordModelInterface && method_exists($modelClass, 'withFactory')) {
+            return new ActiveQuery($modelClass->withFactory($this->factory));
         }
 
-        return new ActiveQuery($arClass);
+        return new ActiveQuery($modelClass);
     }
 }

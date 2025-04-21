@@ -6,33 +6,16 @@ namespace Yiisoft\ActiveRecord\Trait;
 
 use InvalidArgumentException;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
+use Yiisoft\ActiveRecord\ActiveRecordModelInterface;
 
 use function is_array;
 use function property_exists;
 
 /**
- * Trait to implement {@see ArrayAccess} interface for ActiveRecord.
+ * Trait to implement {@see ArrayAccess} interface for ActiveRecordModel.
  *
- * @method mixed get(string $name)
- * @see ActiveRecordInterface::get()
- *
- * @method bool hasProperty(string $name)
- * @see ActiveRecordInterface::hasProperty()
- *
- * @method void set(string $name, mixed $value)
- * @see ActiveRecordInterface::set()
- *
- * @method ActiveRecordInterface|array|null relation(string $name)
- * @see ActiveRecordInterface::relation()
- *
- * @method bool isRelationPopulated(string $name)
- * @see ActiveRecordInterface::isRelationPopulated()
- *
- * @method void populateRelation(string $name, ActiveRecordInterface|array|null $record)
- * @see ActiveRecordInterface::populateRelation()
- *
- * @method void resetRelation(string $name)
- * @see ActiveRecordInterface::resetRelation()
+ * @method ActiveRecordInterface activeRecord()
+ * @see ActiveRecordModelInterface::activeRecord()
  */
 trait ArrayAccessTrait
 {
@@ -49,16 +32,18 @@ trait ArrayAccessTrait
      */
     public function offsetExists(mixed $offset): bool
     {
-        if ($this->hasProperty($offset)) {
-            return $this->get($offset) !== null;
+        $activeRecord = $this->activeRecord();
+
+        if ($activeRecord->hasProperty($offset)) {
+            return $activeRecord->get($offset) !== null;
         }
 
         if (property_exists($this, $offset)) {
             return isset($this->$offset);
         }
 
-        if ($this->isRelationPopulated($offset)) {
-            return $this->relation($offset) !== null;
+        if ($activeRecord->isRelationPopulated($offset)) {
+            return $activeRecord->relation($offset) !== null;
         }
 
         return false;
@@ -69,15 +54,17 @@ trait ArrayAccessTrait
      */
     public function offsetGet(mixed $offset): mixed
     {
-        if ($this->hasProperty($offset)) {
-            return $this->get($offset);
+        $activeRecord = $this->activeRecord();
+
+        if ($activeRecord->hasProperty($offset)) {
+            return $activeRecord->get($offset);
         }
 
         if (property_exists($this, $offset)) {
             return $this->$offset ?? null;
         }
 
-        return $this->relation($offset);
+        return $activeRecord->relation($offset);
     }
 
     /**
@@ -91,8 +78,10 @@ trait ArrayAccessTrait
      */
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        if ($this->hasProperty($offset)) {
-            $this->set($offset, $value);
+        $activeRecord = $this->activeRecord();
+
+        if ($activeRecord->hasProperty($offset)) {
+            $activeRecord->set($offset, $value);
             return;
         }
 
@@ -102,7 +91,7 @@ trait ArrayAccessTrait
         }
 
         if ($value instanceof ActiveRecordInterface || is_array($value) || $value === null) {
-            $this->populateRelation($offset, $value);
+            $activeRecord->populateRelation($offset, $value);
             return;
         }
 
@@ -120,12 +109,14 @@ trait ArrayAccessTrait
      */
     public function offsetUnset(mixed $offset): void
     {
-        if ($this->hasProperty($offset) || property_exists($this, $offset)) {
-            $this->set($offset, null);
+        $activeRecord = $this->activeRecord();
+
+        if ($activeRecord->hasProperty($offset) || property_exists($this, $offset)) {
+            $activeRecord->set($offset, null);
             unset($this->$offset);
             return;
         }
 
-        $this->resetRelation($offset);
+        $activeRecord->resetRelation($offset);
     }
 }

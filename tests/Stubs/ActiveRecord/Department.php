@@ -6,18 +6,18 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
  * Class Department
  */
-final class Department extends ActiveRecord
+final class Department extends ActiveRecordModel
 {
     protected int $id;
     protected string $title;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'department';
     }
@@ -32,12 +32,12 @@ final class Department extends ActiveRecord
 
     public function getEmployees(): ActiveRecordInterface
     {
-        return $this->relation('employees');
+        return $this->activeRecord()->relation('employees');
     }
 
     public function getEmployeesQuery(): ActiveQuery
     {
-        return $this->hasMany(
+        return $this->activeRecord()->hasMany(
             Employee::class,
             [
                 'department_id' => 'id',

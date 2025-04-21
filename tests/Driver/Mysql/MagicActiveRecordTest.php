@@ -28,12 +28,12 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->name = 'user1337';
         $customer->address = 'address1337';
 
-        $this->assertTrue($customer->isNewRecord);
+        $this->assertTrue($customer->activeRecord()->isNewRecord());
 
-        $customer->save();
+        $customer->activeRecord()->save();
 
         $this->assertEquals(1337, $customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
     }
 
     /**

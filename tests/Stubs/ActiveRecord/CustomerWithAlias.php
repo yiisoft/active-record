@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 
 /**
  * Class Customer.
  */
-final class CustomerWithAlias extends ActiveRecord
+final class CustomerWithAlias extends ActiveRecordModel
 {
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
@@ -25,7 +25,7 @@ final class CustomerWithAlias extends ActiveRecord
     public bool|string|null $bool_status = null;
     public int|null $profile_id = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }

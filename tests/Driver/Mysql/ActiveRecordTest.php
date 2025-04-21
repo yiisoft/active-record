@@ -30,7 +30,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $arClass = new Type();
 
-        $arClass->deleteAll();
+        $arClass->activeRecord()->deleteAll();
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -45,7 +45,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->bool_col2 = false;
         $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
 
-        $arClass->save();
+        $arClass->activeRecord()->save();
 
         /** @var $model Type */
         $aqClass = new ActiveQuery(Type::class);
@@ -76,12 +76,12 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->setName('user1337');
         $customer->setAddress('address1337');
 
-        $this->assertTrue($customer->getIsNewRecord());
+        $this->assertTrue($customer->activeRecord()->isNewRecord());
 
-        $customer->save();
+        $customer->activeRecord()->save();
 
         $this->assertEquals(1337, $customer->getId());
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
     }
 
     /**

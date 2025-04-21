@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
 use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
 
@@ -15,7 +15,7 @@ use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
  * @see MagicPropertiesTrait to access column values and relations via PHP magic methods as properties;
  * @see MagicRelationsTrait to access relation queries.
  */
-class MagicActiveRecord extends ActiveRecord
+class MagicActiveRecord extends ActiveRecordModel
 {
     use MagicPropertiesTrait;
     use MagicRelationsTrait;

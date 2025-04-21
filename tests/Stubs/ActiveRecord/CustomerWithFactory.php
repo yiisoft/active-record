@@ -21,7 +21,7 @@ final class CustomerWithFactory extends Customer
     public function relationQuery(string $name): ActiveQueryInterface
     {
         return match ($name) {
-            'ordersWithFactory' => $this->hasMany(OrderWithFactory::class, ['customer_id' => 'id']),
+            'ordersWithFactory' => $this->activeRecord()->hasMany(OrderWithFactory::class, ['customer_id' => 'id']),
             default => parent::relationQuery($name),
         };
     }
@@ -29,6 +29,6 @@ final class CustomerWithFactory extends Customer
     /** @return OrderWithFactory[] */
     public function getOrdersWithFactory(): array
     {
-        return $this->relation('ordersWithFactory');
+        return $this->activeRecord()->relation('ordersWithFactory');
     }
 }

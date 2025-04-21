@@ -14,7 +14,7 @@ final class Item extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item
     public function relationQuery(string $name): ActiveQueryInterface
     {
         return match ($name) {
-            'promotionsViaArray' => $this->hasMany(Promotion::class, ['array_item_ids' => 'id']),
+            'promotionsViaArray' => $this->activeRecord()->hasMany(Promotion::class, ['array_item_ids' => 'id']),
             default => parent::relationQuery($name),
         };
     }
@@ -22,6 +22,6 @@ final class Item extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item
     /** @return Promotion[] */
     public function getPromotionsViaArray(): array
     {
-        return $this->relation('promotionsViaArray');
+        return $this->activeRecord()->relation('promotionsViaArray');
     }
 }

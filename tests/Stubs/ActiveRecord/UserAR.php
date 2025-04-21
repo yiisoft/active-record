@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 
-final class UserAR extends ActiveRecord
+final class UserAR extends ActiveRecordModel
 {
     public const STATUS_DELETED = 0;
     public const STATUS_ACTIVE = 10;
@@ -24,7 +24,7 @@ final class UserAR extends ActiveRecord
     public int $updated_at;
     public bool $is_deleted = false;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%bool_user}}';
     }
