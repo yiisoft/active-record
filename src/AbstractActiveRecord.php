@@ -30,11 +30,8 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_int;
-use function ltrim;
 use function method_exists;
-use function preg_replace;
 use function reset;
-use function strtolower;
 
 /**
  * ActiveRecord is the base class for classes representing relational data in terms of objects.
