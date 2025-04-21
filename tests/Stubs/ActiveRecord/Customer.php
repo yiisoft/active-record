@@ -33,7 +33,7 @@ class Customer extends ArrayableActiveRecord
      */
     public $sumTotal;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }
@@ -53,7 +53,7 @@ class Customer extends ArrayableActiveRecord
             'orderItems' => $this->getOrderItemsQuery(),
             'orderItems2' => $this->getOrderItems2Query(),
             'items2' => $this->getItems2Query(),
-            'ordersUsingInstance' => $this->hasMany(new Order(), ['customer_id' => 'id']),
+            'ordersUsingInstance' => $this->activeRecord()->hasMany(new Order(), ['customer_id' => 'id']),
             default => parent::relationQuery($name),
         };
     }
@@ -125,57 +125,57 @@ class Customer extends ArrayableActiveRecord
 
     public function setProfileId(int|null $profile_id): void
     {
-        $this->set('profile_id', $profile_id);
+        $this->activeRecord()->set('profile_id', $profile_id);
     }
 
     public function getProfile(): Profile|null
     {
-        return $this->relation('profile');
+        return $this->activeRecord()->relation('profile');
     }
 
     public function getProfileQuery(): ActiveQuery
     {
-        return $this->hasOne(Profile::class, ['id' => 'profile_id']);
+        return $this->activeRecord()->hasOne(Profile::class, ['id' => 'profile_id']);
     }
 
     public function getOrdersPlain(): array
     {
-        return $this->relation('ordersPlain');
+        return $this->activeRecord()->relation('ordersPlain');
     }
 
     public function getOrdersPlainQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id']);
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id']);
     }
 
     public function getOrders(): array
     {
-        return $this->relation('orders');
+        return $this->activeRecord()->relation('orders');
     }
 
     public function getOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
     public function getOrdersNoOrder(): array
     {
-        return $this->relation('ordersNoOrder');
+        return $this->activeRecord()->relation('ordersNoOrder');
     }
 
     public function getOrdersNoOrderQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id']);
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id']);
     }
 
     public function getExpensiveOrders(): array
     {
-        return $this->relation('expensiveOrders');
+        return $this->activeRecord()->relation('expensiveOrders');
     }
 
     public function getExpensiveOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
     public function getItem(): void
@@ -184,22 +184,22 @@ class Customer extends ArrayableActiveRecord
 
     public function getOrdersWithItems(): array
     {
-        return $this->relation('ordersWithItems');
+        return $this->activeRecord()->relation('ordersWithItems');
     }
 
     public function getOrdersWithItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
     }
 
     public function getExpensiveOrdersWithNullFK(): array
     {
-        return $this->relation('expensiveOrdersWithNullFK');
+        return $this->activeRecord()->relation('expensiveOrdersWithNullFK');
     }
 
     public function getExpensiveOrdersWithNullFKQuery(): ActiveQuery
     {
-        return $this->hasMany(
+        return $this->activeRecord()->hasMany(
             OrderWithNullFK::class,
             ['customer_id' => 'id']
         )->andWhere('[[total]] > 50')->orderBy('id');
@@ -207,33 +207,33 @@ class Customer extends ArrayableActiveRecord
 
     public function getOrdersWithNullFK(): array
     {
-        return $this->relation('ordersWithNullFK');
+        return $this->activeRecord()->relation('ordersWithNullFK');
     }
 
     public function getOrdersWithNullFKQuery(): ActiveQuery
     {
-        return $this->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->orderBy('id');
+        return $this->activeRecord()->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->orderBy('id');
     }
 
     public function getOrders2(): array
     {
-        return $this->relation('orders2');
+        return $this->activeRecord()->relation('orders2');
     }
 
     public function getOrders2Query(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
     }
 
     public function getOrderItems(): array
     {
-        return $this->relation('orderItems');
+        return $this->activeRecord()->relation('orderItems');
     }
 
     /** deeply nested table relation */
     public function getOrderItemsQuery(): ActiveQuery
     {
-        $rel = $this->hasMany(Item::class, ['id' => 'item_id']);
+        $rel = $this->activeRecord()->hasMany(Item::class, ['id' => 'item_id']);
 
         return $rel->viaTable('order_item', ['order_id' => 'id'], function ($q) {
             /* @var $q ActiveQuery */
@@ -243,28 +243,28 @@ class Customer extends ArrayableActiveRecord
 
     public function getOrderItems2(): array
     {
-        return $this->relation('orderItems2');
+        return $this->activeRecord()->relation('orderItems2');
     }
 
     public function getOrderItems2Query(): ActiveQuery
     {
-        return $this->hasMany(OrderItem::class, ['order_id' => 'id'])
+        return $this->activeRecord()->hasMany(OrderItem::class, ['order_id' => 'id'])
             ->via('ordersNoOrder');
     }
 
     public function getItems2(): array
     {
-        return $this->relation('items2');
+        return $this->activeRecord()->relation('items2');
     }
 
     public function getItems2Query(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['id' => 'item_id'])
+        return $this->activeRecord()->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItems2');
     }
 
     public function getOrdersUsingInstance(): array
     {
-        return $this->relation('ordersUsingInstance');
+        return $this->activeRecord()->relation('ordersUsingInstance');
     }
 }

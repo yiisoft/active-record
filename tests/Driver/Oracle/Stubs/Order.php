@@ -18,6 +18,6 @@ final class Order extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order
 {
     public function getCustomerQuery(): ActiveQuery
     {
-        return $this->hasOne(Customer::class, ['id' => 'customer_id']);
+        return $this->activeRecord()->hasOne(Customer::class, ['id' => 'customer_id']);
     }
 }

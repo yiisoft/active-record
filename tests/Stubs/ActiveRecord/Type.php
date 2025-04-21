@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 use Yiisoft\Db\Expression\Expression;
 
 /**
  * Model representing type table.
  */
-class Type extends ActiveRecord
+class Type extends ActiveRecordModel
 {
     public int $int_col;
     public int|null $int_col2 = 1;
@@ -30,7 +30,7 @@ class Type extends ActiveRecord
     public int|string $bit_col = 0b1000_0010;
     public array|null $json_col = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'type';
     }

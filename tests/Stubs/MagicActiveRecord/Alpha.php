@@ -15,13 +15,13 @@ final class Alpha extends MagicActiveRecord
 {
     public const TABLE_NAME = 'alpha';
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return self::TABLE_NAME;
     }
 
     public function getBetasQuery(): ActiveQuery
     {
-        return $this->hasMany(Beta::class, ['alpha_string_identifier' => 'string_identifier']);
+        return $this->activeRecord()->hasMany(Beta::class, ['alpha_string_identifier' => 'string_identifier']);
     }
 }

@@ -34,11 +34,11 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->email = 'user1337@example.com';
         $customer->name = 'user1337';
         $customer->address = 'address1337';
-        $this->assertTrue($customer->isNewRecord);
+        $this->assertTrue($customer->activeRecord()->isNewRecord());
 
-        $customer->save();
+        $customer->activeRecord()->save();
         $this->assertEquals(1337, $customer->id);
-        $this->assertFalse($customer->isNewRecord);
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
     }
 
     /**
@@ -72,15 +72,15 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->name = 'boolean customer';
         $customer->email = 'mail@example.com';
         $customer->bool_status = false;
-        $customer->save();
+        $customer->activeRecord()->save();
 
-        $customer->refresh();
+        $customer->activeRecord()->refresh();
         $this->assertFalse($customer->bool_status);
 
         $customer->bool_status = true;
 
-        $customer->save();
-        $customer->refresh();
+        $customer->activeRecord()->save();
+        $customer->activeRecord()->refresh();
         $this->assertTrue($customer->bool_status);
 
         $customerQuery = new ActiveQuery(Customer::class);
@@ -148,7 +148,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $user->email = 'test@example.com';
         $user->created_at = time();
         $user->updated_at = time();
-        $user->save();
+        $user->activeRecord()->save();
 
         $userQuery = new ActiveQuery(UserAR::class);
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
@@ -166,12 +166,12 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $this->assertNull($arClass->default_true);
         $this->assertNull($arClass->default_false);
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
 
         $this->assertNull($arClass->bool_col);
         $this->assertTrue($arClass->default_true);
         $this->assertFalse($arClass->default_false);
-        $this->assertTrue($arClass->save());
+        $this->assertTrue($arClass->activeRecord()->save());
     }
 
     public function testPrimaryKeyAfterSave(): void
@@ -182,7 +182,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $record->type = 'type';
 
-        $record->save();
+        $record->activeRecord()->save();
 
         $this->assertEquals(5, $record->primaryKey);
     }
@@ -270,7 +270,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
             $type->$property = $expected[0];
         }
 
-        $type->save();
+        $type->activeRecord()->save();
 
         $typeQuery = new ActiveQuery($type::class);
 
@@ -292,6 +292,6 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
             $type->markPropertyChanged($property);
         }
 
-        $this->assertSame(1, $type->update(), 'The record got updated');
+        $this->assertSame(1, $type->activeRecord()->update(), 'The record got updated');
     }
 }

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Trait;
 
-use Yiisoft\ActiveRecord\AbstractActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModelInterface;
 use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
- * Trait to implement custom connection name for ActiveRecord.
+ * Trait to implement custom connection name for ActiveRecordModel.
  *
- * @see AbstractActiveRecord::db()
+ * @see ActiveRecordModelInterface::db()
  */
 trait CustomConnectionTrait
 {

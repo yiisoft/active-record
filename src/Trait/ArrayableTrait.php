@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Trait;
 
 use Closure;
-use Yiisoft\ActiveRecord\AbstractActiveRecord;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
+use Yiisoft\ActiveRecord\ActiveRecordModelInterface;
 
 use function array_combine;
 use function array_keys;
 
 /**
- * Trait to implement {@see \Yiisoft\Arrays\ArrayableInterface} interface for ActiveRecord.
+ * Trait to implement {@see \Yiisoft\Arrays\ArrayableInterface} interface for ActiveRecordModel.
  *
- * @method string[] propertyNames()
- * @see ActiveRecordInterface::propertyNames()
- *
- * @method array getRelatedRecords()
- * @see AbstractActiveRecord::getRelatedRecords()
+ * @method ActiveRecordInterface activeRecord()
+ * @see ActiveRecordModelInterface::activeRecord()
  */
 trait ArrayableTrait
 {
@@ -30,7 +27,7 @@ trait ArrayableTrait
      */
     public function extraFields(): array
     {
-        $fields = array_keys($this->getRelatedRecords());
+        $fields = array_keys($this->activeRecord()->getRelatedRecords());
 
         return array_combine($fields, $fields);
     }
@@ -40,7 +37,7 @@ trait ArrayableTrait
      */
     public function fields(): array
     {
-        $fields = $this->propertyNames();
+        $fields = $this->activeRecord()->propertyNames();
 
         return array_combine($fields, $fields);
     }

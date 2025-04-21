@@ -31,34 +31,34 @@ class Customer extends MagicActiveRecord
      */
     public $sumTotal;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }
 
     public function getProfileQuery(): ActiveQuery
     {
-        return $this->hasOne(Profile::class, ['id' => 'profile_id']);
+        return $this->activeRecord()->activeRecord()->hasOne(Profile::class, ['id' => 'profile_id']);
     }
 
     public function getOrdersPlainQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id']);
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id']);
     }
 
     public function getOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('[[id]]');
     }
 
     public function getOrdersNoOrderQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id']);
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id']);
     }
 
     public function getExpensiveOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
     public function getItemQuery(): void
@@ -67,12 +67,12 @@ class Customer extends MagicActiveRecord
 
     public function getOrdersWithItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->with('orderItems');
     }
 
     public function getExpensiveOrdersWithNullFKQuery(): ActiveQuery
     {
-        return $this->hasMany(
+        return $this->activeRecord()->hasMany(
             OrderWithNullFK::class,
             ['customer_id' => 'id']
         )->andWhere('[[total]] > 50')->orderBy('id');
@@ -80,18 +80,18 @@ class Customer extends MagicActiveRecord
 
     public function getOrdersWithNullFKQuery(): ActiveQuery
     {
-        return $this->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->orderBy('id');
+        return $this->activeRecord()->hasMany(OrderWithNullFK::class, ['customer_id' => 'id'])->orderBy('id');
     }
 
     public function getOrders2Query(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
     }
 
     /** deeply nested table relation */
     public function getOrderItemsQuery(): ActiveQuery
     {
-        $rel = $this->hasMany(Item::class, ['id' => 'item_id']);
+        $rel = $this->activeRecord()->hasMany(Item::class, ['id' => 'item_id']);
 
         return $rel->viaTable('order_item', ['order_id' => 'id'], function ($q) {
             /* @var $q ActiveQuery */
@@ -105,13 +105,13 @@ class Customer extends MagicActiveRecord
 
     public function getOrderItems2Query(): ActiveQuery
     {
-        return $this->hasMany(OrderItem::class, ['order_id' => 'id'])
+        return $this->activeRecord()->hasMany(OrderItem::class, ['order_id' => 'id'])
             ->via('ordersNoOrder');
     }
 
     public function getItems2Query(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['id' => 'item_id'])
+        return $this->activeRecord()->hasMany(Item::class, ['id' => 'item_id'])
             ->via('orderItems2');
     }
 }

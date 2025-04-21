@@ -15,7 +15,6 @@ use function array_diff;
 use function array_keys;
 use function array_map;
 use function array_values;
-use function get_object_vars;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -41,19 +40,19 @@ use function preg_replace;
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
- * To declare an ActiveRecord class, you need to extend {@see ActiveRecord} and implement the `getTableName` method:
+ * To declare an ActiveRecord class, you need to extend {@see ActiveRecord} and implement the `tableName()` method:
  *
  * ```php
- * class Customer extends ActiveRecord
+ * class Customer extends ActiveRecordModel
  * {
- *     public static function getTableName(): string
+ *     public function tableName(): string
  *     {
  *         return 'customer';
  *     }
  * }
  * ```
  *
- * The `getTableName` method only has to return the name of the database table associated with the class.
+ * The `tableName()` method only has to return the name of the database table associated with the class.
  *
  * Class instances are obtained in one of two ways:
  *
@@ -63,7 +62,7 @@ use function preg_replace;
  * Below is an example showing some typical usage of ActiveRecord:
  *
  * ```php
- * $user = new User($db);
+ * $user = new User();
  * $user->name = 'Qiang';
  * $user->save(); // a new row is inserted into user table
  *
@@ -99,7 +98,7 @@ class ActiveRecord extends AbstractActiveRecord
         $columnNames = $this->filterValidColumnNames($aliases);
 
         foreach ($condition as $key => $value) {
-            if (is_string($key) && !in_array($this->db()->getQuoter()->quoteSql($key), $columnNames, true)) {
+            if (is_string($key) && !in_array($this->model->db()->getQuoter()->quoteSql($key), $columnNames, true)) {
                 throw new InvalidArgumentException(
                     'Key "' . $key . '" is not a column name and can not be used as a filter'
                 );
@@ -129,10 +128,10 @@ class ActiveRecord extends AbstractActiveRecord
      */
     public function getTableSchema(): TableSchemaInterface
     {
-        $tableSchema = $this->db()->getSchema()->getTableSchema($this->getTableName());
+        $tableSchema = $this->model->db()->getSchema()->getTableSchema($this->model->tableName());
 
         if ($tableSchema === null) {
-            throw new InvalidConfigException('The table does not exist: ' . $this->getTableName());
+            throw new InvalidConfigException('The table does not exist: ' . $this->model->tableName());
         }
 
         return $tableSchema;
@@ -194,7 +193,7 @@ class ActiveRecord extends AbstractActiveRecord
      */
     public function refresh(): bool
     {
-        $query = $this->instantiateQuery(static::class);
+        $query = $this->instantiateQuery($this->model::class);
 
         /** @var string $tableName */
         $tableName = key($query->getTablesUsedInFrom());
@@ -219,8 +218,8 @@ class ActiveRecord extends AbstractActiveRecord
     protected function filterValidColumnNames(array $aliases): array
     {
         $columnNames = [];
-        $tableName = $this->getTableName();
-        $quoter = $this->db()->getQuoter();
+        $tableName = $this->model->tableName();
+        $quoter = $this->model->db()->getQuoter();
         $quotedTableName = $quoter->quoteTableName($tableName);
 
         foreach ($this->getTableSchema()->getColumnNames() as $columnName) {
@@ -239,15 +238,10 @@ class ActiveRecord extends AbstractActiveRecord
         return $columnNames;
     }
 
-    protected function propertyValuesInternal(): array
-    {
-        return get_object_vars($this);
-    }
-
     protected function insertInternal(array $propertyNames = null): bool
     {
         $values = $this->newValues($propertyNames);
-        $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->getTableName(), $values);
+        $primaryKeys = $this->model->db()->createCommand()->insertWithReturningPks($this->model->tableName(), $values);
 
         if ($primaryKeys === false) {
             return false;
@@ -264,10 +258,5 @@ class ActiveRecord extends AbstractActiveRecord
         $this->assignOldValues($values);
 
         return true;
-    }
-
-    protected function populateProperty(string $name, mixed $value): void
-    {
-        $this->$name = $value;
     }
 }

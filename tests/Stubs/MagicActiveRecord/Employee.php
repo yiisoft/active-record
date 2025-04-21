@@ -20,7 +20,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Employee extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'employee';
     }
@@ -33,7 +33,7 @@ final class Employee extends MagicActiveRecord
     public function getDepartmentQuery(): ActiveQuery
     {
         return $this
-            ->hasOne(Department::class, [
+            ->activeRecord()->hasOne(Department::class, [
                 'id' => 'department_id',
             ])
             ->inverseOf('employees')
@@ -42,7 +42,7 @@ final class Employee extends MagicActiveRecord
 
     public function getDossierQuery(): ActiveQuery
     {
-        return $this->hasOne(
+        return $this->activeRecord()->hasOne(
             Dossier::class,
             [
                 'department_id' => 'department_id',

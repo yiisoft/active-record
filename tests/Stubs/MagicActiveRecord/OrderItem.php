@@ -17,7 +17,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class OrderItem extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'order_item';
     }
@@ -26,34 +26,34 @@ final class OrderItem extends MagicActiveRecord
     {
         $fields = parent::fields();
 
-        $fields['order_id'] = $this->get('order_id');
-        $fields['item_id'] = $this->get('item_id');
-        $fields['price'] = $this->get('subtotal') / $this->get('quantity');
-        $fields['quantity'] = $this->get('quantity');
-        $fields['subtotal'] = $this->get('subtotal');
+        $fields['order_id'] = $this->activeRecord()->get('order_id');
+        $fields['item_id'] = $this->activeRecord()->get('item_id');
+        $fields['price'] = $this->activeRecord()->get('subtotal') / $this->activeRecord()->get('quantity');
+        $fields['quantity'] = $this->activeRecord()->get('quantity');
+        $fields['subtotal'] = $this->activeRecord()->get('subtotal');
 
         return $fields;
     }
 
     public function getOrderQuery(): ActiveQuery
     {
-        return $this->hasOne(Order::class, ['id' => 'order_id']);
+        return $this->activeRecord()->hasOne(Order::class, ['id' => 'order_id']);
     }
 
     public function getItemQuery(): ActiveQuery
     {
-        return $this->hasOne(Item::class, ['id' => 'item_id']);
+        return $this->activeRecord()->hasOne(Item::class, ['id' => 'item_id']);
     }
 
     public function getOrderItemCompositeWithJoinQuery(): ActiveQuery
     {
         /** relations used by testFindCompositeWithJoin() */
-        return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
+        return $this->activeRecord()->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
     }
 
     public function getOrderItemCompositeNoJoinQuery(): ActiveQuery
     {
-        return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ]);
+        return $this->activeRecord()->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ]);
     }
 
     public function getCustomQuery(): ActiveQuery

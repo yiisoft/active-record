@@ -6,12 +6,14 @@ namespace Yiisoft\ActiveRecord\Trait;
 
 use ArrayIterator;
 use IteratorAggregate;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
+use Yiisoft\ActiveRecord\ActiveRecordModelInterface;
 
 /**
- * Trait to implement {@see IteratorAggregate} interface for ActiveRecord.
+ * Trait to implement {@see IteratorAggregate} interface for ActiveRecordModel.
  *
- * @method array propertyValues(array|null $names = null, array $except = [])
- * @see ActiveRecordInterface::propertyValues()
+ * @method ActiveRecordInterface activeRecord()
+ * @see ActiveRecordModelInterface::activeRecord()
  */
 trait ArrayIteratorTrait
 {
@@ -24,7 +26,7 @@ trait ArrayIteratorTrait
      */
     public function getIterator(): ArrayIterator
     {
-        $values = $this->propertyValues();
+        $values = $this->activeRecord()->propertyValues();
 
         return new ArrayIterator($values);
     }

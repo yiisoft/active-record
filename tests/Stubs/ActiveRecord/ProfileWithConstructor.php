@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
-use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\ActiveRecordModel;
 use Yiisoft\Aliases\Aliases;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
  * Class Profile.
  */
-final class ProfileWithConstructor extends ActiveRecord
+final class ProfileWithConstructor extends ActiveRecordModel
 {
     protected int $id;
     protected string $description;
@@ -21,7 +21,7 @@ final class ProfileWithConstructor extends ActiveRecord
         parent::__construct($db);
     }
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'profile';
     }

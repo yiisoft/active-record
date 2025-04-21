@@ -23,7 +23,7 @@ class CustomerForArrayable extends ArrayableActiveRecord
     protected bool|string|null $bool_status = false;
     protected int|null $profile_id = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }

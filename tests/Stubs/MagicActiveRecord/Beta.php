@@ -14,13 +14,13 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Beta extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'beta';
     }
 
     public function getAlphaQuery(): ActiveQuery
     {
-        return $this->hasOne(Alpha::class, ['string_identifier' => 'alpha_string_identifier']);
+        return $this->activeRecord()->hasOne(Alpha::class, ['string_identifier' => 'alpha_string_identifier']);
     }
 }

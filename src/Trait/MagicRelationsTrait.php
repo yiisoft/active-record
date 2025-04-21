@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Trait;
 use ReflectionException;
 use ReflectionMethod;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 
 use function get_class_methods;
@@ -20,8 +19,8 @@ use function substr;
 use function ucfirst;
 
 /**
- * Trait to define {@see ActiveRecordInterface::relationQuery()} method to access relation queries of an ActiveRecord
- * instance. Also, it defines {@see ActiveRecordInterface::relationNames()} method to get names of all relations
+ * Trait to define {@see relationQuery()} method to access relation queries of an ActiveRecordModel
+ * instance. Also, it defines {@see relationNames()} method to get names of all relations
  * defined in the ActiveRecord class.
  */
 trait MagicRelationsTrait
@@ -37,7 +36,7 @@ trait MagicRelationsTrait
      * ```php
      * public function getOrdersQuery(): ActiveQueryInterface
      * {
-     *    return $this->hasMany(Order::class, ['customer_id' => 'id']);
+     *    return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id']);
      * }
      * ```
      *

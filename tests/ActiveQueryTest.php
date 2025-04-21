@@ -43,7 +43,7 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
-        $this->assertEquals(Customer::class, $query->getARClass());
+        $this->assertEquals(Customer::class, $query->getModelClass());
         $this->assertEquals(['a' => 'b'], $query->getOn());
         $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
         $customerQuery->resetJoinWith();
@@ -382,7 +382,7 @@ abstract class ActiveQueryTest extends TestCase
                 ->where(['name' => 'user3'])->one();
         }
 
-        $this->assertEquals(3, $customers->get('id'));
+        $this->assertEquals(3, $customers->activeRecord()->get('id'));
         $this->assertEquals(4, $customers->status2);
     }
 
@@ -429,8 +429,8 @@ abstract class ActiveQueryTest extends TestCase
         $items = $customers->getOrderItems();
 
         $this->assertCount(2, $items);
-        $this->assertEquals(1, $items[0]->get('id'));
-        $this->assertEquals(2, $items[1]->get('id'));
+        $this->assertEquals(1, $items[0]->activeRecord()->get('id'));
+        $this->assertEquals(2, $items[1]->activeRecord()->get('id'));
         $this->assertInstanceOf(Item::class, $items[0]);
         $this->assertInstanceOf(Item::class, $items[1]);
     }
@@ -455,7 +455,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Order::class, $orders[0]);
         $this->assertInstanceOf(Order::class, $orders[1]);
 
-        $ids = [$orders[0]->getId(), $orders[1]->get('id')];
+        $ids = [$orders[0]->getId(), $orders[1]->activeRecord()->get('id')];
         sort($ids);
         $this->assertEquals([1, 3], $ids);
 
@@ -464,7 +464,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $orders = $categories->getOrders();
         $this->assertCount(1, $orders);
-        $this->assertEquals(2, $orders[0]->get('id'));
+        $this->assertEquals(2, $orders[0]->activeRecord()->get('id'));
         $this->assertInstanceOf(Order::class, $orders[0]);
     }
 
@@ -479,9 +479,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
         $this->assertEquals(1, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[2]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('customer'));
 
         /** inner join filtering and eager loading */
         $orderQuery = new ActiveQuery(Order::class);
@@ -495,8 +495,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
 
         /** inner join filtering, eager loading, conditions on both primary and relation */
         $orderQuery = new ActiveQuery(Order::class);
@@ -509,7 +509,7 @@ abstract class ActiveQueryTest extends TestCase
         )->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
         $orderQuery = new ActiveQuery(Order::class);
@@ -524,8 +524,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
-        $this->assertFalse($orders[0]->isRelationPopulated('customer'));
-        $this->assertFalse($orders[1]->isRelationPopulated('customer'));
+        $this->assertFalse($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertFalse($orders[1]->activeRecord()->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading, conditions on both primary and relation */
         $orderQuery = new ActiveQuery(Order::class);
@@ -539,7 +539,7 @@ abstract class ActiveQueryTest extends TestCase
         )->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertFalse($orders[0]->isRelationPopulated('customer'));
+        $this->assertFalse($orders[0]->activeRecord()->isRelationPopulated('customer'));
 
         /** join with via-relation */
         $orderQuery = new ActiveQuery(Order::class);
@@ -549,8 +549,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $orders[1]->getBooks());
         $this->assertEquals(1, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('books'));
-        $this->assertTrue($orders[1]->isRelationPopulated('books'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('books'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('books'));
 
         /** join with sub-relation */
         $orderQuery = new ActiveQuery(Order::class);
@@ -568,8 +568,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders[0]->getItems());
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
 
         /** join with table alias */
         $orderQuery = new ActiveQuery(Order::class);
@@ -584,9 +584,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
         $this->assertEquals(1, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[2]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('customer'));
 
         /** join with table alias */
         $orderQuery = new ActiveQuery(Order::class);
@@ -595,9 +595,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
         $this->assertEquals(1, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[2]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('customer'));
 
         /** join with table alias sub-relation */
         $orderQuery = new ActiveQuery(Order::class);
@@ -615,8 +615,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders[0]->getItems());
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
 
         /** join with ON condition */
         $orderQuery = new ActiveQuery(Order::class);
@@ -628,9 +628,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(1, $orders[0]->getId());
         $this->assertEquals(2, $orders[1]->getId());
         $this->assertEquals(3, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('books2'));
-        $this->assertTrue($orders[1]->isRelationPopulated('books2'));
-        $this->assertTrue($orders[2]->isRelationPopulated('books2'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('books2'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('books2'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('books2'));
 
         /** lazy loading with ON condition */
         $orderQuery = new ActiveQuery(Order::class);
@@ -655,9 +655,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(1, $orders[0]->getId());
         $this->assertEquals(2, $orders[1]->getId());
         $this->assertEquals(3, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('books2'));
-        $this->assertTrue($orders[1]->isRelationPopulated('books2'));
-        $this->assertTrue($orders[2]->isRelationPopulated('books2'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('books2'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('books2'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('books2'));
 
         /** join with count and query */
         $orderQuery = new ActiveQuery(Order::class);
@@ -707,8 +707,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders[0]->getItems());
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
     }
 
     /**
@@ -723,7 +723,7 @@ abstract class ActiveQueryTest extends TestCase
         $customers = $customer->active()->innerJoinWith('profile')->orderBy('customer.id')->all();
         $this->assertCount(1, $customers);
         $this->assertEquals(1, $customers[0]->getId());
-        $this->assertTrue($customers[0]->isRelationPopulated('profile'));
+        $this->assertTrue($customers[0]->activeRecord()->isRelationPopulated('profile'));
 
         /** hasOne outer join */
         $customer = new CustomerQuery(Customer::class);
@@ -733,8 +733,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $customers[1]->getId());
         $this->assertInstanceOf(Profile::class, $customers[0]->getProfile());
         $this->assertNull($customers[1]->getProfile());
-        $this->assertTrue($customers[0]->isRelationPopulated('profile'));
-        $this->assertTrue($customers[1]->isRelationPopulated('profile'));
+        $this->assertTrue($customers[0]->activeRecord()->isRelationPopulated('profile'));
+        $this->assertTrue($customers[1]->activeRecord()->isRelationPopulated('profile'));
 
         /** hasMany */
         $customer = new CustomerQuery(Customer::class);
@@ -748,8 +748,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $customers);
         $this->assertEquals(2, $customers[0]->getId());
         $this->assertEquals(1, $customers[1]->getId());
-        $this->assertTrue($customers[0]->isRelationPopulated('orders'));
-        $this->assertTrue($customers[1]->isRelationPopulated('orders'));
+        $this->assertTrue($customers[0]->activeRecord()->isRelationPopulated('orders'));
+        $this->assertTrue($customers[1]->activeRecord()->isRelationPopulated('orders'));
     }
 
     /**
@@ -818,9 +818,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
         $this->assertEquals(1, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[2]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('customer'));
 
         /** inner join filtering and eager loading */
         $orderQuery = new ActiveQuery(Order::class);
@@ -839,8 +839,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
         $orderQuery = new ActiveQuery(Order::class);
@@ -859,8 +859,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
-        $this->assertFalse($orders[0]->isRelationPopulated('customer'));
-        $this->assertFalse($orders[1]->isRelationPopulated('customer'));
+        $this->assertFalse($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertFalse($orders[1]->activeRecord()->isRelationPopulated('customer'));
 
         /** join with via-relation */
         $orderQuery = new ActiveQuery(Order::class);
@@ -885,8 +885,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $orders[1]->getBooks());
         $this->assertEquals(1, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('books'));
-        $this->assertTrue($orders[1]->isRelationPopulated('books'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('books'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('books'));
 
         /** joining sub relations */
         $orderQuery = new ActiveQuery(Order::class);
@@ -927,8 +927,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders[0]->getItems());
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
 
         /** join with ON condition */
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
@@ -938,15 +938,15 @@ abstract class ActiveQueryTest extends TestCase
             $orders = $orderQuery->joinWith(["$relationName b"])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
-            $this->assertCount(2, $orders[0]->relation($relationName));
-            $this->assertCount(0, $orders[1]->relation($relationName));
-            $this->assertCount(1, $orders[2]->relation($relationName));
+            $this->assertCount(2, $orders[0]->activeRecord()->relation($relationName));
+            $this->assertCount(0, $orders[1]->activeRecord()->relation($relationName));
+            $this->assertCount(1, $orders[2]->activeRecord()->relation($relationName));
             $this->assertEquals(1, $orders[0]->getId());
             $this->assertEquals(2, $orders[1]->getId());
             $this->assertEquals(3, $orders[2]->getId());
-            $this->assertTrue($orders[0]->isRelationPopulated($relationName));
-            $this->assertTrue($orders[1]->isRelationPopulated($relationName));
-            $this->assertTrue($orders[2]->isRelationPopulated($relationName));
+            $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated($relationName));
+            $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated($relationName));
+            $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated($relationName));
         }
 
         /** join with ON condition and alias in relation definition */
@@ -957,15 +957,15 @@ abstract class ActiveQueryTest extends TestCase
             $orders = $orderQuery->joinWith([$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
-            $this->assertCount(2, $orders[0]->relation($relationName));
-            $this->assertCount(0, $orders[1]->relation($relationName));
-            $this->assertCount(1, $orders[2]->relation($relationName));
+            $this->assertCount(2, $orders[0]->activeRecord()->relation($relationName));
+            $this->assertCount(0, $orders[1]->activeRecord()->relation($relationName));
+            $this->assertCount(1, $orders[2]->activeRecord()->relation($relationName));
             $this->assertEquals(1, $orders[0]->getId());
             $this->assertEquals(2, $orders[1]->getId());
             $this->assertEquals(3, $orders[2]->getId());
-            $this->assertTrue($orders[0]->isRelationPopulated($relationName));
-            $this->assertTrue($orders[1]->isRelationPopulated($relationName));
-            $this->assertTrue($orders[2]->isRelationPopulated($relationName));
+            $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated($relationName));
+            $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated($relationName));
+            $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated($relationName));
         }
 
         /** join with count and query */
@@ -1026,8 +1026,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders[0]->getItems());
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
     }
 
     /**
@@ -1050,8 +1050,8 @@ abstract class ActiveQueryTest extends TestCase
             $query->createCommand()->getRawSql() . print_r($orders, true)
         );
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertFalse($orders[0]->isRelationPopulated('bookItems'));
-        $this->assertFalse($orders[0]->isRelationPopulated('movieItems'));
+        $this->assertFalse($orders[0]->activeRecord()->isRelationPopulated('bookItems'));
+        $this->assertFalse($orders[0]->activeRecord()->isRelationPopulated('movieItems'));
 
         /** with eager loading */
         $query = new ActiveQuery(Order::class);
@@ -1065,8 +1065,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(0, $orders[0]->getBookItems());
         $this->assertCount(3, $orders[0]->getMovieItems());
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('bookItems'));
-        $this->assertTrue($orders[0]->isRelationPopulated('movieItems'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('bookItems'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('movieItems'));
 
         /**
          * join with the same table but different aliases alias is defined in the call to joinWith() without eager
@@ -1096,7 +1096,7 @@ abstract class ActiveQueryTest extends TestCase
             $query->createCommand()->getRawSql() . print_r($orders, true)
         );
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
+        $this->assertFalse($orders[0]->activeRecord()->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, only for one relation as it would be overwritten otherwise. */
         $query = new ActiveQuery(Order::class);
@@ -1121,7 +1121,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
         $this->assertCount(3, $orders[0]->getItemsIndexed());
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, and the other relation */
         $query = new ActiveQuery(Order::class);
@@ -1147,7 +1147,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
         $this->assertCount(0, $orders[0]->getItemsIndexed());
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('itemsIndexed'));
     }
 
     /**
@@ -1170,9 +1170,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
         $this->assertEquals(1, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[2]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('customer'));
     }
 
     /**
@@ -1196,8 +1196,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
     }
 
     /**
@@ -1220,7 +1220,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
     }
 
     /**
@@ -1242,10 +1242,10 @@ abstract class ActiveQueryTest extends TestCase
             ])->orderBy('order.id')->all();
 
         $this->assertCount(1, $orders);
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertCount(3, $orders[0]->getItems());
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
     }
 
@@ -1271,9 +1271,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
         $this->assertEquals(1, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[2]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('customer'));
     }
 
     /**
@@ -1296,9 +1296,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
         $this->assertEquals(1, $orders[2]->getId());
-        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[1]->isRelationPopulated('customer'));
-        $this->assertTrue($orders[2]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[1]->activeRecord()->isRelationPopulated('customer'));
+        $this->assertTrue($orders[2]->activeRecord()->isRelationPopulated('customer'));
     }
 
     /**
@@ -1324,10 +1324,10 @@ abstract class ActiveQueryTest extends TestCase
             ])->orderBy('order.id')->all();
 
         $this->assertCount(1, $orders);
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertCount(3, $orders[0]->getItems());
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
     }
 
@@ -1357,10 +1357,10 @@ abstract class ActiveQueryTest extends TestCase
             ->all();
 
         $this->assertCount(1, $orders);
-        $this->assertTrue($orders[0]->isRelationPopulated('items'));
+        $this->assertTrue($orders[0]->activeRecord()->isRelationPopulated('items'));
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertCount(3, $orders[0]->getItems());
-        $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+        $this->assertTrue($orders[0]->getItems()[0]->activeRecord()->isRelationPopulated('category'));
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
     }
 
@@ -1412,11 +1412,11 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($orders[0]->getCustomer2(), $customer);
         $this->assertSame($orders[1]->getCustomer2(), $customer);
         $this->assertTrue(
-            $orders[0]->isRelationPopulated('customer2'),
+            $orders[0]->activeRecord()->isRelationPopulated('customer2'),
             'inverse relation did not populate the relation'
         );
         $this->assertTrue(
-            $orders[1]->isRelationPopulated('customer2'),
+            $orders[1]->activeRecord()->isRelationPopulated('customer2'),
             'inverse relation did not populate the relation'
         );
 
@@ -1479,7 +1479,7 @@ abstract class ActiveQueryTest extends TestCase
         $itemQuery = new ActiveQuery(Item::class);
         $this->assertEquals(5, $itemQuery->count());
 
-        $order->unlinkAll('booksViaTable', true);
+        $order->activeRecord()->unlinkAll('booksViaTable', true);
         $this->assertEquals(5, $itemQuery->count());
         $this->assertEquals($orderItemCount - 2, $orderItemQuery->count());
         $this->assertCount(0, $order->getBooksViaTable());
@@ -1491,7 +1491,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderItemCount = $orderItemsWithNullFKQuery->count();
         $this->assertEquals(5, $itemQuery->count());
 
-        $order->unlinkAll('booksWithNullFKViaTable', false);
+        $order->activeRecord()->unlinkAll('booksWithNullFKViaTable', false);
         $this->assertCount(0, $order->getBooksWithNullFKViaTable());
         $this->assertEquals(2, $orderItemsWithNullFKQuery->where(
             ['AND', ['item_id' => [1, 2]], ['order_id' => null]]
@@ -1540,9 +1540,9 @@ abstract class ActiveQueryTest extends TestCase
 
         $arClass->setName('test');
         $arClass->setEmail('test');
-        $arClass->save();
+        $arClass->activeRecord()->save();
 
-        $arClass->updateCounters(['status' => 1]);
+        $arClass->activeRecord()->updateCounters(['status' => 1]);
         $this->assertEquals(1, $arClass->getStatus());
     }
 
@@ -1680,7 +1680,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderItem->setQuantity(1);
         $orderItem->setSubtotal(10.0);
 
-        $order->link('orderItems2', $orderItem);
+        $order->activeRecord()->link('orderItems2', $orderItem);
         $this->assertTrue(isset($order->getOrderItems2()['3']));
     }
 
@@ -1725,7 +1725,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $category->getLimitedItems());
 
         /** Unlink all items in the limitedItems relation */
-        $category->unlinkAll('limitedItems', true);
+        $category->activeRecord()->unlinkAll('limitedItems', true);
 
         /** Make sure that only one item was unlinked */
         $itemsCount = $itemQuery->setWhere(['category_id' => 2])->count();
@@ -1757,7 +1757,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $category->getLimitedItems());
 
         /** Unlink all items in the limitedItems relation */
-        $category->unlinkAll('limitedItems', true);
+        $category->activeRecord()->unlinkAll('limitedItems', true);
 
         /** Call $orderQuery again to ensure that links are removed */
         $this->assertCount(0, $orderQuery->one()->getLimitedItems());
@@ -1775,7 +1775,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class);
         $orderQuery->with('customer')->indexBy(function (Order $order) {
-            $this->assertTrue($order->isRelationPopulated('customer'));
+            $this->assertTrue($order->activeRecord()->isRelationPopulated('customer'));
             $this->assertNotEmpty($order->getCustomer()?->getId());
 
             return $order->getCustomer()?->getId();
@@ -1815,7 +1815,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = $customerQuery->from($fromParams);
 
-        $aliases = Assert::invokeMethod(new Customer(), 'filterValidAliases', [$query]);
+        $aliases = Assert::invokeMethod((new Customer())->activeRecord(), 'filterValidAliases', [$query]);
 
         $this->assertEquals($expectedAliases, $aliases);
     }
@@ -1827,9 +1827,9 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->with('orders2')->where(['id' => 1])->one();
-        $this->assertCount(1, $query->getRelatedRecords());
+        $this->assertCount(1, $query->activeRecord()->getRelatedRecords());
         $this->assertCount(1, $query->extraFields());
-        $this->assertArrayHasKey('orders2', $query->getRelatedRecords());
+        $this->assertArrayHasKey('orders2', $query->activeRecord()->getRelatedRecords());
         $this->assertContains('orders2', $query->extraFields());
     }
 
@@ -1861,14 +1861,14 @@ abstract class ActiveQueryTest extends TestCase
         $order = new Order();
         $orderItem = new OrderItem();
 
-        $this->assertSame('order', $order->getTableName());
-        $this->assertSame('order_item', $orderItem->getTableName());
+        $this->assertSame('order', $order->tableName());
+        $this->assertSame('order_item', $orderItem->tableName());
 
         $order = $order->withTableName($orderTableName);
         $orderItem = $orderItem->withTableName($orderItemTableName);
 
-        $this->assertSame($orderTableName, $order->getTableName());
-        $this->assertSame($orderItemTableName, $orderItem->getTableName());
+        $this->assertSame($orderTableName, $order->tableName());
+        $this->assertSame($orderItemTableName, $orderItem->tableName());
 
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findOne(1);
@@ -1908,8 +1908,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(1, $orderItems->getItem()->getId());
 
         /** Test `set()`. */
-        $orderItems->set('order_id', 3);
-        $orderItems->set('item_id', 1);
+        $orderItems->activeRecord()->set('order_id', 3);
+        $orderItems->activeRecord()->set('item_id', 1);
         $this->assertEquals(3, $orderItems->getOrder()->getId());
         $this->assertEquals(1, $orderItems->getItem()->getId());
     }
@@ -2012,7 +2012,7 @@ abstract class ActiveQueryTest extends TestCase
         $record = $documentQuery->findOne(1);
 
         $record->content = 'New Content';
-        $record->save();
+        $record->activeRecord()->save();
         $this->assertEquals(1, $record->version);
 
         $record = $documentQuery->findOne(1);
@@ -2020,7 +2020,7 @@ abstract class ActiveQueryTest extends TestCase
         $record->content = 'Rewrite attempt content';
         $record->version = 0;
         $this->expectException(OptimisticLockException::class);
-        $record->save();
+        $record->activeRecord()->save();
     }
 
     public function testOptimisticLockOnDelete(): void
@@ -2035,7 +2035,7 @@ abstract class ActiveQueryTest extends TestCase
         $document->version = 1;
 
         $this->expectException(OptimisticLockException::class);
-        $document->delete();
+        $document->activeRecord()->delete();
     }
 
     public function testOptimisticLockAfterDelete(): void
@@ -2046,11 +2046,11 @@ abstract class ActiveQueryTest extends TestCase
         $document = $documentQuery->findOne(1);
 
         $this->assertSame(0, $document->version);
-        $this->assertSame(1, $document->delete());
-        $this->assertTrue($document->getIsNewRecord());
+        $this->assertSame(1, $document->activeRecord()->delete());
+        $this->assertTrue($document->activeRecord()->isNewRecord());
 
         $this->expectException(OptimisticLockException::class);
-        $document->delete();
+        $document->activeRecord()->delete();
     }
 
     /** @link https://github.com/yiisoft/yii2/issues/9006 */
@@ -2074,7 +2074,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findOne(1);
         $newTotal = 978;
-        $this->assertSame(1, $order->updateProperties(['total' => $newTotal]));
+        $this->assertSame(1, $order->activeRecord()->updateProperties(['total' => $newTotal]));
         $this->assertEquals($newTotal, $order->getTotal());
 
         $order = $orderQuery->findOne(1);
@@ -2082,11 +2082,11 @@ abstract class ActiveQueryTest extends TestCase
 
         /** @see https://github.com/yiisoft/yii2/issues/12143 */
         $newOrder = new Order();
-        $this->assertTrue($newOrder->getIsNewRecord());
+        $this->assertTrue($newOrder->activeRecord()->isNewRecord());
 
         $newTotal = 200;
-        $this->assertSame(0, $newOrder->updateProperties(['total' => $newTotal]));
-        $this->assertTrue($newOrder->getIsNewRecord());
+        $this->assertSame(0, $newOrder->activeRecord()->updateProperties(['total' => $newTotal]));
+        $this->assertTrue($newOrder->activeRecord()->isNewRecord());
         $this->assertEquals($newTotal, $newOrder->getTotal());
     }
 
@@ -2105,7 +2105,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $arClass = $customerQuery->findOne(1);
 
-        $this->assertTrue($arClass->refresh());
+        $this->assertTrue($arClass->activeRecord()->refresh());
 
         $customerQuery->joinWithProfile = false;
     }
@@ -2137,7 +2137,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->propertyValues();
+        $values = $customer->findOne(1)->activeRecord()->propertyValues();
 
         $this->assertEquals($expectedValues, $values);
     }
@@ -2148,7 +2148,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->propertyValues(['id', 'email', 'name']);
+        $values = $customer->findOne(1)->activeRecord()->propertyValues(['id', 'email', 'name']);
 
         $this->assertEquals(['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1'], $values);
     }
@@ -2159,7 +2159,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->propertyValues(null, ['status', 'bool_status', 'profile_id']);
+        $values = $customer->findOne(1)->activeRecord()->propertyValues(null, ['status', 'bool_status', 'profile_id']);
 
         $this->assertEquals(
             ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1'],
@@ -2174,13 +2174,13 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findOne(1);
-        $this->assertEquals('user1', $query->oldValue('name'));
-        $this->assertEquals($query->propertyValues(), $query->oldValues());
+        $this->assertEquals('user1', $query->activeRecord()->oldValue('name'));
+        $this->assertEquals($query->activeRecord()->propertyValues(), $query->activeRecord()->oldValues());
 
-        $query->set('name', 'samdark');
-        $this->assertEquals('samdark', $query->get('name'));
-        $this->assertEquals('user1', $query->oldValue('name'));
-        $this->assertNotEquals($query->get('name'), $query->oldValue('name'));
+        $query->activeRecord()->set('name', 'samdark');
+        $this->assertEquals('samdark', $query->activeRecord()->get('name'));
+        $this->assertEquals('user1', $query->activeRecord()->oldValue('name'));
+        $this->assertNotEquals($query->activeRecord()->get('name'), $query->activeRecord()->oldValue('name'));
     }
 
     public function testGetOldValues(): void
@@ -2200,17 +2200,17 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findOne(1);
-        $this->assertEquals($expectedValues, $query->propertyValues());
-        $this->assertEquals($query->propertyValues(), $query->oldValues());
+        $this->assertEquals($expectedValues, $query->activeRecord()->propertyValues());
+        $this->assertEquals($query->activeRecord()->propertyValues(), $query->activeRecord()->oldValues());
 
-        $query->set('name', 'samdark');
+        $query->activeRecord()->set('name', 'samdark');
 
         $expectedNewValues = $expectedValues;
         $expectedNewValues['name'] = 'samdark';
 
-        $this->assertEquals($expectedNewValues, $query->propertyValues());
-        $this->assertEquals($expectedValues, $query->oldValues());
-        $this->assertNotEquals($query->propertyValues(), $query->oldValues());
+        $this->assertEquals($expectedNewValues, $query->activeRecord()->propertyValues());
+        $this->assertEquals($expectedValues, $query->activeRecord()->oldValues());
+        $this->assertNotEquals($query->activeRecord()->propertyValues(), $query->activeRecord()->oldValues());
     }
 
     public function testIsPropertyChanged(): void
@@ -2220,18 +2220,18 @@ abstract class ActiveQueryTest extends TestCase
         $query = new ActiveQuery(Customer::class);
 
         $customer = $query->findOne(1);
-        $this->assertTrue($customer->get('bool_status'));
-        $this->assertTrue($customer->oldValue('bool_status'));
+        $this->assertTrue($customer->activeRecord()->get('bool_status'));
+        $this->assertTrue($customer->activeRecord()->oldValue('bool_status'));
 
-        $customer->set('bool_status', 1);
+        $customer->activeRecord()->set('bool_status', 1);
 
-        $this->assertTrue($customer->isPropertyChanged('bool_status'));
-        $this->assertFalse($customer->isPropertyChangedNonStrict('bool_status'));
+        $this->assertTrue($customer->activeRecord()->isPropertyChanged('bool_status'));
+        $this->assertFalse($customer->activeRecord()->isPropertyChangedNonStrict('bool_status'));
 
-        $customer->set('bool_status', 0);
+        $customer->activeRecord()->set('bool_status', 0);
 
-        $this->assertTrue($customer->isPropertyChanged('bool_status'));
-        $this->assertTrue($customer->isPropertyChangedNonStrict('bool_status'));
+        $this->assertTrue($customer->activeRecord()->isPropertyChanged('bool_status'));
+        $this->assertTrue($customer->activeRecord()->isPropertyChangedNonStrict('bool_status'));
     }
 
     public function testOldPropertyAfterInsertAndUpdate(): void
@@ -2240,21 +2240,21 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new Customer();
 
-        $customer->populateProperties([
+        $customer->activeRecord()->populateProperties([
             'email' => 'info@example.com',
             'name' => 'Jack',
             'address' => '123 Ocean Dr',
             'status' => 1,
         ]);
 
-        $this->assertNull($customer->oldValue('name'));
-        $this->assertTrue($customer->save());
-        $this->assertSame('Jack', $customer->oldValue('name'));
+        $this->assertNull($customer->activeRecord()->oldValue('name'));
+        $this->assertTrue($customer->activeRecord()->save());
+        $this->assertSame('Jack', $customer->activeRecord()->oldValue('name'));
 
-        $customer->set('name', 'Harry');
+        $customer->activeRecord()->set('name', 'Harry');
 
-        $this->assertTrue($customer->save());
-        $this->assertSame('Harry', $customer->oldValue('name'));
+        $this->assertTrue($customer->activeRecord()->save());
+        $this->assertSame('Harry', $customer->activeRecord()->oldValue('name'));
     }
 
     public function testCheckRelationUnknownPropertyException(): void
@@ -2364,7 +2364,7 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(2);
         $this->assertCount(2, $customer->getOrdersWithNullFK());
-        $customer->unlink('ordersWithNullFK', $customer->getOrdersWithNullFK()[1], false);
+        $customer->activeRecord()->unlink('ordersWithNullFK', $customer->getOrdersWithNullFK()[1], false);
         $this->assertCount(1, $customer->getOrdersWithNullFK());
 
         $orderWithNullFKQuery = new ActiveQuery(OrderWithNullFK::class);
@@ -2377,7 +2377,7 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->findOne(2);
         $this->assertCount(2, $customer->getOrders());
 
-        $customer->unlink('orders', $customer->getOrders()[1], true);
+        $customer->activeRecord()->unlink('orders', $customer->getOrders()[1], true);
         $this->assertCount(1, $customer->getOrders());
 
         $orderQuery = new ActiveQuery(Order::class);
@@ -2388,13 +2388,13 @@ abstract class ActiveQueryTest extends TestCase
         $order = $orderQuery->findOne(2);
         $this->assertCount(3, $order->getItems());
         $this->assertCount(3, $order->getOrderItems());
-        $order->unlink('items', $order->getItems()[2], true);
+        $order->activeRecord()->unlink('items', $order->getItems()[2], true);
         $this->assertCount(2, $order->getItems());
         $this->assertCount(2, $order->getOrderItems());
 
         /** via model without delete */
         $this->assertCount(2, $order->getItemsWithNullFK());
-        $order->unlink('itemsWithNullFK', $order->getItemsWithNullFK()[1], false);
+        $order->activeRecord()->unlink('itemsWithNullFK', $order->getItemsWithNullFK()[1], false);
 
         $this->assertCount(1, $order->getItemsWithNullFK());
         $this->assertCount(2, $order->getOrderItems());
@@ -2406,7 +2406,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** in this test all orders are owned by customer 1 */
         $orderWithNullFKInstance = new OrderWithNullFK();
-        $orderWithNullFKInstance->updateAll(['customer_id' => 1]);
+        $orderWithNullFKInstance->activeRecord()->updateAll(['customer_id' => 1]);
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
@@ -2416,7 +2416,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderWithNullFKQuery = new ActiveQuery(OrderWithNullFK::class);
         $this->assertEquals(3, $orderWithNullFKQuery->count());
 
-        $customer->unlinkAll('expensiveOrdersWithNullFK');
+        $customer->activeRecord()->unlinkAll('expensiveOrdersWithNullFK');
         $this->assertCount(3, $customer->getOrdersWithNullFK());
         $this->assertCount(0, $customer->getExpensiveOrdersWithNullFK());
         $this->assertEquals(3, $orderWithNullFKQuery->count());
@@ -2432,7 +2432,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** in this test all orders are owned by customer 1 */
         $orderInstance = new Order();
-        $orderInstance->updateAll(['customer_id' => 1]);
+        $orderInstance->activeRecord()->updateAll(['customer_id' => 1]);
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
@@ -2442,7 +2442,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class);
         $this->assertEquals(3, $orderQuery->count());
 
-        $customer->unlinkAll('expensiveOrders', true);
+        $customer->activeRecord()->unlinkAll('expensiveOrders', true);
         $this->assertCount(3, $customer->getOrders());
         $this->assertCount(0, $customer->getExpensiveOrders());
         $this->assertEquals(2, $orderQuery->count());
@@ -2459,40 +2459,40 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(2);
         $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->get('name'));
-        $this->assertFalse($customer->getIsNewRecord());
-        $this->assertEmpty($customer->newValues());
+        $this->assertEquals('user2', $customer->activeRecord()->get('name'));
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
+        $this->assertEmpty($customer->activeRecord()->newValues());
 
-        $customer->set('name', 'user2x');
-        $customer->save();
-        $this->assertEquals('user2x', $customer->get('name'));
-        $this->assertFalse($customer->getIsNewRecord());
+        $customer->activeRecord()->set('name', 'user2x');
+        $customer->activeRecord()->save();
+        $this->assertEquals('user2x', $customer->activeRecord()->get('name'));
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
 
         $customer2 = $customerQuery->findOne(2);
-        $this->assertEquals('user2x', $customer2->get('name'));
+        $this->assertEquals('user2x', $customer2->activeRecord()->get('name'));
 
         /** no update */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $customer->set('name', 'user1');
-        $this->assertEquals(0, $customer->update());
+        $customer->activeRecord()->set('name', 'user1');
+        $this->assertEquals(0, $customer->activeRecord()->update());
 
         /** updateAll */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(3);
-        $this->assertEquals('user3', $customer->get('name'));
+        $this->assertEquals('user3', $customer->activeRecord()->get('name'));
 
-        $ret = $customer->updateAll(['name' => 'temp'], ['id' => 3]);
+        $ret = $customer->activeRecord()->updateAll(['name' => 'temp'], ['id' => 3]);
         $this->assertEquals(1, $ret);
 
         $customer = $customerQuery->findOne(3);
-        $this->assertEquals('temp', $customer->get('name'));
+        $this->assertEquals('temp', $customer->activeRecord()->get('name'));
 
-        $ret = $customer->updateAll(['name' => 'tempX']);
+        $ret = $customer->activeRecord()->updateAll(['name' => 'tempX']);
         $this->assertEquals(3, $ret);
 
-        $ret = $customer->updateAll(['name' => 'temp'], ['name' => 'user6']);
+        $ret = $customer->activeRecord()->updateAll(['name' => 'temp'], ['name' => 'user6']);
         $this->assertEquals(0, $ret);
     }
 
@@ -2506,7 +2506,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderItem = $orderItemQuery->findOne($pk);
         $this->assertEquals(1, $orderItem->getQuantity());
 
-        $ret = $orderItem->updateCounters(['quantity' => -1]);
+        $ret = $orderItem->activeRecord()->updateCounters(['quantity' => -1]);
         $this->assertTrue($ret);
         $this->assertEquals(0, $orderItem->getQuantity());
 
@@ -2520,7 +2520,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orderItem->getQuantity());
 
         $orderItem = new OrderItem();
-        $ret = $orderItem->updateAllCounters(['quantity' => 3, 'subtotal' => -10], $pk);
+        $ret = $orderItem->activeRecord()->updateAllCounters(['quantity' => 3, 'subtotal' => -10], $pk);
         $this->assertEquals(1, $ret);
 
         $orderItem = $orderItemQuery->findOne($pk);
@@ -2538,7 +2538,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->getName());
 
-        $customer->delete();
+        $customer->activeRecord()->delete();
 
         $customer = $customerQuery->findOne(2);
         $this->assertNull($customer);
@@ -2549,13 +2549,13 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $customers);
 
         $customer = new Customer();
-        $ret = $customer->deleteAll();
+        $ret = $customer->activeRecord()->deleteAll();
         $this->assertEquals(2, $ret);
 
         $customers = $customerQuery->all();
         $this->assertCount(0, $customers);
 
-        $ret = $customer->deleteAll();
+        $ret = $customer->activeRecord()->deleteAll();
         $this->assertEquals(0, $ret);
     }
 
@@ -2593,23 +2593,23 @@ abstract class ActiveQueryTest extends TestCase
 
         $order->setTotal(100);
         $order->setCreatedAt(time());
-        $this->assertTrue($order->getIsNewRecord());
+        $this->assertTrue($order->activeRecord()->isNewRecord());
 
         /** belongs to */
         $order = new Order();
 
         $order->setTotal(100);
         $order->setCreatedAt(time());
-        $this->assertTrue($order->getIsNewRecord());
+        $this->assertTrue($order->activeRecord()->isNewRecord());
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
         $this->assertNull($order->getCustomer());
 
-        $order->link('customer', $customer);
-        $this->assertFalse($order->getIsNewRecord());
+        $order->activeRecord()->link('customer', $customer);
+        $this->assertFalse($order->activeRecord()->isNewRecord());
         $this->assertEquals(1, $order->getCustomerId());
-        $this->assertEquals(1, $order->getCustomer()->getPrimaryKey());
+        $this->assertEquals(1, $order->getCustomer()->activeRecord()->getPrimaryKey());
 
         /** via model */
         $orderQuery = new ActiveQuery(Order::class);
@@ -2623,7 +2623,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $itemQuery = new ActiveQuery(Item::class);
         $item = $itemQuery->findOne(3);
-        $order->link('items', $item, ['quantity' => 10, 'subtotal' => 100]);
+        $order->activeRecord()->link('items', $item, ['quantity' => 10, 'subtotal' => 100]);
         $this->assertCount(3, $order->getItems());
         $this->assertCount(3, $order->getOrderItems());
 
@@ -2640,22 +2640,22 @@ abstract class ActiveQueryTest extends TestCase
 
         $customerA = (new ActiveQuery(Customer::class))->findOne(1);
         $customerB = (new ActiveQuery(Customer::class))->findOne(2);
-        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerA->activeRecord()->equals($customerB));
 
         $customerB = (new ActiveQuery(Customer::class))->findOne(1);
-        $this->assertTrue($customerA->equals($customerB));
+        $this->assertTrue($customerA->activeRecord()->equals($customerB));
 
         $customerA = (new ActiveQuery(Customer::class))->findOne(1);
         $customerB = (new ActiveQuery(Item::class))->findOne(1);
-        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerA->activeRecord()->equals($customerB));
     }
 
     public function testARClassAsString(): void
     {
         $query = new ActiveQuery(Customer::class);
 
-        $this->assertSame(Customer::class, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame(Customer::class, $query->getModelClass());
+        $this->assertInstanceOf(Customer::class, $query->getModelInstance());
     }
 
     public function testARClassAsInstance(): void
@@ -2663,8 +2663,8 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new Customer();
         $query = new ActiveQuery($customer);
 
-        $this->assertSame($customer, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame($customer, $query->getModelClass());
+        $this->assertInstanceOf(Customer::class, $query->getModelInstance());
     }
 
     public function testARClassAsClosure(): void
@@ -2672,7 +2672,7 @@ abstract class ActiveQueryTest extends TestCase
         $closure = fn (): Customer => new Customer();
         $query = new ActiveQuery($closure);
 
-        $this->assertSame($closure, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame($closure, $query->getModelClass());
+        $this->assertInstanceOf(Customer::class, $query->getModelInstance());
     }
 }

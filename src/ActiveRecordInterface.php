@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Throwable;
-use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -29,11 +28,6 @@ interface ActiveRecordInterface
      * @psalm-return ColumnType::*
      */
     public function columnType(string $propertyName): string;
-
-    /**
-     * Returns the database connection used by the Active Record instance.
-     */
-    public function db(): ConnectionInterface;
 
     /**
      * Deletes the table row corresponding to this active record.
@@ -85,13 +79,13 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the given active record is the same as the current one.
      *
      * The comparison is made by comparing the table names and the primary key values of the two active records. If one
-     * of the records {@see getIsNewRecord|is new} they're also considered not equal.
+     * of the records {@see isNewRecord|is new} they're also considered not equal.
      *
-     * @param self $record Record to compare to.
+     * @param ActiveRecordModelInterface $record Record to compare to.
      *
      * @return bool Whether the two active records refer to the same row in the same database table.
      */
-    public function equals(self $record): bool;
+    public function equals(ActiveRecordModelInterface $record): bool;
 
     /**
      * Filters array condition before it's assigned to a Query filter.
@@ -149,7 +143,7 @@ interface ActiveRecordInterface
      *
      * @return bool Whether the record is new and should be inserted when calling {@see save()}.
      */
-    public function getIsNewRecord(): bool;
+    public function isNewRecord(): bool;
 
     /**
      * Returns the old primary key value(s).
@@ -193,22 +187,6 @@ interface ActiveRecordInterface
      * )
      */
     public function getPrimaryKey(bool $asArray = false): mixed;
-
-    /**
-     * Return the name of the table associated with this AR class.
-     *
-     * ```php
-     * final class User extends ActiveRecord
-     * {
-     *     public string const TABLE_NAME = 'user';
-     *
-     *     public function getTableName(): string
-     *     {
-     *          return self::TABLE_NAME;
-     *     }
-     * }
-     */
-    public function getTableName(): string;
 
     /**
      * Returns a value indicating whether the record has a property with the specified name.
@@ -285,7 +263,7 @@ interface ActiveRecordInterface
      *
      * @return bool Whether relation has been populated with records.
      *
-     * {@see relationQuery()}
+     * {@see ActiveRecordModelInterface::relationQuery()}
      */
     public function isRelationPopulated(string $name): bool;
 
@@ -303,12 +281,12 @@ interface ActiveRecordInterface
      * This method requires that the primary key value isn't `null`.
      *
      * @param string $relationName The relation name, for example, `orders` (case-sensitive).
-     * @param self $arClass The record to be linked with the current one.
+     * @param ActiveRecordModelInterface $model The record to be linked with the current one.
      * @param array $extraColumns More column values to be saved into the junction table. This parameter is only
      * meaningful for a relationship involving a junction table (that's a relation set with
      * {@see ActiveQueryInterface::via()}).
      */
-    public function link(string $relationName, self $arClass, array $extraColumns = []): void;
+    public function link(string $relationName, ActiveRecordModelInterface $model, array $extraColumns = []): void;
 
     /**
      * Populates the named relation with the related records.
@@ -316,9 +294,10 @@ interface ActiveRecordInterface
      * Note that this method doesn't check if the relation exists or not.
      *
      * @param string $name The relation name, for example, `orders` (case-sensitive).
-     * @param array|array[]|self|self[]|null $records The related records to be populated into the relation.
+     * @param ActiveRecordModelInterface|ActiveRecordModelInterface[]|array|array[]|null $records The related records
+     * to be populated into the relation.
      */
-    public function populateRelation(string $name, array|self|null $records): void;
+    public function populateRelation(string $name, array|ActiveRecordModelInterface|null $records): void;
 
     /**
      * Returns the primary key name(s) for this AR class.
@@ -343,36 +322,9 @@ interface ActiveRecordInterface
      *
      * @param string $name The relation name, for example, `orders` (case-sensitive).
      *
-     * @return array|array[]|self|self[]|null The relation object.
+     * @return ActiveRecordModelInterface|ActiveRecordModelInterface[]|array|array[]|null The relation object.
      */
-    public function relation(string $name): self|array|null;
-
-    /**
-     * Returns the relation query object with the specified name.
-     *
-     * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
-     * (normally this would be a relational {@see ActiveQuery} object).
-     *
-     * Relations can be defined using {@see hasOne()} and {@see hasMany()} methods. For example:
-     *
-     * ```php
-     * public function relationQuery(string $name): ActiveQueryInterface
-     * {
-     *     return match ($name) {
-     *         'orders' => $this->hasMany(Order::class, ['customer_id' => 'id']),
-     *         'country' => $this->hasOne(Country::class, ['id' => 'country_id']),
-     *         default => parent::relationQuery($name),
-     *     };
-     * }
-     * ```
-     *
-     * @param string $name The relation name, for example, `orders` (case-sensitive).
-     *
-     * @throws InvalidArgumentException
-     *
-     * @return ActiveQueryInterface The relational query object.
-     */
-    public function relationQuery(string $name): ActiveQueryInterface;
+    public function relation(string $name): ActiveRecordModelInterface|array|null;
 
     /**
      * Resets relation data for the specified name.
@@ -384,8 +336,8 @@ interface ActiveRecordInterface
     /**
      * Saves the current record.
      *
-     * This method will call {@see insert()} when {@see getIsNewRecord()|isNewRecord} is true, or {@see update()} when
-     * {@see getIsNewRecord()|isNewRecord} is false.
+     * This method will call {@see insert()} when {@see isNewRecord()|isNewRecord} is true, or {@see update()} when
+     * {@see isNewRecord()|isNewRecord} is false.
      *
      * For example, to save a customer record:
      *
@@ -511,15 +463,15 @@ interface ActiveRecordInterface
      *
      * The record with the foreign key of the relationship will be deleted if `$delete` is true.
      *
-     * Otherwise, the foreign key will be set `null` and the record will be saved without validation.
+     * Otherwise, the foreign key will be set s`null` and the record will be saved without validation.
      *
      * @param string $relationName The relation name, for example, `orders` (case-sensitive).
-     * @param self $arClass The active record to be unlinked from the current one.
+     * @param ActiveRecordModelInterface $model The active record model to be unlinked from the current one.
      * @param bool $delete Whether to delete the active record that contains the foreign key.
      * If false, the active record's foreign key will be set `null` and saved.
      * If true, the active record containing the foreign key will be deleted.
      */
-    public function unlink(string $relationName, self $arClass, bool $delete = false): void;
+    public function unlink(string $relationName, ActiveRecordModelInterface $model, bool $delete = false): void;
 
     /**
      * Returns the old property values.

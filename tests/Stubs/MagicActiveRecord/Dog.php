@@ -9,10 +9,8 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class Dog extends Animal
 {
-    public function populateRecord($row): void
+    public function initialize(): void
     {
-        parent::populateRecord($row);
-
         $this->setDoes('bark');
     }
 }

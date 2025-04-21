@@ -15,6 +15,6 @@ final class Customer extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cust
 
     public function getOrdersQuery(): ActiveQuery
     {
-        return $this->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('{{customer}}.[[id]]');
+        return $this->activeRecord()->hasMany(Order::class, ['customer_id' => 'id'])->orderBy('{{customer}}.[[id]]');
     }
 }

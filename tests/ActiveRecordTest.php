@@ -48,46 +48,46 @@ abstract class ActiveRecordTest extends TestCase
 
         $record = new NullValues();
 
-        $this->assertNull($record->get('var1'));
-        $this->assertNull($record->get('var2'));
-        $this->assertNull($record->get('var3'));
-        $this->assertNull($record->get('stringcol'));
+        $this->assertNull($record->activeRecord()->get('var1'));
+        $this->assertNull($record->activeRecord()->get('var2'));
+        $this->assertNull($record->activeRecord()->get('var3'));
+        $this->assertNull($record->activeRecord()->get('stringcol'));
 
-        $record->set('var1', 123);
-        $record->set('var2', 456);
-        $record->set('var3', 789);
-        $record->set('stringcol', 'hello!');
-        $record->save();
+        $record->activeRecord()->set('var1', 123);
+        $record->activeRecord()->set('var2', 456);
+        $record->activeRecord()->set('var3', 789);
+        $record->activeRecord()->set('stringcol', 'hello!');
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
-        $this->assertEquals(123, $record->get('var1'));
-        $this->assertEquals(456, $record->get('var2'));
-        $this->assertEquals(789, $record->get('var3'));
-        $this->assertEquals('hello!', $record->get('stringcol'));
+        $this->assertTrue($record->activeRecord()->refresh());
+        $this->assertEquals(123, $record->activeRecord()->get('var1'));
+        $this->assertEquals(456, $record->activeRecord()->get('var2'));
+        $this->assertEquals(789, $record->activeRecord()->get('var3'));
+        $this->assertEquals('hello!', $record->activeRecord()->get('stringcol'));
 
-        $record->set('var1', null);
-        $record->set('var2', null);
-        $record->set('var3', null);
-        $record->set('stringcol', null);
-        $record->save();
+        $record->activeRecord()->set('var1', null);
+        $record->activeRecord()->set('var2', null);
+        $record->activeRecord()->set('var3', null);
+        $record->activeRecord()->set('stringcol', null);
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
-        $this->assertNull($record->get('var1'));
-        $this->assertNull($record->get('var2'));
-        $this->assertNull($record->get('var3'));
-        $this->assertNull($record->get('>stringcol'));
+        $this->assertTrue($record->activeRecord()->refresh());
+        $this->assertNull($record->activeRecord()->get('var1'));
+        $this->assertNull($record->activeRecord()->get('var2'));
+        $this->assertNull($record->activeRecord()->get('var3'));
+        $this->assertNull($record->activeRecord()->get('>stringcol'));
 
-        $record->set('var1', 0);
-        $record->set('var2', 0);
-        $record->set('var3', 0);
-        $record->set('stringcol', '');
-        $record->save();
+        $record->activeRecord()->set('var1', 0);
+        $record->activeRecord()->set('var2', 0);
+        $record->activeRecord()->set('var3', 0);
+        $record->activeRecord()->set('stringcol', '');
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
-        $this->assertEquals(0, $record->get('var1'));
-        $this->assertEquals(0, $record->get('var2'));
-        $this->assertEquals(0, $record->get('var3'));
-        $this->assertEquals('', $record->get('stringcol'));
+        $this->assertTrue($record->activeRecord()->refresh());
+        $this->assertEquals(0, $record->activeRecord()->get('var1'));
+        $this->assertEquals(0, $record->activeRecord()->get('var2'));
+        $this->assertEquals(0, $record->activeRecord()->get('var3'));
+        $this->assertEquals('', $record->activeRecord()->get('stringcol'));
     }
 
     public function testStoreEmpty(): void
@@ -101,9 +101,9 @@ abstract class ActiveRecordTest extends TestCase
         $record->var2 = '';
         $record->var3 = '';
         $record->stringcol = '';
-        $record->save();
+        $record->activeRecord()->save();
 
-        $this->assertTrue($record->refresh());
+        $this->assertTrue($record->activeRecord()->refresh());
 
         /** {@see https://github.com/yiisoft/yii2/commit/34945b0b69011bc7cab684c7f7095d837892a0d4#commitcomment-4458225} */
         $this->assertSame($record->var1, $record->var2);
@@ -117,19 +117,19 @@ abstract class ActiveRecordTest extends TestCase
         $customer = new Customer();
         $orderItem = new OrderItem();
 
-        $this->assertTrue($customer->isPrimaryKey(['id']));
-        $this->assertFalse($customer->isPrimaryKey([]));
-        $this->assertFalse($customer->isPrimaryKey(['id', 'name']));
-        $this->assertFalse($customer->isPrimaryKey(['name']));
-        $this->assertFalse($customer->isPrimaryKey(['name', 'email']));
+        $this->assertTrue($customer->activeRecord()->isPrimaryKey(['id']));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey([]));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey(['id', 'name']));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey(['name']));
+        $this->assertFalse($customer->activeRecord()->isPrimaryKey(['name', 'email']));
 
-        $this->assertTrue($orderItem->isPrimaryKey(['order_id', 'item_id']));
-        $this->assertFalse($orderItem->isPrimaryKey([]));
-        $this->assertFalse($orderItem->isPrimaryKey(['order_id']));
-        $this->assertFalse($orderItem->isPrimaryKey(['item_id']));
-        $this->assertFalse($orderItem->isPrimaryKey(['quantity']));
-        $this->assertFalse($orderItem->isPrimaryKey(['quantity', 'subtotal']));
-        $this->assertFalse($orderItem->isPrimaryKey(['order_id', 'item_id', 'quantity']));
+        $this->assertTrue($orderItem->activeRecord()->isPrimaryKey(['order_id', 'item_id']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey([]));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['order_id']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['item_id']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['quantity']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['quantity', 'subtotal']));
+        $this->assertFalse($orderItem->activeRecord()->isPrimaryKey(['order_id', 'item_id', 'quantity']));
     }
 
     public function testOutdatedRelationsAreResetForNewRecords(): void
@@ -149,8 +149,8 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(1, $orderItem->getItem()->getId());
 
         /** test `set()`. */
-        $orderItem->set('order_id', 2);
-        $orderItem->set('item_id', 2);
+        $orderItem->activeRecord()->set('order_id', 2);
+        $orderItem->activeRecord()->set('item_id', 2);
         $this->assertEquals(2, $orderItem->getOrder()->getId());
         $this->assertEquals(2, $orderItem->getItem()->getId());
     }
@@ -161,7 +161,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $arClass = new Type();
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
 
         $this->assertSame(1, $arClass->int_col2);
         $this->assertSame('something', $arClass->char_col2);
@@ -177,13 +177,13 @@ abstract class ActiveRecordTest extends TestCase
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues();
+        $arClass->activeRecord()->loadDefaultValues();
         $this->assertSame('not something', $arClass->char_col2);
 
         $arClass = new Type();
         $arClass->char_col2 = 'not something';
 
-        $arClass->loadDefaultValues(false);
+        $arClass->activeRecord()->loadDefaultValues(false);
         $this->assertSame('something', $arClass->char_col2);
     }
 
@@ -206,7 +206,7 @@ abstract class ActiveRecordTest extends TestCase
         $arClass->time = new Expression('CURRENT_TIMESTAMP');
         $arClass->json_col = ['a' => 'b', 'c' => null, 'd' => [1, 2, 3]];
 
-        $arClass->save();
+        $arClass->activeRecord()->save();
 
         /** @var $model Type */
         $aqClass = new ActiveQuery(Type::class);
@@ -230,10 +230,10 @@ abstract class ActiveRecordTest extends TestCase
         $this->checkFixture($this->db(), 'cat');
 
         $cat = new Cat();
-        $cat->save();
+        $cat->activeRecord()->save();
 
         $dog = new Dog();
-        $dog->save();
+        $dog->activeRecord()->save();
 
         $animal = (new ActiveQuery(Animal::class))->resultCallback(ModelFactory::create(...));
 
@@ -250,7 +250,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $record = new NullValues();
 
-        $this->assertTrue($record->save());
+        $this->assertTrue($record->activeRecord()->save());
         $this->assertEquals(1, $record->id);
     }
 
@@ -266,15 +266,15 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setName('Some {{weird}} name');
         $customer->setEmail('test@example.com');
         $customer->setAddress('Some {{%weird}} address');
-        $customer->insert();
-        $customer->refresh();
+        $customer->activeRecord()->insert();
+        $customer->activeRecord()->refresh();
 
         $this->assertEquals('Some {{weird}} name', $customer->getName());
         $this->assertEquals('Some {{%weird}} address', $customer->getAddress());
 
         $customer->setName('Some {{updated}} name');
         $customer->setAddress('Some {{%updated}} address');
-        $customer->update();
+        $customer->activeRecord()->update();
 
         $this->assertEquals('Some {{updated}} name', $customer->getName());
         $this->assertEquals('Some {{%updated}} address', $customer->getAddress());
@@ -382,7 +382,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer = new CustomerWithAlias();
 
         $customer->id = 1;
-        $customer->refresh();
+        $customer->activeRecord()->refresh();
 
         $this->assertEquals(1, $customer->id);
     }
@@ -401,9 +401,9 @@ abstract class ActiveRecordTest extends TestCase
 
         $order->getOrderItems();
 
-        $order->populateRelation('orderItems', [$orderItem]);
+        $order->activeRecord()->populateRelation('orderItems', [$orderItem]);
 
-        $order->save();
+        $order->activeRecord()->save();
 
         $this->assertCount(1, $order->getOrderItems());
     }
@@ -460,9 +460,9 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $customer->populateProperties($properties);
+        $customer->activeRecord()->populateProperties($properties);
 
-        $this->assertTrue($customer->save());
+        $this->assertTrue($customer->activeRecord()->save());
     }
 
     public function testSetPropertyNoExist(): void
@@ -478,7 +478,7 @@ abstract class ActiveRecordTest extends TestCase
             'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"'
         );
 
-        $cat->set('noExist', 1);
+        $cat->activeRecord()->set('noExist', 1);
     }
 
     public function testAssignOldValue(): void
@@ -487,11 +487,11 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->oldValue('name'));
+        $this->assertEmpty($customer->activeRecord()->oldValue('name'));
 
-        $customer->assignOldValue('name', 'samdark');
+        $customer->activeRecord()->assignOldValue('name', 'samdark');
 
-        $this->assertEquals('samdark', $customer->oldValue('name'));
+        $this->assertEquals('samdark', $customer->activeRecord()->oldValue('name'));
     }
 
     public function testaAssignOldValueException(): void
@@ -500,13 +500,13 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->oldValue('name'));
+        $this->assertEmpty($customer->activeRecord()->oldValue('name'));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no property named "noExist"'
         );
-        $customer->assignOldValue('noExist', 'samdark');
+        $customer->activeRecord()->assignOldValue('noExist', 'samdark');
     }
 
     public function testIsPropertyChangedNotChanged(): void
@@ -515,10 +515,10 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertEmpty($customer->get('email'));
-        $this->assertEmpty($customer->oldValue('email'));
-        $this->assertFalse($customer->isPropertyChanged('email'));
-        $this->assertFalse($customer->isPropertyChangedNonStrict('email'));
+        $this->assertEmpty($customer->activeRecord()->get('email'));
+        $this->assertEmpty($customer->activeRecord()->oldValue('email'));
+        $this->assertFalse($customer->activeRecord()->isPropertyChanged('email'));
+        $this->assertFalse($customer->activeRecord()->isPropertyChangedNonStrict('email'));
     }
 
     public function testTableSchemaException(): void
@@ -527,7 +527,8 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage('The table does not exist: NoExist');
-        $noExist->getTableSchema();
+
+        $noExist->activeRecord()->getTableSchema();
     }
 
     public function testInsert(): void
@@ -540,13 +541,13 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setName('user4');
         $customer->setAddress('address4');
 
-        $this->assertNull($customer->get('id'));
-        $this->assertTrue($customer->getIsNewRecord());
+        $this->assertNull($customer->activeRecord()->get('id'));
+        $this->assertTrue($customer->activeRecord()->isNewRecord());
 
-        $customer->save();
+        $customer->activeRecord()->save();
 
         $this->assertNotNull($customer->getId());
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->activeRecord()->isNewRecord());
     }
 
     /**
@@ -564,14 +565,14 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setEmail('mail@example.com');
         $customer->setBoolStatus(true);
 
-        $customer->save();
-        $customer->refresh();
+        $customer->activeRecord()->save();
+        $customer->activeRecord()->refresh();
         $this->assertTrue($customer->getBoolStatus());
 
         $customer->setBoolStatus(false);
-        $customer->save();
+        $customer->activeRecord()->save();
 
-        $customer->refresh();
+        $customer->activeRecord()->refresh();
         $this->assertFalse($customer->getBoolStatus());
 
         $customerQuery = new ActiveQuery(Customer::class);
@@ -604,7 +605,7 @@ abstract class ActiveRecordTest extends TestCase
 
         /** {@see https://github.com/yiisoft/yii2-gii/issues/190} */
         $baseModel = new Customer();
-        $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
+        $this->assertFalse($baseModel->activeRecord()->hasProperty('unExistingColumn'));
 
         $customer = new Customer();
         $this->assertInstanceOf(Customer::class, $customer);
@@ -647,15 +648,15 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertTrue($customer->hasProperty('id'));
-        $this->assertTrue($customer->hasProperty('email'));
-        $this->assertFalse($customer->hasProperty('notExist'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('id'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('email'));
+        $this->assertFalse($customer->activeRecord()->hasProperty('notExist'));
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
-        $this->assertTrue($customer->hasProperty('id'));
-        $this->assertTrue($customer->hasProperty('email'));
-        $this->assertFalse($customer->hasProperty('notExist'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('id'));
+        $this->assertTrue($customer->activeRecord()->hasProperty('email'));
+        $this->assertFalse($customer->activeRecord()->hasProperty('notExist'));
     }
 
     public function testRefresh(): void
@@ -664,13 +665,13 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = new Customer();
 
-        $this->assertFalse($customer->refresh());
+        $this->assertFalse($customer->activeRecord()->refresh());
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
         $customer->setName('to be refreshed');
 
-        $this->assertTrue($customer->refresh());
+        $this->assertTrue($customer->activeRecord()->refresh());
         $this->assertEquals('user1', $customer->getName());
     }
 
@@ -680,11 +681,11 @@ abstract class ActiveRecordTest extends TestCase
 
         $customerA = new Customer();
         $customerB = new Customer();
-        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerA->activeRecord()->equals($customerB));
 
         $customerA = new Customer();
         $customerB = new Item();
-        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerA->activeRecord()->equals($customerB));
     }
 
     public static function providerForUnlinkDelete(): array
@@ -709,7 +710,7 @@ abstract class ActiveRecordTest extends TestCase
         $order = $orderQuery->findOne(2);
 
         $this->assertCount(1, $order->getItemsFor8());
-        $order->unlink('itemsFor8', $order->getItemsFor8()[0], $delete);
+        $order->activeRecord()->unlink('itemsFor8', $order->getItemsFor8()[0], $delete);
 
         $order = $orderQuery->findOne(2);
         $this->assertCount(0, $order->getItemsFor8());
@@ -772,7 +773,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = $customerQuery->findOne(1);
 
-        $this->assertTrue($customer->save());
+        $this->assertTrue($customer->activeRecord()->save());
     }
 
     public function testGetPrimaryKey(): void
@@ -783,8 +784,8 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame(1, $customer->getPrimaryKey());
-        $this->assertSame(['id' => 1], $customer->getPrimaryKey(true));
+        $this->assertSame(1, $customer->activeRecord()->getPrimaryKey());
+        $this->assertSame(['id' => 1], $customer->activeRecord()->getPrimaryKey(true));
     }
 
     public function testGetOldPrimaryKey(): void
@@ -796,8 +797,8 @@ abstract class ActiveRecordTest extends TestCase
         $customer = $customerQuery->findOne(1);
         $customer->setId(2);
 
-        $this->assertSame(1, $customer->getOldPrimaryKey());
-        $this->assertSame(['id' => 1], $customer->getOldPrimaryKey(true));
+        $this->assertSame(1, $customer->activeRecord()->getOldPrimaryKey());
+        $this->assertSame(['id' => 1], $customer->activeRecord()->getOldPrimaryKey(true));
     }
 
     public function testGetDirtyValuesOnNewRecord(): void
@@ -814,14 +815,14 @@ abstract class ActiveRecordTest extends TestCase
                 'bool_status' => false,
                 'profile_id' => null,
             ],
-            $customer->newValues()
+            $customer->activeRecord()->newValues()
         );
 
-        $customer->set('name', 'Adam');
-        $customer->set('email', 'adam@example.com');
-        $customer->set('address', null);
+        $customer->activeRecord()->set('name', 'Adam');
+        $customer->activeRecord()->set('email', 'adam@example.com');
+        $customer->activeRecord()->set('address', null);
 
-        $this->assertSame([], $customer->newValues([]));
+        $this->assertSame([], $customer->activeRecord()->newValues([]));
 
         $this->assertEquals(
             [
@@ -832,7 +833,7 @@ abstract class ActiveRecordTest extends TestCase
                 'bool_status' => false,
                 'profile_id' => null,
             ],
-            $customer->newValues()
+            $customer->activeRecord()->newValues()
         );
         $this->assertSame(
             [
@@ -840,15 +841,15 @@ abstract class ActiveRecordTest extends TestCase
                 'address' => null,
                 'status' => 0,
             ],
-            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->activeRecord()->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
-        $this->assertTrue($customer->save());
-        $this->assertSame([], $customer->newValues());
+        $this->assertTrue($customer->activeRecord()->save());
+        $this->assertSame([], $customer->activeRecord()->newValues());
 
-        $customer->set('address', '');
+        $customer->activeRecord()->set('address', '');
 
-        $this->assertSame(['address' => ''], $customer->newValues());
+        $this->assertSame(['address' => ''], $customer->activeRecord()->newValues());
     }
 
     public function testGetDirtyValuesAfterFind(): void
@@ -858,19 +859,19 @@ abstract class ActiveRecordTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findOne(1);
 
-        $this->assertSame([], $customer->newValues());
+        $this->assertSame([], $customer->activeRecord()->newValues());
 
-        $customer->set('name', 'Adam');
-        $customer->set('email', 'adam@example.com');
-        $customer->set('address', null);
+        $customer->activeRecord()->set('name', 'Adam');
+        $customer->activeRecord()->set('email', 'adam@example.com');
+        $customer->activeRecord()->set('address', null);
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->newValues(),
+            $customer->activeRecord()->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
-            $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
+            $customer->activeRecord()->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
     }
 
@@ -883,7 +884,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $orders = $customer->getOrdersUsingInstance();
 
-        $this->assertTrue($customer->isRelationPopulated('ordersUsingInstance'));
+        $this->assertTrue($customer->activeRecord()->isRelationPopulated('ordersUsingInstance'));
         $this->assertCount(2, $orders);
         $this->assertSame(2, $orders[0]->getId());
         $this->assertSame(3, $orders[1]->getId());
@@ -919,7 +920,7 @@ abstract class ActiveRecordTest extends TestCase
         $order = $orderQuery->with('customerWithFactory')->findOne(2);
 
         $this->assertInstanceOf(OrderWithFactory::class, $order);
-        $this->assertTrue($order->isRelationPopulated('customerWithFactory'));
+        $this->assertTrue($order->activeRecord()->isRelationPopulated('customerWithFactory'));
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
     }
 
@@ -972,7 +973,7 @@ abstract class ActiveRecordTest extends TestCase
         $order = $orderQuery->findOne(2);
 
         $this->assertInstanceOf(OrderWithFactory::class, $order);
-        $this->assertFalse($order->isRelationPopulated('customerWithFactory'));
+        $this->assertFalse($order->activeRecord()->isRelationPopulated('customerWithFactory'));
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
     }
 
@@ -986,7 +987,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer = $customerQuery->findOne(2);
 
         $this->assertInstanceOf(CustomerWithFactory::class, $customer);
-        $this->assertFalse($customer->isRelationPopulated('ordersWithFactory'));
+        $this->assertFalse($customer->activeRecord()->isRelationPopulated('ordersWithFactory'));
         $this->assertInstanceOf(OrderWithFactory::class, $customer->getOrdersWithFactory()[0]);
     }
 
@@ -1014,7 +1015,7 @@ abstract class ActiveRecordTest extends TestCase
         $profile = new Profile();
 
         $this->assertEquals(
-            "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":3:{s:52:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues\";N;s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}}",
+            "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":0:{}",
             serialize($profile)
         );
 
@@ -1022,7 +1023,7 @@ abstract class ActiveRecordTest extends TestCase
         $profile = $profileQuery->findOne(1);
 
         $this->assertEquals(
-            "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":5:{s:52:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues\";a:2:{s:2:\"id\";i:1;s:11:\"description\";s:18:\"profile customer 1\";}s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}s:5:\"\0*\0id\";i:1;s:14:\"\0*\0description\";s:18:\"profile customer 1\";}",
+            "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":3:{s:60:\"\0Yiisoft\ActiveRecord\AbstractActiveRecordModel\0activeRecord\";O:33:\"Yiisoft\ActiveRecord\ActiveRecord\":4:{s:52:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues\";a:2:{s:2:\"id\";i:1;s:11:\"description\";s:18:\"profile customer 1\";}s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}s:8:\"\0*\0model\";r:1;}s:5:\"\0*\0id\";i:1;s:14:\"\0*\0description\";s:18:\"profile customer 1\";}",
             serialize($profile)
         );
     }
@@ -1047,7 +1048,7 @@ abstract class ActiveRecordTest extends TestCase
         /** Test inverse relation */
         foreach ($promotions as $promotion) {
             foreach ($promotion->getItemsViaJson() as $item) {
-                $this->assertTrue($item->isRelationPopulated('promotionsViaJson'));
+                $this->assertTrue($item->activeRecord()->isRelationPopulated('promotionsViaJson'));
             }
         }
 
@@ -1072,11 +1073,11 @@ abstract class ActiveRecordTest extends TestCase
         /** @var Item[] $items */
         $items = $itemQuery->all();
 
-        $this->assertFalse($items[0]->isRelationPopulated('promotionsViaJson'));
-        $this->assertFalse($items[1]->isRelationPopulated('promotionsViaJson'));
-        $this->assertFalse($items[2]->isRelationPopulated('promotionsViaJson'));
-        $this->assertFalse($items[3]->isRelationPopulated('promotionsViaJson'));
-        $this->assertFalse($items[4]->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[0]->activeRecord()->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[1]->activeRecord()->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[2]->activeRecord()->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[3]->activeRecord()->isRelationPopulated('promotionsViaJson'));
+        $this->assertFalse($items[4]->activeRecord()->isRelationPopulated('promotionsViaJson'));
 
         $this->assertSame([1, 3], ArArrayHelper::getColumn($items[0]->getPromotionsViaJson(), 'id'));
         $this->assertSame([1], ArArrayHelper::getColumn($items[1]->getPromotionsViaJson(), 'id'));
@@ -1092,20 +1093,20 @@ abstract class ActiveRecordTest extends TestCase
         $itemQuery = new ActiveQuery(Item::class);
         $item = $itemQuery->findOne(1);
 
-        $this->assertFalse($item->isChanged());
+        $this->assertFalse($item->activeRecord()->isChanged());
 
-        $item->set('name', 'New name');
+        $item->activeRecord()->set('name', 'New name');
 
-        $this->assertTrue($item->isChanged());
+        $this->assertTrue($item->activeRecord()->isChanged());
 
         $newItem = new Item();
 
-        $this->assertFalse($newItem->isChanged());
+        $this->assertFalse($newItem->activeRecord()->isChanged());
 
-        $newItem->set('name', 'New name');
+        $newItem->activeRecord()->set('name', 'New name');
 
-        $this->assertTrue($newItem->isChanged());
+        $this->assertTrue($newItem->activeRecord()->isChanged());
 
-        $this->assertTrue((new Customer())->isChanged());
+        $this->assertTrue((new Customer())->activeRecord()->isChanged());
     }
 }

@@ -126,7 +126,7 @@ abstract class BatchQueryResultTest extends TestCase
         $customers = $this->getAllRowsFromBatch($query->batch(2));
 
         foreach ($customers as $customer) {
-            $this->assertTrue($customer->isRelationPopulated('orders'));
+            $this->assertTrue($customer->activeRecord()->isRelationPopulated('orders'));
         }
 
         $this->assertCount(3, $customers);
