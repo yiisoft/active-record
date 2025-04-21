@@ -102,7 +102,7 @@ trait ActiveRelationTrait
      *
      * @return static the relation object itself.
      */
-    public function via(string $relationName, callable $callable = null): static
+    public function via(string $relationName, callable|null $callable = null): static
     {
         if ($this->primaryModel === null) {
             throw new InvalidConfigException('Setting via is only supported for relational queries.');
@@ -385,8 +385,8 @@ trait ActiveRelationTrait
 
     private function buildBuckets(
         array $models,
-        array $viaModels = null,
-        self $viaQuery = null
+        array|null $viaModels = null,
+        self|null $viaQuery = null
     ): array {
         if ($viaModels !== null) {
             $map = [];

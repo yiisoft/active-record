@@ -184,7 +184,8 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $record->activeRecord()->save();
 
-        $this->assertEquals(5, $record->primaryKey);
+        $this->assertEquals(5, $record->id);
+        $this->assertEquals(5, $record->activeRecord()->getPrimaryKey());
     }
 
     public static function arrayValuesProvider(): array
@@ -289,7 +290,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         /** Testing update */
         foreach ($properties as $property => $expected) {
-            $type->markPropertyChanged($property);
+            $type->activeRecord()->markPropertyChanged($property);
         }
 
         $this->assertSame(1, $type->activeRecord()->update(), 'The record got updated');

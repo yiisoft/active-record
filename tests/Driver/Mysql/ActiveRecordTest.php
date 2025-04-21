@@ -30,7 +30,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $arClass = new Type();
 
-        $arClass->deleteAll();
+        $arClass->activeRecord()->deleteAll();
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;

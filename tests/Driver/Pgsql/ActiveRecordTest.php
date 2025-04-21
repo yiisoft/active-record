@@ -338,7 +338,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         /** Testing update */
         foreach ($properties as $property => $expected) {
-            $type->markPropertyChanged($property);
+            $type->activeRecord()->markPropertyChanged($property);
         }
 
         $this->assertSame(1, $type->activeRecord()->update(), 'The record got updated');

@@ -238,7 +238,7 @@ class ActiveRecord extends AbstractActiveRecord
         return $columnNames;
     }
 
-    protected function insertInternal(array $propertyNames = null): bool
+    protected function insertInternal(array|null $propertyNames = null): bool
     {
         $values = $this->newValues($propertyNames);
         $primaryKeys = $this->model->db()->createCommand()->insertWithReturningPks($this->model->tableName(), $values);

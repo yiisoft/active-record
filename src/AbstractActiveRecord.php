@@ -997,7 +997,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     private function setRelationDependencies(
         string $name,
         ActiveQueryInterface $relation,
-        string $viaRelationName = null
+        string|null $viaRelationName = null
     ): void {
         $via = $relation->getVia();
 
