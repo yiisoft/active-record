@@ -54,7 +54,7 @@ interface ActiveRecordInterface
      * For example, to delete all customers whose status is 3:
      *
      * ```php
-     * $customer = new Customer($db);
+     * $customer = new Customer();
      * $customer->deleteAll('status = 3');
      * ```
      *
@@ -228,7 +228,7 @@ interface ActiveRecordInterface
      * For example, to insert a customer record:
      *
      * ```php
-     * $customer = new Customer($db);
+     * $customer = new Customer();
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->insert();

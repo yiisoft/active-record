@@ -63,7 +63,7 @@ use function preg_replace;
  * Below is an example showing some typical usage of ActiveRecord:
  *
  * ```php
- * $user = new User($db);
+ * $user = new User();
  * $user->name = 'Qiang';
  * $user->save(); // a new row is inserted into user table
  *
@@ -145,7 +145,7 @@ class ActiveRecord extends AbstractActiveRecord
      *
      * ```php
      * // class Customer extends ActiveRecord
-     * $customer = new Customer($db);
+     * $customer = new Customer();
      * $customer->loadDefaultValues();
      * ```
      *
@@ -244,7 +244,7 @@ class ActiveRecord extends AbstractActiveRecord
         return get_object_vars($this);
     }
 
-    protected function insertInternal(array $propertyNames = null): bool
+    protected function insertInternal(array|null $propertyNames = null): bool
     {
         $values = $this->newValues($propertyNames);
         $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->getTableName(), $values);
