@@ -34,7 +34,7 @@ use function method_exists;
 use function reset;
 
 /**
- * ActiveRecord is the base class for classes representing relational data in terms of objects.
+ * The base class implementing {@see ActiveRecordInterface}.
  *
  * See {@see ActiveRecord} for a concrete implementation.
  *

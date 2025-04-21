@@ -11,6 +11,9 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 
+/**
+ * This interface is used by {@see ActiveRecordModelInterface}.
+ */
 interface ActiveRecordInterface
 {
     /**
