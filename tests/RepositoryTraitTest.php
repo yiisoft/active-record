@@ -5,9 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithRepositoryTrait;
 
 abstract class RepositoryTraitTest extends TestCase

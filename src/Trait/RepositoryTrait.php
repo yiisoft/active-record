@@ -11,6 +11,30 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
 /**
  * Trait to support static methods {@see find()}, {@see findOne()}, {@see findAll()}, {@see findBySql()} to find records.
  *
+ * For example:
+ *
+ * ```php
+ * use Yiisoft\ActiveRecord\ActiveRecord;
+ * use Yiisoft\ActiveRecord\Trait\RepositoryTrait;
+ *
+ * final class User extends ActiveRecord
+ * {
+ *     use RepositoryTrait;
+ *
+ *     public int $id;
+ *     public bool $is_active;
+ * }
+ *
+ * $user = User::find()->where(['id' => 1])->one();
+ * $users = User::find()->where(['is_active' => true])->all();
+ *
+ * $user = User::findOne(['id' => 1]);
+ *
+ * $users = User::findAll(['is_active' => true]);
+ *
+ * $users = User::findBySql('SELECT * FROM customer')->all();
+ * ```
+ *
  * @method ActiveQueryInterface query(ActiveRecordInterface|Closure|null|string $arClass = null)
  */
 trait RepositoryTrait
