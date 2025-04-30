@@ -334,7 +334,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function query(ActiveRecordInterface|Closure|null|string $arClass = null): ActiveQueryInterface
     {
-        return new ActiveQuery($arClass === null ? $this : $arClass);
+        return new ActiveQuery($arClass ?? $this);
     }
 
     public function isChanged(): bool
