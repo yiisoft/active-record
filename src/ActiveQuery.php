@@ -814,7 +814,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (!is_array($properties)) {
             $properties = [$properties];
         } elseif (DbArrayHelper::isAssociative($properties)) {
-            return $this->where($this->filterProperties($properties));
+            return $this->setWhere($this->filterProperties($properties));
         }
 
         $arInstance = $this->getARInstance();
@@ -838,7 +838,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         }
 
-        return $this->where(array_combine($primaryKey, $properties));
+        return $this->setWhere(array_combine($primaryKey, $properties));
     }
 
     public function findAll(array|float|int|string $properties): array
