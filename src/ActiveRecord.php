@@ -11,16 +11,8 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
-use function array_diff;
-use function array_keys;
-use function array_map;
-use function array_values;
 use function get_object_vars;
-use function in_array;
-use function is_array;
-use function is_string;
 use function key;
-use function preg_replace;
 
 /**
  * Active Record class which implements {@see ActiveRecordInterface} interface with the minimum set of methods.

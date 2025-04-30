@@ -326,7 +326,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * @param ActiveRecordInterface|Closure|null|string $arClass The class name of the related record, or an instance of
+     * @param ActiveRecordInterface|Closure|string|null $arClass The class name of the related record, or an instance of
      * the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
      * will be used.
      *

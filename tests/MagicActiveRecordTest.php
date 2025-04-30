@@ -22,14 +22,12 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Type;
-use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-use Yiisoft\Db\Query\Query;
 
 abstract class MagicActiveRecordTest extends TestCase
 {

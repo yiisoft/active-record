@@ -27,7 +27,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
-use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
@@ -35,7 +34,6 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Query\Query;
 use Yiisoft\Factory\Factory;
 
 abstract class ActiveRecordTest extends TestCase
