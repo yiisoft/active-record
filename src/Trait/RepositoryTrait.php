@@ -34,8 +34,6 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  *
  * $users = User::findBySql('SELECT * FROM customer')->all();
  * ```
- *
- * @method ActiveQueryInterface query(ActiveRecordInterface|Closure|null|string $arClass = null)
  */
 trait RepositoryTrait
 {
