@@ -22,14 +22,12 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Type;
-use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\UnknownPropertyException;
-use Yiisoft\Db\Query\Query;
 
 abstract class MagicActiveRecordTest extends TestCase
 {
@@ -273,7 +271,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals('Some {{%updated}} address', $customer->address);
     }
 
-    public static function legalValuesForFindByCondition(): array
+    public static function legalValuesForFind(): array
     {
         return [
             [Customer::class, ['id' => 1]],
@@ -292,11 +290,11 @@ abstract class MagicActiveRecordTest extends TestCase
     }
 
     /**
-     * @dataProvider legalValuesForFindByCondition
+     * @dataProvider legalValuesForFind
      *
      * @throws ReflectionException
      */
-    public function testLegalValuesForFindByCondition(
+    public function testLegalValuesForFind(
         string $modelClassName,
         array $validFilter,
         ?string $alias = null
@@ -309,8 +307,7 @@ abstract class MagicActiveRecordTest extends TestCase
             $activeQuery->alias('csr');
         }
 
-        /** @var Query $query */
-        $query = Assert::invokeMethod($activeQuery, 'findByCondition', [$validFilter]);
+        $query = $activeQuery->find($validFilter);
 
 
         $this->db()->getQueryBuilder()->build($query);
@@ -318,52 +315,51 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public static function illegalValuesForFindByCondition(): array
+    public static function illegalValuesForFind(): array
     {
         return [
-            [Customer::class, [['`id`=`id` and 1' => 1]]],
-            [Customer::class, [[
+            [Customer::class, ['`id`=`id` and 1' => 1]],
+            [Customer::class, [
                 'legal' => 1,
                 '`id`=`id` and 1' => 1,
-            ]]],
-            [Customer::class, [[
+            ]],
+            [Customer::class, [
                 'nested_illegal' => [
                     'false or 1=' => 1,
                 ],
-            ]]],
-            [Customer::class, [['true--' => 1]]],
+            ]],
+            [Customer::class, ['true--' => 1]],
 
-            [CustomerWithAlias::class, [['`csr`.`id`=`csr`.`id` and 1' => 1]]],
-            [CustomerWithAlias::class, [[
+            [CustomerWithAlias::class, ['`csr`.`id`=`csr`.`id` and 1' => 1]],
+            [CustomerWithAlias::class, [
                 'legal' => 1,
                 '`csr`.`id`=`csr`.`id` and 1' => 1,
-            ]]],
-            [CustomerWithAlias::class, [[
+            ]],
+            [CustomerWithAlias::class, [
                 'nested_illegal' => [
                     'false or 1=' => 1,
                 ],
-            ]]],
-            [CustomerWithAlias::class, [['true--' => 1]]],
+            ]],
+            [CustomerWithAlias::class, ['true--' => 1]],
         ];
     }
 
     /**
-     * @dataProvider illegalValuesForFindByCondition
+     * @dataProvider illegalValuesForFind
      *
      * @throws ReflectionException
      */
-    public function testValueEscapingInFindByCondition(string $modelClassName, array $filterWithInjection): void
+    public function testValueEscapingInFind(string $modelClassName, array $filterWithInjection): void
     {
         $this->checkFixture($this->db(), 'customer');
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessageMatches(
-            '/^Key "(.+)?" is not a column name and can not be used as a filter$/'
+            '/^Key "(.+)?" is not a column name and can not be used as a filter.$/'
         );
 
         $query = new ActiveQuery($modelClassName);
 
-        /** @var Query $query */
-        $query = Assert::invokeMethod($query, 'findByCondition', $filterWithInjection);
+        $query = $query->find($filterWithInjection);
 
         $this->db()->getQueryBuilder()->build($query);
     }

@@ -326,14 +326,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record, or an instance of
-     * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     * @param ActiveRecordInterface|Closure|string|null $arClass The class name of the related record, or an instance of
+     * the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
+     * will be used.
      *
      * @psalm-param ARClass $arClass
      */
-    public function instantiateQuery(string|ActiveRecordInterface|Closure $arClass): ActiveQueryInterface
+    public function query(ActiveRecordInterface|Closure|null|string $arClass = null): ActiveQueryInterface
     {
-        return new ActiveQuery($arClass);
+        return new ActiveQuery($arClass ?? $this);
     }
 
     public function isChanged(): bool
@@ -553,7 +554,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function refresh(): bool
     {
-        $record = $this->instantiateQuery(static::class)->findOne($this->getPrimaryKey(true));
+        $record = $this->query($this)->findOne($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
     }
@@ -1051,7 +1052,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     protected function createRelationQuery(string|ActiveRecordInterface|Closure $arClass, array $link, bool $multiple): ActiveQueryInterface
     {
-        return $this->instantiateQuery($arClass)->primaryModel($this)->link($link)->multiple($multiple);
+        return $this->query($arClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
 
     /**

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
@@ -1786,38 +1785,6 @@ abstract class ActiveQueryTest extends TestCase
         foreach ($orders as $customer_id => $order) {
             $this->assertEquals($customer_id, $order->getCustomerId());
         }
-    }
-
-    public static function filterTableNamesFromAliasesProvider(): array
-    {
-        return [
-            'table name as string' => ['customer', []],
-            'table name as array' => [['customer'], []],
-            'table names' => [['customer', 'order'], []],
-            'table name and a table alias' => [['customer', 'ord' => 'order'], ['ord']],
-            'table alias' => [['csr' => 'customer'], ['csr']],
-            'table aliases' => [['csr' => 'customer', 'ord' => 'order'], ['csr', 'ord']],
-        ];
-    }
-
-    /**
-     * @dataProvider filterTableNamesFromAliasesProvider
-     *
-     * @param array $expectedAliases
-     *
-     * @throws ReflectionException
-     */
-    public function testFilterTableNamesFromAliases(array|string $fromParams, array $expectedAliases): void
-    {
-        $this->checkFixture($this->db(), 'customer');
-
-        $customerQuery = new ActiveQuery(Customer::class);
-
-        $query = $customerQuery->from($fromParams);
-
-        $aliases = Assert::invokeMethod(new Customer(), 'filterValidAliases', [$query]);
-
-        $this->assertEquals($expectedAliases, $aliases);
     }
 
     public function testExtraFields(): void

@@ -23,10 +23,13 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
 
 use function array_column;
 use function array_combine;
+use function array_filter;
 use function array_flip;
 use function array_intersect_key;
+use function array_keys;
 use function array_map;
 use function array_merge;
+use function array_slice;
 use function array_values;
 use function count;
 use function implode;
@@ -769,12 +772,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    /**
-     * @throws CircularReferenceException
-     * @throws InvalidArgumentException
-     * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
     public function getTablesUsedInFrom(): array
     {
         if (empty($this->from)) {
@@ -784,11 +781,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::getTablesUsedInFrom();
     }
 
-    /**
-     * @throws CircularReferenceException
-     * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
     protected function getPrimaryTableName(): string
     {
         return $this->getARInstance()->getTableName();
@@ -817,80 +809,51 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->arClass;
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
-    public function findOne(mixed $condition): array|ActiveRecordInterface|null
+    public function find(array|float|int|string $properties): static
     {
-        return $this->findByCondition($condition)->one();
-    }
+        if (!is_array($properties)) {
+            $properties = [$properties];
+        } elseif (DbArrayHelper::isAssociative($properties)) {
+            return $this->setWhere($this->filterProperties($properties));
+        }
 
-    /**
-     * @param mixed $condition The primary key value or a set of column values.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     *
-     * @return array Of ActiveRecord instance, or an empty array if nothing matches.
-     */
-    public function findAll(mixed $condition): array
-    {
-        return $this->findByCondition($condition)->all();
-    }
-
-    /**
-     * Finds ActiveRecord instance(s) by the given condition.
-     *
-     * This method is internally called by {@see findOne()} and {@see findAll()}.
-     *
-     * @throws CircularReferenceException
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws NotInstantiableException
-     */
-    protected function findByCondition(mixed $condition): static
-    {
         $arInstance = $this->getARInstance();
+        $primaryKey = $arInstance->primaryKey();
 
-        if (!is_array($condition)) {
-            $condition = [$condition];
+        if (empty($primaryKey)) {
+            throw new InvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
         }
 
-        if (!DbArrayHelper::isAssociative($condition)) {
-            /** query by primary key */
-            $primaryKey = $arInstance->primaryKey();
+        if (count($primaryKey) < count($properties)) {
+            throw new InvalidArgumentException('Primary key is composed of ' . count($primaryKey) . ' columns while ' . count($properties) . ' were given');
+        }
 
-            if (isset($primaryKey[0])) {
-                $pk = $primaryKey[0];
+        $primaryKey = array_slice($primaryKey, 0, count($properties));
 
-                if (!empty($this->getJoins()) || !empty($this->getJoinWith())) {
-                    $pk = $arInstance->getTableName() . '.' . $pk;
-                }
+        if (!empty($this->getJoins()) || !empty($this->getJoinWith())) {
+            $tableName = $arInstance->getTableName();
 
-                /**
-                 * if the condition is scalar, search for a single primary key, if it's array, search for many primary
-                 * key values.
-                 */
-                $condition = [$pk => array_values($condition)];
-            } else {
-                throw new InvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
+            foreach ($primaryKey as &$pk) {
+                $pk = "$tableName.$pk";
             }
-        } else {
-            $aliases = $arInstance->filterValidAliases($this);
-            $condition = $arInstance->filterCondition($condition, $aliases);
         }
 
-        return $this->setWhere($condition);
+        return $this->setWhere(array_combine($primaryKey, $properties));
+    }
+
+    public function findAll(array|float|int|string $properties): array
+    {
+        return $this->find($properties)->all();
     }
 
     public function findBySql(string $sql, array $params = []): static
     {
         return $this->sql($sql)->params($params);
+    }
+
+    public function findOne(array|float|int|string $properties): array|ActiveRecordInterface|null
+    {
+        return $this->find($properties)->one();
     }
 
     public function on(array|string|null $value): static
@@ -944,6 +907,62 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->setUnions($this->union)
             ->params($this->params)
             ->withQueries($this->withQueries);
+    }
+
+    /**
+     * Filters properties before using them in a query filter.
+     *
+     * This method will ensure that the properties are valid column names and will filter keys of values that are arrays.
+     *
+     * @param array $properties Key-value pairs to be ensured and filtered.
+     */
+    private function filterProperties(array $properties): array
+    {
+        $result = [];
+
+        $quoter = $this->db->getQuoter();
+        $columnNames = $this->getValidColumnNames();
+
+        foreach ($properties as $key => $value) {
+            if (is_string($key) && !in_array($quoter->quoteSql($key), $columnNames, true)) {
+                throw new InvalidArgumentException(
+                    'Key "' . $key . '" is not a column name and can not be used as a filter.'
+                );
+            }
+
+            $result[$key] = is_array($value) ? array_values($value) : $value;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Returns valid column names: table column names and column names prefixed with table name and table aliases.
+     */
+    private function getValidColumnNames(): array
+    {
+        $columnNames = [];
+
+        $quoter = $this->db->getQuoter();
+        $tables = $this->getTablesUsedInFrom();
+        $tableAliases = array_keys($tables);
+
+        $tableNames = array_merge($tableAliases, array_filter($tables, 'is_string'));
+        $tableNames = array_map($quoter->getRawTableName(...), $tableNames);
+
+        foreach ($this->getARInstance()->propertyNames() as $columnName) {
+            $columnNames[] = $columnName;
+            $quotedColumnName = $quoter->quoteColumnName($columnName);
+            $columnNames[] = $quotedColumnName;
+
+            foreach ($tableNames as $tableName) {
+                $columnNames[] = "$tableName.$columnName";
+                $quotedTableName = $quoter->quoteTableName($tableName);
+                $columnNames[] = "$quotedTableName.$quotedColumnName";
+            }
+        }
+
+        return $columnNames;
     }
 
     private function populateOne(array $row): ActiveRecordInterface|array

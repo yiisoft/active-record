@@ -378,6 +378,57 @@ interface ActiveQueryInterface extends QueryInterface
     public function relatedRecords(): ActiveRecordInterface|array|null;
 
     /**
+     * Finds ActiveRecord instance(s) by the given property values.
+     *
+     * If the property names are provided as array keys, the array will be treated as a set of column values.
+     *
+     * ```php
+     * $user = $query->find(['id' => 1])->one(); // WHERE id = 1
+     * ```
+     *
+     * ```php
+     * $users = $query->find([
+     *     'name' => 'John',
+     *     'status' => 'active',
+     * ])->all(); // WHERE name = 'John' AND status = 'active'
+     * ```
+     *
+     * Otherwise, the scalar value or array will be treated as a primary key value.
+     * In the examples below, the `id` column is the primary key of the table.
+     *
+     * ```php
+     * $user = $query->find(1)->one(); // WHERE id = 1
+     * ```
+     *
+     * ```php
+     * $user = $query->find([1])->one(); // WHERE id = 1
+     * ```
+     *
+     * For finding multiple records by primary key values use an array of arrays of primary key values.
+     *
+     * ```php
+     * $users = $query->find([[1, 2, 3]])->all(); // WHERE id IN (1, 2, 3)
+     * ```
+     *
+     * If the primary key is composite, the array may contain less or equal number of columns than the primary key.
+     * In case of fewer columns, the method will use the first primary key columns.
+     * In the examples below, the `id` and `id2` columns are the composite primary key of the table.
+     *
+     * ```php
+     * $orderItem = $query->find([1, 2])->one(); // WHERE id = 1 AND id2 = 2
+     * ```
+     *
+     * ```php
+     * $orderItems = $query->find(1)->all(); // WHERE id = 1
+     * ```
+     *
+     * ```php
+     * $orderItems = $query->find([[1, 2], 3])->all(); // WHERE id IN (1, 2) AND id2 = 3
+     * ```
+     */
+    public function find(array|float|int|string $properties): static;
+
+    /**
      * Returns a single active record instance by a primary key or an array of column values.
      *
      * The method accepts:
@@ -458,7 +509,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
-    public function findOne(mixed $condition): array|ActiveRecordInterface|null;
+    public function findOne(array|float|int|string $properties): array|ActiveRecordInterface|null;
 
     /**
      * Returns a list of active record that matches the specified primary key value(s) or a set of column values.
@@ -543,7 +594,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return array An array of ActiveRecord instance, or an empty array if nothing matches.
      */
-    public function findAll(mixed $condition): array;
+    public function findAll(array|float|int|string $properties): array;
 
     /**
      * Returns a value indicating whether the query result rows should be returned as arrays instead of Active Record

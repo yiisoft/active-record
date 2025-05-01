@@ -16,7 +16,7 @@ use function method_exists;
 /**
  * Trait to add factory support to ActiveRecord.
  *
- * @see AbstractActiveRecord::instantiateQuery()
+ * @see AbstractActiveRecord::query()
  */
 trait FactoryTrait
 {
@@ -32,8 +32,12 @@ trait FactoryTrait
         return $new;
     }
 
-    public function instantiateQuery(string|ActiveRecordInterface|Closure $arClass): ActiveQueryInterface
+    public function query(ActiveRecordInterface|Closure|null|string $arClass = null): ActiveQueryInterface
     {
+        if ($arClass === null) {
+            return new ActiveQuery($this);
+        }
+
         if (!isset($this->factory)) {
             return new ActiveQuery($arClass);
         }
