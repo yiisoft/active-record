@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use DivisionByZeroError;
 use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
@@ -158,9 +159,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals(1.23, $arClass->float_col2);
         $this->assertEquals(33.22, $arClass->numeric_col);
         $this->assertTrue($arClass->bool_col2);
-        $this->assertEquals('2002-01-01 00:00:00', $arClass->time);
 
-        if ($this->db()->getDriverName() !== 'mysql') {
+        if ($this->db()->getDriverName() === 'mysql') {
+            $dbTimezone = $this->db()->getServerInfo()->getTimezone();
+            $this->assertEquals(new DateTimeImmutable('2002-01-01 00:00:00', new DateTimeZone($dbTimezone)), $arClass->time);
+        } else {
+            $this->assertEquals(new DateTimeImmutable('2002-01-01 00:00:00'), $arClass->time);
             $this->assertSame(['a' => 1], $arClass->json_col);
         }
 
