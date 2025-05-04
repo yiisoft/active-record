@@ -818,7 +818,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $primaryKey = $arInstance->primaryKey();
 
         if (empty($primaryKey)) {
-            throw new InvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
+            throw new InvalidConfigException($arInstance::class . ' must have a primary key.');
         }
 
         if (count($primaryKey) !== count($values)) {

@@ -11,7 +11,9 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 
 use function ksort;
 
@@ -742,5 +744,31 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->expectExceptionMessage('The primary key has 2 columns, but 1 values are passed.');
 
         $query->findByPk(1);
+    }
+
+    public function testFindByPkWithoutPk(): void
+    {
+        $this->checkFixture($this->db(), 'type');
+
+        $query = new ActiveQuery(Type::class);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type must have a primary key.');
+
+        $query->findByPk(1);
+    }
+
+    public function testFindByPkWithJoin(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $query = new ActiveQuery(Order::class);
+
+        $query->joinWith('items');
+
+        $order = $query->findByPk(1);
+
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertEquals(1, $order->getId());
     }
 }
