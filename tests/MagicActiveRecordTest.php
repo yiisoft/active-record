@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use DateTimeImmutable;
 use DivisionByZeroError;
-use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;

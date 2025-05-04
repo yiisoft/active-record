@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
 use DivisionByZeroError;
-use ReflectionException;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\ConnectionProvider;
