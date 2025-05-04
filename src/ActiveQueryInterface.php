@@ -396,7 +396,8 @@ interface ActiveQueryInterface extends QueryInterface
      * $customer = $customerQuery->setWhere(['age' => 30, 'status' => 1])->one();
      * ```
      *
-     * Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
+     * > [!WARNING]
+     * > Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
      *
      * ```php
      * $id = $request->getAttribute('id');
@@ -439,7 +440,8 @@ interface ActiveQueryInterface extends QueryInterface
      * $customers = $customerQuery->setWhere(['age' => 30, 'status' => 1])->all();
      * ```
      *
-     * Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
+     * > [!WARNING]
+     * > Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
      *
      * ```php
      * $id = $request->getAttribute('id');
