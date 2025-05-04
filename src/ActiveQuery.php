@@ -13,7 +13,6 @@ use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
-use Yiisoft\Db\Helper\DbArrayHelper;
 use Yiisoft\Db\Query\DataReaderInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
@@ -23,13 +22,10 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
 
 use function array_column;
 use function array_combine;
-use function array_filter;
 use function array_flip;
 use function array_intersect_key;
-use function array_keys;
 use function array_map;
 use function array_merge;
-use function array_slice;
 use function array_values;
 use function count;
 use function implode;
@@ -809,13 +805,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->arClass;
     }
 
-    public function find(array|float|int|string $properties): static
+    public function findAll(array|string|ExpressionInterface|null $condition, array $params = []): array
     {
-        if (!is_array($properties)) {
-            $properties = [$properties];
-        } elseif (DbArrayHelper::isAssociative($properties)) {
-            return $this->setWhere($this->filterProperties($properties));
-        }
+        return $this->setWhere($condition, $params)->all();
+    }
+
+    public function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null
+    {
+        $values = (array) $values;
 
         $arInstance = $this->getARInstance();
         $primaryKey = $arInstance->primaryKey();
@@ -824,11 +821,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             throw new InvalidConfigException('"' . $arInstance::class . '" must have a primary key.');
         }
 
-        if (count($primaryKey) < count($properties)) {
-            throw new InvalidArgumentException('Primary key is composed of ' . count($primaryKey) . ' columns while ' . count($properties) . ' were given');
+        if (count($primaryKey) !== count($values)) {
+            throw new InvalidArgumentException(
+                'The primary key has ' . count($primaryKey) . ' columns, but ' . count($values) . ' values are passed.'
+            );
         }
-
-        $primaryKey = array_slice($primaryKey, 0, count($properties));
 
         if (!empty($this->getJoins()) || !empty($this->getJoinWith())) {
             $tableName = $arInstance->getTableName();
@@ -838,12 +835,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         }
 
-        return $this->setWhere(array_combine($primaryKey, $properties));
-    }
-
-    public function findAll(array|float|int|string $properties): array
-    {
-        return $this->find($properties)->all();
+        return $this->setWhere(array_combine($primaryKey, $values))->one();
     }
 
     public function findBySql(string $sql, array $params = []): static
@@ -851,9 +843,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->sql($sql)->params($params);
     }
 
-    public function findOne(array|float|int|string $properties): array|ActiveRecordInterface|null
-    {
-        return $this->find($properties)->one();
+    public function findOne(
+        array|string|ExpressionInterface|null $condition,
+        array $params = [],
+    ): array|ActiveRecordInterface|null {
+        return $this->setWhere($condition, $params)->one();
     }
 
     public function on(array|string|null $value): static
@@ -907,62 +901,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->setUnions($this->union)
             ->params($this->params)
             ->withQueries($this->withQueries);
-    }
-
-    /**
-     * Filters properties before using them in a query filter.
-     *
-     * This method will ensure that the properties are valid column names and will filter keys of values that are arrays.
-     *
-     * @param array $properties Key-value pairs to be ensured and filtered.
-     */
-    private function filterProperties(array $properties): array
-    {
-        $result = [];
-
-        $quoter = $this->db->getQuoter();
-        $columnNames = $this->getValidColumnNames();
-
-        foreach ($properties as $key => $value) {
-            if (is_string($key) && !in_array($quoter->quoteSql($key), $columnNames, true)) {
-                throw new InvalidArgumentException(
-                    'Key "' . $key . '" is not a column name and can not be used as a filter.'
-                );
-            }
-
-            $result[$key] = is_array($value) ? array_values($value) : $value;
-        }
-
-        return $result;
-    }
-
-    /**
-     * Returns valid column names: table column names and column names prefixed with table name and table aliases.
-     */
-    private function getValidColumnNames(): array
-    {
-        $columnNames = [];
-
-        $quoter = $this->db->getQuoter();
-        $tables = $this->getTablesUsedInFrom();
-        $tableAliases = array_keys($tables);
-
-        $tableNames = array_merge($tableAliases, array_filter($tables, 'is_string'));
-        $tableNames = array_map($quoter->getRawTableName(...), $tableNames);
-
-        foreach ($this->getARInstance()->propertyNames() as $columnName) {
-            $columnNames[] = $columnName;
-            $quotedColumnName = $quoter->quoteColumnName($columnName);
-            $columnNames[] = $quotedColumnName;
-
-            foreach ($tableNames as $tableName) {
-                $columnNames[] = "$tableName.$columnName";
-                $quotedTableName = $quoter->quoteTableName($tableName);
-                $columnNames[] = "$quotedTableName.$quotedColumnName";
-            }
-        }
-
-        return $columnNames;
     }
 
     private function populateOne(array $row): ActiveRecordInterface|array

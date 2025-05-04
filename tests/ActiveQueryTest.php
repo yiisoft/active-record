@@ -423,7 +423,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class);
 
-        $customers = $customerQuery->findOne(1);
+        $customers = $customerQuery->findByPk(1);
 
         $items = $customers->getOrderItems();
 
@@ -633,15 +633,15 @@ abstract class ActiveQueryTest extends TestCase
 
         /** lazy loading with ON condition */
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
         $this->assertCount(2, $order->getBooks2());
 
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(2);
+        $order = $orderQuery->findByPk(2);
         $this->assertCount(0, $order->getBooks2());
 
         $order = new ActiveQuery(Order::class);
-        $order = $order->findOne(3);
+        $order = $order->findByPk(3);
         $this->assertCount(1, $order->getBooks2());
 
         /** eager loading with ON condition */
@@ -669,7 +669,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** {@see https://github.com/yiisoft/yii2/issues/2880} */
         $orderQuery = new ActiveQuery(Order::class);
-        $query = $orderQuery->findOne(1);
+        $query = $orderQuery->findByPk(1);
         $customer = $query->getCustomerQuery()->joinWith(
             [
                 'orders' => static function ($q) {
@@ -986,7 +986,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** relational query */
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
 
         $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
 
@@ -1397,7 +1397,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** lazy loading */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $orders = $customer->getOrders2();
         $this->assertCount(2, $orders);
         $this->assertSame($customer->getOrders2()[0]->getCustomer2(), $customer);
@@ -1405,7 +1405,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** ad-hoc lazy loading */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $orders = $customer->getOrders2Query()->all();
         $this->assertCount(2, $orders);
         $this->assertSame($orders[0]->getCustomer2(), $customer);
@@ -1469,7 +1469,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** via table with delete. */
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
         $this->assertCount(2, $order->getBooksViaTable());
 
         $orderItemQuery = new ActiveQuery(OrderItem::class);
@@ -1507,7 +1507,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** {@see https://github.com/yiisoft/yii2/issues/4938} */
         $categoryQuery = new ActiveQuery(Category::class);
-        $category = $categoryQuery->findOne(2);
+        $category = $categoryQuery->findByPk(2);
         $this->assertInstanceOf(Category::class, $category);
         $this->assertEquals(3, $category->getItemsQuery()->count());
         $this->assertEquals(1, $category->getLimitedItemsQuery()->count());
@@ -1838,7 +1838,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($orderItemTableName, $orderItem->getTableName());
 
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
         $itemsSQL = $order->getOrderItemsQuery()->createCommand()->getRawSql();
         $expectedSQL = DbHelper::replaceQuotes(
             <<<SQL
@@ -1848,7 +1848,7 @@ abstract class ActiveQueryTest extends TestCase
         );
         $this->assertEquals($expectedSQL, $itemsSQL);
 
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
         $itemsSQL = $order->getOrderItemsQuery()->joinWith('item')->createCommand()->getRawSql();
         $expectedSQL = DbHelper::replaceQuotes(
             <<<SQL
@@ -1864,7 +1864,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'order_item', true);
 
         $orderItemQuery = new ActiveQuery(OrderItem::class);
-        $orderItems = $orderItemQuery->findOne(1);
+        $orderItems = $orderItemQuery->findByPk([1, 1]);
         $this->assertEquals(1, $orderItems->getOrder()->getId());
         $this->assertEquals(1, $orderItems->getItem()->getId());
 
@@ -1917,7 +1917,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class);
 
-        $orders = $orderQuery->findOne(1);
+        $orders = $orderQuery->findByPk(1);
         $orderItemIds = ArArrayHelper::getColumn($orders->getItems(), 'id');
         sort($orderItemIds);
         $this->assertSame([1, 2], $orderItemIds);
@@ -1944,7 +1944,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class);
 
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         /** request the inverseOf relation without explicitly (eagerly) loading it */
         $orders2 = $customer->getOrders2Query()->all();
@@ -1976,13 +1976,13 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'document');
 
         $documentQuery = new ActiveQuery(Document::class);
-        $record = $documentQuery->findOne(1);
+        $record = $documentQuery->findByPk(1);
 
         $record->content = 'New Content';
         $record->save();
         $this->assertEquals(1, $record->version);
 
-        $record = $documentQuery->findOne(1);
+        $record = $documentQuery->findByPk(1);
 
         $record->content = 'Rewrite attempt content';
         $record->version = 0;
@@ -1995,7 +1995,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'document', true);
 
         $documentQuery = new ActiveQuery(Document::class);
-        $document = $documentQuery->findOne(1);
+        $document = $documentQuery->findByPk(1);
 
         $this->assertSame(0, $document->version);
 
@@ -2010,7 +2010,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'document', true);
 
         $documentQuery = new ActiveQuery(Document::class);
-        $document = $documentQuery->findOne(1);
+        $document = $documentQuery->findByPk(1);
 
         $this->assertSame(0, $document->version);
         $this->assertSame(1, $document->delete());
@@ -2026,11 +2026,11 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'bit_values');
 
         $bitValueQuery = new ActiveQuery(BitValues::class);
-        $falseBit = $bitValueQuery->findOne(1);
+        $falseBit = $bitValueQuery->findByPk(1);
         $this->assertFalse($falseBit->val);
 
         $bitValueQuery = new ActiveQuery(BitValues::class);
-        $trueBit = $bitValueQuery->findOne(2);
+        $trueBit = $bitValueQuery->findByPk(2);
         $this->assertTrue($trueBit->val);
     }
 
@@ -2039,12 +2039,12 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'order');
 
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
         $newTotal = 978;
         $this->assertSame(1, $order->updateProperties(['total' => $newTotal]));
         $this->assertEquals($newTotal, $order->getTotal());
 
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
         $this->assertEquals($newTotal, $order->getTotal());
 
         /** @see https://github.com/yiisoft/yii2/issues/12143 */
@@ -2070,7 +2070,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customerQuery->joinWithProfile = true;
 
-        $arClass = $customerQuery->findOne(1);
+        $arClass = $customerQuery->findByPk(1);
 
         $this->assertTrue($arClass->refresh());
 
@@ -2083,7 +2083,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $orderItem = new ActiveQuery(OrderItem::class);
 
-        $orderItem = $orderItem->findOne(1);
+        $orderItem = $orderItem->findByPk([1, 1]);
 
         $this->assertInstanceOf(Order::class, $orderItem->getCustom());
     }
@@ -2104,7 +2104,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->propertyValues();
+        $values = $customer->findByPk(1)->propertyValues();
 
         $this->assertEquals($expectedValues, $values);
     }
@@ -2115,7 +2115,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->propertyValues(['id', 'email', 'name']);
+        $values = $customer->findByPk(1)->propertyValues(['id', 'email', 'name']);
 
         $this->assertEquals(['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1'], $values);
     }
@@ -2126,7 +2126,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $values = $customer->findOne(1)->propertyValues(null, ['status', 'bool_status', 'profile_id']);
+        $values = $customer->findByPk(1)->propertyValues(null, ['status', 'bool_status', 'profile_id']);
 
         $this->assertEquals(
             ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1'],
@@ -2140,7 +2140,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(1);
+        $query = $customer->findByPk(1);
         $this->assertEquals('user1', $query->oldValue('name'));
         $this->assertEquals($query->propertyValues(), $query->oldValues());
 
@@ -2166,7 +2166,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(1);
+        $query = $customer->findByPk(1);
         $this->assertEquals($expectedValues, $query->propertyValues());
         $this->assertEquals($query->propertyValues(), $query->oldValues());
 
@@ -2186,7 +2186,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = new ActiveQuery(Customer::class);
 
-        $customer = $query->findOne(1);
+        $customer = $query->findByPk(1);
         $this->assertTrue($customer->get('bool_status'));
         $this->assertTrue($customer->oldValue('bool_status'));
 
@@ -2232,7 +2232,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(1);
+        $query = $customer->findByPk(1);
 
         $this->expectException(UnknownPropertyException::class);
         $this->expectExceptionMessage('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::noExist');
@@ -2247,7 +2247,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(2);
+        $query = $customer->findByPk(2);
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage(
@@ -2262,7 +2262,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(1);
+        $query = $customer->findByPk(1);
 
         /** Throwing exception */
         $this->expectException(InvalidArgumentException::class);
@@ -2280,7 +2280,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(1);
+        $query = $customer->findByPk(1);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -2298,7 +2298,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $customer = new ActiveQuery(Customer::class);
 
-        $query = $customer->findOne(1);
+        $query = $customer->findByPk(1);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -2329,30 +2329,30 @@ abstract class ActiveQueryTest extends TestCase
 
         /** has many without delete */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertCount(2, $customer->getOrdersWithNullFK());
         $customer->unlink('ordersWithNullFK', $customer->getOrdersWithNullFK()[1], false);
         $this->assertCount(1, $customer->getOrdersWithNullFK());
 
         $orderWithNullFKQuery = new ActiveQuery(OrderWithNullFK::class);
-        $orderWithNullFK = $orderWithNullFKQuery->findOne(3);
+        $orderWithNullFK = $orderWithNullFKQuery->findByPk(3);
         $this->assertEquals(3, $orderWithNullFK->getId());
         $this->assertNull($orderWithNullFK->getCustomerId());
 
         /** has many with delete */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertCount(2, $customer->getOrders());
 
         $customer->unlink('orders', $customer->getOrders()[1], true);
         $this->assertCount(1, $customer->getOrders());
 
         $orderQuery = new ActiveQuery(Order::class);
-        $this->assertNull($orderQuery->findOne(3));
+        $this->assertNull($orderQuery->findByPk(3));
 
         /** via model with delete */
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(2);
+        $order = $orderQuery->findByPk(2);
         $this->assertCount(3, $order->getItems());
         $this->assertCount(3, $order->getOrderItems());
         $order->unlink('items', $order->getItems()[2], true);
@@ -2376,7 +2376,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderWithNullFKInstance->updateAll(['customer_id' => 1]);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $this->assertCount(3, $customer->getOrdersWithNullFK());
         $this->assertCount(1, $customer->getExpensiveOrdersWithNullFK());
 
@@ -2388,7 +2388,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(0, $customer->getExpensiveOrdersWithNullFK());
         $this->assertEquals(3, $orderWithNullFKQuery->count());
 
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $this->assertCount(2, $customer->getOrdersWithNullFK());
         $this->assertCount(0, $customer->getExpensiveOrdersWithNullFK());
     }
@@ -2402,7 +2402,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderInstance->updateAll(['customer_id' => 1]);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $this->assertCount(3, $customer->getOrders());
         $this->assertCount(1, $customer->getExpensiveOrders());
 
@@ -2414,7 +2414,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(0, $customer->getExpensiveOrders());
         $this->assertEquals(2, $orderQuery->count());
 
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $this->assertCount(2, $customer->getOrders());
         $this->assertCount(0, $customer->getExpensiveOrders());
     }
@@ -2424,7 +2424,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'customer');
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->get('name'));
         $this->assertFalse($customer->getIsNewRecord());
@@ -2435,25 +2435,25 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals('user2x', $customer->get('name'));
         $this->assertFalse($customer->getIsNewRecord());
 
-        $customer2 = $customerQuery->findOne(2);
+        $customer2 = $customerQuery->findByPk(2);
         $this->assertEquals('user2x', $customer2->get('name'));
 
         /** no update */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         $customer->set('name', 'user1');
         $this->assertEquals(0, $customer->update());
 
         /** updateAll */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(3);
+        $customer = $customerQuery->findByPk(3);
         $this->assertEquals('user3', $customer->get('name'));
 
         $ret = $customer->updateAll(['name' => 'temp'], ['id' => 3]);
         $this->assertEquals(1, $ret);
 
-        $customer = $customerQuery->findOne(3);
+        $customer = $customerQuery->findByPk(3);
         $this->assertEquals('temp', $customer->get('name'));
 
         $ret = $customer->updateAll(['name' => 'tempX']);
@@ -2501,13 +2501,13 @@ abstract class ActiveQueryTest extends TestCase
 
         /** delete */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->getName());
 
         $customer->delete();
 
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertNull($customer);
 
         /** deleteAll */
@@ -2535,7 +2535,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class);
 
-        $order = $orderQuery->findOne(2);
+        $order = $orderQuery->findByPk(2);
 
         $expensiveItems = $order->getExpensiveItemsUsingViaWithCallable();
         $cheapItems = $order->getCheapItemsUsingViaWithCallable();
@@ -2552,7 +2552,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->checkFixture($this->db(), 'customer', true);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertCount(2, $customer->getOrders());
 
         /** has many */
@@ -2570,7 +2570,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($order->getIsNewRecord());
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $this->assertNull($order->getCustomer());
 
         $order->link('customer', $customer);
@@ -2580,7 +2580,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** via model */
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
         $this->assertCount(2, $order->getItems());
         $this->assertCount(2, $order->getOrderItems());
 
@@ -2589,7 +2589,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertNull($orderItem);
 
         $itemQuery = new ActiveQuery(Item::class);
-        $item = $itemQuery->findOne(3);
+        $item = $itemQuery->findByPk(3);
         $order->link('items', $item, ['quantity' => 10, 'subtotal' => 100]);
         $this->assertCount(3, $order->getItems());
         $this->assertCount(3, $order->getOrderItems());
@@ -2605,15 +2605,15 @@ abstract class ActiveQueryTest extends TestCase
     {
         $this->checkFixture($this->db(), 'customer');
 
-        $customerA = (new ActiveQuery(Customer::class))->findOne(1);
-        $customerB = (new ActiveQuery(Customer::class))->findOne(2);
+        $customerA = (new ActiveQuery(Customer::class))->findByPk(1);
+        $customerB = (new ActiveQuery(Customer::class))->findByPk(2);
         $this->assertFalse($customerA->equals($customerB));
 
-        $customerB = (new ActiveQuery(Customer::class))->findOne(1);
+        $customerB = (new ActiveQuery(Customer::class))->findByPk(1);
         $this->assertTrue($customerA->equals($customerB));
 
-        $customerA = (new ActiveQuery(Customer::class))->findOne(1);
-        $customerB = (new ActiveQuery(Item::class))->findOne(1);
+        $customerA = (new ActiveQuery(Customer::class))->findByPk(1);
+        $customerB = (new ActiveQuery(Item::class))->findByPk(1);
         $this->assertFalse($customerA->equals($customerB));
     }
 

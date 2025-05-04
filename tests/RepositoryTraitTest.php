@@ -16,7 +16,7 @@ abstract class RepositoryTraitTest extends TestCase
         $customerQuery = new ActiveQuery(new CustomerWithRepositoryTrait());
 
         $this->assertEquals(
-            $customerQuery->find(['id' => 1]),
+            $customerQuery->setWhere(['id' => 1]),
             CustomerWithRepositoryTrait::find(['id' => 1]),
         );
     }
@@ -47,6 +47,18 @@ abstract class RepositoryTraitTest extends TestCase
         $this->assertEquals(
             $customerQuery->findAll(['id' => 1]),
             CustomerWithRepositoryTrait::findAll(['id' => 1]),
+        );
+    }
+
+    public function testFindByPk(): void
+    {
+        $this->checkFixture($this->db(), 'customer');
+
+        $customerQuery = new ActiveQuery(new CustomerWithRepositoryTrait());
+
+        $this->assertEquals(
+            $customerQuery->findByPk(1),
+            CustomerWithRepositoryTrait::findByPk(1),
         );
     }
 

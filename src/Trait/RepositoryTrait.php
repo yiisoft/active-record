@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord\Trait;
 
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
+use Yiisoft\Db\Expression\ExpressionInterface;
 
 /**
  * Trait to support static methods {@see find()}, {@see findOne()}, {@see findAll()}, {@see findBySql()} to find records.
@@ -37,17 +38,18 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
 trait RepositoryTrait
 {
     /**
-     * Shortcut for {@see ActiveQueryInterface::find()} method.
+     * Returns an instance of {@see ActiveQueryInterface} instantiated by {@see ActiveRecordInterface::query()} method.
+     * If the `$condition` parameter is not null, it calls {@see ActiveQueryInterface::andWhere()} method.
      */
-    public static function find(array|float|int|string $properties = []): ActiveQueryInterface
+    public static function find(array|string|ExpressionInterface|null $condition = null, array $params = []): ActiveQueryInterface
     {
         $query = static::instantiate()->query();
 
-        if ($properties === []) {
+        if ($condition === null) {
             return $query;
         }
 
-        return $query->find($properties);
+        return $query->andWhere($condition, $params);
     }
 
     /**
@@ -55,9 +57,17 @@ trait RepositoryTrait
      *
      * @return (ActiveRecordInterface|array)[]
      */
-    public static function findAll(array|float|int|string $properties = []): array
+    public static function findAll(array|string|ExpressionInterface|null $condition = null, array $params = []): array
     {
-        return static::find($properties)->all();
+        return static::find($condition, $params)->all();
+    }
+
+    /**
+     * Shortcut for {@see ActiveQueryInterface::findByPk()} method.
+     */
+    public static function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null
+    {
+        return static::instantiate()->query()->findByPk($values);
     }
 
     /**
@@ -71,9 +81,11 @@ trait RepositoryTrait
     /**
      * Shortcut for {@see find()} method with calling {@see ActiveQueryInterface::one()} method to get one record.
      */
-    public static function findOne(array|float|int|string $properties = []): ActiveRecordInterface|array|null
-    {
-        return static::find($properties)->one();
+    public static function findOne(
+        array|string|ExpressionInterface|null $condition = null,
+        array $params = [],
+    ): ActiveRecordInterface|array|null {
+        return static::find($condition, $params)->one();
     }
 
     protected static function instantiate(): ActiveRecordInterface

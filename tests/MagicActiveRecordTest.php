@@ -271,99 +271,6 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals('Some {{%updated}} address', $customer->address);
     }
 
-    public static function legalValuesForFind(): array
-    {
-        return [
-            [Customer::class, ['id' => 1]],
-            [Customer::class, ['customer.id' => 1]],
-            [Customer::class, ['[[id]]' => 1]],
-            [Customer::class, ['{{customer}}.[[id]]' => 1]],
-            [Customer::class, ['{{%customer}}.[[id]]' => 1]],
-            [CustomerWithAlias::class, ['id' => 1]],
-            [CustomerWithAlias::class, ['customer.id' => 1]],
-            [CustomerWithAlias::class, ['[[id]]' => 1]],
-            [CustomerWithAlias::class, ['{{customer}}.[[id]]' => 1]],
-            [CustomerWithAlias::class, ['{{%customer}}.[[id]]' => 1]],
-            [CustomerWithAlias::class, ['csr.id' => 1], 'csr'],
-            [CustomerWithAlias::class, ['{{csr}}.[[id]]' => 1], 'csr'],
-        ];
-    }
-
-    /**
-     * @dataProvider legalValuesForFind
-     *
-     * @throws ReflectionException
-     */
-    public function testLegalValuesForFind(
-        string $modelClassName,
-        array $validFilter,
-        ?string $alias = null
-    ): void {
-        $this->checkFixture($this->db(), 'customer');
-
-        $activeQuery = new ActiveQuery($modelClassName);
-
-        if ($alias !== null) {
-            $activeQuery->alias('csr');
-        }
-
-        $query = $activeQuery->find($validFilter);
-
-
-        $this->db()->getQueryBuilder()->build($query);
-
-        $this->assertTrue(true);
-    }
-
-    public static function illegalValuesForFind(): array
-    {
-        return [
-            [Customer::class, ['`id`=`id` and 1' => 1]],
-            [Customer::class, [
-                'legal' => 1,
-                '`id`=`id` and 1' => 1,
-            ]],
-            [Customer::class, [
-                'nested_illegal' => [
-                    'false or 1=' => 1,
-                ],
-            ]],
-            [Customer::class, ['true--' => 1]],
-
-            [CustomerWithAlias::class, ['`csr`.`id`=`csr`.`id` and 1' => 1]],
-            [CustomerWithAlias::class, [
-                'legal' => 1,
-                '`csr`.`id`=`csr`.`id` and 1' => 1,
-            ]],
-            [CustomerWithAlias::class, [
-                'nested_illegal' => [
-                    'false or 1=' => 1,
-                ],
-            ]],
-            [CustomerWithAlias::class, ['true--' => 1]],
-        ];
-    }
-
-    /**
-     * @dataProvider illegalValuesForFind
-     *
-     * @throws ReflectionException
-     */
-    public function testValueEscapingInFind(string $modelClassName, array $filterWithInjection): void
-    {
-        $this->checkFixture($this->db(), 'customer');
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessageMatches(
-            '/^Key "(.+)?" is not a column name and can not be used as a filter.$/'
-        );
-
-        $query = new ActiveQuery($modelClassName);
-
-        $query = $query->find($filterWithInjection);
-
-        $this->db()->getQueryBuilder()->build($query);
-    }
-
     public function testRefreshQuerySetAliasFindRecord(): void
     {
         $this->checkFixture($this->db(), 'customer');
@@ -634,7 +541,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($customer->hasProperty('notExist'));
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $this->assertTrue($customer->hasProperty('id'));
         $this->assertTrue($customer->hasProperty('email'));
         $this->assertFalse($customer->hasProperty('notExist'));
@@ -649,7 +556,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($customer->refresh());
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $customer->name = 'to be refreshed';
 
         $this->assertTrue($customer->refresh());
@@ -688,12 +595,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->checkFixture($this->db(), 'order_item_with_null_fk', true);
 
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(2);
+        $order = $orderQuery->findByPk(2);
 
         $this->assertCount(1, $order->itemsFor8);
         $order->unlink('itemsFor8', $order->itemsFor8[0], $delete);
 
-        $order = $orderQuery->findOne(2);
+        $order = $orderQuery->findByPk(2);
         $this->assertCount(0, $order->itemsFor8);
         $this->assertCount(2, $order->orderItemsWithNullFK);
 
@@ -714,7 +621,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class);
         /** @var Order $order */
-        $order = $orderQuery->findOne(2);
+        $order = $orderQuery->findByPk(2);
 
         $order->setVirtualCustomerId($order->customer_id);
         $this->assertNotNull($order->getVirtualCustomerQuery());
@@ -752,7 +659,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class);
 
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         $this->assertTrue($customer->save());
     }
@@ -763,7 +670,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class);
 
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         $this->assertSame(1, $customer->getPrimaryKey());
         $this->assertSame(['id' => 1], $customer->getPrimaryKey(true));
@@ -775,7 +682,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class);
 
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         $customer->id = 2;
 
         $this->assertSame(1, $customer->getOldPrimaryKey());
@@ -816,7 +723,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->checkFixture($this->db(), 'customer');
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         $this->assertSame([], $customer->newValues());
 
@@ -845,7 +752,7 @@ abstract class MagicActiveRecordTest extends TestCase
         ], $customer->newValues());
 
         $customerQuery = new ActiveQuery(CustomerWithProperties::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         $this->assertSame([], $customer->newValues());
 
@@ -912,7 +819,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->checkFixture($this->db(), 'item');
 
         $itemQuery = new ActiveQuery(Item::class);
-        $item = $itemQuery->findOne(1);
+        $item = $itemQuery->findByPk(1);
 
         $this->assertFalse($item->isChanged());
 
