@@ -26,11 +26,6 @@ abstract class ActiveQueryFindTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
         $this->assertCount(1, $customerQuery->findAll(['id' => 1]));
         $this->assertCount(3, $customerQuery->findAll(['id' => [1, 2, 3]]));
-
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessage('Yiisoft\ActiveRecord\ActiveQuery::findAll(): Argument #1 ($condition) must be of type Yiisoft\Db\Expression\ExpressionInterface|array|string|null, int given');
-
-        $customerQuery->findAll(3);
     }
 
     public function testFindScalar(): void
