@@ -18,15 +18,6 @@ use function ksort;
 
 abstract class ActiveQueryFindTest extends TestCase
 {
-    public function testFindAll(): void
-    {
-        $this->checkFixture($this->db(), 'customer', true);
-
-        $customerQuery = new ActiveQuery(Customer::class);
-        $this->assertCount(1, $customerQuery->findAll(['id' => 1]));
-        $this->assertCount(3, $customerQuery->findAll(['id' => [1, 2, 3]]));
-    }
-
     public function testFindScalar(): void
     {
         $this->checkFixture($this->db(), 'customer');
@@ -67,29 +58,6 @@ abstract class ActiveQueryFindTest extends TestCase
             ['user3', 'user2', 'user1'],
             $customerQuery->orderBy(['[[name]]' => SORT_DESC])->select('[[name]]')->column()
         );
-    }
-
-    public function testFindBySql(): void
-    {
-        $this->checkFixture($this->db(), 'customer');
-
-        $customerQuery = new ActiveQuery(Customer::class);
-
-        /** find one() */
-        $customers = $customerQuery->findBySql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC')->one();
-        $this->assertInstanceOf(Customer::class, $customers);
-        $this->assertEquals('user3', $customers->get('name'));
-
-        /** find all() */
-        $customers = $customerQuery->findBySql('SELECT * FROM {{customer}}')->all();
-        $this->assertCount(3, $customers);
-
-        /** find with parameter binding */
-        $customers = $customerQuery
-            ->findBySql('SELECT * FROM {{customer}} WHERE [[id]]=:id', [':id' => 2])
-            ->one();
-        $this->assertInstanceOf(Customer::class, $customers);
-        $this->assertEquals('user2', $customers->get('name'));
     }
 
     public function testFindLazyViaTable(): void
@@ -182,24 +150,6 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertIsArray($customerWithJoinIndexOrdered);
     }
 
-    public function testFindOneByColumnName(): void
-    {
-        $this->checkFixture($this->db(), 'customer');
-
-        $customer = new ActiveQuery(Customer::class);
-        $customerQuery = new CustomerQuery(Customer::class);
-
-        $arClass = $customer->findOne(['id' => 1]);
-        $this->assertEquals(1, $arClass->getId());
-
-        $customerQuery->joinWithProfile = true;
-
-        $arClass = $customer->findOne(['customer.id' => 1]);
-        $this->assertEquals(1, $arClass->getId());
-
-        $customerQuery->joinWithProfile = false;
-    }
-
     public function testFind(): void
     {
         $this->checkFixture($this->db(), 'customer');
@@ -218,37 +168,6 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertInstanceOf(Customer::class, $customers[0]);
         $this->assertInstanceOf(Customer::class, $customers[1]);
         $this->assertInstanceOf(Customer::class, $customers[2]);
-
-        /** find by a single primary key */
-        $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findByPk(2);
-        $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->getName());
-
-        $customer = $customerQuery->findByPk(5);
-        $this->assertNull($customer);
-
-        $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(['id' => [5, 6, 1]]);
-        $this->assertInstanceOf(Customer::class, $customer);
-
-        $customer = $customerQuery->setWhere(['id' => [5, 6, 1]])->one();
-        $this->assertNotNull($customer);
-
-        /** find by column values */
-        $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(['id' => 2, 'name' => 'user2']);
-        $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertEquals('user2', $customer->getName());
-
-        $customer = $customerQuery->findOne(['id' => 2, 'name' => 'user1']);
-        $this->assertNull($customer);
-
-        $customer = $customerQuery->findOne(['id' => 5]);
-        $this->assertNull($customer);
-
-        $customer = $customerQuery->findOne(['name' => 'user5']);
-        $this->assertNull($customer);
 
         /** find by column */
         $customerQuery = new ActiveQuery(Customer::class);
@@ -722,17 +641,32 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertEquals(2, $order->getItems()[1]->getId());
     }
 
+    public function testFindByPk(): void
+    {
+        $this->checkFixture($this->db(), 'customer');
+
+        $customerQuery = new ActiveQuery(new Customer());
+
+        $this->assertEquals(
+            $customerQuery->where(['id' => 1])->one(),
+            $customerQuery->findByPk(1),
+        );
+
+        $customer = $customerQuery->findByPk(5);
+        $this->assertNull($customer);
+    }
+
     public function testFindByPkComposite(): void
     {
         $this->checkFixture($this->db(), 'order_item');
 
         $query = new ActiveQuery(OrderItem::class);
 
-        $orderItem = $query->findByPk([1, 1]);
+        $orderItem = $query->findByPk([1, 2]);
 
         $this->assertInstanceOf(OrderItem::class, $orderItem);
         $this->assertEquals(1, $orderItem->getOrderId());
-        $this->assertEquals(1, $orderItem->getItemId());
+        $this->assertEquals(2, $orderItem->getItemId());
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The primary key has 2 columns, but 1 values are passed.');

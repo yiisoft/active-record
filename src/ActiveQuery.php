@@ -805,11 +805,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->arClass;
     }
 
-    public function findAll(array|string|ExpressionInterface|null $condition, array $params = []): array
-    {
-        return $this->setWhere($condition, $params)->all();
-    }
-
     public function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null
     {
         $values = (array) $values;
@@ -836,18 +831,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return $this->setWhere(array_combine($primaryKey, $values))->one();
-    }
-
-    public function findBySql(string $sql, array $params = []): static
-    {
-        return $this->sql($sql)->params($params);
-    }
-
-    public function findOne(
-        array|string|ExpressionInterface|null $condition,
-        array $params = [],
-    ): array|ActiveRecordInterface|null {
-        return $this->setWhere($condition, $params)->one();
     }
 
     public function on(array|string|null $value): static

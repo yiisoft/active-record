@@ -604,14 +604,14 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertCount(2, $order->orderItemsWithNullFK);
 
         $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class);
-        $this->assertCount(1, $orderItemQuery->findAll([
+        $this->assertCount(1, $orderItemQuery->where([
             'order_id' => 2,
             'item_id' => 5,
-        ]));
-        $this->assertCount($count, $orderItemQuery->findAll([
+        ])->all());
+        $this->assertCount($count, $orderItemQuery->setWhere([
             'order_id' => null,
             'item_id' => null,
-        ]));
+        ])->all());
     }
 
     public function testVirtualRelation(): void
