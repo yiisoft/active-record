@@ -20,14 +20,14 @@ use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new PgsqlHelper())->createConnection();
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
         $customer->id = 1337;
@@ -46,8 +46,6 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db(), 'beta');
-
         $betaQuery = new ActiveQuery(Beta::class);
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
@@ -66,7 +64,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testBooleanProperty(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
         $customer->name = 'boolean customer';
@@ -93,8 +91,6 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testBooleanValues(): void
     {
-        $this->checkFixture($this->db(), 'bool_values');
-
         $command = $this->db()->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
         $boolARQuery = new ActiveQuery(BoolAR::class);
@@ -119,7 +115,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testBooleanValues2(): void
     {
-        $this->checkFixture($this->db(), 'bool_user');
+        $this->reloadFixtureAfterTest();
 
         //$this->db()->setCharset('utf8');
         $this->db()->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
@@ -158,8 +154,6 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testBooleanDefaultValues(): void
     {
-        $this->checkFixture($this->db(), 'bool_values');
-
         $arClass = new BoolAR();
 
         $this->assertNull($arClass->bool_col);
@@ -176,7 +170,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
     public function testPrimaryKeyAfterSave(): void
     {
-        $this->checkFixture($this->db(), 'default_pk');
+        $this->reloadFixtureAfterTest();
 
         $record = new DefaultPk();
 
@@ -262,7 +256,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testArrayValues($properties): void
     {
-        $this->checkFixture($this->db(), 'array_and_json_types', true);
+        $this->reloadFixtureAfterTest();
 
         $type = new ArrayAndJsonTypes();
 

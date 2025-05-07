@@ -14,7 +14,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 
 final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();
     }
@@ -33,8 +33,6 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
     public function testJoinWithAlias(string $aliasMethod): void
     {
         $orders = [];
-        $this->checkFixture($this->db(), 'order', true);
-
         /** left join and eager loading */
         $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->joinWith(['customer c']);
@@ -270,8 +268,6 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
      */
     public function testJoinWithSameTable(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /**
          * join with the same table but different aliases alias is defined in the relation definition without eager
          * loading

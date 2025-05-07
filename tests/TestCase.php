@@ -10,38 +10,54 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    abstract protected function createConnection(): ConnectionInterface;
+    private bool $shouldReloadFixture = false;
 
-    protected function checkFixture(ConnectionInterface $db, string $tablename, bool $reset = false): void
+    abstract protected static function createConnection(): ConnectionInterface;
+
+    protected static function reloadFixture(): void
     {
-        $schema = $db->getSchema();
-        $tableSchema = $schema->getTableSchema($tablename, true);
+        ConnectionProvider::get()->close();
 
-        if ($tableSchema === null || $reset) {
-            DbHelper::loadFixture($db);
+        $db = static::createConnection();
+        ConnectionProvider::set($db);
 
-            $schema->refresh();
-        }
+        DbHelper::loadFixture($db);
     }
 
-    protected function db(): ConnectionInterface
+    protected static function db(): ConnectionInterface
     {
         return ConnectionProvider::get();
     }
 
-    protected function setUp(): void
+    protected function reloadFixtureAfterTest(): void
     {
-        parent::setUp();
+        $this->shouldReloadFixture = true;
+    }
 
-        ConnectionProvider::set($this->createConnection());
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        $db = static::createConnection();
+        ConnectionProvider::set($db);
+        DbHelper::loadFixture($db);
     }
 
     protected function tearDown(): void
     {
+        if ($this->shouldReloadFixture) {
+            $this->reloadFixture();
+            $this->shouldReloadFixture = false;
+        }
+
         parent::tearDown();
+    }
 
-        $this->db()->close();
-
+    public static function tearDownAfterClass(): void
+    {
+        ConnectionProvider::get()->close();
         ConnectionProvider::remove();
+
+        parent::tearDownAfterClass();
     }
 }

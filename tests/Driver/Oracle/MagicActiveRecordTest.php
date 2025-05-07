@@ -12,15 +12,13 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();
     }
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $arClass = new Type();
         $arClass->loadDefaultValues();
         $this->assertSame(1, $arClass->int_col2);
@@ -51,7 +49,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testBooleanProperty(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 

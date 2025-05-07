@@ -25,7 +25,7 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new PgsqlHelper())->createConnection();
     }
@@ -37,8 +37,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->db(), 'type');
-
         $arClass = new Type();
 
         $arClass->loadDefaultValues();
@@ -66,7 +64,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testCastValues(): void
     {
-        $this->checkFixture($this->db(), 'type');
+        $this->reloadFixtureAfterTest();
 
         $arClass = new Type();
 
@@ -103,7 +101,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
         $customer->setId(1337);
@@ -122,8 +120,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db(), 'beta');
-
         $betaQuery = new ActiveQuery(Beta::class);
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
@@ -142,8 +138,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testBooleanValues(): void
     {
-        $this->checkFixture($this->db(), 'bool_values');
-
         $command = $this->db()->createCommand();
         $command->insertBatch('bool_values', [[true], [false]], ['bool_col'])->execute();
         $boolARQuery = new ActiveQuery(BoolAR::class);
@@ -168,7 +162,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testBooleanValues2(): void
     {
-        $this->checkFixture($this->db(), 'bool_user');
+        $this->reloadFixtureAfterTest();
 
         //$this->db()->setCharset('utf8');
         $this->db()->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
@@ -207,7 +201,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testBooleanDefaultValues(): void
     {
-        $this->checkFixture($this->db(), 'bool_values');
+        $this->reloadFixtureAfterTest();
 
         $arClass = new BoolAR();
 
@@ -225,7 +219,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testPrimaryKeyAfterSave(): void
     {
-        $this->checkFixture($this->db(), 'default_pk');
+        $this->reloadFixtureAfterTest();
 
         $record = new DefaultPk();
 
@@ -311,7 +305,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testArrayValues($properties): void
     {
-        $this->checkFixture($this->db(), 'array_and_json_types', true);
+        $this->reloadFixtureAfterTest();
 
         $type = new ArrayAndJsonTypes();
 
@@ -346,8 +340,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testRelationViaArray(): void
     {
-        $this->checkFixture($this->db(), 'promotion');
-
         $promotionQuery = new ActiveQuery(Promotion::class);
         /** @var Promotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaArray')->all();
@@ -375,8 +367,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testLazzyRelationViaArray(): void
     {
-        $this->checkFixture($this->db(), 'item');
-
         $itemQuery = new ActiveQuery(Item::class);
         /** @var Item[] $items */
         $items = $itemQuery->all();
