@@ -889,7 +889,7 @@ abstract class ActiveRecordTest extends TestCase
         /** Test inverse relation */
         foreach ($promotions as $promotion) {
             foreach ($promotion->getItemsViaJson() as $item) {
-        $this->assertTrue($item->isRelationPopulated('promotionsViaJson'));
+                $this->assertTrue($item->isRelationPopulated('promotionsViaJson'));
             }
         }
 
