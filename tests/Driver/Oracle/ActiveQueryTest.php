@@ -222,7 +222,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 
         /** relational query */
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
 
         $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
 

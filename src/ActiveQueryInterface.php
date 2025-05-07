@@ -11,6 +11,7 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
@@ -378,223 +379,124 @@ interface ActiveQueryInterface extends QueryInterface
     public function relatedRecords(): ActiveRecordInterface|array|null;
 
     /**
-     * Finds ActiveRecord instance(s) by the given property values.
-     *
-     * If the property names are provided as array keys, the array will be treated as a set of column values.
-     *
-     * ```php
-     * $user = $query->find(['id' => 1])->one(); // WHERE id = 1
-     * ```
+     * This method is a shorthand for {@see ActiveQuery::setWhere()} and {@see ActiveQuery::one()}.
+     * Do not to pass user input to this method, use {@see findByPk()} instead.
      *
      * ```php
-     * $users = $query->find([
-     *     'name' => 'John',
-     *     'status' => 'active',
-     * ])->all(); // WHERE name = 'John' AND status = 'active'
-     * ```
+     * $customerQuery = new ActiveQuery(Customer::class);
      *
-     * Otherwise, the scalar value or array will be treated as a primary key value.
-     * In the examples below, the `id` column is the primary key of the table.
-     *
-     * ```php
-     * $user = $query->find(1)->one(); // WHERE id = 1
-     * ```
-     *
-     * ```php
-     * $user = $query->find([1])->one(); // WHERE id = 1
-     * ```
-     *
-     * For finding multiple records by primary key values use an array of arrays of primary key values.
-     *
-     * ```php
-     * $users = $query->find([[1, 2, 3]])->all(); // WHERE id IN (1, 2, 3)
-     * ```
-     *
-     * If the primary key is composite, the array may contain less or equal number of columns than the primary key.
-     * In case of fewer columns, the method will use the first primary key columns.
-     * In the examples below, the `id` and `id2` columns are the composite primary key of the table.
-     *
-     * ```php
-     * $orderItem = $query->find([1, 2])->one(); // WHERE id = 1 AND id2 = 2
-     * ```
-     *
-     * ```php
-     * $orderItems = $query->find(1)->all(); // WHERE id = 1
-     * ```
-     *
-     * ```php
-     * $orderItems = $query->find([[1, 2], 3])->all(); // WHERE id IN (1, 2) AND id2 = 3
-     * ```
-     */
-    public function find(array|float|int|string $properties): static;
-
-    /**
-     * Returns a single active record instance by a primary key or an array of column values.
-     *
-     * The method accepts:
-     *
-     *  - A scalar value (integer or string): query by a single primary key value and return the corresponding record
-     *    (or `null` if not found).
-     *  - A non-associative array: query by a list of primary key values and return the first record (or `null` if not
-     *    found).
-     *  - An associative array of name-value pairs: query by a set of property values and return a single record
-     *    matching all them (or `null` if not found).
-     *
-     * Note that `['id' => 1, 2]` is treated as a non-associative array.
-     *
-     * Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited to
-     * simple filter conditions.
-     *
-     * That this method will automatically call the `one()` method and return an {@see ActiveRecordInterface} instance.
-     *
-     * Note: As this is a shorthand method only, using more complex conditions, `like ['!=', 'id', 1]` will not work.
-     * If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()} instead.
-     *
-     * See the following code for usage examples:
-     *
-     * ```php
      * // find a single customer whose primary key value is 10
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $query = $customerQuery->findOne(10);
-     *
-     * // the above code is equal to:
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $query = $customerQuery->where(['id' => 10])->one();
-     *
-     * // find the customers whose primary key value is 10, 11 or 12.
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $query = $customerQuery->findOne([10, 11, 12]);
-     *
-     * // the above code is equal to:
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $query = $customerQuery->where(['id' => [10, 11, 12]])->one();
+     * $customer = $customerQuery->findOne(['id' => 10]);
+     * // the above code line is equal to:
+     * $customer = $customerQuery->setWhere(['id' => 10])->one();
      *
      * // find the first customer whose age is 30 and whose status is 1
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $query = $customerQuery->findOne(['age' => 30, 'status' => 1]);
-     *
-     * // the above code is equal to:
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $query = $customerQuery->where(['age' => 30, 'status' => 1])->one();
+     * $customer = $customerQuery->findOne(['age' => 30, 'status' => 1]);
+     * // the above code line is equal to:
+     * $customer = $customerQuery->setWhere(['age' => 30, 'status' => 1])->one();
      * ```
      *
-     * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
-     * make sure the array structure can't be changed from the outside:
+     * > [!WARNING]
+     * > Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
      *
      * ```php
-     * public function actionView(ServerRequestInterface $request)
-     * {
-     *     $id = (string) $request->getAttribute('id');
-     *
-     *     $aqClass = new ActiveQuery(Post::class);
-     *     $query = $aqClass->findOne($id);
-     * }
-     *
-     * - Explicitly specifying the column to search, passing a scalar or array here will always result in finding a
-     * single record:
-     *
-     * ```php
-     * $aqClass = new ActiveQuery(Post::class);
-     * $query = $aqClass->findOne(['id' => $id);
+     * $id = $request->getAttribute('id');
+     * $postQuery = new ActiveQuery(Post::class);
+     * $post = $postQuery->findOne($id); // Do NOT use this!
      * ```
      *
-     * Do NOT use the following code!, it is possible to inject an array condition to filter by arbitrary column values!:
+     * Explicitly specifying the column to search:
      *
      * ```php
-     * $aqClass = new ActiveQuery(Post::class);
-     * $query = $aqClass->findOne($id);
+     * $post = $postQuery->findOne(['id' => $id]);
+     * // or use {@see findByPk()} method
+     * $post = $postQuery->findByPk($id);
      * ```
      *
      * @throws InvalidConfigException
      *
      * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
-    public function findOne(array|float|int|string $properties): array|ActiveRecordInterface|null;
+    public function findOne(
+        array|string|ExpressionInterface|null $condition,
+        array $params = [],
+    ): array|ActiveRecordInterface|null;
 
     /**
-     * Returns a list of active record that matches the specified primary key value(s) or a set of column values.
-     *
-     * The method accepts:
-     *
-     *  - A scalar value (integer or string): query by a single primary key value and return an array containing the
-     *    corresponding record (or an empty array if not found).
-     *  - A non-associative array: query by a list of primary key values and return the corresponding records (or an
-     *    empty array if none found).
-     *    Note that an empty condition will result in an empty result as it will be interpreted as a search for
-     *    primary keys and not an empty `WHERE` condition.
-     *  - An associative array of name-value pairs: query by a set of property values and return an array of records
-     *    matching all them (or an empty array if none was found).
-     *
-     * Note that `['id' => 1, 2]` is treated as a non-associative array.
-     *
-     * Column names are limited to current records' table columns for SQL DBMS, or filtered otherwise to be limited
-     * to simple filter conditions.
-     *
-     * This method will automatically call the `all()` method and return an array of {@see ActiveRecordInterface}
-     * instances.
-     *
-     * Note: As this is a shorthand method only, using more complex conditions, `like ['!=', 'id', 1]` will not work.
-     * If you need to specify more complex conditions, in combination with {@see ActiveQuery::where()} instead.
-     *
-     * See the following code for usage examples:
+     * This method is a shorthand for {@see ActiveQuery::setWhere()} and {@see ActiveQuery::all()}.
+     * Do not to pass user input to this method, use {@see findByPk()} instead.
      *
      * ```php
-     * // find the customers whose primary key value is 10.
      * $customerQuery = new ActiveQuery(Customer::class);
-     * $customers = $customerQuery->findAll(10);
-     *
-     * // the above code is equal to.
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $customers = $customerQuery->where(['id' => 10])->all();
      *
      * // find the customers whose primary key value is 10, 11 or 12.
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $customers = $customerQuery->findAll([10, 11, 12]);
-     *
-     * // the above code is equal to,
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $customers = $customerQuery->where(['id' => [10, 11, 12]])->all();
+     * $customers = $customerQuery->findAll(['id' => [10, 11, 12]]);
+     * // the above code line is equal to:
+     * $customers = $customerQuery->setWhere(['id' => [10, 11, 12]])->all();
      *
      * // find customers whose age is 30 and whose status is 1.
-     * $customerQuery = new ActiveQuery(Customer::class);
      * $customers = $customerQuery->findAll(['age' => 30, 'status' => 1]);
-     *
-     * // the above code is equal to.
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $customers = $customerQuery->where(['age' => 30, 'status' => 1])->all();
+     * // the above code line is equal to.
+     * $customers = $customerQuery->setWhere(['age' => 30, 'status' => 1])->all();
      * ```
      *
-     * If you need to pass user input to this method, make sure the input value is scalar or in case of array condition,
-     * make sure the array structure can't be changed from the outside:
+     * > [!WARNING]
+     * > Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
+     *
+     * ```php
+     * $id = $request->getAttribute('id');
+     * $postQuery = new ActiveQuery(Post::class);
+     * $posts = $postQuery->findAll($id); // Do NOT use this!
+     * ```
+     *
+     * Explicitly specifying the column to search:
+     *
+     * ```php
+     * $posts = $postQuery->findAll(['id' => $id]);
+     * // or use {@see findByPk()} method
+     * $post = $postQuery->findByPk($id);
+     * ```
+     *
+     * @return array An array of ActiveRecord instance, or an empty array if nothing matches.
+     */
+    public function findAll(array|string|ExpressionInterface|null $condition, array $params = []): array;
+
+    /**
+     * Finds an ActiveRecord instance by the given primary key value.
+     * In the examples below, the `id` column is the primary key of the table.
+     *
+     * ```php
+     * $customerQuery = new ActiveQuery(Customer::class);
+     *
+     * $customer = $customerQuery->findByPk(1); // WHERE id = 1
+     * ```
+     *
+     * ```php
+     * $customer = $customerQuery->findByPk([1]); // WHERE id = 1
+     * ```
+     *
+     * In the examples below, the `id` and `id2` columns are the composite primary key of the table.
+     *
+     * ```php
+     * $orderItemQuery = new ActiveQuery(OrderItem::class);
+     *
+     * $orderItem = $orderItemQuery->findByPk([1, 2]); // WHERE id = 1 AND id2 = 2
+     * ```
+     *
+     * If you need to pass user input to this method, make sure the input value is scalar or in case of array, make sure
+     * the array values are scalar:
      *
      * ```php
      * public function actionView(ServerRequestInterface $request)
      * {
      *     $id = (string) $request->getAttribute('id');
      *
-     *     $aqClass = new ActiveQuery(Post::class);
-     *     $query = $aqClass->findOne($id);
+     *     $customerQuery = new ActiveQuery(Customer::class);
+     *     $customer = $customerQuery->findByPk($id);
      * }
      * ```
-     *
-     * Explicitly specifying the column to search, passing a scalar or array here will always result in finding a single
-     * record:
-     *
-     * ```php
-     * $aqClass = new ActiveQuery(Post::class);
-     * $aqCLass = $aqClass->findOne(['id' => $id]);
-     * ```
-     *
-     * Do NOT use the following code! It's possible to inject an array condition to filter by arbitrary column values!:
-     *
-     * ```php
-     * $aqClass = new ActiveQuery(Post::class);
-     * $aqClass = $aqClass->findOne($id);
-     * ```
-     *
-     * @return array An array of ActiveRecord instance, or an empty array if nothing matches.
      */
-    public function findAll(array|float|int|string $properties): array;
+    public function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null;
 
     /**
      * Returns a value indicating whether the query result rows should be returned as arrays instead of Active Record

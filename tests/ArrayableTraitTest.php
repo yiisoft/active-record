@@ -40,7 +40,7 @@ abstract class ArrayableTraitTest extends TestCase
         $this->checkFixture($this->db(), 'customer', true);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         $this->assertSame(
             [
@@ -61,7 +61,7 @@ abstract class ArrayableTraitTest extends TestCase
         $this->checkFixture($this->db(), 'customer', true);
 
         $customerQuery = new ActiveQuery(CustomerClosureField::class);
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
 
         $this->assertSame(
             [
@@ -84,11 +84,11 @@ abstract class ArrayableTraitTest extends TestCase
         $customerQuery = new ActiveQuery(CustomerForArrayable::class);
 
         /** @var CustomerForArrayable $customer */
-        $customer = $customerQuery->findOne(1);
+        $customer = $customerQuery->findByPk(1);
         /** @var CustomerForArrayable $customer2 */
-        $customer2 = $customerQuery->findOne(2);
+        $customer2 = $customerQuery->findByPk(2);
         /** @var CustomerForArrayable $customer3 */
-        $customer3 = $customerQuery->findOne(3);
+        $customer3 = $customerQuery->findByPk(3);
 
         $customer->setItem($customer2);
         $customer->setItems($customer3);

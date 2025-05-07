@@ -52,6 +52,6 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $testRecordQuery = new ActiveQuery(TestTriggerAlert::class);
 
-        $this->assertEquals('test', $testRecordQuery->findOne(1)->stringcol);
+        $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
     }
 }

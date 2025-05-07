@@ -10,6 +10,9 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
+use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidConfigException;
 
 use function ksort;
 
@@ -20,7 +23,6 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->checkFixture($this->db(), 'customer', true);
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $this->assertCount(1, $customerQuery->findAll(3));
         $this->assertCount(1, $customerQuery->findAll(['id' => 1]));
         $this->assertCount(3, $customerQuery->findAll(['id' => [1, 2, 3]]));
     }
@@ -96,7 +98,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class);
 
-        $orders = $orderQuery->findOne(2);
+        $orders = $orderQuery->findByPk(2);
         $this->assertCount(0, $orders->getBooks());
         $this->assertEquals(2, $orders->get('id'));
 
@@ -152,7 +154,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $orderItemQuery = new ActiveQuery(OrderItem::class);
 
         /** @var $orderItems OrderItem */
-        $orderItems = $orderItemQuery->findOne([1, 1]);
+        $orderItems = $orderItemQuery->findByPk([1, 1]);
 
         $orderItemNoJoin = $orderItems->getOrderItemCompositeNoJoin();
         $this->assertInstanceOf(OrderItem::class, $orderItemNoJoin);
@@ -167,7 +169,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $orderQuery = new ActiveQuery(Order::class);
 
-        $orders = $orderQuery->findOne(1);
+        $orders = $orderQuery->findByPk(1);
         $customerNoJoin = $orders->getCustomer();
         $this->assertInstanceOf(Customer::class, $customerNoJoin);
 
@@ -219,11 +221,11 @@ abstract class ActiveQueryFindTest extends TestCase
 
         /** find by a single primary key */
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->getName());
 
-        $customer = $customerQuery->findOne(5);
+        $customer = $customerQuery->findByPk(5);
         $this->assertNull($customer);
 
         $customerQuery = new ActiveQuery(Customer::class);
@@ -481,7 +483,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $customerQuery = new ActiveQuery(Customer::class);
 
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $customer->setName(null);
         $customer->save();
 
@@ -686,7 +688,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->checkFixture($this->db(), 'customer');
 
         $customerQuery = new ActiveQuery(Customer::class);
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertFalse($customer->isRelationPopulated('orders'));
 
         $orders = $customer->getOrders();
@@ -697,7 +699,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer->resetRelation('orders');
         $this->assertFalse($customer->isRelationPopulated('orders'));
 
-        $customer = $customerQuery->findOne(2);
+        $customer = $customerQuery->findByPk(2);
         $this->assertFalse($customer->isRelationPopulated('orders'));
 
         $orders = $customer->getOrdersQuery()->where(['id' => 3])->all();
@@ -712,11 +714,55 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->checkFixture($this->db(), 'order');
 
         $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->findOne(1);
+        $order = $orderQuery->findByPk(1);
 
         $this->assertEquals(1, $order->getId());
         $this->assertCount(2, $order->getItems());
         $this->assertEquals(1, $order->getItems()[0]->getId());
         $this->assertEquals(2, $order->getItems()[1]->getId());
+    }
+
+    public function testFindByPkComposite(): void
+    {
+        $this->checkFixture($this->db(), 'order_item');
+
+        $query = new ActiveQuery(OrderItem::class);
+
+        $orderItem = $query->findByPk([1, 1]);
+
+        $this->assertInstanceOf(OrderItem::class, $orderItem);
+        $this->assertEquals(1, $orderItem->getOrderId());
+        $this->assertEquals(1, $orderItem->getItemId());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The primary key has 2 columns, but 1 values are passed.');
+
+        $query->findByPk(1);
+    }
+
+    public function testFindByPkWithoutPk(): void
+    {
+        $this->checkFixture($this->db(), 'type');
+
+        $query = new ActiveQuery(Type::class);
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type must have a primary key.');
+
+        $query->findByPk(1);
+    }
+
+    public function testFindByPkWithJoin(): void
+    {
+        $this->checkFixture($this->db(), 'order');
+
+        $query = new ActiveQuery(Order::class);
+
+        $query->joinWith('items');
+
+        $order = $query->findByPk(1);
+
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertEquals(1, $order->getId());
     }
 }
