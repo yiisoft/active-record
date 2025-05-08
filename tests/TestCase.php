@@ -14,6 +14,14 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
 
     abstract protected static function createConnection(): ConnectionInterface;
 
+    /**
+     * Call this method in tests which modifies the database state to reload the connection and fixture after the tests.
+     */
+    protected function reloadFixtureAfterTest(): void
+    {
+        $this->shouldReloadFixture = true;
+    }
+
     protected static function reloadFixture(): void
     {
         ConnectionProvider::get()->close();
@@ -27,11 +35,6 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
     protected static function db(): ConnectionInterface
     {
         return ConnectionProvider::get();
-    }
-
-    protected function reloadFixtureAfterTest(): void
-    {
-        $this->shouldReloadFixture = true;
     }
 
     public static function setUpBeforeClass(): void
