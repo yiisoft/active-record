@@ -1919,7 +1919,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findByPk(1);
         $newTotal = 978;
-        $this->assertSame(1, $order->updateProperties(['total' => $newTotal]));
+        $this->assertSame(1, $order->update(['total' => $newTotal]));
         $this->assertEquals($newTotal, $order->getTotal());
 
         $order = $orderQuery->findByPk(1);
@@ -1930,7 +1930,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($newOrder->getIsNewRecord());
 
         $newTotal = 200;
-        $this->assertSame(0, $newOrder->updateProperties(['total' => $newTotal]));
+        $this->assertSame(0, $newOrder->update(['total' => $newTotal]));
         $this->assertTrue($newOrder->getIsNewRecord());
         $this->assertEquals($newTotal, $newOrder->getTotal());
     }
