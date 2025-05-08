@@ -347,20 +347,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $customerQuery->where('[[id]]=1 OR [[id]]=2')->count());
     }
 
-    /**
-     * {@see https://github.com/yiisoft/yii2/issues/8593}
-     */
-    public function testCountWithFindBySql(): void
-    {
-        $customerQuery = new ActiveQuery(Customer::class);
-
-        $query = $customerQuery->findBySql('SELECT * FROM {{customer}}');
-        $this->assertEquals(3, $query->count());
-
-        $query = $customerQuery->findBySql('SELECT * FROM {{customer}} WHERE  [[id]]=:id', [':id' => 2]);
-        $this->assertEquals(1, $query->count());
-    }
-
     public function testDeeplyNestedTableRelation(): void
     {
         $customerQuery = new ActiveQuery(Customer::class);
@@ -1785,7 +1771,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $dossierQuery = new ActiveQuery(Dossier::class);
 
-        $dossiers = $dossierQuery->findOne(['department_id' => 1, 'employee_id' => 1]);
+        $dossiers = $dossierQuery->where(['department_id' => 1, 'employee_id' => 1])->one();
         $this->assertEquals('John Doe', $dossiers->getEmployee()->getFullName());
 
         $dossiers->setDepartmentId(2);
@@ -2332,29 +2318,29 @@ abstract class ActiveQueryTest extends TestCase
         $this->reloadFixtureAfterTest();
 
         /** updateCounters */
-        $pk = ['order_id' => 2, 'item_id' => 4];
+        $pk = [2, 4];
         $orderItemQuery = new ActiveQuery(OrderItem::class);
-        $orderItem = $orderItemQuery->findOne($pk);
+        $orderItem = $orderItemQuery->findByPk($pk);
         $this->assertEquals(1, $orderItem->getQuantity());
 
         $ret = $orderItem->updateCounters(['quantity' => -1]);
         $this->assertTrue($ret);
         $this->assertEquals(0, $orderItem->getQuantity());
 
-        $orderItem = $orderItemQuery->findOne($pk);
+        $orderItem = $orderItemQuery->findByPk($pk);
         $this->assertEquals(0, $orderItem->getQuantity());
 
         /** updateAllCounters */
-        $pk = ['order_id' => 1, 'item_id' => 2];
+        $pk = [1, 2];
         $orderItemQuery = new ActiveQuery(OrderItem::class);
-        $orderItem = $orderItemQuery->findOne($pk);
+        $orderItem = $orderItemQuery->findByPk($pk);
         $this->assertEquals(2, $orderItem->getQuantity());
 
         $orderItem = new OrderItem();
-        $ret = $orderItem->updateAllCounters(['quantity' => 3, 'subtotal' => -10], $pk);
+        $ret = $orderItem->updateAllCounters(['quantity' => 3, 'subtotal' => -10], ['order_id' => 1, 'item_id' => 2]);
         $this->assertEquals(1, $ret);
 
-        $orderItem = $orderItemQuery->findOne($pk);
+        $orderItem = $orderItemQuery->findByPk($pk);
         $this->assertEquals(5, $orderItem->getQuantity());
         $this->assertEquals(30, $orderItem->getSubtotal());
     }
@@ -2447,7 +2433,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $order->getOrderItems());
 
         $orderItemQuery = new ActiveQuery(OrderItem::class);
-        $orderItem = $orderItemQuery->findOne(['order_id' => 1, 'item_id' => 3]);
+        $orderItem = $orderItemQuery->findByPk([1, 3]);
         $this->assertNull($orderItem);
 
         $itemQuery = new ActiveQuery(Item::class);
@@ -2457,7 +2443,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $order->getOrderItems());
 
         $orderItemQuery = new ActiveQuery(OrderItem::class);
-        $orderItem = $orderItemQuery->findOne(['order_id' => 1, 'item_id' => 3]);
+        $orderItem = $orderItemQuery->findByPk([1, 3]);
         $this->assertInstanceOf(OrderItem::class, $orderItem);
         $this->assertEquals(10, $orderItem->getQuantity());
         $this->assertEquals(100, $orderItem->getSubtotal());

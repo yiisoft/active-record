@@ -11,7 +11,6 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
@@ -320,26 +319,6 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function getARClass(): string|ActiveRecordInterface|Closure;
 
-    /**
-     * Creates an {@see ActiveQuery} instance with a given SQL statement.
-     *
-     * Note: That because the SQL statement is already specified, calling more query modification methods
-     * (such as {@see where()}, {@see order()) on the created {@see ActiveQuery} instance will have no effect.
-     *
-     * However, calling {@see with()}, {@see asArray()} or {@see indexBy()} is still fine.
-     *
-     * Below is an example:
-     *
-     * ```php
-     * $customerQuery = new ActiveQuery(Customer::class, $db);
-     * $customers = $customerQuery->findBySql('SELECT * FROM customer')->all();
-     * ```
-     *
-     * @param string $sql The SQL statement to be executed.
-     * @param array $params The parameters to be bound to the SQL statement during execution.
-     */
-    public function findBySql(string $sql, array $params = []): static;
-
     public function on(array|string|null $value): static;
 
     public function sql(string|null $value): static;
@@ -377,89 +356,6 @@ interface ActiveQueryInterface extends QueryInterface
      * @return ActiveRecordInterface|ActiveRecordInterface[]|array|array[]|null the related record(s).
      */
     public function relatedRecords(): ActiveRecordInterface|array|null;
-
-    /**
-     * This method is a shorthand for {@see ActiveQuery::setWhere()} and {@see ActiveQuery::one()}.
-     * Do not to pass user input to this method, use {@see findByPk()} instead.
-     *
-     * ```php
-     * $customerQuery = new ActiveQuery(Customer::class);
-     *
-     * // find a single customer whose primary key value is 10
-     * $customer = $customerQuery->findOne(['id' => 10]);
-     * // the above code line is equal to:
-     * $customer = $customerQuery->setWhere(['id' => 10])->one();
-     *
-     * // find the first customer whose age is 30 and whose status is 1
-     * $customer = $customerQuery->findOne(['age' => 30, 'status' => 1]);
-     * // the above code line is equal to:
-     * $customer = $customerQuery->setWhere(['age' => 30, 'status' => 1])->one();
-     * ```
-     *
-     * > [!WARNING]
-     * > Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
-     *
-     * ```php
-     * $id = $request->getAttribute('id');
-     * $postQuery = new ActiveQuery(Post::class);
-     * $post = $postQuery->findOne($id); // Do NOT use this!
-     * ```
-     *
-     * Explicitly specifying the column to search:
-     *
-     * ```php
-     * $post = $postQuery->findOne(['id' => $id]);
-     * // or use {@see findByPk()} method
-     * $post = $postQuery->findByPk($id);
-     * ```
-     *
-     * @throws InvalidConfigException
-     *
-     * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
-     */
-    public function findOne(
-        array|string|ExpressionInterface|null $condition,
-        array $params = [],
-    ): array|ActiveRecordInterface|null;
-
-    /**
-     * This method is a shorthand for {@see ActiveQuery::setWhere()} and {@see ActiveQuery::all()}.
-     * Do not to pass user input to this method, use {@see findByPk()} instead.
-     *
-     * ```php
-     * $customerQuery = new ActiveQuery(Customer::class);
-     *
-     * // find the customers whose primary key value is 10, 11 or 12.
-     * $customers = $customerQuery->findAll(['id' => [10, 11, 12]]);
-     * // the above code line is equal to:
-     * $customers = $customerQuery->setWhere(['id' => [10, 11, 12]])->all();
-     *
-     * // find customers whose age is 30 and whose status is 1.
-     * $customers = $customerQuery->findAll(['age' => 30, 'status' => 1]);
-     * // the above code line is equal to.
-     * $customers = $customerQuery->setWhere(['age' => 30, 'status' => 1])->all();
-     * ```
-     *
-     * > [!WARNING]
-     * > Do NOT use the following code! It is possible to inject any condition to filter by arbitrary column values!
-     *
-     * ```php
-     * $id = $request->getAttribute('id');
-     * $postQuery = new ActiveQuery(Post::class);
-     * $posts = $postQuery->findAll($id); // Do NOT use this!
-     * ```
-     *
-     * Explicitly specifying the column to search:
-     *
-     * ```php
-     * $posts = $postQuery->findAll(['id' => $id]);
-     * // or use {@see findByPk()} method
-     * $post = $postQuery->findByPk($id);
-     * ```
-     *
-     * @return array An array of ActiveRecord instance, or an empty array if nothing matches.
-     */
-    public function findAll(array|string|ExpressionInterface|null $condition, array $params = []): array;
 
     /**
      * Finds an ActiveRecord instance by the given primary key value.

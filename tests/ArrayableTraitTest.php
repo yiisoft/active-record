@@ -15,7 +15,7 @@ abstract class ArrayableTraitTest extends TestCase
     {
         $customerQuery = new ActiveQuery(CustomerForArrayable::class);
 
-        $fields = $customerQuery->findOne(['id' => 1])->fields();
+        $fields = $customerQuery->findByPk(1)->fields();
 
         $this->assertEquals(
             [
