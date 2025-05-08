@@ -9,7 +9,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new SqliteHelper())->createConnection();
     }

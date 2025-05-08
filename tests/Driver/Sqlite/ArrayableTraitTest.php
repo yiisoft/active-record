@@ -9,7 +9,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ArrayableTraitTest extends \Yiisoft\ActiveRecord\Tests\ArrayableTraitTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new SqliteHelper())->createConnection();
     }

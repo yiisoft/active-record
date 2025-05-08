@@ -37,8 +37,6 @@ abstract class ActiveQueryTest extends TestCase
 {
     public function testOptions(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
@@ -51,24 +49,18 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPrepare(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $this->assertInstanceOf(QueryInterface::class, $query->prepare($this->db()->getQueryBuilder()));
     }
 
     public function testPopulateEmptyRows(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $this->assertEquals([], $query->populate([]));
     }
 
     public function testPopulateFilledRows(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $rows = $query->all();
         $result = $query->populate($rows);
@@ -77,8 +69,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testAll(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
 
         foreach ($query->all() as $customer) {
@@ -90,32 +80,24 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOne(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $this->assertInstanceOf(Customer::class, $query->one());
     }
 
     public function testCreateCommand(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $this->assertInstanceOf(AbstractCommand::class, $query->createCommand());
     }
 
     public function testQueryScalar(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $this->assertEquals('user1', Assert::invokeMethod($query, 'queryScalar', ['name']));
     }
 
     public function testGetJoinWith(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $query->joinWith('profile');
         $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
@@ -123,8 +105,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testInnerJoinWith(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $query->innerJoinWith('profile');
         $this->assertEquals([[['profile'], true, 'INNER JOIN']], $query->getJoinWith());
@@ -132,8 +112,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testBuildJoinWithRemoveDuplicateJoinByTableName(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $query->innerJoinWith('orders')->joinWith('orders.orderItems');
         Assert::invokeMethod($query, 'buildJoinWith');
@@ -153,16 +131,12 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetQueryTableNameFromNotSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $this->assertEquals(['customer', 'customer'], Assert::invokeMethod($query, 'getTableNameAndAlias'));
     }
 
     public function testGetQueryTableNameFromSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
         $query->from(['alias' => 'customer']);
         $this->assertEquals(['customer', 'alias'], Assert::invokeMethod($query, 'getTableNameAndAlias'));
@@ -170,8 +144,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOnCondition(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
@@ -183,8 +155,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testAndOnConditionOnNotSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
         $query = new ActiveQuery(Customer::class);
@@ -195,8 +165,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testAndOnConditionOnSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $onOld = ['active' => true];
         $on = ['active' => true];
         $params = ['a' => 'b'];
@@ -211,8 +179,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOrOnConditionOnNotSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $on = ['active' => true];
         $params = ['a' => 'b'];
 
@@ -226,8 +192,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOrOnConditionOnSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $onOld = ['active' => true];
         $on = ['active' => true];
         $params = ['a' => 'b'];
@@ -252,8 +216,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testViaTable(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $order = new Order();
 
         $query = new ActiveQuery(Customer::class);
@@ -266,8 +228,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testAliasNotSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
 
         $query->alias('alias');
@@ -278,8 +238,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testAliasYetSet(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $aliasOld = ['old'];
 
         $query = new ActiveQuery(Customer::class);
@@ -292,8 +250,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetTableNamesNotFilledFrom(): void
     {
-        $this->checkFixture($this->db(), 'profile');
-
         $query = new ActiveQuery(Profile::class);
         $tableName = Profile::TABLE_NAME;
 
@@ -307,8 +263,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetTableNamesWontFillFrom(): void
     {
-        $this->checkFixture($this->db(), 'profile');
-
         $query = new ActiveQuery(Profile::class);
 
         $this->assertSame([], $query->getFrom());
@@ -326,8 +280,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testDeeplyNestedTableRelationWith(): void
     {
-        $this->checkFixture($this->db(), 'category', true);
-
         /** @var $category Category */
         $categoriesQuery = new ActiveQuery(Category::class);
 
@@ -355,8 +307,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetSql(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $query = new ActiveQuery(Customer::class);
 
         $query->sql('SELECT * FROM {{customer}} ORDER BY [[id]] DESC');
@@ -366,8 +316,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testCustomColumns(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         /** find custom column */
@@ -387,8 +335,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testCallFind(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         /** find count, sum, average, min, max, scalar */
@@ -403,8 +349,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testDeeplyNestedTableRelation(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $customers = $customerQuery->findByPk(1);
@@ -426,8 +370,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testDeeplyNestedTableRelation2(): void
     {
-        $this->checkFixture($this->db(), 'category');
-
         $categoryQuery = new ActiveQuery(Category::class);
 
         $categories = $categoryQuery->where(['id' => 1])->one();
@@ -453,8 +395,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testJoinWith(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** left join and eager loading */
         $orderQuery = new ActiveQuery(Order::class);
         $orders = $orderQuery->joinWith('customer')->orderBy('customer.id DESC, order.id')->all();
@@ -699,8 +639,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithAndScope(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         /**  hasOne inner join */
         $customer = new CustomerQuery(Customer::class);
         $customers = $customer->active()->innerJoinWith('profile')->orderBy('customer.id')->all();
@@ -744,7 +682,7 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithVia(): void
     {
-        $this->checkFixture($this->db(), 'order');
+        $this->reloadFixtureAfterTest();
 
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -781,8 +719,6 @@ abstract class ActiveQueryTest extends TestCase
     public function testJoinWithAlias(string $aliasMethod): void
     {
         $orders = [];
-        $this->checkFixture($this->db(), 'order');
-
         /** left join and eager loading */
         $orderQuery = new ActiveQuery(Order::class);
         $query = $orderQuery->joinWith(['customer c']);
@@ -1018,8 +954,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithSameTable(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /**
          * join with the same table but different aliases alias is defined in the relation definition without eager
          * loading
@@ -1138,8 +1072,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateSimple(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** left join and eager loading */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1163,8 +1095,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateCallbackFiltering(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** inner join filtering and eager loading */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1188,8 +1118,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateCallbackFilteringConditionsOnPrimary(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** inner join filtering, eager loading, conditions on both primary and relation */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1211,8 +1139,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateWithSubRelation(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** join with sub-relation */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1237,8 +1163,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateTableAlias1(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** join with table alias */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1264,8 +1188,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateTableAlias2(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** join with table alias */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1289,8 +1211,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateTableAliasSubRelation(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** join with table alias sub-relation */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1319,8 +1239,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testJoinWithDuplicateSubRelationCalledInsideClosure(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** join with sub-relation called inside Closure */
         $orderQuery = new ActiveQuery(Order::class);
 
@@ -1349,8 +1267,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testAlias(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $order = new Order();
 
         $query = new ActiveQuery(Order::class);
@@ -1368,8 +1284,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testInverseOf(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         /** eager loading: find one and all */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->with('orders2')->where(['id' => 1])->one();
@@ -1449,7 +1363,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUnlinkAllViaTable(): void
     {
-        $this->checkFixture($this->db(), 'order', true);
+        $this->reloadFixtureAfterTest();
 
         /** via table with delete. */
         $orderQuery = new ActiveQuery(Order::class);
@@ -1487,7 +1401,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testIssues(): void
     {
-        $this->checkFixture($this->db(), 'category', true);
+        $this->reloadFixtureAfterTest();
 
         /** {@see https://github.com/yiisoft/yii2/issues/4938} */
         $categoryQuery = new ActiveQuery(Category::class);
@@ -1531,8 +1445,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPopulateWithoutPk(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         /** tests with single pk asArray */
         $customerQuery = new ActiveQuery(Customer::class);
         $aggregation = $customerQuery
@@ -1651,7 +1563,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testLinkWhenRelationIsIndexed2(): void
     {
-        $this->checkFixture($this->db(), 'order');
+        $this->reloadFixtureAfterTest();
 
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->with('orderItems2')->where(['id' => 1])->one();
@@ -1669,8 +1581,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testEmulateExecution(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $this->assertGreaterThan(0, $customerQuery->count());
@@ -1691,7 +1601,7 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testUnlinkAllOnCondition(): void
     {
-        $this->checkFixture($this->db(), 'item');
+        $this->reloadFixtureAfterTest();
 
         /** Ensure there are three items with category_id = 2 in the Items table */
         $itemQuery = new ActiveQuery(Item::class);
@@ -1723,7 +1633,7 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testUnlinkAllOnConditionViaTable(): void
     {
-        $this->checkFixture($this->db(), 'item', true);
+        $this->reloadFixtureAfterTest();
 
         /** Ensure there are three items with category_id = 2 in the Items table */
         $itemQuery = new ActiveQuery(Item::class);
@@ -1754,8 +1664,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testIndexByAfterLoadingRelations(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
         $orderQuery->with('customer')->indexBy(function (Order $order) {
             $this->assertTrue($order->isRelationPopulated('customer'));
@@ -1773,8 +1681,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testExtraFields(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->with('orders2')->where(['id' => 1])->one();
@@ -1806,8 +1712,6 @@ abstract class ActiveQueryTest extends TestCase
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
     {
         $driverName = $this->db()->getDriverName();
-
-        $this->checkFixture($this->db(), 'order');
 
         $order = new Order();
         $orderItem = new OrderItem();
@@ -1845,8 +1749,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOutdatedRelationsAreResetForExistingRecords(): void
     {
-        $this->checkFixture($this->db(), 'order_item', true);
-
         $orderItemQuery = new ActiveQuery(OrderItem::class);
         $orderItems = $orderItemQuery->findByPk([1, 1]);
         $this->assertEquals(1, $orderItems->getOrder()->getId());
@@ -1867,8 +1769,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOutdatedCompositeKeyRelationsAreReset(): void
     {
-        $this->checkFixture($this->db(), 'dossier');
-
         $dossierQuery = new ActiveQuery(Dossier::class);
 
         $dossiers = $dossierQuery->where(['department_id' => 1, 'employee_id' => 1])->one();
@@ -1897,8 +1797,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOutdatedViaTableRelationsAreReset(): void
     {
-        $this->checkFixture($this->db(), 'order', true);
-
         $orderQuery = new ActiveQuery(Order::class);
 
         $orders = $orderQuery->findByPk(1);
@@ -1924,8 +1822,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testInverseOfDynamic(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findByPk(1);
@@ -1957,7 +1853,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOptimisticLock(): void
     {
-        $this->checkFixture($this->db(), 'document');
+        $this->reloadFixtureAfterTest();
 
         $documentQuery = new ActiveQuery(Document::class);
         $record = $documentQuery->findByPk(1);
@@ -1976,7 +1872,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOptimisticLockOnDelete(): void
     {
-        $this->checkFixture($this->db(), 'document', true);
+        $this->reloadFixtureAfterTest();
 
         $documentQuery = new ActiveQuery(Document::class);
         $document = $documentQuery->findByPk(1);
@@ -1991,7 +1887,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOptimisticLockAfterDelete(): void
     {
-        $this->checkFixture($this->db(), 'document', true);
+        $this->reloadFixtureAfterTest();
 
         $documentQuery = new ActiveQuery(Document::class);
         $document = $documentQuery->findByPk(1);
@@ -2007,8 +1903,6 @@ abstract class ActiveQueryTest extends TestCase
     /** @link https://github.com/yiisoft/yii2/issues/9006 */
     public function testBit(): void
     {
-        $this->checkFixture($this->db(), 'bit_values');
-
         $bitValueQuery = new ActiveQuery(BitValues::class);
         $falseBit = $bitValueQuery->findByPk(1);
         $this->assertFalse($falseBit->val);
@@ -2020,7 +1914,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUpdateProperties(): void
     {
-        $this->checkFixture($this->db(), 'order');
+        $this->reloadFixtureAfterTest();
 
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findByPk(1);
@@ -2048,8 +1942,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testAmbiguousColumnFindOne(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new CustomerQuery(Customer::class);
 
         $customerQuery->joinWithProfile = true;
@@ -2063,8 +1955,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testCustomARRelation(): void
     {
-        $this->checkFixture($this->db(), 'order_item');
-
         $orderItem = new ActiveQuery(OrderItem::class);
 
         $orderItem = $orderItem->findByPk([1, 1]);
@@ -2074,8 +1964,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPropertyValues(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $expectedValues = [
             'id' => 1,
             'email' => 'user1@example.com',
@@ -2095,8 +1983,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPropertyValuesOnly(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new ActiveQuery(Customer::class);
 
         $values = $customer->findByPk(1)->propertyValues(['id', 'email', 'name']);
@@ -2106,8 +1992,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPropertyValuesExcept(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new ActiveQuery(Customer::class);
 
         $values = $customer->findByPk(1)->propertyValues(null, ['status', 'bool_status', 'profile_id']);
@@ -2120,8 +2004,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetOldValue(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findByPk(1);
@@ -2136,8 +2018,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetOldValues(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $expectedValues = [
             'id' => 1,
             'email' => 'user1@example.com',
@@ -2166,8 +2046,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testIsPropertyChanged(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         $query = new ActiveQuery(Customer::class);
 
         $customer = $query->findByPk(1);
@@ -2187,7 +2065,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testOldPropertyAfterInsertAndUpdate(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 
@@ -2212,8 +2090,6 @@ abstract class ActiveQueryTest extends TestCase
     {
         self::markTestSkipped('There is no check for access to an unknown property.');
 
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findByPk(1);
@@ -2226,8 +2102,6 @@ abstract class ActiveQueryTest extends TestCase
     public function testCheckRelationInvalidCallException(): void
     {
         self::markTestSkipped('There is no check for access to an unknown property.');
-
-        $this->checkFixture($this->db(), 'customer');
 
         $customer = new ActiveQuery(Customer::class);
 
@@ -2242,8 +2116,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetRelationInvalidArgumentException(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findByPk(1);
@@ -2259,8 +2131,6 @@ abstract class ActiveQueryTest extends TestCase
     public function testGetRelationInvalidArgumentExceptionHasNoRelationNamed(): void
     {
         self::markTestSkipped('The same as test testGetRelationInvalidArgumentException()');
-
-        $this->checkFixture($this->db(), 'customer');
 
         $customer = new ActiveQuery(Customer::class);
 
@@ -2278,8 +2148,6 @@ abstract class ActiveQueryTest extends TestCase
     {
         self::markTestSkipped('The same as test testGetRelationInvalidArgumentException()');
 
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new ActiveQuery(Customer::class);
 
         $query = $customer->findByPk(1);
@@ -2294,8 +2162,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testExists(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new ActiveQuery(Customer::class);
 
         $this->assertTrue($customer->where(['id' => 2])->exists());
@@ -2309,7 +2175,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUnlink(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         /** has many without delete */
         $customerQuery = new ActiveQuery(Customer::class);
@@ -2353,7 +2219,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUnlinkAllAndConditionSetNull(): void
     {
-        $this->checkFixture($this->db(), 'order_item_with_null_fk');
+        $this->reloadFixtureAfterTest();
 
         /** in this test all orders are owned by customer 1 */
         $orderWithNullFKInstance = new OrderWithNullFK();
@@ -2379,7 +2245,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUnlinkAllAndConditionDelete(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         /** in this test all orders are owned by customer 1 */
         $orderInstance = new Order();
@@ -2405,7 +2271,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUpdate(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findByPk(2);
@@ -2449,7 +2315,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testUpdateCounters(): void
     {
-        $this->checkFixture($this->db(), 'order_item', true);
+        $this->reloadFixtureAfterTest();
 
         /** updateCounters */
         $pk = [2, 4];
@@ -2481,7 +2347,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testDelete(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         /** delete */
         $customerQuery = new ActiveQuery(Customer::class);
@@ -2515,8 +2381,6 @@ abstract class ActiveQueryTest extends TestCase
      */
     public function testViaWithCallable(): void
     {
-        $this->checkFixture($this->db(), 'order', true);
-
         $orderQuery = new ActiveQuery(Order::class);
 
         $order = $orderQuery->findByPk(2);
@@ -2533,7 +2397,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testLink(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findByPk(2);
@@ -2587,8 +2451,6 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testEqual(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerA = (new ActiveQuery(Customer::class))->findByPk(1);
         $customerB = (new ActiveQuery(Customer::class))->findByPk(2);
         $this->assertFalse($customerA->equals($customerB));

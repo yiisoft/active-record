@@ -12,14 +12,14 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new SqliteHelper())->createConnection();
     }
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 
@@ -40,8 +40,6 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db(), 'beta');
-
         $betaQuery = new ActiveQuery(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();

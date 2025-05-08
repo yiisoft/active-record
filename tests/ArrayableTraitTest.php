@@ -13,8 +13,6 @@ abstract class ArrayableTraitTest extends TestCase
 {
     public function testFields(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(CustomerForArrayable::class);
 
         $fields = $customerQuery->findByPk(1)->fields();
@@ -37,8 +35,6 @@ abstract class ArrayableTraitTest extends TestCase
 
     public function testToArray(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findByPk(1);
 
@@ -58,8 +54,6 @@ abstract class ArrayableTraitTest extends TestCase
 
     public function testToArrayWithClosure(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         $customerQuery = new ActiveQuery(CustomerClosureField::class);
         $customer = $customerQuery->findByPk(1);
 
@@ -79,8 +73,6 @@ abstract class ArrayableTraitTest extends TestCase
 
     public function testToArrayForArrayable(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         $customerQuery = new ActiveQuery(CustomerForArrayable::class);
 
         /** @var CustomerForArrayable $customer */

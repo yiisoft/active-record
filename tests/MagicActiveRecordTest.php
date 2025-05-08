@@ -32,7 +32,7 @@ abstract class MagicActiveRecordTest extends TestCase
 {
     public function testStoreNull(): void
     {
-        $this->checkFixture($this->db(), 'null_values', true);
+        $this->reloadFixtureAfterTest();
 
         $record = new NullValues();
 
@@ -80,7 +80,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testStoreEmpty(): void
     {
-        $this->checkFixture($this->db(), 'null_values');
+        $this->reloadFixtureAfterTest();
 
         $record = new NullValues();
 
@@ -100,8 +100,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testIsPrimaryKey(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new Customer();
         $orderItem = new OrderItem();
 
@@ -122,8 +120,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testOutdatedRelationsAreResetForNewRecords(): void
     {
-        $this->checkFixture($this->db(), 'order_item');
-
         $orderItem = new OrderItem();
 
         $orderItem->order_id = 1;
@@ -146,8 +142,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->db(), 'type');
-
         $arClass = new Type();
 
         $arClass->loadDefaultValues();
@@ -178,11 +172,9 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testCastValues(): void
     {
-        $this->checkFixture($this->db(), 'type');
+        $this->reloadFixtureAfterTest();
 
         $arClass = new Type();
-
-        $arClass->deleteAll();
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -217,7 +209,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testPopulateRecordCallWhenQueryingOnParentClass(): void
     {
-        $this->checkFixture($this->db(), 'cat');
+        $this->reloadFixtureAfterTest();
 
         $cat = new Cat();
         $cat->save();
@@ -236,7 +228,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testSaveEmpty(): void
     {
-        $this->checkFixture($this->db(), 'null_values', true);
+        $this->reloadFixtureAfterTest();
 
         $record = new NullValues();
 
@@ -249,7 +241,7 @@ abstract class MagicActiveRecordTest extends TestCase
      */
     public function testNoTablenameReplacement(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 
@@ -272,8 +264,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testRefreshQuerySetAliasFindRecord(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new CustomerWithAlias();
 
         $customer->id = 1;
@@ -284,7 +274,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testResetNotSavedRelation(): void
     {
-        $this->checkFixture($this->db(), 'order');
+        $this->reloadFixtureAfterTest();
 
         $order = new Order();
 
@@ -305,8 +295,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testIssetException(): void
     {
-        $this->checkFixture($this->db(), 'cat');
-
         $cat = new Cat();
 
         $this->expectException(Exception::class);
@@ -315,8 +303,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testIssetThrowable(): void
     {
-        $this->checkFixture($this->db(), 'cat');
-
         $cat = new Cat();
 
         $this->expectException(DivisionByZeroError::class);
@@ -325,8 +311,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testIssetNonExisting(): void
     {
-        $this->checkFixture($this->db(), 'cat');
-
         $cat = new Cat();
 
         $this->assertFalse(isset($cat->non_existing));
@@ -335,7 +319,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testAssignProperties(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $properties = [
             'email' => 'samdark@mail.ru',
@@ -359,8 +343,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testSetNoExistProperty(): void
     {
-        $this->checkFixture($this->db(), 'cat');
-
         $cat = new Cat();
 
         $this->expectException(InvalidArgumentException::class);
@@ -373,8 +355,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testAssignOldValue(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new Customer();
 
         $this->assertEmpty($customer->oldValue('name'));
@@ -386,8 +366,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testAssignOldValueException(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new Customer();
 
         $this->assertEmpty($customer->oldValue('name'));
@@ -401,8 +379,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testIsPropertyChangedNotChanged(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new Customer();
 
         $this->assertEmpty($customer->get('name'));
@@ -422,7 +398,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testInsert(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 
@@ -446,7 +422,7 @@ abstract class MagicActiveRecordTest extends TestCase
      */
     public function testBooleanProperty(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 
@@ -475,8 +451,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testPropertyAccess(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $arClass = new Customer();
 
         $this->assertTrue($arClass->canSetProperty('name'));
@@ -531,8 +505,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testHasProperty(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new Customer();
 
         $this->assertTrue($customer->hasProperty('id'));
@@ -548,8 +520,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testRefresh(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new Customer();
 
         $this->assertFalse($customer->refresh());
@@ -564,8 +534,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testEquals(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerA = new Customer();
         $customerB = new Customer();
         $this->assertFalse($customerA->equals($customerB));
@@ -590,8 +558,7 @@ abstract class MagicActiveRecordTest extends TestCase
      */
     public function testUnlinkWithViaOnCondition($delete, $count): void
     {
-        $this->checkFixture($this->db(), 'order', true);
-        $this->checkFixture($this->db(), 'order_item_with_null_fk', true);
+        $this->reloadFixtureAfterTest();
 
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findByPk(2);
@@ -616,8 +583,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testVirtualRelation(): void
     {
-        $this->checkFixture($this->db(), 'order', true);
-
         $orderQuery = new ActiveQuery(Order::class);
         /** @var Order $order */
         $order = $orderQuery->findByPk(2);
@@ -633,8 +598,6 @@ abstract class MagicActiveRecordTest extends TestCase
      */
     public function testJoinWithEager(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         $customerQuery = new ActiveQuery(Customer::class);
         $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
         $eagerItemsCount = 0;
@@ -654,7 +617,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testSaveWithoutChanges(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customerQuery = new ActiveQuery(Customer::class);
 
@@ -665,8 +628,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testGetPrimaryKey(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findByPk(1);
@@ -677,8 +638,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testGetOldPrimaryKey(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $customer = $customerQuery->findByPk(1);
@@ -690,7 +649,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testGetDirtyValuesOnNewRecord(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 
@@ -719,8 +678,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testGetDirtyValuesAfterFind(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findByPk(1);
 
@@ -742,8 +699,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testGetDirtyValuesWithProperties(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customer = new CustomerWithProperties();
         $this->assertSame([
             'name' => null,
@@ -772,8 +727,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testRelationNames(): void
     {
-        $this->checkFixture($this->db(), 'animal');
-
         $animal = new Animal();
 
         $this->assertEmpty($animal->relationNames());
@@ -802,8 +755,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testGetSetMethodsPriority(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $datetime = DateTimeImmutable::createFromFormat('U', '1325502201');
 
         $order = new Order();
@@ -815,8 +766,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testIsChanged(): void
     {
-        $this->checkFixture($this->db(), 'item');
-
         $itemQuery = new ActiveQuery(Item::class);
         $item = $itemQuery->findByPk(1);
 

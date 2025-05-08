@@ -20,8 +20,6 @@ abstract class ActiveQueryFindTest extends TestCase
 {
     public function testFindScalar(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         /** query scalar */
@@ -32,8 +30,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindExists(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $this->assertTrue($customerQuery->where(['[[id]]' => 2])->exists());
@@ -45,8 +41,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindColumn(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $this->assertEquals(
@@ -54,7 +48,7 @@ abstract class ActiveQueryFindTest extends TestCase
             $customerQuery->select('[[name]]')->column()
         );
 
-        $this->assertEquals(
+        $this->assertSame(
             ['user3', 'user2', 'user1'],
             $customerQuery->orderBy(['[[name]]' => SORT_DESC])->select('[[name]]')->column()
         );
@@ -62,8 +56,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindLazyViaTable(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
 
         $orders = $orderQuery->findByPk(2);
@@ -76,8 +68,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerViaTable(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
         $orders = $orderQuery->with('books')->orderBy('id')->all();
         $this->assertCount(3, $orders);
@@ -117,8 +107,6 @@ abstract class ActiveQueryFindTest extends TestCase
      */
     public function testFindCompositeRelationWithJoin(): void
     {
-        $this->checkFixture($this->db(), 'order_item');
-
         $orderItemQuery = new ActiveQuery(OrderItem::class);
 
         /** @var $orderItems OrderItem */
@@ -133,8 +121,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindSimpleRelationWithJoin(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
 
         $orders = $orderQuery->findByPk(1);
@@ -152,8 +138,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFind(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $this->assertInstanceOf(ActiveQueryInterface::class, $customerQuery);
 
@@ -183,8 +167,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindAsArray(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         /** asArray */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->where(['id' => 2])->asArray()->one();
@@ -221,8 +203,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindIndexBy(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $customers = $customerQuery->indexBy('name')->orderBy('id')->all();
@@ -248,8 +228,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindIndexByAsArray(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->asArray()->indexBy('name')->all();
         $this->assertCount(3, $customers);
@@ -292,8 +270,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindCount(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $this->assertEquals(3, $customerQuery->count());
         $this->assertEquals(1, $customerQuery->where(['id' => 1])->count());
@@ -310,8 +286,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindLimit(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         /** one */
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->orderBy('id')->one();
@@ -361,8 +335,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindComplexCondition(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $this->assertEquals(
@@ -398,7 +370,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindNullValues(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customerQuery = new ActiveQuery(Customer::class);
 
@@ -413,8 +385,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEager(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->with('orders')->indexBy('id')->all();
 
@@ -450,8 +420,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerViaRelation(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
         $orders = $orderQuery->with('items')->orderBy('id')->all();
         $this->assertCount(3, $orders);
@@ -466,8 +434,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindNestedRelation(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->with('orders', 'orders.items')->indexBy('id')->all();
 
@@ -502,8 +468,6 @@ abstract class ActiveQueryFindTest extends TestCase
      */
     public function testFindEagerViaRelationPreserveOrder(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
         $orders = $orderQuery->with('itemsInOrder1')->orderBy('created_at')->all();
         $this->assertCount(3, $orders);
@@ -532,8 +496,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerViaRelationPreserveOrderB(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         /** different order in via table. */
         $orderQuery = new ActiveQuery(Order::class);
         $orders = $orderQuery->with('itemsInOrder2')->orderBy('created_at')->all();
@@ -563,8 +525,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEmptyInCondition(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $customers = $customerQuery->where(['id' => [1]])->all();
         $this->assertCount(1, $customers);
@@ -581,8 +541,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerIndexBy(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->with('itemsIndexed')->where(['id' => 1])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
@@ -604,8 +562,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindLazy(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findByPk(2);
         $this->assertFalse($customer->isRelationPopulated('orders'));
@@ -630,8 +586,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindLazyVia(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findByPk(1);
 
@@ -643,8 +597,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPk(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(new Customer());
 
         $this->assertEquals(
@@ -658,8 +610,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPkComposite(): void
     {
-        $this->checkFixture($this->db(), 'order_item');
-
         $query = new ActiveQuery(OrderItem::class);
 
         $orderItem = $query->findByPk([1, 2]);
@@ -676,8 +626,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPkWithoutPk(): void
     {
-        $this->checkFixture($this->db(), 'type');
-
         $query = new ActiveQuery(Type::class);
 
         $this->expectException(InvalidConfigException::class);
@@ -688,8 +636,6 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPkWithJoin(): void
     {
-        $this->checkFixture($this->db(), 'order');
-
         $query = new ActiveQuery(Order::class);
 
         $query->joinWith('items');

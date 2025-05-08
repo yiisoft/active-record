@@ -9,7 +9,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new SqliteHelper())->createConnection();
     }

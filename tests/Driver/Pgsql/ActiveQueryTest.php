@@ -11,15 +11,13 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new PgsqlHelper())->createConnection();
     }
 
     public function testBit(): void
     {
-        $this->checkFixture($this->db(), 'bit_values');
-
         $bitValueQuery = new ActiveQuery(BitValues::class);
         $falseBit = $bitValueQuery->findByPk(1);
         $this->assertSame(0, $falseBit->val);

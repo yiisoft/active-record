@@ -10,38 +10,57 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {
-    abstract protected function createConnection(): ConnectionInterface;
+    private bool $shouldReloadFixture = false;
 
-    protected function checkFixture(ConnectionInterface $db, string $tablename, bool $reset = false): void
+    abstract protected static function createConnection(): ConnectionInterface;
+
+    /**
+     * Call this method in tests which modifies the database state to reload the connection and fixture after the tests.
+     */
+    protected function reloadFixtureAfterTest(): void
     {
-        $schema = $db->getSchema();
-        $tableSchema = $schema->getTableSchema($tablename, true);
-
-        if ($tableSchema === null || $reset) {
-            DbHelper::loadFixture($db);
-
-            $schema->refresh();
-        }
+        $this->shouldReloadFixture = true;
     }
 
-    protected function db(): ConnectionInterface
+    protected static function reloadFixture(): void
+    {
+        ConnectionProvider::get()->close();
+
+        $db = static::createConnection();
+        ConnectionProvider::set($db);
+
+        DbHelper::loadFixture($db);
+    }
+
+    protected static function db(): ConnectionInterface
     {
         return ConnectionProvider::get();
     }
 
-    protected function setUp(): void
+    public static function setUpBeforeClass(): void
     {
-        parent::setUp();
+        parent::setUpBeforeClass();
 
-        ConnectionProvider::set($this->createConnection());
+        $db = static::createConnection();
+        ConnectionProvider::set($db);
+        DbHelper::loadFixture($db);
     }
 
     protected function tearDown(): void
     {
+        if ($this->shouldReloadFixture) {
+            $this->reloadFixture();
+            $this->shouldReloadFixture = false;
+        }
+
         parent::tearDown();
+    }
 
-        $this->db()->close();
-
+    public static function tearDownAfterClass(): void
+    {
+        ConnectionProvider::get()->close();
         ConnectionProvider::remove();
+
+        parent::tearDownAfterClass();
     }
 }

@@ -11,8 +11,6 @@ abstract class RepositoryTraitTest extends TestCase
 {
     public function testFind(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(new Customer());
 
         $this->assertEquals(
@@ -23,8 +21,6 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindOne(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(new Customer());
 
         $this->assertEquals(
@@ -51,8 +47,6 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindAll(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(new Customer());
 
         $this->assertEquals(
@@ -71,8 +65,6 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindByPk(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(new Customer());
 
         $this->assertEquals(
@@ -86,8 +78,6 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindBySql(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(new Customer());
 
         $this->assertEquals(
