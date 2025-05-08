@@ -14,7 +14,7 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new MysqlHelper())->createConnection();
     }
@@ -26,11 +26,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testCastValues(): void
     {
-        $this->checkFixture($this->db(), 'type');
+        $this->reloadFixtureAfterTest();
 
         $arClass = new Type();
-
-        $arClass->deleteAll();
 
         $arClass->int_col = 123;
         $arClass->int_col2 = 456;
@@ -67,7 +65,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testExplicitPkOnAutoIncrement(): void
     {
-        $this->checkFixture($this->db(), 'customer');
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 
@@ -89,8 +87,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $this->checkFixture($this->db(), 'beta');
-
         $betaQuery = new ActiveQuery(Beta::class);
 
         $betas = $betaQuery->with('alpha')->all();

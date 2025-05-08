@@ -11,15 +11,13 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();
     }
 
     public function testBatchWithIndexBy(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');

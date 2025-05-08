@@ -51,6 +51,8 @@ abstract class ConnectionProviderTest extends TestCase
 
     public function testConnectionProviderMiddleware(): void
     {
+        $this->reloadFixtureAfterTest();
+
         ConnectionProvider::remove();
 
         $this->assertEmpty(ConnectionProvider::all());
