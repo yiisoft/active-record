@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Throwable;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function get_object_vars;
-use function key;
 
 /**
  * Active Record class which implements {@see ActiveRecordInterface} interface with the minimum set of methods.
@@ -149,30 +146,6 @@ class ActiveRecord extends AbstractActiveRecord
     public function primaryKey(): array
     {
         return $this->getTableSchema()->getPrimaryKey();
-    }
-
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
-    public function refresh(): bool
-    {
-        $query = $this->query($this);
-
-        /** @var string $tableName */
-        $tableName = key($query->getTablesUsedInFrom());
-        $pk = [];
-
-        /** disambiguate column names in case ActiveQuery adds a JOIN */
-        foreach ($this->getPrimaryKey(true) as $key => $value) {
-            $pk[$tableName . '.' . $key] = $value;
-        }
-
-        $query->where($pk);
-
-        return $this->refreshInternal($query->one());
     }
 
     protected function propertyValuesInternal(): array
