@@ -10,7 +10,6 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\NotSupportedException;
 
 interface ActiveRecordInterface
 {
@@ -390,6 +389,10 @@ interface ActiveRecordInterface
 
     /**
      * Saves the changes to this active record into the associated database table.
+     * You may specify the properties to be updated as list of name or name-value pairs.
+     * If name-value pair specified, the corresponding property values will be modified.
+     *
+     * The method will then save the specified properties into a database.
      *
      * Only the {@see newValues() changed property values} will be saved into a database.
      *
@@ -401,6 +404,13 @@ interface ActiveRecordInterface
      * $customer->email = $email;
      * $customer->update();
      * ```
+     *
+     * To update a customer record with specific properties:
+     *
+     * ```php
+     *  $customer = new Customer();
+     *  $customer->update(['name' => $name, 'email' => $email]);
+     *  ```
      *
      * Note that it's possible the update doesn't affect any row in the table.
      * In this case, this method will return 0.
@@ -414,8 +424,8 @@ interface ActiveRecordInterface
      * }
      * ```
      *
-     * @param array|null $propertyNames List of property names that need to be saved. Defaults to `null`, meaning all
-     * changed property values will be saved.
+     * @param array|null $properties List of property names or name-values pairs that need to be saved.
+     * Defaults to `null`, meaning all changed property values will be saved.
      *
      * @throws OptimisticLockException If the instance implements {@see OptimisticLockInterface} and the data being
      * updated is outdated.
@@ -423,7 +433,7 @@ interface ActiveRecordInterface
      *
      * @return int The number of rows affected.
      */
-    public function update(array|null $propertyNames = null): int;
+    public function update(array|null $properties = null): int;
 
     /**
      * Updates the whole table using the provided property values and conditions.
@@ -460,27 +470,6 @@ interface ActiveRecordInterface
      * @return int The number of rows updated.
      */
     public function updateAll(array $propertyValues, array|string $condition = [], array $params = []): int;
-
-    /**
-     * Updates the specified properties.
-     *
-     * This method is a shortcut to {@see update()} when only a small set of properties need to be updated.
-     *
-     * You may specify the properties to be updated as name list or name-value pairs.
-     * If the latter, the corresponding property values will be modified so.
-     *
-     * The method will then save the specified properties into a database.
-     *
-     * Note that this method will **not** perform data validation and will **not** trigger events.
-     *
-     * @param array $properties The properties (names or name-value pairs) to be updated.
-     *
-     * @throws Exception
-     * @throws NotSupportedException
-     *
-     * @return int The number of rows affected.
-     */
-    public function updateProperties(array $properties): int;
 
     /**
      * Destroys the relationship between two records.

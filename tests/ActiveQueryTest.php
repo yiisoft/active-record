@@ -1919,20 +1919,31 @@ abstract class ActiveQueryTest extends TestCase
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findByPk(1);
         $newTotal = 978;
-        $this->assertSame(1, $order->updateProperties(['total' => $newTotal]));
+        $this->assertSame(1, $order->update(['total' => $newTotal]));
         $this->assertEquals($newTotal, $order->getTotal());
 
-        $order = $orderQuery->findByPk(1);
+        $order->refresh();
         $this->assertEquals($newTotal, $order->getTotal());
+
+        // update only one property
+        $this->assertSame(1, $order->getCustomerId());
+
+        $order->set('total', 1000);
+        $order->set('customer_id', 2);
+
+        $this->assertSame(1, $order->update(['total']));
+        $order->refresh();
+        $this->assertEquals(1000, $order->getTotal());
+        $this->assertSame(1, $order->getCustomerId());
 
         /** @see https://github.com/yiisoft/yii2/issues/12143 */
         $newOrder = new Order();
         $this->assertTrue($newOrder->getIsNewRecord());
 
-        $newTotal = 200;
-        $this->assertSame(0, $newOrder->updateProperties(['total' => $newTotal]));
-        $this->assertTrue($newOrder->getIsNewRecord());
-        $this->assertEquals($newTotal, $newOrder->getTotal());
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('The record is new and cannot be updated.');
+
+        $this->assertSame(0, $newOrder->update(['total' => 200]));
     }
 
     /**

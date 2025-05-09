@@ -675,9 +675,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $this->oldValues = $propertyValues;
     }
 
-    public function update(array|null $propertyNames = null): int
+    public function update(array|null $properties = null): int
     {
-        return $this->updateInternal($propertyNames);
+        return $this->updateInternal($properties);
     }
 
     public function updateAll(array $propertyValues, array|string $condition = [], array $params = []): int
@@ -687,32 +687,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $command->update($this->getTableName(), $propertyValues, $condition, $params);
 
         return $command->execute();
-    }
-
-    public function updateProperties(array $properties): int
-    {
-        $names = [];
-
-        foreach ($properties as $name => $value) {
-            if (is_int($name)) {
-                $names[] = $value;
-            } else {
-                $this->set($name, $value);
-                $names[] = $name;
-            }
-        }
-
-        $values = $this->newValues($names);
-
-        if (empty($values) || $this->getIsNewRecord()) {
-            return 0;
-        }
-
-        $rows = $this->updateAll($values, $this->getOldPrimaryKey(true));
-
-        $this->oldValues = array_merge($this->oldValues ?? [], $values);
-
-        return $rows;
     }
 
     /**
@@ -1121,7 +1095,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * {@see update()}
      *
-     * @param array|null $propertyNames Property names to update.
+     * @param array|null $properties Property names or name-values pairs to update, `null` means all properties.
      *
      * @throws Exception
      * @throws NotSupportedException
@@ -1129,9 +1103,28 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return int The number of rows affected.
      */
-    protected function updateInternal(array|null $propertyNames = null): int
+    protected function updateInternal(array|null $properties = null): int
     {
-        $values = $this->newValues($propertyNames);
+        if ($this->getIsNewRecord()) {
+            throw new InvalidCallException('The record is new and cannot be updated.');
+        }
+
+        if ($properties === null) {
+            $names = $this->propertyNames();
+        } else {
+            $names = [];
+
+            foreach ($properties as $name => $value) {
+                if (is_int($name)) {
+                    $names[] = $value;
+                } else {
+                    $this->set($name, $value);
+                    $names[] = $name;
+                }
+            }
+        }
+
+        $values = $this->newValues($names);
 
         if (empty($values)) {
             return 0;
