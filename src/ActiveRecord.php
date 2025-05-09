@@ -151,30 +151,6 @@ class ActiveRecord extends AbstractActiveRecord
         return $this->getTableSchema()->getPrimaryKey();
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
-    public function refresh(): bool
-    {
-        $query = $this->query($this);
-
-        /** @var string $tableName */
-        $tableName = key($query->getTablesUsedInFrom());
-        $pk = [];
-
-        /** disambiguate column names in case ActiveQuery adds a JOIN */
-        foreach ($this->getPrimaryKey(true) as $key => $value) {
-            $pk[$tableName . '.' . $key] = $value;
-        }
-
-        $query->where($pk);
-
-        return $this->refreshInternal($query->one());
-    }
-
     protected function propertyValuesInternal(): array
     {
         return get_object_vars($this);
