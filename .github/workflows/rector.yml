@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   rector:
-    uses: yiisoft/actions/.github/workflows/rector.yml@master
+    uses: yiisoft/actions/.github/workflows/rector.yml@fix-branch-name
     with:
       php: >-
         ['8.4']
