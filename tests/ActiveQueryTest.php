@@ -1929,10 +1929,10 @@ abstract class ActiveQueryTest extends TestCase
         $newOrder = new Order();
         $this->assertTrue($newOrder->getIsNewRecord());
 
-        $newTotal = 200;
-        $this->assertSame(0, $newOrder->update(['total' => $newTotal]));
-        $this->assertTrue($newOrder->getIsNewRecord());
-        $this->assertEquals($newTotal, $newOrder->getTotal());
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('The record is new and cannot be updated.');
+
+        $this->assertSame(0, $newOrder->update(['total' => 200]));
     }
 
     /**
