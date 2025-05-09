@@ -4,15 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Throwable;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function get_object_vars;
-use function key;
 
 /**
  * Active Record class which implements {@see ActiveRecordInterface} interface with the minimum set of methods.
