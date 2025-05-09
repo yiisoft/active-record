@@ -1105,6 +1105,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     protected function updateInternal(array|null $properties = null): int
     {
+        if ($this->getIsNewRecord()) {
+            throw new InvalidCallException('The record is new and cannot be updated.');
+        }
+
         if ($properties === null) {
             $names = $this->propertyNames();
         } else {
@@ -1122,7 +1126,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         $values = $this->newValues($names);
 
-        if (empty($values) || $this->getIsNewRecord()) {
+        if (empty($values)) {
             return 0;
         }
 
