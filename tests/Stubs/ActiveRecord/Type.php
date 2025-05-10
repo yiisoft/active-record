@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+use DateTimeInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\Db\Expression\Expression;
 
@@ -23,10 +24,10 @@ class Type extends ActiveRecord
     public float|null $float_col2 = 1.23;
     public mixed $blob_col;
     public float|null $numeric_col = 33.22;
-    public string|Expression $time = '2002-01-01 00:00:00';
+    public string|DateTimeInterface|Expression $time = '2002-01-01 00:00:00';
     public bool|int|string $bool_col;
     public bool|int|string|null $bool_col2 = true;
-    public string|Expression $ts_default;
+    public DateTimeInterface|Expression $ts_default;
     public int|string $bit_col = 0b1000_0010;
     public array|null $json_col = null;
 
