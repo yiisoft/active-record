@@ -13,7 +13,7 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new MssqlHelper())->createConnection();
     }
@@ -25,7 +25,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testSaveWithTrigger(): void
     {
-        $this->checkFixture($this->db(), 'test_trigger');
+        $this->reloadFixtureAfterTest();
 
         // drop trigger if exist
         $sql = <<<SQL
@@ -58,6 +58,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $testRecordQuery = new ActiveQuery(TestTriggerAlert::class);
 
-        $this->assertEquals('test', $testRecordQuery->findOne(1)->stringcol);
+        $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
     }
 }

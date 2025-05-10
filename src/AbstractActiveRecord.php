@@ -554,7 +554,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function refresh(): bool
     {
-        $record = $this->query($this)->findOne($this->getPrimaryKey(true));
+        $record = $this->query($this)->findByPk($this->getPrimaryKey(true));
 
         return $this->refreshInternal($record);
     }

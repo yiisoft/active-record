@@ -12,14 +12,14 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new MssqlHelper())->createConnection();
     }
 
     public function testSaveWithTrigger(): void
     {
-        $this->checkFixture($this->db(), 'test_trigger');
+        $this->reloadFixtureAfterTest();
 
         // drop trigger if exist
         $sql = <<<SQL
@@ -52,6 +52,6 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $testRecordQuery = new ActiveQuery(TestTriggerAlert::class);
 
-        $this->assertEquals('test', $testRecordQuery->findOne(1)->stringcol);
+        $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
     }
 }

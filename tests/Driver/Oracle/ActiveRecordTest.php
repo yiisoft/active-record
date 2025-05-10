@@ -13,7 +13,7 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();
     }
@@ -25,8 +25,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testDefaultValues(): void
     {
-        $this->checkFixture($this->db(), 'customer');
-
         $arClass = new Type();
         $arClass->loadDefaultValues();
         $this->assertSame(1, $arClass->int_col2);
@@ -57,7 +55,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testBooleanProperty(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
+        $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
 

@@ -114,7 +114,7 @@ final class DocumentController
     ): ResponseInterface {
         $id = (int) $request->getAttribute('id');
 
-        $document = (new ActiveQuery(Document::class))->findOne($id);
+        $document = (new ActiveQuery(Document::class))->findByPk($id);
 
         if ($document === null) {
             throw new NotFoundException('Document not found.');
@@ -129,7 +129,7 @@ final class DocumentController
         $data = $request->getParsedBody();
         
         $id = (int) $data['id'];
-        $document = (new ActiveQuery(Document::class))->findOne($id);
+        $document = (new ActiveQuery(Document::class))->findByPk($id);
 
         if ($document === null) {
             throw new NotFoundException('Document not found.');

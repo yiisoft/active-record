@@ -11,15 +11,13 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
 {
-    protected function createConnection(): ConnectionInterface
+    protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();
     }
 
     public function testFindLimit(): void
     {
-        $this->checkFixture($this->db(), 'customer', true);
-
         /** one */
         $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
         $customer = $customerQuery->orderBy('id')->one();

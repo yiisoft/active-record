@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
+use Yiisoft\ActiveRecord\Trait\RepositoryTrait;
 
 /**
  * Class Customer.
@@ -19,6 +20,8 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 class Customer extends MagicActiveRecord
 {
+    use RepositoryTrait;
+
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
 
