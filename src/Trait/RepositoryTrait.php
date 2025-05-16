@@ -45,7 +45,7 @@ trait RepositoryTrait
      * If the `$condition` parameter is not null, it calls {@see ActiveQueryInterface::andWhere()} method.
      * Do not to pass user input to this method, use {@see findByPk()} instead.
      *
-     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
      * No condition is applied if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      */
@@ -92,7 +92,7 @@ trait RepositoryTrait
      * $post = Post::findByPk($id);
      * ```
      *
-     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
      * Returns all records if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
@@ -110,7 +110,7 @@ trait RepositoryTrait
      * $customers = Customer::tryFindAll(['is_active' => true]);
      * ```
      *
-     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
      * Returns all records if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
@@ -238,7 +238,7 @@ trait RepositoryTrait
      * $post = Post::findByPk($id);
      * ```
      *
-     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
      * Returns the first record if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
@@ -258,7 +258,7 @@ trait RepositoryTrait
      * $customer = Customer::findOneOrFail(['id' => 1]);
      * ```
      *
-     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
      * Returns the first record if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
