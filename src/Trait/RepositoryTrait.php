@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Trait;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\ActiveRecord\NotFoundException;
 
 /**
  * Trait to support static methods {@see find()}, {@see findOne()}, {@see findAll()}, {@see findBySql()} to find records.
@@ -43,6 +44,10 @@ trait RepositoryTrait
      * Returns an instance of {@see ActiveQueryInterface} instantiated by {@see ActiveRecordInterface::query()} method.
      * If the `$condition` parameter is not null, it calls {@see ActiveQueryInterface::andWhere()} method.
      * Do not to pass user input to this method, use {@see findByPk()} instead.
+     *
+     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * No condition is applied if `null` (by default).
+     * @param array $params The parameters to be bound to the SQL statement during execution.
      */
     public static function find(array|string|ExpressionInterface|null $condition = null, array $params = []): ActiveQueryInterface
     {
@@ -87,11 +92,36 @@ trait RepositoryTrait
      * $post = Post::findByPk($id);
      * ```
      *
+     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * Returns all records if `null` (by default).
+     * @param array $params The parameters to be bound to the SQL statement during execution.
+     *
      * @return ActiveRecordInterface[]|array[] An array of ActiveRecord instance, or an empty array if nothing matches.
      */
     public static function findAll(array|string|ExpressionInterface|null $condition = null, array $params = []): array
     {
         return static::find($condition, $params)->all();
+    }
+
+    /**
+     * Shortcut for {@see findAllOrFail()} method with throwing {@see NotFoundException} if no records found.
+     *
+     * ```php
+     * $customers = Customer::tryFindAll(['is_active' => true]);
+     * ```
+     *
+     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * Returns all records if `null` (by default).
+     * @param array $params The parameters to be bound to the SQL statement during execution.
+     *
+     * @throws NotFoundException
+     *
+     * @return ActiveRecordInterface[]|array[] An array of ActiveRecord instance, or throws {@see NotFoundException}
+     * if nothing matches.
+     */
+    public static function findAllOrFail(array|string|ExpressionInterface|null $condition = null, array $params = []): array
+    {
+        return static::findAll($condition, $params) ?: throw new NotFoundException('No records found.');
     }
 
     /**
@@ -123,6 +153,10 @@ trait RepositoryTrait
      *     $customer = Customer::findByPk($id);
      * }
      * ```
+     *
+     * @param array|float|int|string $values The primary key value(s) to find the record.
+     *
+     * @return ActiveRecordInterface|array|null Instance matching the primary key value(s), or `null` if nothing matches.
      */
     public static function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null
     {
@@ -130,10 +164,29 @@ trait RepositoryTrait
     }
 
     /**
-     * Creates an {@see ActiveQuery} instance with a given SQL statement.
+     * Shortcut for {@see findByPk()} method with throwing {@see NotFoundException} if no records found.
+     *
+     * ```php
+     * $customer = Customer::findByPkOrFail(1);
+     * ```
+     *
+     * @param array|float|int|string $values The primary key value(s) to find the record.
+     *
+     * @throws NotFoundException
+     *
+     * @return ActiveRecordInterface|array|null Instance matching the primary key value(s),
+     * or throws {@see NotFoundException} if nothing matches.
+     */
+    public static function findByPkOrFail(array|float|int|string $values): array|ActiveRecordInterface|null
+    {
+        return static::findByPk($values) ?? throw new NotFoundException('No records found.');
+    }
+
+    /**
+     * Creates an {@see ActiveQueryInterface} instance with a given SQL statement.
      *
      * Note: That because the SQL statement is already specified, calling more query modification methods
-     * (such as {@see where()}, {@see order()) on the created {@see ActiveQuery} instance will have no effect.
+     * (such as {@see where()}, {@see order()) on the created {@see ActiveQueryInterface} instance will have no effect.
      *
      * However, calling {@see with()}, {@see asArray()}, {@see indexBy()} or {@see resultCallback()} is still fine.
      *
@@ -145,6 +198,8 @@ trait RepositoryTrait
      *
      * @param string $sql The SQL statement to be executed.
      * @param array $params The parameters to be bound to the SQL statement during execution.
+     *
+     * @return ActiveQueryInterface The newly created {@see ActiveQueryInterface} instance.
      */
     public static function findBySql(string $sql, array $params = []): ActiveQueryInterface
     {
@@ -183,6 +238,10 @@ trait RepositoryTrait
      * $post = Post::findByPk($id);
      * ```
      *
+     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * Returns the first record if `null` (by default).
+     * @param array $params The parameters to be bound to the SQL statement during execution.
+     *
      * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
      */
     public static function findOne(
@@ -190,6 +249,29 @@ trait RepositoryTrait
         array $params = [],
     ): ActiveRecordInterface|array|null {
         return static::find($condition, $params)->one();
+    }
+
+    /**
+     * Shortcut for {@see findOne()} method with throwing {@see NotFoundException} if no records found.
+     *
+     * ```php
+     * $customer = Customer::findOneOrFail(['id' => 1]);
+     * ```
+     *
+     * @param array|string|ExpressionInterface|null $condition The condition to be applied to the query where clause.
+     * Returns the first record if `null` (by default).
+     * @param array $params The parameters to be bound to the SQL statement during execution.
+     *
+     * @throws NotFoundException
+     *
+     * @return ActiveRecordInterface|array|null Instance matching the condition, or throws {@see NotFoundException}
+     * if nothing matches.
+     */
+    public static function findOneOrFail(
+        array|string|ExpressionInterface|null $condition = null,
+        array $params = [],
+    ): ActiveRecordInterface|array|null {
+        return static::findOne($condition, $params) ?? throw new NotFoundException('No records found.');
     }
 
     protected static function instantiate(): ActiveRecordInterface
