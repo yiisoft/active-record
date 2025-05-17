@@ -104,10 +104,10 @@ trait RepositoryTrait
     }
 
     /**
-     * Shortcut for {@see findAllOrFail()} method with throwing {@see NotFoundException} if no records found.
+     * Shortcut for {@see findAll()} method with throwing {@see NotFoundException} if no records found.
      *
      * ```php
-     * $customers = Customer::tryFindAll(['is_active' => true]);
+     * $customers = Customer::findAllOrFail(['is_active' => true]);
      * ```
      *
      * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
