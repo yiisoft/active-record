@@ -127,47 +127,48 @@ interface ActiveRecordInterface
     public function getIsNewRecord(): bool;
 
     /**
-     * Returns the old primary key value(s).
+     * Returns the old value of the primary key as a scalar.
      *
-     * This refers to the primary key value that's populated into the record after executing a find method (for example,
-     * `findOne()`).
+     * This refers to the primary key value that is populated into the record after data is retrieved from the database
+     * by an instance of {@see ActiveQueryInterface}.
      *
-     * The value remains unchanged even if the primary key property is manually assigned with a different value.
+     * The value remains unchanged while the record will not be {@see update() updated}.
      *
-     * @param bool $asArray Whether to return the primary key value as an array. If true, the return value will be an
-     * array with property name as key and property value as value. If this is `false` (default), a scalar value will be
-     * returned for a non-composite primary key.
+     * @throw Exception If multiple primary keys or no primary key.
      *
-     * @return mixed The old primary key value. An array (property name => property value) is returned if the primary
-     * key is composite or `$asArray` is true. A string is returned otherwise (`null` will be returned if the key value
-     * is `null`).
-     *
-     * @psalm-return (
-     *     $asArray is true
-     *     ? array<string, mixed>
-     *     : mixed|null
-     * )
+     * @see getOldPrimaryKeys()
      */
-    public function getOldPrimaryKey(bool $asArray = false): mixed;
+    public function getOldPrimaryKey(): float|int|string|null;
 
     /**
-     * Returns the primary key value(s).
+     * Returns the old values of the primary key as an array with property names as keys and property values as values.
      *
-     * @param bool $asArray Whether to return the primary key value as an array. If true, the return value will be an
-     * array with property names as keys and property values as values. Note that for composite primary keys, an array
-     * will always be returned regardless of this parameter value.
+     * This refers to the primary key values that is populated into the record after data is retrieved from the database
+     * by an instance of {@see ActiveQueryInterface}.
      *
-     * @return mixed The primary key value. An array (property name => property value) is returned if the primary key
-     * is composite or `$asArray` is true. A string is returned otherwise (`null` will be returned if the key value is
-     * `null`).
+     * The value remains unchanged while the record will not be {@see update() updated}.
      *
-     * @psalm-return (
-     *     $asArray is true
-     *     ? array<string, mixed>
-     *     : mixed|null
-     * )
+     * @throw Exception If no primary key or multiple primary keys.
+     *
+     * @see getOldPrimaryKeys()
      */
-    public function getPrimaryKey(bool $asArray = false): mixed;
+    public function getOldPrimaryKeys(): array;
+
+    /**
+     * Returns the scalar value of the primary key.
+     *
+     * @throw Exception If multiple primary keys or no primary key.
+     *
+     * @see getPrimaryKeys()
+     */
+    public function getPrimaryKey(): float|int|string|null;
+
+    /**
+     * Returns the values of the primary key as an array with property names as keys and property values as values.
+     *
+     * @see getPrimaryKey()
+     */
+    public function getPrimaryKeys(): array;
 
     /**
      * Return the name of the table associated with this AR class.
