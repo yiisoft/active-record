@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\NotFoundException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 
 abstract class RepositoryTraitTest extends TestCase
@@ -45,6 +46,21 @@ abstract class RepositoryTraitTest extends TestCase
         $this->assertNull($customer);
     }
 
+    public function testFindOneOrFail(): void
+    {
+        $customerQuery = new ActiveQuery(new Customer());
+
+        $this->assertEquals(
+            $customerQuery->where(['id' => 1])->one(),
+            Customer::findOneOrFail(['id' => 1]),
+        );
+
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('No records found.');
+
+        Customer::findOneOrFail(['name' => 'user5']);
+    }
+
     public function testFindAll(): void
     {
         $customerQuery = new ActiveQuery(new Customer());
@@ -63,6 +79,21 @@ abstract class RepositoryTraitTest extends TestCase
         $this->assertCount(3, Customer::findAll(['id' => [1, 2, 3]]));
     }
 
+    public function testFindAllOrFail(): void
+    {
+        $customerQuery = new ActiveQuery(new Customer());
+
+        $this->assertEquals(
+            $customerQuery->where(['id' => [1, 2, 3]])->all(),
+            Customer::findAllOrFail(['id' => [1, 2, 3]]),
+        );
+
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('No records found.');
+
+        Customer::findAllOrFail(['id' => 5]);
+    }
+
     public function testFindByPk(): void
     {
         $customerQuery = new ActiveQuery(new Customer());
@@ -74,6 +105,21 @@ abstract class RepositoryTraitTest extends TestCase
 
         $customer = Customer::findByPk(5);
         $this->assertNull($customer);
+    }
+
+    public function testFindByPkOrFail(): void
+    {
+        $customerQuery = new ActiveQuery(new Customer());
+
+        $this->assertEquals(
+            $customerQuery->where(['id' => 1])->one(),
+            Customer::findByPkOrFail(1),
+        );
+
+        $this->expectException(NotFoundException::class);
+        $this->expectExceptionMessage('No records found.');
+
+        Customer::findByPkOrFail(5);
     }
 
     public function testFindBySql(): void
