@@ -236,6 +236,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $keys = $this->primaryKey();
 
+        if (empty($keys)) {
+            throw new Exception(
+                static::class . ' does not have a primary key. You should either define a primary key for '
+                . $this->getTableName() . ' table or override the primaryKey() method.'
+            );
+        }
+
         $values = [];
 
         foreach ($keys as $name) {

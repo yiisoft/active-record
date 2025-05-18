@@ -661,12 +661,20 @@ abstract class ActiveRecordTest extends TestCase
     {
         $orderItem = new OrderItemWithNullFK();
 
-        $this->assertSame([], $orderItem->getPrimaryKeys());
-
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
         $orderItem->getPrimaryKey();
+    }
+
+    public function testGetPrimaryKeysWithoutPrimaryKey(): void
+    {
+        $orderItem = new OrderItemWithNullFK();
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
+
+        $orderItem->getPrimaryKeys();
     }
 
     public function testGetOldPrimaryKey(): void
