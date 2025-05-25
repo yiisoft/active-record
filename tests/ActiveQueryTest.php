@@ -1684,9 +1684,9 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->with('orders2')->where(['id' => 1])->one();
-        $this->assertCount(1, $query->getRelatedRecords());
+        $this->assertCount(1, $query->relatedRecords());
         $this->assertCount(1, $query->extraFields());
-        $this->assertArrayHasKey('orders2', $query->getRelatedRecords());
+        $this->assertArrayHasKey('orders2', $query->relatedRecords());
         $this->assertContains('orders2', $query->extraFields());
     }
 
@@ -1716,14 +1716,14 @@ abstract class ActiveQueryTest extends TestCase
         $order = new Order();
         $orderItem = new OrderItem();
 
-        $this->assertSame('order', $order->getTableName());
-        $this->assertSame('order_item', $orderItem->getTableName());
+        $this->assertSame('order', $order->tableName());
+        $this->assertSame('order_item', $orderItem->tableName());
 
         $order = $order->withTableName($orderTableName);
         $orderItem = $orderItem->withTableName($orderItemTableName);
 
-        $this->assertSame($orderTableName, $order->getTableName());
-        $this->assertSame($orderItemTableName, $orderItem->getTableName());
+        $this->assertSame($orderTableName, $order->tableName());
+        $this->assertSame($orderItemTableName, $orderItem->tableName());
 
         $orderQuery = new ActiveQuery(Order::class);
         $order = $orderQuery->findByPk(1);
@@ -1894,7 +1894,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertSame(0, $document->version);
         $this->assertSame(1, $document->delete());
-        $this->assertTrue($document->getIsNewRecord());
+        $this->assertTrue($document->isNewRecord());
 
         $this->expectException(OptimisticLockException::class);
         $document->delete();
@@ -1938,7 +1938,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** @see https://github.com/yiisoft/yii2/issues/12143 */
         $newOrder = new Order();
-        $this->assertTrue($newOrder->getIsNewRecord());
+        $this->assertTrue($newOrder->isNewRecord());
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage('The record is new and cannot be updated.');
@@ -2288,13 +2288,13 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->findByPk(2);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->get('name'));
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->isNewRecord());
         $this->assertEmpty($customer->newValues());
 
         $customer->set('name', 'user2x');
         $customer->save();
         $this->assertEquals('user2x', $customer->get('name'));
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->isNewRecord());
 
         $customer2 = $customerQuery->findByPk(2);
         $this->assertEquals('user2x', $customer2->get('name'));
@@ -2419,23 +2419,23 @@ abstract class ActiveQueryTest extends TestCase
 
         $order->setTotal(100);
         $order->setCreatedAt(time());
-        $this->assertTrue($order->getIsNewRecord());
+        $this->assertTrue($order->isNewRecord());
 
         /** belongs to */
         $order = new Order();
 
         $order->setTotal(100);
         $order->setCreatedAt(time());
-        $this->assertTrue($order->getIsNewRecord());
+        $this->assertTrue($order->isNewRecord());
 
         $customerQuery = new ActiveQuery(Customer::class);
         $customer = $customerQuery->findByPk(1);
         $this->assertNull($order->getCustomer());
 
         $order->link('customer', $customer);
-        $this->assertFalse($order->getIsNewRecord());
+        $this->assertFalse($order->isNewRecord());
         $this->assertEquals(1, $order->getCustomerId());
-        $this->assertEquals(1, $order->getCustomer()->getPrimaryKey());
+        $this->assertEquals(1, $order->getCustomer()->primaryKeyValue());
 
         /** via model */
         $orderQuery = new ActiveQuery(Order::class);

@@ -16,7 +16,7 @@ class Animal extends ActiveRecord
     protected int $id;
     protected string $type;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'animal';
     }

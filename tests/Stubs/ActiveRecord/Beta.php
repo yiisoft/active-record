@@ -14,7 +14,7 @@ final class Beta extends ActiveRecord
     protected string $alpha_string_identifier;
     protected Alpha $alpha;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'beta';
     }

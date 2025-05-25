@@ -18,7 +18,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 #[\AllowDynamicProperties]
 final class NullValues extends ActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'null_values';
     }

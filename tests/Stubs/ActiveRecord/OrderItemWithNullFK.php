@@ -16,7 +16,7 @@ final class OrderItemWithNullFK extends ActiveRecord
     protected int $quantity;
     protected float $subtotal;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'order_item_with_null_fk';
     }

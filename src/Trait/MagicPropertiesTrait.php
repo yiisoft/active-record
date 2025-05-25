@@ -22,8 +22,8 @@ use function property_exists;
 /**
  * Trait to define magic methods to access values of an ActiveRecord instance.
  *
- * @method array getRelatedRecords()
- * @see AbstractActiveRecord::getRelatedRecords()
+ * @method array relatedRecords()
+ * @see AbstractActiveRecord::relatedRecords()
  *
  * @method bool hasDependentRelations(string $propertyName)
  * @see AbstractActiveRecord::hasDependentRelations()
@@ -71,7 +71,7 @@ trait MagicPropertiesTrait
         }
 
         if ($this->isRelationPopulated($name)) {
-            return $this->getRelatedRecords()[$name];
+            return $this->relatedRecords()[$name];
         }
 
         if (method_exists($this, "get{$name}Query")) {

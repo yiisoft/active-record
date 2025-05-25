@@ -14,7 +14,7 @@ final class TestTrigger extends ActiveRecord
     public int $id;
     public string $stringcol;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'test_trigger';
     }

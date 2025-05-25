@@ -26,7 +26,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 #[\AllowDynamicProperties]
 final class User extends ActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%user}}';
     }
@@ -66,7 +66,7 @@ final class User extends ActiveRecord
     public string $email;
     public string $status = 'active';
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%user}}';
     }
@@ -96,7 +96,7 @@ final class User extends ActiveRecord
     protected string $email;
     protected string $status = 'active';
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%user}}';
     }
@@ -168,7 +168,7 @@ final class User extends ActiveRecord
     private string $email;
     private string $status = 'active';
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%user}}';
     }
@@ -213,7 +213,7 @@ final class User extends ActiveRecord
 {
     use MagicPropertiesTrait;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%user}}';
     }

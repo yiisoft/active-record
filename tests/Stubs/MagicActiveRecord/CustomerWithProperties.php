@@ -17,7 +17,7 @@ class CustomerWithProperties extends MagicActiveRecord
     protected string|null $name = null;
     public string|null $address = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }

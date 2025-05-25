@@ -21,7 +21,7 @@ final class OrderItem extends ActiveRecord
     protected int $quantity;
     protected float $subtotal;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return $this->tableName ??= 'order_item';
     }

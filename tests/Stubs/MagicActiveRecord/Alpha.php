@@ -15,7 +15,7 @@ final class Alpha extends MagicActiveRecord
 {
     public const TABLE_NAME = 'alpha';
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return self::TABLE_NAME;
     }

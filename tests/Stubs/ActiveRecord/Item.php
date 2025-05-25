@@ -17,7 +17,7 @@ class Item extends ActiveRecord
     protected string $name;
     protected int $category_id;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'item';
     }

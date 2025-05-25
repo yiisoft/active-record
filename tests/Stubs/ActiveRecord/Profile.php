@@ -16,7 +16,7 @@ final class Profile extends ActiveRecord
     protected int $id;
     protected string $description;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return self::TABLE_NAME;
     }

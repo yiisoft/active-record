@@ -16,7 +16,7 @@ final class Profile extends MagicActiveRecord
 {
     public const TABLE_NAME = 'profile';
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return self::TABLE_NAME;
     }

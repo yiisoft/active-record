@@ -18,7 +18,7 @@ final class Dossier extends ActiveRecord
     protected int $employee_id;
     protected string $summary;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'dossier';
     }

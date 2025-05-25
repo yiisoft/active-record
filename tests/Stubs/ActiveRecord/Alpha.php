@@ -16,7 +16,7 @@ final class Alpha extends ActiveRecord
 
     protected string $string_identifier;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return self::TABLE_NAME;
     }

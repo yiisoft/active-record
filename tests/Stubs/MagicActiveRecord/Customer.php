@@ -34,7 +34,7 @@ class Customer extends MagicActiveRecord
      */
     public $sumTotal;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }

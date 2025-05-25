@@ -16,7 +16,7 @@ class Promotion extends ActiveRecord
     public array $json_item_ids;
     public string $title;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%promotion}}';
     }

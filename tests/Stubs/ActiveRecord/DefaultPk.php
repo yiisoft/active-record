@@ -11,7 +11,7 @@ final class DefaultPk extends ActiveRecord
     public int $id;
     public string $type;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'default_pk';
     }

@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 final class NoExist extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'NoExist';
     }

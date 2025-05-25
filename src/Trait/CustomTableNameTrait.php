@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord\Trait;
 /**
  * Trait to implement custom table name for ActiveRecord.
  *
- * @see ActiveRecordInterface::getTableName()
+ * @see ActiveRecordInterface::tableName()
  */
 trait CustomTableNameTrait
 {
@@ -23,8 +23,8 @@ trait CustomTableNameTrait
         return $new;
     }
 
-    public function getTableName(): string
+    public function tableName(): string
     {
-        return $this->tableName ??= parent::getTableName();
+        return $this->tableName ??= parent::tableName();
     }
 }

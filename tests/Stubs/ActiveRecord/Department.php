@@ -17,7 +17,7 @@ final class Department extends ActiveRecord
     protected int $id;
     protected string $title;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'department';
     }

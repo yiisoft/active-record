@@ -12,7 +12,7 @@ final class UserAR extends MagicActiveRecord
     public const STATUS_ACTIVE = 10;
     public const ROLE_USER = 10;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%bool_user}}';
     }

@@ -25,7 +25,7 @@ final class CustomerWithAlias extends ActiveRecord
     public bool|string|null $bool_status = null;
     public int|null $profile_id = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }

@@ -36,7 +36,7 @@ class Customer extends ArrayableActiveRecord
      */
     public $sumTotal;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }
