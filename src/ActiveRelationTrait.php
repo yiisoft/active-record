@@ -491,7 +491,7 @@ trait ActiveRelationTrait
     {
         if (!empty($this->join) || !empty($this->joinWith)) {
             if (empty($this->from)) {
-                $alias = $this->getARInstance()->getTableName();
+                $alias = $this->getARInstance()->tableName();
             } else {
                 $alias = array_key_first($this->from);
 

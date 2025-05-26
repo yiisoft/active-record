@@ -16,7 +16,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class OrderWithNullFK extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'order_with_null_fk';
     }

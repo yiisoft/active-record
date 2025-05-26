@@ -13,7 +13,7 @@ final class BoolAR extends ActiveRecord
     public bool $default_true = true;
     public bool $default_false = false;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'bool_values';
     }

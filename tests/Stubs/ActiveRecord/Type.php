@@ -31,7 +31,7 @@ class Type extends ActiveRecord
     public int|string $bit_col = 0b1000_0010;
     public array|null $json_col = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'type';
     }

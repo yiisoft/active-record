@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class NoExist extends ActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'NoExist';
     }

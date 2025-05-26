@@ -17,8 +17,8 @@ use function array_keys;
  * @method string[] propertyNames()
  * @see ActiveRecordInterface::propertyNames()
  *
- * @method array getRelatedRecords()
- * @see AbstractActiveRecord::getRelatedRecords()
+ * @method array relatedRecords()
+ * @see AbstractActiveRecord::relatedRecords()
  */
 trait ArrayableTrait
 {
@@ -30,7 +30,7 @@ trait ArrayableTrait
      */
     public function extraFields(): array
     {
-        $fields = array_keys($this->getRelatedRecords());
+        $fields = array_keys($this->relatedRecords());
 
         return array_combine($fields, $fields);
     }

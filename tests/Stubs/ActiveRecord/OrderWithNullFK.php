@@ -16,7 +16,7 @@ final class OrderWithNullFK extends ActiveRecord
     protected int $created_at;
     protected float $total;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'order_with_null_fk';
     }

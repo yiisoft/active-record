@@ -25,7 +25,7 @@ final class CustomerWithAlias extends MagicActiveRecord
     public int $status2;
     public float $sumTotal;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'customer';
     }

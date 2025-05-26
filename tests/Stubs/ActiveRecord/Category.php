@@ -16,7 +16,7 @@ final class Category extends ActiveRecord
     protected int|null $id;
     protected string $name;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'category';
     }

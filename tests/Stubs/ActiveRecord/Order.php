@@ -25,7 +25,7 @@ class Order extends ActiveRecord
 
     protected string|int|null $virtualCustomerId = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return $this->tableName ??= self::TABLE_NAME;
     }

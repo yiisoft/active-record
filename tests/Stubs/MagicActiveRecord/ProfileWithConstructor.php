@@ -21,7 +21,7 @@ final class ProfileWithConstructor extends MagicActiveRecord
         parent::__construct($db);
     }
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'profile';
     }

@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 
 final class Promotion extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%promotion}}';
     }

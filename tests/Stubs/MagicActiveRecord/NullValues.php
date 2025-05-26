@@ -17,7 +17,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 final class NullValues extends MagicActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'null_values';
     }

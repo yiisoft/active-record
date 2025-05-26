@@ -30,19 +30,19 @@ use function get_object_vars;
  * In this example, Active Record is providing an object-oriented interface for accessing data stored in the database.
  * But Active Record provides much more functionality than this.
  *
- * To declare an ActiveRecord class, you need to extend {@see ActiveRecord} and implement the `getTableName` method:
+ * To declare an ActiveRecord class, you need to extend {@see ActiveRecord} and implement the `tableName` method:
  *
  * ```php
  * class Customer extends ActiveRecord
  * {
- *     public static function getTableName(): string
+ *     public static function tableName(): string
  *     {
  *         return 'customer';
  *     }
  * }
  * ```
  *
- * The `getTableName` method only has to return the name of the database table associated with the class.
+ * The `tableName` method only has to return the name of the database table associated with the class.
  *
  * Class instances are obtained in one of two ways:
  *
@@ -73,12 +73,12 @@ class ActiveRecord extends AbstractActiveRecord
 {
     public function propertyNames(): array
     {
-        return $this->getTableSchema()->getColumnNames();
+        return $this->tableSchema()->getColumnNames();
     }
 
     public function columnType(string $propertyName): string
     {
-        return $this->getTableSchema()->getColumn($propertyName)?->getType() ?? ColumnType::STRING;
+        return $this->tableSchema()->getColumn($propertyName)?->getType() ?? ColumnType::STRING;
     }
 
     /**
@@ -89,12 +89,12 @@ class ActiveRecord extends AbstractActiveRecord
      *
      * @return TableSchemaInterface The schema information of the DB table associated with this AR class.
      */
-    public function getTableSchema(): TableSchemaInterface
+    public function tableSchema(): TableSchemaInterface
     {
-        $tableSchema = $this->db()->getSchema()->getTableSchema($this->getTableName());
+        $tableSchema = $this->db()->getSchema()->getTableSchema($this->tableName());
 
         if ($tableSchema === null) {
-            throw new InvalidConfigException('The table does not exist: ' . $this->getTableName());
+            throw new InvalidConfigException('The table does not exist: ' . $this->tableName());
         }
 
         return $tableSchema;
@@ -121,7 +121,7 @@ class ActiveRecord extends AbstractActiveRecord
      */
     public function loadDefaultValues(bool $skipIfSet = true): static
     {
-        foreach ($this->getTableSchema()->getColumns() as $name => $column) {
+        foreach ($this->tableSchema()->getColumns() as $name => $column) {
             if ($column->getDefaultValue() !== null && (!$skipIfSet || $this->get($name) === null)) {
                 $this->set($name, $column->getDefaultValue());
             }
@@ -133,7 +133,7 @@ class ActiveRecord extends AbstractActiveRecord
     public function populateRecord(array|object $row): void
     {
         $row = ArArrayHelper::toArray($row);
-        $columns = $this->getTableSchema()->getColumns();
+        $columns = $this->tableSchema()->getColumns();
         $rowColumns = array_intersect_key($row, $columns);
 
         foreach ($rowColumns as $name => &$value) {
@@ -145,7 +145,7 @@ class ActiveRecord extends AbstractActiveRecord
 
     public function primaryKey(): array
     {
-        return $this->getTableSchema()->getPrimaryKey();
+        return $this->tableSchema()->getPrimaryKey();
     }
 
     protected function propertyValuesInternal(): array
@@ -156,13 +156,13 @@ class ActiveRecord extends AbstractActiveRecord
     protected function insertInternal(array|null $propertyNames = null): bool
     {
         $values = $this->newValues($propertyNames);
-        $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->getTableName(), $values);
+        $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->tableName(), $values);
 
         if ($primaryKeys === false) {
             return false;
         }
 
-        $columns = $this->getTableSchema()->getColumns();
+        $columns = $this->tableSchema()->getColumns();
 
         foreach ($primaryKeys as $name => $value) {
             $id = $columns[$name]->phpTypecast($value);

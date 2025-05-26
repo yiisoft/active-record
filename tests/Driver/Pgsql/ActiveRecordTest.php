@@ -108,11 +108,11 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->setEmail('user1337@example.com');
         $customer->setName('user1337');
         $customer->setAddress('address1337');
-        $this->assertTrue($customer->getIsNewRecord());
+        $this->assertTrue($customer->isNewRecord());
 
         $customer->save();
         $this->assertEquals(1337, $customer->getId());
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->isNewRecord());
     }
 
     /**
@@ -227,7 +227,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $record->save();
 
-        $this->assertEquals(5, $record->getPrimaryKey());
+        $this->assertEquals(5, $record->primaryKeyValue());
     }
 
     public static function arrayValuesProvider(): array

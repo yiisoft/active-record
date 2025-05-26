@@ -18,7 +18,7 @@ final class Employee extends ActiveRecord
     protected string $first_name;
     protected string $last_name;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'employee';
     }

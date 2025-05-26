@@ -16,7 +16,7 @@ class Animal extends MagicActiveRecord
 {
     private string $does;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return 'animal';
     }

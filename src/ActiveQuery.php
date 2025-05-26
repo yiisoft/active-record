@@ -779,7 +779,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     protected function getPrimaryTableName(): string
     {
-        return $this->getARInstance()->getTableName();
+        return $this->getARInstance()->tableName();
     }
 
     public function getOn(): array|string|null
@@ -823,7 +823,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if (!empty($this->getJoins()) || !empty($this->getJoinWith())) {
-            $tableName = $arInstance->getTableName();
+            $tableName = $arInstance->tableName();
 
             foreach ($primaryKey as &$pk) {
                 $pk = "$tableName.$pk";

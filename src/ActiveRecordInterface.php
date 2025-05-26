@@ -84,7 +84,7 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the given active record is the same as the current one.
      *
      * The comparison is made by comparing the table names and the primary key values of the two active records. If one
-     * of the records {@see getIsNewRecord|is new} they're also considered not equal.
+     * of the records {@see isNewRecord|is new} they're also considered not equal.
      *
      * @param self $record Record to compare to.
      *
@@ -124,7 +124,7 @@ interface ActiveRecordInterface
      *
      * @return bool Whether the record is new and should be inserted when calling {@see save()}.
      */
-    public function getIsNewRecord(): bool;
+    public function isNewRecord(): bool;
 
     /**
      * Returns the old value of the primary key as a scalar.
@@ -136,9 +136,9 @@ interface ActiveRecordInterface
      *
      * @throw Exception If multiple primary keys or no primary key.
      *
-     * @see getOldPrimaryKeys()
+     * @see primaryKeyOldValues()
      */
-    public function getOldPrimaryKey(): float|int|string|null;
+    public function primaryKeyOldValue(): float|int|string|null;
 
     /**
      * Returns the old values of the primary key as an array with property names as keys and property values as values.
@@ -150,25 +150,25 @@ interface ActiveRecordInterface
      *
      * @throw Exception If no primary key or multiple primary keys.
      *
-     * @see getOldPrimaryKeys()
+     * @see primaryKeyOldValues()
      */
-    public function getOldPrimaryKeys(): array;
+    public function primaryKeyOldValues(): array;
 
     /**
      * Returns the scalar value of the primary key.
      *
      * @throw Exception If multiple primary keys or no primary key.
      *
-     * @see getPrimaryKeys()
+     * @see primaryKeyValues()
      */
-    public function getPrimaryKey(): float|int|string|null;
+    public function primaryKeyValue(): float|int|string|null;
 
     /**
      * Returns the values of the primary key as an array with property names as keys and property values as values.
      *
-     * @see getPrimaryKey()
+     * @see primaryKeyValue()
      */
-    public function getPrimaryKeys(): array;
+    public function primaryKeyValues(): array;
 
     /**
      * Return the name of the table associated with this AR class.
@@ -178,13 +178,13 @@ interface ActiveRecordInterface
      * {
      *     public string const TABLE_NAME = 'user';
      *
-     *     public function getTableName(): string
+     *     public function tableName(): string
      *     {
      *          return self::TABLE_NAME;
      *     }
      * }
      */
-    public function getTableName(): string;
+    public function tableName(): string;
 
     /**
      * Returns a value indicating whether the record has a property with the specified name.
@@ -360,8 +360,8 @@ interface ActiveRecordInterface
     /**
      * Saves the current record.
      *
-     * This method will call {@see insert()} when {@see getIsNewRecord()|isNewRecord} is true, or {@see update()} when
-     * {@see getIsNewRecord()|isNewRecord} is false.
+     * This method will call {@see insert()} when {@see isNewRecord()|isNewRecord} is true, or {@see update()} when
+     * {@see isNewRecord()|isNewRecord} is false.
      *
      * For example, to save a customer record:
      *

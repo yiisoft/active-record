@@ -24,7 +24,7 @@ final class UserAR extends ActiveRecord
     public int $updated_at;
     public bool $is_deleted = false;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%bool_user}}';
     }

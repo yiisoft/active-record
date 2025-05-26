@@ -23,7 +23,7 @@ class Order extends MagicActiveRecord
 
     private string|int|null $virtualCustomerId = null;
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         return self::TABLE_NAME;
     }

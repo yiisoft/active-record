@@ -380,7 +380,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $result = $customerQuery->setWhere(['name' => null])->all();
         $this->assertCount(1, $result);
-        $this->assertEquals(2, reset($result)->getPrimaryKey());
+        $this->assertEquals(2, reset($result)->primaryKeyValue());
     }
 
     public function testFindEager(): void
@@ -403,7 +403,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer = $customerQuery->where(['id' => 1])->with('orders')->one();
         $this->assertTrue($customer->isRelationPopulated('orders'));
         $this->assertCount(1, $customer->getOrders());
-        $this->assertCount(1, $customer->getRelatedRecords());
+        $this->assertCount(1, $customer->relatedRecords());
 
         /** multiple with() calls */
         $orderQuery = new ActiveQuery(Order::class);
@@ -569,7 +569,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $orders = $customer->getOrders();
         $this->assertTrue($customer->isRelationPopulated('orders'));
         $this->assertCount(2, $orders);
-        $this->assertCount(1, $customer->getRelatedRecords());
+        $this->assertCount(1, $customer->relatedRecords());
 
         $customer->resetRelation('orders');
         $this->assertFalse($customer->isRelationPopulated('orders'));
@@ -579,7 +579,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $orders = $customer->getOrdersQuery()->where(['id' => 3])->all();
         $this->assertFalse($customer->isRelationPopulated('orders'));
-        $this->assertCount(0, $customer->getRelatedRecords());
+        $this->assertCount(0, $customer->relatedRecords());
         $this->assertCount(1, $orders);
         $this->assertEquals(3, $orders[0]->getId());
     }

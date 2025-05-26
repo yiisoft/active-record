@@ -408,7 +408,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage('The table does not exist: NoExist');
-        $noExist->getTableSchema();
+        $noExist->tableSchema();
     }
 
     public function testInsert(): void
@@ -422,12 +422,12 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setAddress('address4');
 
         $this->assertNull($customer->get('id'));
-        $this->assertTrue($customer->getIsNewRecord());
+        $this->assertTrue($customer->isNewRecord());
 
         $customer->save();
 
         $this->assertNotNull($customer->getId());
-        $this->assertFalse($customer->getIsNewRecord());
+        $this->assertFalse($customer->isNewRecord());
     }
 
     /**
@@ -639,83 +639,83 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customer->save());
     }
 
-    public function testGetPrimaryKey(): void
+    public function testPrimaryKeyValue(): void
     {
         $customer = Customer::findByPk(1);
 
-        $this->assertSame(1, $customer->getPrimaryKey());
-        $this->assertSame(['id' => 1], $customer->getPrimaryKeys());
+        $this->assertSame(1, $customer->primaryKeyValue());
+        $this->assertSame(['id' => 1], $customer->primaryKeyValues());
 
         $orderItemQuery = new ActiveQuery(OrderItem::class);
         $orderItem = $orderItemQuery->findByPk([1, 2]);
 
-        $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->getPrimaryKeys());
+        $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->primaryKeyValues());
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage(OrderItem::class . ' has multiple primary keys. Use getPrimaryKeys() method instead.');
+        $this->expectExceptionMessage(OrderItem::class . ' has multiple primary keys. Use primaryKeyValues() method instead.');
 
-        $orderItem->getPrimaryKey();
+        $orderItem->primaryKeyValue();
     }
 
-    public function testGetPrimaryKeyWithoutPrimaryKey(): void
+    public function testPrimaryKeyValueWithoutPrimaryKey(): void
     {
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
-        $orderItem->getPrimaryKey();
+        $orderItem->primaryKeyValue();
     }
 
-    public function testGetPrimaryKeysWithoutPrimaryKey(): void
+    public function testPrimaryKeyValuesWithoutPrimaryKey(): void
     {
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
-        $orderItem->getPrimaryKeys();
+        $orderItem->primaryKeyValues();
     }
 
-    public function testGetOldPrimaryKey(): void
+    public function testPrimaryKeyOldValue(): void
     {
         $customer = Customer::findByPk(1);
         $customer->setId(2);
 
-        $this->assertSame(1, $customer->getOldPrimaryKey());
-        $this->assertSame(['id' => 1], $customer->getOldPrimaryKeys());
+        $this->assertSame(1, $customer->primaryKeyOldValue());
+        $this->assertSame(['id' => 1], $customer->primaryKeyOldValues());
 
         $orderItemQuery = new ActiveQuery(OrderItem::class);
         $orderItem = $orderItemQuery->findByPk([1, 2]);
         $orderItem->setOrderId(3);
         $orderItem->setItemId(4);
 
-        $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->getOldPrimaryKeys());
+        $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->primaryKeyOldValues());
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage(OrderItem::class . ' has multiple primary keys. Use getOldPrimaryKeys() method instead.');
+        $this->expectExceptionMessage(OrderItem::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.');
 
-        $orderItem->getOldPrimaryKey();
+        $orderItem->primaryKeyOldValue();
     }
 
-    public function testGetOldPrimaryKeyWithoutPrimaryKey(): void
+    public function testPrimaryKeyOldValueWithoutPrimaryKey(): void
     {
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
-        $orderItem->getOldPrimaryKey();
+        $orderItem->primaryKeyOldValue();
     }
 
-    public function testGetOldPrimaryKeysWithoutPrimaryKey(): void
+    public function testPrimaryKeyOldValuesWithoutPrimaryKey(): void
     {
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(Exception::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
-        $orderItem->getOldPrimaryKeys();
+        $orderItem->primaryKeyOldValues();
     }
 
     public function testGetDirtyValuesOnNewRecord(): void

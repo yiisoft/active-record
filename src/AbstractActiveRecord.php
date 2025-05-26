@@ -95,18 +95,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function deleteAll(array $condition = [], array $params = []): int
     {
         $command = $this->db()->createCommand();
-        $command->delete($this->getTableName(), $condition, $params);
+        $command->delete($this->tableName(), $condition, $params);
 
         return $command->execute();
     }
 
     public function equals(ActiveRecordInterface $record): bool
     {
-        if ($this->getIsNewRecord() || $record->getIsNewRecord()) {
+        if ($this->isNewRecord() || $record->isNewRecord()) {
             return false;
         }
 
-        return $this->getTableName() === $record->getTableName() && $this->getPrimaryKeys() === $record->getPrimaryKeys();
+        return $this->tableName() === $record->tableName() && $this->primaryKeyValues() === $record->primaryKeyValues();
     }
 
     public function get(string $propertyName): mixed
@@ -125,7 +125,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return array_intersect_key($this->propertyValuesInternal(), array_flip($names));
     }
 
-    public function getIsNewRecord(): bool
+    public function isNewRecord(): bool
     {
         return $this->oldValues === null;
     }
@@ -180,7 +180,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->oldValues ?? [];
     }
 
-    public function getOldPrimaryKey(): float|int|string|null
+    public function primaryKeyOldValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
 
@@ -188,22 +188,22 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             1 => $this->oldValues[$keys[0]] ?? null,
             0 => throw new Exception(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->getTableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.'
             ),
             default => throw new Exception(
-                static::class . ' has multiple primary keys. Use getOldPrimaryKeys() method instead.'
+                static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.'
             ),
         };
     }
 
-    public function getOldPrimaryKeys(): array
+    public function primaryKeyOldValues(): array
     {
         $keys = $this->primaryKey();
 
         if (empty($keys)) {
             throw new Exception(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->getTableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.'
             );
         }
 
@@ -216,7 +216,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $values;
     }
 
-    public function getPrimaryKey(): float|int|string|null
+    public function primaryKeyValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
 
@@ -224,22 +224,22 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             1 => $this->get($keys[0]),
             0 => throw new Exception(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->getTableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.'
             ),
             default => throw new Exception(
-                static::class . ' has multiple primary keys. Use getPrimaryKeys() method instead.'
+                static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.'
             ),
         };
     }
 
-    public function getPrimaryKeys(): array
+    public function primaryKeyValues(): array
     {
         $keys = $this->primaryKey();
 
         if (empty($keys)) {
             throw new Exception(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->getTableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.'
             );
         }
 
@@ -259,7 +259,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * {@see relationQuery()}
      */
-    public function getRelatedRecords(): array
+    public function relatedRecords(): array
     {
         return $this->related;
     }
@@ -412,7 +412,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $via = $relation->getVia();
 
         if ($via !== null) {
-            if ($this->getIsNewRecord() || $arClass->getIsNewRecord()) {
+            if ($this->isNewRecord() || $arClass->isNewRecord()) {
                 throw new InvalidCallException(
                     'Unable to link models: the models being linked cannot be newly created.'
                 );
@@ -484,11 +484,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $p2 = $this->isPrimaryKey(array_values($link));
 
             if ($p1 && $p2) {
-                if ($this->getIsNewRecord() && $arClass->getIsNewRecord()) {
+                if ($this->isNewRecord() && $arClass->isNewRecord()) {
                     throw new InvalidCallException('Unable to link models: at most one model can be newly created.');
                 }
 
-                if ($this->getIsNewRecord()) {
+                if ($this->isNewRecord()) {
                     $this->bindModels(array_flip($link), $this, $arClass);
                 } else {
                     $this->bindModels($link, $arClass, $this);
@@ -581,7 +581,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function refresh(): bool
     {
-        $record = $this->query()->findByPk($this->getOldPrimaryKeys());
+        $record = $this->query()->findByPk($this->primaryKeyOldValues());
 
         return $this->refreshInternal($record);
     }
@@ -621,7 +621,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function save(array|null $propertyNames = null): bool
     {
-        if ($this->getIsNewRecord()) {
+        if ($this->isNewRecord()) {
             return $this->insert($propertyNames);
         }
 
@@ -660,15 +660,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Sets the value indicating whether the record is new.
+     * Marks this record as new.
      *
-     * @param bool $value Whether the record is new and should be inserted when calling {@see save()}.
+     * @param bool $isNewRecord Whether the record is new and should be inserted when calling {@see save()}.
      *
-     * @see getIsNewRecord()
+     * @see isNewRecord()
      */
-    public function setIsNewRecord(bool $value): void
+    public function markAsNewRecord(bool $isNewRecord = true): void
     {
-        $this->oldValues = $value ? null : $this->propertyValuesInternal();
+        $this->oldValues = $isNewRecord ? null : $this->propertyValuesInternal();
     }
 
     /**
@@ -711,7 +711,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $command = $this->db()->createCommand();
 
-        $command->update($this->getTableName(), $propertyValues, $condition, $params);
+        $command->update($this->tableName(), $propertyValues, $condition, $params);
 
         return $command->execute();
     }
@@ -753,7 +753,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         $command = $this->db()->createCommand();
-        $command->update($this->getTableName(), $counters, $condition, $params);
+        $command->update($this->tableName(), $counters, $condition, $params);
 
         return $command->execute();
     }
@@ -785,7 +785,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function updateCounters(array $counters): bool
     {
-        if ($this->updateAllCounters($counters, $this->getOldPrimaryKeys()) === 0) {
+        if ($this->updateAllCounters($counters, $this->primaryKeyOldValues()) === 0) {
             return false;
         }
 
@@ -891,7 +891,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             /** @psalm-var array<array-key, ActiveRecordInterface> $related */
             $related = $this->related[$relationName];
             foreach ($related as $a => $b) {
-                if ($arClass->getPrimaryKeys() === $b->getPrimaryKeys()) {
+                if ($arClass->primaryKeyValues() === $b->primaryKeyValues()) {
                     unset($this->related[$relationName][$a]);
                 }
             }
@@ -1071,7 +1071,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
          * We don't check the return value of deleteAll() because it is possible the record is already deleted in
          * the database and thus the method will return 0
          */
-        $condition = $this->getOldPrimaryKeys();
+        $condition = $this->primaryKeyOldValues();
 
         if ($this instanceof OptimisticLockInterface) {
             $lock = $this->optimisticLockPropertyName();
@@ -1132,7 +1132,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     protected function updateInternal(array|null $properties = null): int
     {
-        if ($this->getIsNewRecord()) {
+        if ($this->isNewRecord()) {
             throw new InvalidCallException('The record is new and cannot be updated.');
         }
 
@@ -1157,7 +1157,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             return 0;
         }
 
-        $condition = $this->getOldPrimaryKeys();
+        $condition = $this->primaryKeyOldValues();
 
         if ($this instanceof OptimisticLockInterface) {
             $lock = $this->optimisticLockPropertyName();
@@ -1234,7 +1234,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         unset($this->relationsDependencies[$propertyName]);
     }
 
-    public function getTableName(): string
+    public function tableName(): string
     {
         $name = (new ReflectionClass($this))->getShortName();
         /** @var string $name */
