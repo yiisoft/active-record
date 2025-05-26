@@ -1099,6 +1099,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * You may specify the properties to be returned as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
+     * Only the {@see newValues() changed property values} will be returned.
+     *
      * @param array|null $properties List of property names or name-values pairs that need to be returned.
      * Defaults to `null`, meaning all changed property values will be returned.
      *
