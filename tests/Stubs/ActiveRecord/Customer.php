@@ -61,9 +61,9 @@ class Customer extends ArrayableActiveRecord
         };
     }
 
-    public function getId(): int
+    public function getId(): int|null
     {
-        return $this->id;
+        return $this->id ?? null;
     }
 
     public function getEmail(): string

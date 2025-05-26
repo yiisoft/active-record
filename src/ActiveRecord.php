@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
+use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
@@ -153,9 +154,13 @@ class ActiveRecord extends AbstractActiveRecord
         return get_object_vars($this);
     }
 
-    protected function insertInternal(array|null $propertyNames = null): bool
+    protected function insertInternal(array|null $properties = null): bool
     {
-        $values = $this->newValues($propertyNames);
+        if (!$this->isNewRecord()) {
+            throw new InvalidCallException('The record is not new and cannot be inserted.');
+        }
+
+        $values = $this->newPropertyValues($properties);
         $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->tableName(), $values);
 
         if ($primaryKeys === false) {

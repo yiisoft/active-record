@@ -9,6 +9,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidArgumentException;
+use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
 interface ActiveRecordInterface
@@ -195,6 +196,8 @@ interface ActiveRecordInterface
 
     /**
      * Inserts a row into the associated database table using the property values of this record.
+     * You may specify the properties to be inserted as list of name or name-value pairs.
+     * If name-value pair specified, the corresponding property values will be modified.
      *
      * Only the {@see newValues() changed property values} will be inserted into a database.
      *
@@ -210,15 +213,22 @@ interface ActiveRecordInterface
      * $customer->insert();
      * ```
      *
-     * @param array|null $propertyNames List of property names that need to be saved. Defaults to `null`, meaning all
-     * changed property values will be saved.
+     * To insert a customer record with specific properties:
      *
+     * ```php
+     * $customer->insert(['name' => $name, 'email' => $email]);
+     * ```
+     *
+     * @param array|null $properties List of property names or name-values pairs that need to be saved.
+     * Defaults to `null`, meaning all changed property values will be saved.
+     *
+     * @throws InvalidCallException If the record {@see isNewRecord() is not new}.
      * @throws InvalidConfigException
      * @throws Throwable In case insert failed.
      *
      * @return bool Whether the record is inserted successfully.
      */
-    public function insert(array|null $propertyNames = null): bool;
+    public function insert(array|null $properties = null): bool;
 
     /**
      * Checks if any property returned by {@see propertyNames()} method has changed.
@@ -358,9 +368,13 @@ interface ActiveRecordInterface
     public function resetRelation(string $name): void;
 
     /**
-     * Saves the current record.
+     * Saves the changes to this active record into the associated database table.
+     * You may specify the properties to be updated as list of name or name-value pairs.
+     * If name-value pair specified, the corresponding property values will be modified.
      *
-     * This method will call {@see insert()} when {@see isNewRecord()|isNewRecord} is true, or {@see update()} when
+     * Only the {@see newValues() changed property values} will be saved into a database.
+     *
+     * This method will call {@see insert()} when {@see isNewRecord()} is true, or {@see update()} when
      * {@see isNewRecord()|isNewRecord} is false.
      *
      * For example, to save a customer record:
@@ -372,12 +386,18 @@ interface ActiveRecordInterface
      * $customer->save();
      * ```
      *
-     * @param array|null $propertyNames List of property names that need to be saved. Defaults to `null`,
-     * meaning all changed property values will be saved.
+     * To save a customer record with specific properties:
+     *
+     * ```php
+     * $customer->save(['name' => $name, 'email' => $email]);
+     * ```
+     *
+     * @param array|null $properties List of property names or name-values pairs that need to be saved.
+     * Defaults to `null`, meaning all changed property values will be saved.
      *
      * @return bool Whether the saving succeeded (that's no validation errors occurred).
      */
-    public function save(array|null $propertyNames = null): bool;
+    public function save(array|null $properties = null): bool;
 
     /**
      * Sets the named property value.
@@ -400,7 +420,7 @@ interface ActiveRecordInterface
      * For example, to update a customer record:
      *
      * ```php
-     * $customer = new Customer();
+     * $customer = (new ActiveQuery(Customer::class))->findByPk(1);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
@@ -409,9 +429,8 @@ interface ActiveRecordInterface
      * To update a customer record with specific properties:
      *
      * ```php
-     *  $customer = new Customer();
-     *  $customer->update(['name' => $name, 'email' => $email]);
-     *  ```
+     * $customer->update(['name' => $name, 'email' => $email]);
+     * ```
      *
      * Note that it's possible the update doesn't affect any row in the table.
      * In this case, this method will return 0.
@@ -428,6 +447,7 @@ interface ActiveRecordInterface
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
      * Defaults to `null`, meaning all changed property values will be saved.
      *
+     * @throws InvalidCallException If the record {@see isNewRecord() is new}.
      * @throws OptimisticLockException If the instance implements {@see OptimisticLockInterface} and the data being
      * updated is outdated.
      * @throws Throwable In case update failed.
