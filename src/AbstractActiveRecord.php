@@ -23,6 +23,7 @@ use function array_fill_keys;
 use function array_flip;
 use function array_intersect;
 use function array_intersect_key;
+use function array_is_list;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
@@ -67,8 +68,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Inserts Active Record values into DB without considering transaction.
      *
-     * @param array|null $propertyNames List of property names that need to be saved. Defaults to `null`, meaning all
-     * changed property values will be saved. Only changed values will be saved.
+     * @param array|null $properties List of property names or name-values pairs that need to be saved.
+     * Defaults to `null`, meaning all changed property values will be saved.
      *
      * @throws Exception
      * @throws InvalidArgumentException
@@ -77,7 +78,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return bool Whether the record inserted successfully.
      */
-    abstract protected function insertInternal(array|null $propertyNames = null): bool;
+    abstract protected function insertInternal(array|null $properties = null): bool;
 
     /**
      * Sets the value of the named property.
@@ -347,9 +348,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->createRelationQuery($class, $link, false);
     }
 
-    public function insert(array|null $propertyNames = null): bool
+    public function insert(array|null $properties = null): bool
     {
-        return $this->insertInternal($propertyNames);
+        return $this->insertInternal($properties);
     }
 
     /**
@@ -619,13 +620,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->related[$name] = $query->relatedRecords();
     }
 
-    public function save(array|null $propertyNames = null): bool
+    public function save(array|null $properties = null): bool
     {
         if ($this->isNewRecord()) {
-            return $this->insert($propertyNames);
+            return $this->insert($properties);
         }
 
-        $this->update($propertyNames);
+        $this->update($properties);
 
         return true;
     }
@@ -1094,6 +1095,38 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
+     * Returns the property values that have been modified.
+     * You may specify the properties to be returned as list of name or name-value pairs.
+     * If name-value pair specified, the corresponding property values will be modified.
+     *
+     * Only the {@see newValues() changed property values} will be returned.
+     *
+     * @param array|null $properties List of property names or name-values pairs that need to be returned.
+     * Defaults to `null`, meaning all changed property values will be returned.
+     *
+     * @return array The changed property values (name-value pairs).
+     */
+    protected function newPropertyValues(array|null $properties = null): array
+    {
+        if (empty($properties) || array_is_list($properties)) {
+            return $this->newValues($properties);
+        }
+
+        $names = [];
+
+        foreach ($properties as $name => $value) {
+            if (is_int($name)) {
+                $names[] = $value;
+            } else {
+                $this->set($name, $value);
+                $names[] = $name;
+            }
+        }
+
+        return $this->newValues($names);
+    }
+
+    /**
      * Repopulates this active record with the latest data from a newly fetched instance.
      *
      * @param ActiveRecordInterface|array|null $record The record to take property values from.
@@ -1136,22 +1169,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             throw new InvalidCallException('The record is new and cannot be updated.');
         }
 
-        if ($properties === null) {
-            $names = $this->propertyNames();
-        } else {
-            $names = [];
-
-            foreach ($properties as $name => $value) {
-                if (is_int($name)) {
-                    $names[] = $value;
-                } else {
-                    $this->set($name, $value);
-                    $names[] = $name;
-                }
-            }
-        }
-
-        $values = $this->newValues($names);
+        $values = $this->newPropertyValues($properties);
 
         if (empty($values)) {
             return 0;

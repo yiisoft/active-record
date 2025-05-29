@@ -236,6 +236,121 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals('meow', $animals->getDoes());
     }
 
+    public function testSave(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        // insert
+        $customer = new Customer();
+
+        $customer->setEmail('user4@example.com');
+        $customer->setName('user4');
+        $customer->setAddress('address4');
+        $customer->setStatus(1);
+
+        $this->assertNull($customer->getId());
+        $this->assertTrue($customer->isNewRecord());
+
+        $this->assertTrue($customer->save());
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertSame(4, $customer->getId());
+
+        $customer->refresh();
+        $this->assertSame(4, $customer->getId());
+        $this->assertSame('user4@example.com', $customer->getEmail());
+        $this->assertSame('user4', $customer->getName());
+        $this->assertSame('address4', $customer->getAddress());
+        $this->assertSame(1, $customer->getStatus());
+
+        // insert with property names
+        $customer = new Customer();
+
+        $customer->setEmail('user5@example.com');
+        $customer->setName('user5');
+        $customer->setAddress('address5');
+        $customer->setStatus(1);
+
+        $this->assertNull($customer->getId());
+        $this->assertTrue($customer->isNewRecord());
+
+        $this->assertTrue($customer->save(['email', 'name', 'address']));
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertSame(5, $customer->getId());
+
+        $customer->refresh();
+        $this->assertSame(5, $customer->getId());
+        $this->assertSame('user5@example.com', $customer->getEmail());
+        $this->assertSame('user5', $customer->getName());
+        $this->assertSame('address5', $customer->getAddress());
+        $this->assertSame(0, $customer->getStatus());
+
+        // insert with property values
+        $customer = new Customer();
+        $customer->setAddress('address6');
+        $customer->setStatus(1);
+
+        $this->assertTrue($customer->save([
+            'email' => 'user6@example.com',
+            'name' => 'user6',
+            'address',
+        ]));
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertSame(6, $customer->getId());
+
+        $customer->refresh();
+        $this->assertSame(6, $customer->getId());
+        $this->assertSame('user6@example.com', $customer->getEmail());
+        $this->assertSame('user6', $customer->getName());
+        $this->assertSame('address6', $customer->getAddress());
+        $this->assertSame(0, $customer->getStatus());
+
+        // update
+        $customer->setEmail('customer6@example.com');
+        $customer->setName('customer6');
+
+        $this->assertTrue($customer->save());
+
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertSame(6, $customer->getId());
+
+        $customer->refresh();
+        $this->assertSame(6, $customer->getId());
+        $this->assertSame('customer6@example.com', $customer->getEmail());
+        $this->assertSame('customer6', $customer->getName());
+        $this->assertSame('address6', $customer->getAddress());
+        $this->assertSame(0, $customer->getStatus());
+
+        // update with property names
+        $customer->setEmail('name6@example.com');
+        $customer->setName('name6');
+        $customer->setStatus(1);
+
+        $this->assertTrue($customer->save(['email', 'name']));
+
+        $customer->refresh();
+        $this->assertSame(6, $customer->getId());
+        $this->assertSame('name6@example.com', $customer->getEmail());
+        $this->assertSame('name6', $customer->getName());
+        $this->assertSame('address6', $customer->getAddress());
+        $this->assertSame(0, $customer->getStatus());
+
+        // update with property values
+        $customer->setAddress('street6');
+        $customer->setStatus(1);
+        $this->assertTrue($customer->save([
+            'email' => 'client6@example.com',
+            'name' => 'client6',
+            'address',
+        ]));
+
+        $customer->refresh();
+        $this->assertSame(6, $customer->getId());
+        $this->assertSame('client6@example.com', $customer->getEmail());
+        $this->assertSame('client6', $customer->getName());
+        $this->assertSame('street6', $customer->getAddress());
+        $this->assertSame(0, $customer->getStatus());
+    }
+
     public function testSaveEmpty(): void
     {
         $this->reloadFixtureAfterTest();
@@ -420,14 +535,69 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setEmail('user4@example.com');
         $customer->setName('user4');
         $customer->setAddress('address4');
+        $customer->setStatus(1);
 
-        $this->assertNull($customer->get('id'));
         $this->assertTrue($customer->isNewRecord());
+        $this->assertNull($customer->getId());
 
-        $customer->save();
-
-        $this->assertNotNull($customer->getId());
+        $this->assertTrue($customer->insert());
         $this->assertFalse($customer->isNewRecord());
+        $this->assertSame(4, $customer->getId());
+
+        $customer->refresh();
+        $this->assertSame(4, $customer->getId());
+        $this->assertSame('user4@example.com', $customer->getEmail());
+        $this->assertSame('user4', $customer->getName());
+        $this->assertSame('address4', $customer->getAddress());
+        $this->assertSame(1, $customer->getStatus());
+
+        // with property names
+        $customer = new Customer();
+
+        $customer->setEmail('user5@example.com');
+        $customer->setName('user5');
+        $customer->setAddress('address5');
+        $customer->setStatus(1);
+
+        $this->assertTrue($customer->isNewRecord());
+        $this->assertNull($customer->getId());
+
+        $this->assertTrue($customer->insert(['email', 'name', 'address']));
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertSame(5, $customer->getId());
+
+        $customer->refresh();
+        $this->assertSame(5, $customer->getId());
+        $this->assertSame('user5@example.com', $customer->getEmail());
+        $this->assertSame('user5', $customer->getName());
+        $this->assertSame('address5', $customer->getAddress());
+        $this->assertSame(0, $customer->getStatus());
+
+        // with property values
+        $customer = new Customer();
+        $customer->setAddress('address6');
+        $customer->setStatus(1);
+
+        $this->assertTrue($customer->insert([
+            'email' => 'user6@example.com',
+            'name' => 'user6',
+            'address',
+        ]));
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertSame(6, $customer->getId());
+
+        $customer->refresh();
+        $this->assertSame(6, $customer->getId());
+        $this->assertSame('user6@example.com', $customer->getEmail());
+        $this->assertSame('user6', $customer->getName());
+        $this->assertSame('address6', $customer->getAddress());
+        $this->assertSame(0, $customer->getStatus());
+
+        // insert not new record
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('The record is not new and cannot be inserted.');
+
+        $customer->insert();
     }
 
     /**
