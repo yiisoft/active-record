@@ -142,7 +142,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 #[\AllowDynamicProperties]
 final class User extends ActiveRecord
 {
-    public function getTableName(): string
+    public function tableName(): string
     {
         return '{{%user}}';
     }
