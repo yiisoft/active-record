@@ -196,13 +196,7 @@ class ActiveRecord extends AbstractActiveRecord
             $this->set($name, $value);
         }
 
-        if (empty($oldValues)) {
-            $oldValues = $values;
-        } else {
-            $oldValues = array_merge($oldValues, $values);
-        }
-
-        $this->assignOldValues($oldValues);
+        $this->assignOldValues(array_merge($oldValues, $values));
 
         return true;
     }
