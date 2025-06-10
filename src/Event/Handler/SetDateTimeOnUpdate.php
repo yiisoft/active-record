@@ -16,7 +16,7 @@ final class SetDateTimeOnUpdate extends SetValueOnUpdate
         float|int|string|DateTimeInterface|Expression|null $value = null,
         string ...$propertyNames,
     ) {
-        $value ??= static fn () => new DateTimeImmutable();
+        $value ??= static fn (): DateTimeImmutable => new DateTimeImmutable();
 
         if (empty($propertyNames)) {
             $propertyNames = ['updated_at'];

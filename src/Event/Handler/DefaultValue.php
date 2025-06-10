@@ -10,6 +10,9 @@ use Yiisoft\ActiveRecord\Event\EventInterface;
 
 use function is_callable;
 
+/**
+ * @psalm-suppress ClassMustBeFinal
+ */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
 class DefaultValue extends AbstractHandler
 {

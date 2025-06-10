@@ -16,7 +16,7 @@ final class DefaultDateTimeOnInsert extends DefaultValueOnInsert
         float|int|string|DateTimeInterface|Expression|null $value = null,
         string ...$propertyNames,
     ) {
-        $value ??= static fn() => new DateTimeImmutable();
+        $value ??= static fn(): DateTimeImmutable => new DateTimeImmutable();
 
         if (empty($propertyNames)) {
             $propertyNames = ['created_at', 'updated_at'];
