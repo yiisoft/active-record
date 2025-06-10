@@ -1274,7 +1274,7 @@ abstract class ActiveRecordTest extends TestCase
                 'insertProperties' => null,
                 'updateValues' => [
                     'name' => 'another name',
-                    'address' => 'another address'
+                    'address' => 'another address',
                 ],
                 'expected' => [
                     'id' => 3,
