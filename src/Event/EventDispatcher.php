@@ -37,7 +37,7 @@ final class EventDispatcher
 
         foreach ($attributes as $attribute) {
             $handler = $attribute->newInstance();
-            $this->listeners = $this->getListeners()->add([$handler, 'handle'], ...$handler->events());
+            $this->listeners = $this->getListeners()->add($handler->handle(...), ...$handler->events());
         }
 
         $properties = $reflection->getProperties(
