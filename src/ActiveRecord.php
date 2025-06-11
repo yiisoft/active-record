@@ -161,7 +161,7 @@ class ActiveRecord extends AbstractActiveRecord
         }
 
         $values = $this->newPropertyValues($properties);
-        $primaryKeys = $this->db()->createCommand()->insertWithReturningPks($this->tableName(), $values);
+        $primaryKeys = $this->db()->createCommand()->insertReturningPks($this->tableName(), $values);
 
         if ($primaryKeys === false) {
             return false;
