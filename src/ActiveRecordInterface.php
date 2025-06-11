@@ -527,8 +527,9 @@ interface ActiveRecordInterface
      * - `true` the record values will be updated to match the insert property values;
      * - `false` no update will be performed if the record already exist.
      *
-     *@throws Throwable In case query failed.
      * @throws InvalidConfigException
+     * @throws Throwable In case query failed.
+     *
      * @return bool Whether the record is inserted or updated successfully.
      */
     public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool;
