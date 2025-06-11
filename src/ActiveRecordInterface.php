@@ -507,21 +507,32 @@ interface ActiveRecordInterface
      * $customer = new Customer();
      * $customer->name = $name;
      * $customer->email = $email; // unique property
+     * $customer->created_at = new DateTimeImmutable();
      * $customer->upsert();
+     * ```
+     *
+     * To upsert a customer record with specific properties:
+     *
+     * ```php
+     * $customer->upsert(
+     *     ['name' => $name, 'email' => $email, 'created_at' => new DateTimeImmutable()],
+     *     ['name', 'email', 'updated_at' => new DateTimeImmutable()],
+     * );
      * ```
      *
      * @param array|null $insertProperties List of property names or name-values pairs that need to be inserted.
      * Defaults to `null`, meaning all changed property values will be inserted.
-     * @param array|bool $updateValues The property values (name => value) to update if the record already exists.
-     * If `true` is passed, the record values will be updated to match the insert property values.
-     * If `false` is passed, no update will be performed if the record already exist.
-     *
-     * @throws InvalidConfigException
-     * @throws Throwable In case query failed.
+     * @param array|bool $updateProperties List of property names or name-values pairs that need to be updated
+     * if the record already exists. Also available a boolean value:
+     * - `true` the record values will be updated to match the insert property values;
+     * - `false` no update will be performed if the record already exist.
      *
      * @return bool Whether the record is inserted or updated successfully.
+     *@throws Throwable In case query failed.
+     *
+     * @throws InvalidConfigException
      */
-    public function upsert(array|null $insertProperties = null, array|bool $updateValues = true): bool;
+    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool;
 
     /**
      * Destroys the relationship between two records.

@@ -1182,7 +1182,7 @@ abstract class ActiveRecordTest extends TestCase
                     'address' => 'address4',
                 ],
                 'insertProperties' => null,
-                'updateValues' => false,
+                'updateProperties' => false,
                 'expected' => [
                     'id' => 4,
                     'email' => 'user4@example.com',
@@ -1200,7 +1200,7 @@ abstract class ActiveRecordTest extends TestCase
                     'email',
                     'name',
                 ],
-                'updateValues' => false,
+                'updateProperties' => false,
                 'expected' => [
                     'id' => 4,
                     'email' => 'user4@example.com',
@@ -1223,7 +1223,7 @@ abstract class ActiveRecordTest extends TestCase
                     'email',
                     'name' => 'user4',
                 ],
-                'updateValues' => false,
+                'updateProperties' => false,
                 'expected' => [
                     'id' => 4,
                     'email' => 'user4@example.com',
@@ -1243,7 +1243,7 @@ abstract class ActiveRecordTest extends TestCase
                     'name' => 'new name',
                 ],
                 'insertProperties' => null,
-                'updateValues' => false,
+                'updateProperties' => false,
                 'expected' => [
                     'id' => 3,
                     'email' => 'user3@example.com',
@@ -1258,7 +1258,7 @@ abstract class ActiveRecordTest extends TestCase
                     'address' => 'new address',
                 ],
                 'insertProperties' => null,
-                'updateValues' => true,
+                'updateProperties' => true,
                 'expected' => [
                     'id' => 3,
                     'email' => 'user3@example.com',
@@ -1266,13 +1266,13 @@ abstract class ActiveRecordTest extends TestCase
                     'address' => 'new address',
                 ],
             ],
-            'update from updateValues' => [
+            'update from updateProperties' => [
                 'values' => [
                     'email' => 'user3@example.com',
                     'address' => 'new address',
                 ],
                 'insertProperties' => null,
-                'updateValues' => [
+                'updateProperties' => [
                     'name' => 'another name',
                     'address' => 'another address',
                 ],
@@ -1281,6 +1281,28 @@ abstract class ActiveRecordTest extends TestCase
                     'email' => 'user3@example.com',
                     'name' => 'another name',
                     'address' => 'another address',
+                ],
+            ],
+            'update partly from updateProperties' => [
+                'values' => [],
+                'insertProperties' => [
+                    'email' => 'user3@example.com',
+                    'name' => 'new name',
+                    'address' => 'new address',
+                    'status' => 10,
+                ],
+                'updateProperties' => [
+                    'name' => 'another name',
+                    'address',
+                    'bool_status' => true,
+                ],
+                'expected' => [
+                    'id' => 3,
+                    'email' => 'user3@example.com',
+                    'name' => 'another name',
+                    'address' => 'new address',
+                    'status' => 2,
+                    'bool_status' => true,
                 ],
             ],
         ];
@@ -1290,7 +1312,7 @@ abstract class ActiveRecordTest extends TestCase
     public function testUpsert(
         array $values,
         array|null $insertProperties,
-        array|bool $updateValues,
+        array|bool $updateProperties,
         array $expected,
         array|null $expectedAfterRefresh = null,
     ): void {
@@ -1302,7 +1324,7 @@ abstract class ActiveRecordTest extends TestCase
             $customer->set($property, $value);
         }
 
-        $this->assertTrue($customer->upsert($insertProperties, $updateValues));
+        $this->assertTrue($customer->upsert($insertProperties, $updateProperties));
 
         $this->assertFalse($customer->isNewRecord());
 

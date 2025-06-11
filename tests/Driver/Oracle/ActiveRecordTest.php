@@ -88,7 +88,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     public function testUpsert(
         array $values,
         array|null $insertProperties,
-        array|bool $updateValues,
+        array|bool $updateProperties,
         array $expected,
         array|null $expectedAfterRefresh = null,
     ): void {
@@ -97,6 +97,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->expectException(NotSupportedException::class);
         $this->expectExceptionMessage('Yiisoft\Db\Oracle\DMLQueryBuilder::upsertReturning() is not supported by Oracle.');
 
-        $customer->upsert($insertProperties, $updateValues);
+        $customer->upsert($insertProperties, $updateProperties);
     }
 }

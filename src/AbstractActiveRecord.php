@@ -95,7 +95,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     abstract protected function upsertInternal(
         array|null $insertProperties = null,
-        array|bool $updateValues = true,
+        array|bool $updateProperties = true,
     ): bool;
 
     public function delete(): int
@@ -809,9 +809,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return true;
     }
 
-    public function upsert(array|null $insertProperties = null, array|bool $updateValues = true): bool
+    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool
     {
-        return $this->upsertInternal($insertProperties, $updateValues);
+        return $this->upsertInternal($insertProperties, $updateProperties);
     }
 
     public function unlink(string $relationName, ActiveRecordInterface $arClass, bool $delete = false): void

@@ -10,10 +10,15 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
+use function array_diff_key;
+use function array_filter;
 use function array_intersect_key;
 use function array_keys;
 use function array_merge;
 use function get_object_vars;
+use function is_array;
+
+use const ARRAY_FILTER_USE_KEY;
 
 /**
  * Active Record class which implements {@see ActiveRecordInterface} interface with the minimum set of methods.
@@ -164,17 +169,34 @@ class ActiveRecord extends AbstractActiveRecord
         return $this->populateRawValues($primaryKeys, $values);
     }
 
-    protected function upsertInternal(array|null $insertProperties = null, array|bool $updateValues = true): bool
+    protected function upsertInternal(array|null $insertProperties = null, array|bool $updateProperties = true): bool
     {
         if (!$this->isNewRecord()) {
             throw new InvalidCallException('The record is not new and cannot be inserted.');
         }
 
-        $values = $this->newPropertyValues($insertProperties);
-        $returnProperties = $insertProperties !== null ? array_merge($this->primaryKey(), array_keys($values)) : null;
+        $insertValues = $this->newPropertyValues($insertProperties);
+        $returnProperties = $insertProperties !== null
+            ? array_merge($this->primaryKey(), array_keys($insertValues))
+            : null;
+
+        if (is_array($updateProperties)) {
+            $updateNames = array_filter($updateProperties, 'is_int', ARRAY_FILTER_USE_KEY);
+
+            if (!empty($updateNames)) {
+                $updateProperties = array_merge(
+                    array_diff_key($updateProperties, $updateNames),
+                    $this->newPropertyValues($updateNames),
+                );
+            }
+
+            if ($returnProperties !== null) {
+                $returnProperties = array_merge($returnProperties, array_keys($updateProperties));
+            }
+        }
 
         $returnedValues = $this->db()->createCommand()
-            ->upsertReturning($this->tableName(), $values, $updateValues, $returnProperties);
+            ->upsertReturning($this->tableName(), $insertValues, $updateProperties, $returnProperties);
 
         return $this->populateRawValues($returnedValues);
     }
