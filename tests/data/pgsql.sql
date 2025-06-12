@@ -61,7 +61,7 @@ CREATE TABLE "schema1"."profile" (
 
 CREATE TABLE "customer" (
   id serial not null primary key,
-  email varchar(128) NOT NULL,
+  email varchar(128) NOT NULL UNIQUE,
   name varchar(128),
   address text,
   status integer DEFAULT 0,
