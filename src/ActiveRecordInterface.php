@@ -493,6 +493,48 @@ interface ActiveRecordInterface
     public function updateAll(array $propertyValues, array|string $condition = [], array $params = []): int;
 
     /**
+     * Insert a row into the associated database table if the record doesn't already exist (matching unique constraints)
+     * or update the record if it exists, with populating model by the returning record values.
+     *
+     * Only the {@see newValues() changed property values} will be inserted or updated.
+     *
+     * If the table's primary key is auto incremental and is `null` during execution, it will be populated with the
+     * actual value after insertion or update.
+     *
+     * For example, to upsert a customer record:
+     *
+     * ```php
+     * $customer = new Customer();
+     * $customer->name = $name;
+     * $customer->email = $email; // unique property
+     * $customer->created_at = new DateTimeImmutable();
+     * $customer->upsert();
+     * ```
+     *
+     * To upsert a customer record with specific properties:
+     *
+     * ```php
+     * $customer->upsert(
+     *     ['name' => $name, 'email' => $email, 'created_at' => new DateTimeImmutable()],
+     *     ['name', 'email', 'updated_at' => new DateTimeImmutable()],
+     * );
+     * ```
+     *
+     * @param array|null $insertProperties List of property names or name-values pairs that need to be inserted.
+     * Defaults to `null`, meaning all changed property values will be inserted.
+     * @param array|bool $updateProperties List of property names or name-values pairs that need to be updated
+     * if the record already exists. Also available a boolean value:
+     * - `true` the record values will be updated to match the insert property values;
+     * - `false` no update will be performed if the record already exist.
+     *
+     * @throws InvalidConfigException
+     * @throws Throwable In case query failed.
+     *
+     * @return bool Whether the record is inserted or updated successfully.
+     */
+    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool;
+
+    /**
      * Destroys the relationship between two records.
      *
      * The record with the foreign key of the relationship will be deleted if `$delete` is true.
