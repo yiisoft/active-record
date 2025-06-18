@@ -7,7 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 
