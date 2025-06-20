@@ -35,7 +35,7 @@
     "require-dev": {
         "maglnet/composer-require-checker": "^4.7.1",
         "phpunit/phpunit": "^10.5.45",
-        "rector/rector": "^2.0.10",
+        "rector/rector": "^2.0.18",
         "roave/infection-static-analysis-plugin": "^1.35",
         "spatie/phpunit-watcher": "^1.24",
         "vimeo/psalm": "^5.26.1 || ^6.8.8",
