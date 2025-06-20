@@ -94,6 +94,7 @@ CREATE TABLE "order" (
   id serial not null primary key,
   customer_id integer NOT NULL references "customer"(id) on UPDATE CASCADE on DELETE CASCADE,
   created_at integer NOT NULL,
+  updated_at integer NOT NULL,
   total decimal(10,0) NOT NULL
 );
 
@@ -262,9 +263,9 @@ INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{3,4,5}'
 INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{1,3}', '[1,3]', 'Free shipping');
 INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{}', '[]', 'Free!');
 
-INSERT INTO "order" (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
-INSERT INTO "order" (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);
-INSERT INTO "order" (customer_id, created_at, total) VALUES (2, 1325502201, 40.0);
+INSERT INTO "order" (customer_id, created_at, updated_at, total) VALUES (1, 1325282384, 1325282384, 110.0);
+INSERT INTO "order" (customer_id, created_at, updated_at, total) VALUES (2, 1325334482, 1325334482, 33.0);
+INSERT INTO "order" (customer_id, created_at, updated_at, total) VALUES (2, 1325502201, 1325502201, 40.0);
 
 INSERT INTO "order_with_null_fk" (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO "order_with_null_fk" (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);
