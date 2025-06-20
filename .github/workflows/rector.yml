@@ -1,5 +1,5 @@
 on:
-  pull_request:
+  pull_request_target:
     paths:
       - 'src/**'
       - '.github/workflows/rector.yml'
@@ -15,7 +15,10 @@ concurrency:
 jobs:
   rector:
     uses: yiisoft/actions/.github/workflows/rector.yml@master
+    secrets:
+      token: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
     with:
+      repository: ${{ github.event.pull_request.head.repo.full_name }}
       php: >-
         ['8.4']
       required-packages: >-
