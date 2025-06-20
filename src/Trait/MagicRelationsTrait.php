@@ -8,7 +8,7 @@ use ReflectionException;
 use ReflectionMethod;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
-use Yiisoft\Db\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 
 use function get_class_methods;
 use function is_a;
