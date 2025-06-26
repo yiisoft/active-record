@@ -24,7 +24,7 @@ final class OrderItem extends MagicActiveRecord
 
     public function fields(): array
     {
-        $fields = parent::fields();
+        $fields = [];
 
         $fields['order_id'] = $this->get('order_id');
         $fields['item_id'] = $this->get('item_id');
