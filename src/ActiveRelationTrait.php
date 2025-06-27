@@ -431,9 +431,9 @@ trait ActiveRelationTrait
             foreach ($models as $model) {
                 $keys = $this->getModelKeys($model, $linkKeys);
                 /** @var bool[][] $filtered */
-                $filtered = array_intersect_key($map, array_fill_keys($keys, null));
+                $filtered = array_values(array_intersect_key($map, array_fill_keys($keys, null)));
 
-                foreach (array_keys(array_replace(...array_values($filtered))) as $key2) {
+                foreach (array_keys(array_replace(...$filtered)) as $key2) {
                     $buckets[$key2][] = $model;
                 }
             }
