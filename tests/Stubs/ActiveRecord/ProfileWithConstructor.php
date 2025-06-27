@@ -18,7 +18,6 @@ final class ProfileWithConstructor extends ActiveRecord
 
     public function __construct(ConnectionInterface $db, private Aliases $aliases)
     {
-        parent::__construct($db);
     }
 
     public function tableName(): string

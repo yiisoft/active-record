@@ -2,6 +2,7 @@ on:
   pull_request_target:
     paths:
       - 'src/**'
+      - 'tests/**'
       - '.github/workflows/rector.yml'
       - 'composer.json'
       - 'rector.php'
