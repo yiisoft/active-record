@@ -26,6 +26,7 @@ use function array_key_first;
 use function array_keys;
 use function array_merge;
 use function array_unique;
+use function array_values;
 use function count;
 use function is_array;
 use function is_object;
@@ -432,7 +433,7 @@ trait ActiveRelationTrait
                 /** @var bool[][] $filtered */
                 $filtered = array_intersect_key($map, array_fill_keys($keys, null));
 
-                foreach (array_keys(array_replace(...$filtered)) as $key2) {
+                foreach (array_keys(array_replace(...array_values($filtered))) as $key2) {
                     $buckets[$key2][] = $model;
                 }
             }
