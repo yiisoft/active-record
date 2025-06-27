@@ -101,15 +101,15 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where(
-                ['b.name' => 'Yii 1.1 Application Development Cookbook']
+                ['b.name' => 'Yii3 Cookbook']
             )->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
             $orders = $query->where(
-                ['{{@item}}.name' => 'Yii 1.1 Application Development Cookbook']
+                ['{{@item}}.name' => 'Yii3 Cookbook']
             )->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->where(
-                [$query->applyAlias('book', 'name') => 'Yii 1.1 Application Development Cookbook']
+                [$query->applyAlias('book', 'name') => 'Yii3 Cookbook']
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 

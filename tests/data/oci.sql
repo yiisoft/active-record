@@ -4,6 +4,7 @@
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "composite_fk"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "order_item"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "order_item_name"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "item"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "order_item_with_null_fk"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "order"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
@@ -116,6 +117,14 @@ CREATE TABLE "order_item" (
   "quantity" integer NOT NULL,
   "subtotal" decimal(10,0) NOT NULL,
   CONSTRAINT "order_item_PK" PRIMARY KEY ("order_id", "item_id") ENABLE
+);
+
+CREATE TABLE "order_item_name" (
+  "order_id" integer NOT NULL,
+  "item_name" varchar2(128) NOT NULL,
+  "quantity" integer NOT NULL,
+  "subtotal" decimal(10,0) NOT NULL,
+  CONSTRAINT "order_item_name_PK" PRIMARY KEY ("order_id", "item_name") ENABLE
 );
 
 CREATE TABLE "order_item_with_null_fk" (
@@ -389,8 +398,8 @@ INSERT INTO "customer" ("email", "name", "address", "status", "bool_status", "pr
 INSERT INTO "category" ("name") VALUES ('Books');
 INSERT INTO "category" ("name") VALUES ('Movies');
 
-INSERT INTO "item" ("name", "category_id") VALUES ('Agile Web Application Development with Yii1.1 and PHP5', 1);
-INSERT INTO "item" ("name", "category_id") VALUES ('Yii 1.1 Application Development Cookbook', 1);
+INSERT INTO "item" ("name", "category_id") VALUES ('Agile Web Application Development with Yii3', 1);
+INSERT INTO "item" ("name", "category_id") VALUES ('Yii3 Cookbook', 1);
 INSERT INTO "item" ("name", "category_id") VALUES ('Ice Age', 2);
 INSERT INTO "item" ("name", "category_id") VALUES ('Toy Story', 2);
 INSERT INTO "item" ("name", "category_id") VALUES ('Cars', 2);
@@ -409,6 +418,13 @@ INSERT INTO "order_item" ("order_id", "item_id", "quantity", "subtotal") VALUES 
 INSERT INTO "order_item" ("order_id", "item_id", "quantity", "subtotal") VALUES (2, 5, 1, 15.0);
 INSERT INTO "order_item" ("order_id", "item_id", "quantity", "subtotal") VALUES (2, 3, 1, 8.0);
 INSERT INTO "order_item" ("order_id", "item_id", "quantity", "subtotal") VALUES (3, 2, 1, 40.0);
+
+INSERT INTO "order_item_name" ("order_id", "item_name", "quantity", "subtotal") VALUES (1, 'Agile Web Application Development with Yii3', 1, 30.0);
+INSERT INTO "order_item_name" ("order_id", "item_name", "quantity", "subtotal") VALUES (1, 'Yii3 Cookbook', 2, 40.0);
+INSERT INTO "order_item_name" ("order_id", "item_name", "quantity", "subtotal") VALUES (2, 'Toy Story', 1, 10.0);
+INSERT INTO "order_item_name" ("order_id", "item_name", "quantity", "subtotal") VALUES (2, 'Cars', 1, 15.0);
+INSERT INTO "order_item_name" ("order_id", "item_name", "quantity", "subtotal") VALUES (2, 'Ice Age', 1, 8.0);
+INSERT INTO "order_item_name" ("order_id", "item_name", "quantity", "subtotal") VALUES (3, 'Yii3 Cookbook', 1, 40.0);
 
 INSERT INTO "order_item_with_null_fk" ("order_id", "item_id", "quantity", "subtotal") VALUES (1, 1, 1, 30.0);
 INSERT INTO "order_item_with_null_fk" ("order_id", "item_id", "quantity", "subtotal") VALUES (1, 2, 2, 40.0);
