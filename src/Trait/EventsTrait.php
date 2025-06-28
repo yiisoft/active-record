@@ -10,11 +10,13 @@ use Yiisoft\ActiveRecord\Event\AfterInsert;
 use Yiisoft\ActiveRecord\Event\AfterPopulate;
 use Yiisoft\ActiveRecord\Event\AfterSave;
 use Yiisoft\ActiveRecord\Event\AfterUpdate;
+use Yiisoft\ActiveRecord\Event\AfterUpsert;
 use Yiisoft\ActiveRecord\Event\BeforeDelete;
 use Yiisoft\ActiveRecord\Event\BeforeInsert;
 use Yiisoft\ActiveRecord\Event\BeforePopulate;
 use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
+use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcher;
 
 /**
@@ -24,8 +26,9 @@ use Yiisoft\ActiveRecord\Event\EventDispatcher;
  * @see ActiveRecordInterface::insert()
  * @see ActiveRecordInterface::populateRecord()
  * @see ActiveRecordInterface::update()
+ * @see ActiveRecordInterface::upsert()
  */
-trait EventDispatcherTrait
+trait EventsTrait
 {
     private EventDispatcher $eventDispatcher;
 
@@ -38,7 +41,11 @@ trait EventDispatcherTrait
     {
         $eventDispatcher = $this->eventDispatcher();
         $eventDispatcher->addListenersFromAttributes($this);
-        $eventDispatcher->dispatch(new BeforeDelete($this));
+        $eventDispatcher->dispatch($event = new BeforeDelete($this));
+
+        if ($event->isDefaultPrevented()) {
+            return $event->getReturnValue() ?? 0;
+        }
 
         $result = parent::delete();
 
@@ -51,7 +58,11 @@ trait EventDispatcherTrait
     {
         $eventDispatcher = $this->eventDispatcher();
         $eventDispatcher->addListenersFromAttributes($this);
-        $eventDispatcher->dispatch(new BeforeInsert($this, $properties));
+        $eventDispatcher->dispatch($event = new BeforeInsert($this, $properties));
+
+        if ($event->isDefaultPrevented()) {
+            return $event->getReturnValue() ?? false;
+        }
 
         $result = parent::insert($properties);
 
@@ -64,7 +75,11 @@ trait EventDispatcherTrait
     {
         $eventDispatcher = $this->eventDispatcher();
         $eventDispatcher->addListenersFromAttributes($this);
-        $eventDispatcher->dispatch(new BeforePopulate($this, $data));
+        $eventDispatcher->dispatch($event = new BeforePopulate($this, $data));
+
+        if ($event->isDefaultPrevented()) {
+            return;
+        }
 
         parent::populateRecord($data);
 
@@ -75,7 +90,11 @@ trait EventDispatcherTrait
     {
         $eventDispatcher = $this->eventDispatcher();
         $eventDispatcher->addListenersFromAttributes($this);
-        $eventDispatcher->dispatch(new BeforeSave($this, $properties));
+        $eventDispatcher->dispatch($event = new BeforeSave($this, $properties));
+
+        if ($event->isDefaultPrevented()) {
+            return $event->getReturnValue() ?? false;
+        }
 
         $result = parent::save($properties);
 
@@ -88,11 +107,32 @@ trait EventDispatcherTrait
     {
         $eventDispatcher = $this->eventDispatcher();
         $eventDispatcher->addListenersFromAttributes($this);
-        $eventDispatcher->dispatch(new BeforeUpdate($this, $properties));
+        $eventDispatcher->dispatch($event = new BeforeUpdate($this, $properties));
+
+        if ($event->isDefaultPrevented()) {
+            return $event->getReturnValue() ?? 0;
+        }
 
         $result = parent::update($properties);
 
         $eventDispatcher->dispatch(new AfterUpdate($this, $result));
+
+        return $result;
+    }
+
+    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool
+    {
+        $eventDispatcher = $this->eventDispatcher();
+        $eventDispatcher->addListenersFromAttributes($this);
+        $eventDispatcher->dispatch($event = new BeforeUpsert($this, $insertProperties, $updateProperties));
+
+        if ($event->isDefaultPrevented()) {
+            return $event->getReturnValue() ?? false;
+        }
+
+        $result = parent::upsert($insertProperties, $updateProperties);
+
+        $eventDispatcher->dispatch(new AfterUpsert($this, $result));
 
         return $result;
     }

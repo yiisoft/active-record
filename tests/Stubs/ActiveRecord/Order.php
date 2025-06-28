@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
 use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
 use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
-use Yiisoft\ActiveRecord\Trait\EventDispatcherTrait;
+use Yiisoft\ActiveRecord\Trait\EventsTrait;
 
 /**
  * Class Order.
@@ -19,7 +19,7 @@ use Yiisoft\ActiveRecord\Trait\EventDispatcherTrait;
 class Order extends ActiveRecord
 {
     use CustomTableNameTrait;
-    use EventDispatcherTrait;
+    use EventsTrait;
 
     public const TABLE_NAME = 'order';
 

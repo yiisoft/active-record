@@ -6,6 +6,12 @@ namespace Yiisoft\ActiveRecord\Event;
 
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
+/**
+ * Event triggered before the record is updated in the database.
+ * It allows to modify properties that will be used for {@see ActiveRecordInterface::update()} operation.
+ *
+ * @see ActiveRecordInterface::update()
+ */
 final class BeforeUpdate extends AbstractEvent
 {
     public function __construct(ActiveRecordInterface $model, private array|null &$properties)

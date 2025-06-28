@@ -11,6 +11,10 @@ use Yiisoft\ActiveRecord\Event\EventInterface;
 use function is_callable;
 
 /**
+ * This attribute is used to set a default value for properties of an Active Record model after it has been populated.
+ *
+ * It can be applied to classes or properties, and it can be repeated for multiple properties.
+ *
  * @psalm-suppress ClassMustBeFinal
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
@@ -39,17 +43,10 @@ class DefaultValue extends AbstractHandler
     private function afterPopulate(AfterPopulate $event): void
     {
         $model = $event->getModel();
-
-        $value = is_callable($this->value)
-            ? ($this->value)($model)
-            : $this->value;
+        $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         foreach ($this->getPropertyNames() as $propertyName) {
-            if (!$model->hasProperty($propertyName)) {
-                continue;
-            }
-
-            if ($model->get($propertyName) === null) {
+            if ($model->hasProperty($propertyName) && $model->get($propertyName) === null) {
                 $model->set($propertyName, $value);
             }
         }

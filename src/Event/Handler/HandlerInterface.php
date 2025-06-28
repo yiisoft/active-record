@@ -6,6 +6,9 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 
 use Yiisoft\ActiveRecord\Event\EventInterface;
 
+/**
+ * Represents an event handler for handling events related to Active Record models.
+ */
 interface HandlerInterface
 {
     /**
@@ -17,6 +20,11 @@ interface HandlerInterface
      */
     public function events(): array;
 
+    /**
+     * Handles the event.
+     *
+     * @param EventInterface $event The event to handle.
+     */
     public function handle(EventInterface $event): void;
 
     /**

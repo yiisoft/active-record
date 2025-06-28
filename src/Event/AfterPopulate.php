@@ -6,6 +6,11 @@ namespace Yiisoft\ActiveRecord\Event;
 
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
+/**
+ * Event triggered after the model has been populated with data.
+ *
+ * @see ActiveRecordInterface::populate()
+ */
 final class AfterPopulate extends AbstractEvent
 {
     public function __construct(ActiveRecordInterface $model, private readonly array $data)

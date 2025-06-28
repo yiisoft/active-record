@@ -7,11 +7,11 @@ namespace Yiisoft\ActiveRecord\Event;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
- * Event triggered after the model has been saved to the database.
+ * Event triggered after the model has been upserted (inserted or updated).
  *
- * @see ActiveRecordInterface::afterSave()
+ * @see ActiveRecordInterface::upsert()
  */
-final class AfterSave extends AbstractEvent
+final class AfterUpsert extends AbstractEvent
 {
     public function __construct(ActiveRecordInterface $model, private readonly bool $isSuccessful)
     {

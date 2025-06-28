@@ -6,6 +6,11 @@ namespace Yiisoft\ActiveRecord\Event;
 
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
+/**
+ * Event triggered after the record has been inserted into the database.
+ *
+ * @see ActiveRecordInterface::insert
+ */
 final class AfterInsert extends AbstractEvent
 {
     public function __construct(ActiveRecordInterface $model, private readonly bool $isSuccessful)

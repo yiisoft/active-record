@@ -13,6 +13,11 @@ use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\ListenerCollection;
 use Yiisoft\EventDispatcher\Provider\Provider;
 
+/**
+ * Managing and dispatching events related to Active Record models.
+ * It allows adding listeners for specific events and dispatching events to those listeners.
+ * It can also automatically add listeners based on attributes defined in the Active Record model.
+ */
 final class EventDispatcher
 {
     public function __construct(
@@ -21,11 +26,17 @@ final class EventDispatcher
     ) {
     }
 
+    /**
+     * Adds a listener for specific event class names.
+     */
     public function addListener(callable $listener, string ...$eventClassNames): void
     {
         $this->listeners = $this->getListeners()->add($listener, ...$eventClassNames);
     }
 
+    /**
+     * Adds listeners from attributes defined in the Active Record model.
+     */
     public function addListenersFromAttributes(ActiveRecordInterface $model): void
     {
         if (isset($this->listeners)) {
@@ -58,16 +69,25 @@ final class EventDispatcher
         }
     }
 
+    /**
+     * Dispatches an event to all registered listeners.
+     */
     public function dispatch(EventInterface $event): void
     {
         $this->getDispatcher()->dispatch($event);
     }
 
+    /**
+     * Returns the event dispatcher instance.
+     */
     public function getDispatcher(): Dispatcher
     {
         return $this->dispatcher ??= new Dispatcher(new Provider($this->getListeners()));
     }
 
+    /**
+     * Returns the collection of listeners.
+     */
     protected function getListeners(): ListenerCollection
     {
         return $this->listeners ??= new ListenerCollection();

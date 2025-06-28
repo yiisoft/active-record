@@ -6,14 +6,18 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 
 use Attribute;
 use DateTimeImmutable;
-use DateTimeInterface;
-use Yiisoft\Db\Expression\Expression;
 
+/**
+ * This attribute is used to set a value of the date and time for properties before updating an existing record
+ * in the database. By default, it sets the current date and time to the `updated_at` property.
+ *
+ * It can be applied to classes or properties, and it can be repeated for multiple properties.
+ */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
 final class SetDateTimeOnUpdate extends SetValueOnUpdate
 {
     public function __construct(
-        float|int|string|DateTimeInterface|Expression|null $value = null,
+        mixed $value = null,
         string ...$propertyNames,
     ) {
         $value ??= static fn (): DateTimeImmutable => new DateTimeImmutable();

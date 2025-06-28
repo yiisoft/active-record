@@ -10,7 +10,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
 use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
-use Yiisoft\ActiveRecord\Trait\EventDispatcherTrait;
+use Yiisoft\ActiveRecord\Trait\EventsTrait;
 
 /**
  * Class Order.
@@ -25,7 +25,7 @@ use Yiisoft\ActiveRecord\Trait\EventDispatcherTrait;
 #[SetDateTimeOnUpdate]
 class Order extends MagicActiveRecord
 {
-    use EventDispatcherTrait;
+    use EventsTrait;
 
     public const TABLE_NAME = 'order';
 

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Event\Handler;
 
+/**
+ * Base class for event handlers.
+ */
 abstract class AbstractHandler implements HandlerInterface
 {
     /**
@@ -11,6 +14,9 @@ abstract class AbstractHandler implements HandlerInterface
      */
     private array $propertyNames;
 
+    /**
+     * @param string ...$propertyNames Names of properties the handler should be applied to.
+     */
     public function __construct(
         string ...$propertyNames,
     ) {
