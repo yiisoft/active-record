@@ -61,6 +61,7 @@ class SetValueOnUpdate extends AbstractHandler
         match ($updateProperties) {
             true => $updateProperties = &$event->getInsertProperties(),
             false => $updateProperties = [],
+            default => null,
         };
 
         foreach ($this->getPropertyNames() as $propertyName) {
@@ -69,6 +70,7 @@ class SetValueOnUpdate extends AbstractHandler
                 && !isset($updateProperties[$propertyName])
             ) {
                 $updateProperties ??= array_keys($model->newValues());
+                /** @psalm-suppress PossiblyInvalidArrayAssignment */
                 $updateProperties[$propertyName] = $value;
             }
         }
