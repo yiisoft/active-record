@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\Event\EventInterface;
 interface HandlerInterface
 {
     /**
-     * Returns the list of events the handler listens to.
+     * Returns the list of events the handler can handle.
      *
      * @return string[] The list of events.
      *

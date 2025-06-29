@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Event;
 use ReflectionAttribute;
 use ReflectionObject;
 use ReflectionProperty;
-use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Event\Handler\HandlerInterface;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\ListenerCollection;
@@ -35,11 +34,11 @@ final class EventDispatcher
     }
 
     /**
-     * Adds listeners from attributes defined in the Active Record model.
+     * Adds listeners from attributes defined in the model.
      */
-    public function addListenersFromAttributes(ActiveRecordInterface $model): void
+    public function addListenersFromAttributes(object $model): void
     {
-        if (isset($this->listeners)) {
+        if ($this->listeners !== null) {
             return;
         }
 
