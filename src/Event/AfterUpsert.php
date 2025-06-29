@@ -13,16 +13,12 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class AfterUpsert extends AbstractEvent
 {
-    public function __construct(ActiveRecordInterface $model, private readonly bool $isSuccessful)
+    /**
+     * @param ActiveRecordInterface $model The model that was upserted.
+     * @param bool $isSuccessful Whether the upsert operation was successful.
+     */
+    public function __construct(ActiveRecordInterface $model, public bool &$isSuccessful)
     {
         parent::__construct($model);
-    }
-
-    /**
-     * @return bool Whether the operation is successful.
-     */
-    public function isSuccessful(): bool
-    {
-        return $this->isSuccessful;
     }
 }

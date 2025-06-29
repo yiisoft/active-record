@@ -13,16 +13,12 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class AfterUpdate extends AbstractEvent
 {
-    public function __construct(ActiveRecordInterface $model, private readonly int $count)
+    /**
+     * @param ActiveRecordInterface $model The model that was updated.
+     * @param int $count The number of rows that were updated.
+     */
+    public function __construct(ActiveRecordInterface $model, public int &$count)
     {
         parent::__construct($model);
-    }
-
-    /**
-     * @return int Number of updated rows.
-     */
-    public function getCount(): int
-    {
-        return $this->count;
     }
 }

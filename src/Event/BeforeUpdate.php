@@ -14,13 +14,12 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class BeforeUpdate extends AbstractEvent
 {
-    public function __construct(ActiveRecordInterface $model, private array|null &$properties)
+    /**
+     * @param ActiveRecordInterface $model The model being updated.
+     * @param array|null &$properties The properties that will be used for the update operation.
+     */
+    public function __construct(ActiveRecordInterface $model, public array|null &$properties)
     {
         parent::__construct($model);
-    }
-
-    public function &getProperties(): array|null
-    {
-        return $this->properties;
     }
 }

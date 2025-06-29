@@ -11,7 +11,7 @@ use Yiisoft\ActiveRecord\Event\EventInterface;
 use function is_callable;
 
 /**
- * This attribute is used to set a default value for properties of an Active Record model after it has been populated.
+ * Attribute for setting default value for properties of an Active Record model after it has been populated.
  *
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  *

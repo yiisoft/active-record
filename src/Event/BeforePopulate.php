@@ -14,13 +14,12 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class BeforePopulate extends AbstractEvent
 {
-    public function __construct(ActiveRecordInterface $model, private array &$data)
+    /**
+     * @param ActiveRecordInterface $model The model that will be populated.
+     * @param array &$data The data that will be used to populate the model.
+     */
+    public function __construct(ActiveRecordInterface $model, public array &$data)
     {
         parent::__construct($model);
-    }
-
-    public function &getData(): array
-    {
-        return $this->data;
     }
 }

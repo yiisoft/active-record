@@ -13,13 +13,12 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class AfterPopulate extends AbstractEvent
 {
-    public function __construct(ActiveRecordInterface $model, private readonly array $data)
+    /**
+     * @param ActiveRecordInterface $model The model that has been populated.
+     * @param array $data The data used to populate the model.
+     */
+    public function __construct(ActiveRecordInterface $model, public readonly array $data)
     {
         parent::__construct($model);
-    }
-
-    public function getData(): array
-    {
-        return $this->data;
     }
 }

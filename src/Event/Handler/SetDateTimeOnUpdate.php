@@ -8,7 +8,7 @@ use Attribute;
 use DateTimeImmutable;
 
 /**
- * This attribute is used to set a value of the date and time for properties before updating an existing record
+ * Attribute for setting value of the date and time for properties before updating an existing record
  * in the database. By default, it sets the current date and time to the `updated_at` property.
  *
  * It can be applied to classes or properties, and it can be repeated for multiple properties.

@@ -13,7 +13,7 @@ use function array_keys;
 use function is_callable;
 
 /**
- * This attribute is used to set a default value for properties before inserting a new record into the database.
+ * Attribute for setting default value for properties before inserting a new record into the database.
  *
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  */
@@ -56,16 +56,15 @@ class DefaultValueOnInsert extends AbstractHandler
     private function beforeUpsert(BeforeUpsert $event): void
     {
         $model = $event->getModel();
-        $insertProperties = &$event->getInsertProperties();
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         foreach ($this->getPropertyNames() as $propertyName) {
             if ($model->hasProperty($propertyName)
                 && $model->get($propertyName) === null
-                && !isset($insertProperties[$propertyName])
+                && !isset($event->insertProperties[$propertyName])
             ) {
-                $insertProperties ??= array_keys($model->newValues());
-                $insertProperties[$propertyName] = $value;
+                $event->insertProperties ??= array_keys($model->newValues());
+                $event->insertProperties[$propertyName] = $value;
             }
         }
     }

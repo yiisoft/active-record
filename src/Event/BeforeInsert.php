@@ -14,13 +14,12 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class BeforeInsert extends AbstractEvent
 {
-    public function __construct(ActiveRecordInterface $model, private array|null &$properties)
+    /**
+     * @param ActiveRecordInterface $model The model that is being inserted.
+     * @param array|null &$properties The properties that will be used for the insert operation.
+     */
+    public function __construct(ActiveRecordInterface $model, public array|null &$properties)
     {
         parent::__construct($model);
-    }
-
-    public function &getProperties(): array|null
-    {
-        return $this->properties;
     }
 }

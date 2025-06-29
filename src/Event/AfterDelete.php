@@ -13,16 +13,12 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class AfterDelete extends AbstractEvent
 {
-    public function __construct(ActiveRecordInterface $model, private readonly int $count)
+    /**
+     * @param ActiveRecordInterface $model The model that was deleted.
+     * @param int $count Number of deleted rows.
+     */
+    public function __construct(ActiveRecordInterface $model, public int &$count)
     {
         parent::__construct($model);
-    }
-
-    /**
-     * @return int Number of deleted rows.
-     */
-    public function getCount(): int
-    {
-        return $this->count;
     }
 }

@@ -10,7 +10,7 @@ use Yiisoft\ActiveRecord\Event\BeforeDelete;
 use Yiisoft\ActiveRecord\Event\EventInterface;
 
 /**
- * Event handler that allows to implement soft deletion in Active Record models. Instead of deleting records from the
+ * Attribute for implementing soft deletion in Active Record models. Instead of deleting records from the
  * database, it sets a value of the date and time for properties to indicate that the record has been logically deleted.
  * By default, it sets the current date and time to the `deleted_at` property.
  *

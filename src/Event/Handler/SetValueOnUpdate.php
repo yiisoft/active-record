@@ -12,7 +12,7 @@ use Yiisoft\ActiveRecord\Event\EventInterface;
 use function is_callable;
 
 /**
- * This attribute is used to set a value for properties before updating an existing record in the database.
+ * Attribute for setting value for properties before updating an existing record in the database.
  *
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  */
@@ -55,13 +55,12 @@ class SetValueOnUpdate extends AbstractHandler
     private function beforeUpsert(BeforeUpsert $event): void
     {
         $model = $event->getModel();
-        $updateProperties = &$event->getUpdateProperties();
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
-        match ($updateProperties) {
-            true => $updateProperties = &$event->getInsertProperties(),
-            false => $updateProperties = [],
-            default => null,
+        $updateProperties = match ($event->updateProperties) {
+            true => $event->insertProperties,
+            false => [],
+            default => $event->updateProperties,
         };
 
         foreach ($this->getPropertyNames() as $propertyName) {
@@ -73,6 +72,10 @@ class SetValueOnUpdate extends AbstractHandler
                 /** @psalm-suppress PossiblyInvalidArrayAssignment */
                 $updateProperties[$propertyName] = $value;
             }
+        }
+
+        if (!empty($updateProperties)) {
+            $event->updateProperties = $updateProperties;
         }
     }
 }

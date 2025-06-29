@@ -14,21 +14,17 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class BeforeUpsert extends AbstractEvent
 {
+    /**
+     * @param ActiveRecordInterface $model The model being upserted.
+     * @param array|null $insertProperties Properties to be inserted. If null, the properties will be taken from the model.
+     * @param array|bool $updateProperties Properties to be updated. If false, no properties will be updated.
+     * If true, `$insertProperties` will be used for update as well.
+     */
     public function __construct(
         ActiveRecordInterface $model,
-        private array|null &$insertProperties,
-        private array|bool &$updateProperties,
+        public array|null &$insertProperties,
+        public array|bool &$updateProperties,
     ) {
         parent::__construct($model);
-    }
-
-    public function &getInsertProperties(): array|null
-    {
-        return $this->insertProperties;
-    }
-
-    public function &getUpdateProperties(): array|bool
-    {
-        return $this->updateProperties;
     }
 }
