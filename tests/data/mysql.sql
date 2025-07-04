@@ -5,6 +5,7 @@
 
 DROP TABLE IF EXISTS `composite_fk` CASCADE;
 DROP TABLE IF EXISTS `order_item` CASCADE;
+DROP TABLE IF EXISTS `order_item_name` CASCADE;
 DROP TABLE IF EXISTS `order_item_with_null_fk` CASCADE;
 DROP TABLE IF EXISTS `item` CASCADE;
 DROP TABLE IF EXISTS `promotion` CASCADE;
@@ -109,6 +110,13 @@ CREATE TABLE `order_item` (
   CONSTRAINT `FK_order_item_item_id` FOREIGN KEY (`item_id`) REFERENCES `item` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `order_item_name` (
+  `order_id` int(11) NOT NULL,
+  `item_name` varchar(128) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `subtotal` decimal(10,0) NOT NULL,
+  PRIMARY KEY (`order_id`, `item_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `order_item_with_null_fk` (
   `order_id` int(11),
@@ -247,8 +255,8 @@ INSERT INTO `customer` (email, name, address, status, bool_status, profile_id) V
 INSERT INTO `category` (name) VALUES ('Books');
 INSERT INTO `category` (name) VALUES ('Movies');
 
-INSERT INTO `item` (name, category_id) VALUES ('Agile Web Application Development with Yii1.1 and PHP5', 1);
-INSERT INTO `item` (name, category_id) VALUES ('Yii 1.1 Application Development Cookbook', 1);
+INSERT INTO `item` (name, category_id) VALUES ('Agile Web Application Development with Yii3', 1);
+INSERT INTO `item` (name, category_id) VALUES ('Yii3 Cookbook', 1);
 INSERT INTO `item` (name, category_id) VALUES ('Ice Age', 2);
 INSERT INTO `item` (name, category_id) VALUES ('Toy Story', 2);
 INSERT INTO `item` (name, category_id) VALUES ('Cars', 2);
@@ -272,6 +280,13 @@ INSERT INTO `order_item` (order_id, item_id, quantity, subtotal) VALUES (2, 4, 1
 INSERT INTO `order_item` (order_id, item_id, quantity, subtotal) VALUES (2, 5, 1, 15.0);
 INSERT INTO `order_item` (order_id, item_id, quantity, subtotal) VALUES (2, 3, 1, 8.0);
 INSERT INTO `order_item` (order_id, item_id, quantity, subtotal) VALUES (3, 2, 1, 40.0);
+
+INSERT INTO `order_item_name` (order_id, item_name, quantity, subtotal) VALUES (1, 'Agile Web Application Development with Yii3', 1, 30.0);
+INSERT INTO `order_item_name` (order_id, item_name, quantity, subtotal) VALUES (1, 'Yii3 Cookbook', 2, 40.0);
+INSERT INTO `order_item_name` (order_id, item_name, quantity, subtotal) VALUES (2, 'Toy Story', 1, 10.0);
+INSERT INTO `order_item_name` (order_id, item_name, quantity, subtotal) VALUES (2, 'Cars', 1, 15.0);
+INSERT INTO `order_item_name` (order_id, item_name, quantity, subtotal) VALUES (2, 'Ice Age', 1, 8.0);
+INSERT INTO `order_item_name` (order_id, item_name, quantity, subtotal) VALUES (3, 'Yii3 Cookbook', 1, 40.0);
 
 INSERT INTO `order_item_with_null_fk` (order_id, item_id, quantity, subtotal) VALUES (1, 1, 1, 30.0);
 INSERT INTO `order_item_with_null_fk` (order_id, item_id, quantity, subtotal) VALUES (1, 2, 2, 40.0);

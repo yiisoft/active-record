@@ -81,6 +81,7 @@ class Order extends ActiveRecord
             'orderItems' => $this->getOrderItemsQuery(),
             'orderItems2' => $this->getOrderItems2Query(),
             'orderItems3' => $this->getOrderItems3Query(),
+            'orderItemsByName' => $this->getOrderItemsByNameQuery(),
             'orderItemsWithNullFK' => $this->getOrderItemsWithNullFKQuery(),
             'items' => $this->getItemsQuery(),
             'itemsIndexed' => $this->getItemsIndexedQuery(),
@@ -194,6 +195,18 @@ class Order extends ActiveRecord
             OrderItem::class,
             ['order_id' => 'id']
         )->indexBy(fn ($row) => $row['order_id'] . '_' . $row['item_id']);
+    }
+
+    public function getOrderItemsByName(): array
+    {
+        return $this->relation('orderItemsByName');
+    }
+
+    public function getOrderItemsByNameQuery(): ActiveQuery
+    {
+        return $this->hasMany(Item::class, ['name' => 'item_name'])
+            ->viaTable('order_item_name', ['order_id' => 'id'])
+            ->orderBy('id');
     }
 
     public function getOrderItemsWithNullFK(): array
