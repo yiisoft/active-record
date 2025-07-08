@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 use Attribute;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
-use Yiisoft\ActiveRecord\Event\EventInterface;
 
 use function is_callable;
 
@@ -17,7 +16,7 @@ use function is_callable;
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
-class SetValueOnUpdate extends AttributeHandler
+class SetValueOnUpdate extends AttributeHandlerProvider
 {
     public function __construct(
         private mixed $value = null,
@@ -26,18 +25,12 @@ class SetValueOnUpdate extends AttributeHandler
         parent::__construct(...$propertyNames);
     }
 
-    public function getHandledEvents(): array
+    public function getEventHandlers(): array
     {
-        return [BeforeUpdate::class, BeforeUpsert::class];
-    }
-
-    public function handle(EventInterface $event): void
-    {
-        match ($event::class) {
-            BeforeUpdate::class => $this->beforeUpdate($event),
-            BeforeUpsert::class => $this->beforeUpsert($event),
-            default => null,
-        };
+        return [
+            BeforeUpdate::class => $this->beforeUpdate(...),
+            BeforeUpsert::class => $this->beforeUpsert(...),
+        ];
     }
 
     private function beforeUpdate(BeforeUpdate $event): void

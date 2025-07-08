@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 
 use Attribute;
 use Yiisoft\ActiveRecord\Event\AfterPopulate;
-use Yiisoft\ActiveRecord\Event\EventInterface;
 
 use function is_callable;
 
@@ -18,7 +17,7 @@ use function is_callable;
  * @psalm-suppress ClassMustBeFinal
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
-class DefaultValue extends AttributeHandler
+class DefaultValue extends AttributeHandlerProvider
 {
     public function __construct(
         private readonly mixed $value = null,
@@ -27,17 +26,11 @@ class DefaultValue extends AttributeHandler
         parent::__construct(...$propertyNames);
     }
 
-    public function getHandledEvents(): array
+    public function getEventHandlers(): array
     {
-        return [AfterPopulate::class];
-    }
-
-    public function handle(EventInterface $event): void
-    {
-        match ($event::class) {
-            AfterPopulate::class => $this->afterPopulate($event),
-            default => null,
-        };
+        return [
+            AfterPopulate::class => $this->afterPopulate(...),
+        ];
     }
 
     private function afterPopulate(AfterPopulate $event): void

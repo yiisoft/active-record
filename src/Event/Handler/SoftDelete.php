@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 use Attribute;
 use DateTimeImmutable;
 use Yiisoft\ActiveRecord\Event\BeforeDelete;
-use Yiisoft\ActiveRecord\Event\EventInterface;
 
 /**
  * Attribute for implementing soft deletion in Active Record models. Instead of deleting records from the
@@ -17,7 +16,7 @@ use Yiisoft\ActiveRecord\Event\EventInterface;
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
-final class SoftDelete extends AttributeHandler
+final class SoftDelete extends AttributeHandlerProvider
 {
     public function __construct(
         private mixed $value = null,
@@ -32,17 +31,11 @@ final class SoftDelete extends AttributeHandler
         parent::__construct(...$propertyNames);
     }
 
-    public function getHandledEvents(): array
+    public function getEventHandlers(): array
     {
-        return [BeforeDelete::class];
-    }
-
-    public function handle(EventInterface $event): void
-    {
-        match ($event::class) {
-            BeforeDelete::class => $this->beforeDelete($event),
-            default => null,
-        };
+        return [
+            BeforeDelete::class => $this->beforeDelete(...),
+        ];
     }
 
     private function beforeDelete(BeforeDelete $event): void

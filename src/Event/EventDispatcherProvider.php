@@ -8,7 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use ReflectionAttribute;
 use ReflectionObject;
 use ReflectionProperty;
-use Yiisoft\ActiveRecord\Event\Handler\AttributeHandler;
+use Yiisoft\ActiveRecord\Event\Handler\AttributeHandlerProvider;
 use Yiisoft\EventDispatcher\Dispatcher\Dispatcher;
 use Yiisoft\EventDispatcher\Provider\ListenerCollection;
 use Yiisoft\EventDispatcher\Provider\Provider;
@@ -34,15 +34,17 @@ final class EventDispatcherProvider
     private static function getListenersFromAttributes(object $target): ListenerCollection
     {
         $reflection = new ReflectionObject($target);
-        $attributes = $reflection->getAttributes(AttributeHandler::class, ReflectionAttribute::IS_INSTANCEOF);
+        $attributes = $reflection->getAttributes(AttributeHandlerProvider::class, ReflectionAttribute::IS_INSTANCEOF);
 
         $listener = new ListenerCollection();
 
         foreach ($attributes as $attribute) {
-            /** @var AttributeHandler $handler */
-            $handler = $attribute->newInstance();
+            /** @var AttributeHandlerProvider $handlerProvider */
+            $handlerProvider = $attribute->newInstance();
 
-            $listener = $listener->add($handler->handle(...), ...$handler->getHandledEvents());
+            foreach ($handlerProvider->getEventHandlers() as $event => $handler) {
+                $listener = $listener->add($handler, $event);
+            }
         }
 
         $properties = $reflection->getProperties(
@@ -52,14 +54,16 @@ final class EventDispatcherProvider
         );
 
         foreach ($properties as $property) {
-            $attributes = $property->getAttributes(AttributeHandler::class, ReflectionAttribute::IS_INSTANCEOF);
+            $attributes = $property->getAttributes(AttributeHandlerProvider::class, ReflectionAttribute::IS_INSTANCEOF);
 
             foreach ($attributes as $attribute) {
-                /** @var AttributeHandler $handler */
-                $handler = $attribute->newInstance();
-                $handler->setPropertyNames([$property->getName()]);
+                /** @var AttributeHandlerProvider $handlerProvider */
+                $handlerProvider = $attribute->newInstance();
+                $handlerProvider->setPropertyNames([$property->getName()]);
 
-                $listener = $listener->add($handler->handle(...), ...$handler->getHandledEvents());
+                foreach ($handlerProvider->getEventHandlers() as $event => $handler) {
+                    $listener = $listener->add($handler, $event);
+                }
             }
         }
 

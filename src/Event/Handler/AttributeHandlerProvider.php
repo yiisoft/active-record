@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Event\Handler;
 
+use Closure;
 use Yiisoft\ActiveRecord\Event\EventInterface;
 
 /**
- * Abstract class for event handlers based on class attributes.
+ * Abstract class for event handlers provider based on class attributes.
  */
-abstract class AttributeHandler
+abstract class AttributeHandlerProvider
 {
     /**
      * @var string[] List of property names the handler should be applied to.
@@ -17,11 +18,11 @@ abstract class AttributeHandler
     private array $propertyNames;
 
     /**
-     * Handles the event.
+     * Returns array with event class names as keys and their handlers as values `[event_class => handler_closure, ...]`
      *
-     * @param EventInterface $event The event to handle.
+     * @psalm-return array<class-string<EventInterface>, Closure>
      */
-    abstract public function handle(EventInterface $event): void;
+    abstract public function getEventHandlers(): array;
 
     /**
      * @param string ...$propertyNames Names of properties the handler should be applied to.
@@ -30,18 +31,6 @@ abstract class AttributeHandler
         string ...$propertyNames,
     ) {
         $this->propertyNames = $propertyNames;
-    }
-
-    /**
-     * Returns the list of events the handler can handle.
-     *
-     * @return string[] The list of events.
-     *
-     * @psalm-return class-string<EventInterface>[]
-     */
-    public function getHandledEvents(): array
-    {
-        return [];
     }
 
     /**

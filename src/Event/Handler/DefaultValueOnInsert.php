@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 use Attribute;
 use Yiisoft\ActiveRecord\Event\BeforeInsert;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
-use Yiisoft\ActiveRecord\Event\EventInterface;
 
 use function array_keys;
 use function is_callable;
@@ -18,7 +17,7 @@ use function is_callable;
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
-class DefaultValueOnInsert extends AttributeHandler
+class DefaultValueOnInsert extends AttributeHandlerProvider
 {
     public function __construct(
         private readonly mixed $value = null,
@@ -27,18 +26,12 @@ class DefaultValueOnInsert extends AttributeHandler
         parent::__construct(...$propertyNames);
     }
 
-    public function getHandledEvents(): array
+    public function getEventHandlers(): array
     {
-        return [BeforeInsert::class, BeforeUpsert::class];
-    }
-
-    public function handle(EventInterface $event): void
-    {
-        match ($event::class) {
-            BeforeInsert::class => $this->beforeInsert($event),
-            BeforeUpsert::class => $this->beforeUpsert($event),
-            default => null,
-        };
+        return [
+            BeforeInsert::class => $this->beforeInsert(...),
+            BeforeUpsert::class => $this->beforeUpsert(...),
+        ];
     }
 
     private function beforeInsert(BeforeInsert $event): void
