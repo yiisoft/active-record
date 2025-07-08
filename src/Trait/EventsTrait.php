@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Trait;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Event\AfterDelete;
 use Yiisoft\ActiveRecord\Event\AfterInsert;
@@ -17,7 +18,7 @@ use Yiisoft\ActiveRecord\Event\BeforePopulate;
 use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
-use Yiisoft\ActiveRecord\Event\EventDispatcher;
+use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 
 /**
  * Trait to implement event dispatching for ActiveRecord.
@@ -30,17 +31,16 @@ use Yiisoft\ActiveRecord\Event\EventDispatcher;
  */
 trait EventsTrait
 {
-    private EventDispatcher $eventDispatcher;
+    private EventDispatcherInterface $eventDispatcher;
 
-    public function eventDispatcher(): EventDispatcher
+    public function eventDispatcher(): EventDispatcherInterface
     {
-        return $this->eventDispatcher ??= new EventDispatcher();
+        return $this->eventDispatcher ??= EventDispatcherProvider::get($this);
     }
 
     public function delete(): int
     {
         $eventDispatcher = $this->eventDispatcher();
-        $eventDispatcher->addListenersFromAttributes($this);
         $eventDispatcher->dispatch($event = new BeforeDelete($this));
 
         if ($event->isDefaultPrevented()) {
@@ -57,7 +57,6 @@ trait EventsTrait
     public function insert(array|null $properties = null): bool
     {
         $eventDispatcher = $this->eventDispatcher();
-        $eventDispatcher->addListenersFromAttributes($this);
         $eventDispatcher->dispatch($event = new BeforeInsert($this, $properties));
 
         if ($event->isDefaultPrevented()) {
@@ -74,7 +73,6 @@ trait EventsTrait
     public function populateRecord(array|object $data): void
     {
         $eventDispatcher = $this->eventDispatcher();
-        $eventDispatcher->addListenersFromAttributes($this);
         $eventDispatcher->dispatch($event = new BeforePopulate($this, $data));
 
         if ($event->isDefaultPrevented()) {
@@ -89,7 +87,6 @@ trait EventsTrait
     public function save(array|null $properties = null): bool
     {
         $eventDispatcher = $this->eventDispatcher();
-        $eventDispatcher->addListenersFromAttributes($this);
         $eventDispatcher->dispatch($event = new BeforeSave($this, $properties));
 
         if ($event->isDefaultPrevented()) {
@@ -106,7 +103,6 @@ trait EventsTrait
     public function update(array|null $properties = null): int
     {
         $eventDispatcher = $this->eventDispatcher();
-        $eventDispatcher->addListenersFromAttributes($this);
         $eventDispatcher->dispatch($event = new BeforeUpdate($this, $properties));
 
         if ($event->isDefaultPrevented()) {
@@ -123,7 +119,6 @@ trait EventsTrait
     public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool
     {
         $eventDispatcher = $this->eventDispatcher();
-        $eventDispatcher->addListenersFromAttributes($this);
         $eventDispatcher->dispatch($event = new BeforeUpsert($this, $insertProperties, $updateProperties));
 
         if ($event->isDefaultPrevented()) {

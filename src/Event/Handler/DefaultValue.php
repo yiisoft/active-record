@@ -18,7 +18,7 @@ use function is_callable;
  * @psalm-suppress ClassMustBeFinal
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
-class DefaultValue extends AbstractHandler
+class DefaultValue extends AttributeHandler
 {
     public function __construct(
         private readonly mixed $value = null,
@@ -27,7 +27,7 @@ class DefaultValue extends AbstractHandler
         parent::__construct(...$propertyNames);
     }
 
-    public function events(): array
+    public function getHandledEvents(): array
     {
         return [AfterPopulate::class];
     }

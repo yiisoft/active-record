@@ -17,7 +17,7 @@ use Yiisoft\ActiveRecord\Event\EventInterface;
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
-final class SoftDelete extends AbstractHandler
+final class SoftDelete extends AttributeHandler
 {
     public function __construct(
         private mixed $value = null,
@@ -32,7 +32,7 @@ final class SoftDelete extends AbstractHandler
         parent::__construct(...$propertyNames);
     }
 
-    public function events(): array
+    public function getHandledEvents(): array
     {
         return [BeforeDelete::class];
     }

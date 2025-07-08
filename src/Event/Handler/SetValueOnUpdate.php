@@ -17,7 +17,7 @@ use function is_callable;
  * It can be applied to classes or properties, and it can be repeated for multiple properties.
  */
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
-class SetValueOnUpdate extends AbstractHandler
+class SetValueOnUpdate extends AttributeHandler
 {
     public function __construct(
         private mixed $value = null,
@@ -26,7 +26,7 @@ class SetValueOnUpdate extends AbstractHandler
         parent::__construct(...$propertyNames);
     }
 
-    public function events(): array
+    public function getHandledEvents(): array
     {
         return [BeforeUpdate::class, BeforeUpsert::class];
     }
