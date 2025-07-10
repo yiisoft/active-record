@@ -35,7 +35,7 @@ trait EventsTrait
 
     public function eventDispatcher(): EventDispatcherInterface
     {
-        return $this->eventDispatcher ??= EventDispatcherProvider::get($this);
+        return $this->eventDispatcher ??= EventDispatcherProvider::get(static::class);
     }
 
     public function delete(): int
