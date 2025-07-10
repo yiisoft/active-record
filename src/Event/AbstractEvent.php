@@ -18,6 +18,9 @@ abstract class AbstractEvent implements EventInterface
     /** @var mixed The return value if the default action is prevented. */
     private mixed $returnValue = null;
 
+    /**
+     * @param ActiveRecordInterface $model The target model associated with this event.
+     */
     public function __construct(private readonly ActiveRecordInterface $model)
     {
     }
