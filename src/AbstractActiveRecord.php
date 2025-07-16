@@ -286,7 +286,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @param string $name The name of the relation query.
      */
-    public function hasRelationQuery(string $name): bool {
+    public function hasRelationQuery(string $name): bool
+    {
         return method_exists($this, "get{$name}Query");
     }
 
