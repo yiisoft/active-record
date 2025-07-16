@@ -28,6 +28,9 @@ use function property_exists;
  * @method bool hasDependentRelations(string $propertyName)
  * @see AbstractActiveRecord::hasDependentRelations()
  *
+ * @method bool hasRelationQuery(string $name)
+ * @see ActiveRecordInterface::hasRelationQuery()
+ *
  * @method bool isRelationPopulated(string $name)
  * @see ActiveRecordInterface::isRelationPopulated()
  *
@@ -74,7 +77,7 @@ trait MagicPropertiesTrait
             return $this->relatedRecords()[$name];
         }
 
-        if (method_exists($this, "get{$name}Query")) {
+        if ($this->hasRelationQuery($name)) {
             /** Read relation query getter, e.g., getUserQuery() */
             return $this->retrieveRelation($name);
         }
