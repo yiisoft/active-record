@@ -706,6 +706,23 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($customer->hasProperty('notExist'));
     }
 
+    public function testHasRelationQuery(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->hasRelationQuery('profile'));
+        $this->assertTrue($customer->hasRelationQuery('ordersPlain'));
+        $this->assertFalse($customer->hasRelationQuery('ordersNoOrder'));
+        $this->assertFalse($customer->hasRelationQuery('expensiveOrders'));
+
+        $customerQuery = new ActiveQuery(Customer::class);
+        $customer = $customerQuery->findByPk(1);
+        $this->assertTrue($customer->hasRelationQuery('profile'));
+        $this->assertTrue($customer->hasRelationQuery('ordersPlain'));
+        $this->assertFalse($customer->hasRelationQuery('ordersNoOrder'));
+        $this->assertFalse($customer->hasRelationQuery('expensiveOrders'));
+    }
+
     public function testRefresh(): void
     {
         $customer = new Customer();
