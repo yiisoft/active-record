@@ -198,6 +198,7 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the record has a relation query with the specified name.
      *
      * @param string $name The name of the relation query.
+     * @return bool True if the relation query exists, false otherwise.
      */
     public function hasRelationQuery(string $name): bool;
 
