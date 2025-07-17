@@ -34,7 +34,6 @@ use function in_array;
 use function is_array;
 use function is_int;
 use function ltrim;
-use function method_exists;
 use function preg_replace;
 use function reset;
 use function strtolower;
@@ -288,7 +287,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function hasRelationQuery(string $name): bool
     {
-        return method_exists($this, "get{$name}Query");
+        return false;
     }
 
     /**

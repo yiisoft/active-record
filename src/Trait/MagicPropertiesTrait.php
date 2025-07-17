@@ -145,7 +145,7 @@ trait MagicPropertiesTrait
 
         if (
             method_exists($this, "get$name")
-            || method_exists($this, "get{$name}Query")
+            || $this->hasRelationQuery($name)
         ) {
             throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
@@ -188,7 +188,7 @@ trait MagicPropertiesTrait
     {
         return method_exists($this, "get$name")
             || method_exists($this, "set$name")
-            || method_exists($this, "get{$name}Query")
+            || $this->hasRelationQuery($name)
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
     }
@@ -196,7 +196,7 @@ trait MagicPropertiesTrait
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, "get$name")
-            || method_exists($this, "get{$name}Query")
+            || $this->hasRelationQuery($name)
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
     }
