@@ -14,10 +14,14 @@ use Yiisoft\EventDispatcher\Provider\ListenerCollection;
 use Yiisoft\EventDispatcher\Provider\Provider;
 
 /**
- * Provider of event dispatchers for target objects.
+ * Provider of event dispatchers for target object class names.
  */
 final class EventDispatcherProvider
 {
+    /**
+     * @var EventDispatcherInterface[] $dispatchers List of target object classes as keys and their dispatcher as values
+     * `[target_class => dispatcher, ...]`
+     */
     private static array $dispatchers = [];
 
     /**
