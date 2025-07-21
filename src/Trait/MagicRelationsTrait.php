@@ -26,8 +26,6 @@ use function ucfirst;
  */
 trait MagicRelationsTrait
 {
-    use MagicPropertiesTrait;
-
     /**
      * @inheritdoc
      *
