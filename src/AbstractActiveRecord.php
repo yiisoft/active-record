@@ -281,16 +281,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * Returns a value indicating whether the record has a relation query with the specified name.
-     *
-     * @param string $name The name of the relation query.
-     */
-    public function hasRelationQuery(string $name): bool
-    {
-        return false;
-    }
-
-    /**
      * Declares a `has-many` relation.
      *
      * The declaration is returned in terms of a relational {@see ActiveQuery} instance through which the related

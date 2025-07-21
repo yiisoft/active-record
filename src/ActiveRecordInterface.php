@@ -195,14 +195,6 @@ interface ActiveRecordInterface
     public function hasProperty(string $name): bool;
 
     /**
-     * Returns a value indicating whether the record has a relation query with the specified name.
-     *
-     * @param string $name The name of the relation query.
-     * @return bool True if the relation query exists, false otherwise.
-     */
-    public function hasRelationQuery(string $name): bool;
-
-    /**
      * Inserts a row into the associated database table using the property values of this record.
      * You may specify the properties to be inserted as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.

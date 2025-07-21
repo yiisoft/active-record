@@ -29,16 +29,6 @@ trait MagicRelationsTrait
     use MagicPropertiesTrait;
 
     /**
-     * Returns a value indicating whether the record has a relation query with the specified name.
-     *
-     * @param string $name The name of the relation query.
-     */
-    public function hasRelationQuery(string $name): bool
-    {
-        return method_exists($this, "get{$name}Query");
-    }
-
-    /**
      * @inheritdoc
      *
      * A relation is defined by a getter method which has prefix `get` and suffix `Query` and returns an object

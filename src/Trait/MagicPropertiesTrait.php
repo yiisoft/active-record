@@ -28,9 +28,6 @@ use function property_exists;
  * @method bool hasDependentRelations(string $propertyName)
  * @see AbstractActiveRecord::hasDependentRelations()
  *
- * @method bool hasRelationQuery(string $name)
- * @see ActiveRecordInterface::hasRelationQuery()
- *
  * @method bool isRelationPopulated(string $name)
  * @see ActiveRecordInterface::isRelationPopulated()
  *
@@ -47,6 +44,16 @@ trait MagicPropertiesTrait
 {
     /** @psalm-var array<string, mixed> $propertyValues */
     private array $propertyValues = [];
+
+    /**
+     * Returns a value indicating whether the record has a relation query with the specified name.
+     *
+     * @param string $name The name of the relation query.
+     */
+    public function hasRelationQuery(string $name): bool
+    {
+        return method_exists($this, "get{$name}Query");
+    }
 
     /**
      * PHP getter magic method.
