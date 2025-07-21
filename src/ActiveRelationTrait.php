@@ -12,8 +12,8 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\QueryBuilder\Condition\InCondition;
-use Yiisoft\Db\QueryBuilder\Condition\Overlaps\ArrayOverlapsCondition;
-use Yiisoft\Db\QueryBuilder\Condition\Overlaps\JsonOverlapsCondition;
+use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlapsCondition;
+use Yiisoft\Db\QueryBuilder\Condition\JsonOverlapsCondition;
 
 use function array_column;
 use function array_combine;
