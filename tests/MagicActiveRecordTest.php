@@ -522,6 +522,15 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($customer->hasProperty('notExist'));
     }
 
+    public function testHasRelationQuery(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->hasRelationQuery('profile'));
+        $this->assertTrue($customer->hasRelationQuery('ordersPlain'));
+        $this->assertFalse($customer->hasRelationQuery('nonExistsRelation'));
+    }
+
     public function testRefresh(): void
     {
         $customer = new Customer();
