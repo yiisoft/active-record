@@ -2499,7 +2499,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertFalse($customerA->equals($customerB));
     }
 
-    public function testARClassAsString(): void
+    public function testArClassAsString(): void
     {
         $query = new ActiveQuery(Customer::class);
 
@@ -2507,7 +2507,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 
-    public function testARClassAsInstance(): void
+    public function testArClassAsInstance(): void
     {
         $customer = new Customer();
         $query = new ActiveQuery($customer);
@@ -2516,7 +2516,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 
-    public function testARClassAsClosure(): void
+    public function testArClassAsClosure(): void
     {
         $closure = fn (): Customer => new Customer();
         $query = new ActiveQuery($closure);
