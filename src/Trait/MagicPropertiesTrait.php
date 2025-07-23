@@ -46,6 +46,16 @@ trait MagicPropertiesTrait
     private array $propertyValues = [];
 
     /**
+     * Returns a value indicating whether the record has a relation query with the specified name.
+     *
+     * @param string $name The name of the relation query.
+     */
+    public function hasRelationQuery(string $name): bool
+    {
+        return method_exists($this, "get{$name}Query");
+    }
+
+    /**
      * PHP getter magic method.
      * This method is overridden so that values and related objects can be accessed like properties.
      *
@@ -74,7 +84,7 @@ trait MagicPropertiesTrait
             return $this->relatedRecords()[$name];
         }
 
-        if (method_exists($this, "get{$name}Query")) {
+        if ($this->hasRelationQuery($name)) {
             /** Read relation query getter, e.g., getUserQuery() */
             return $this->retrieveRelation($name);
         }
@@ -142,7 +152,7 @@ trait MagicPropertiesTrait
 
         if (
             method_exists($this, "get$name")
-            || method_exists($this, "get{$name}Query")
+            || $this->hasRelationQuery($name)
         ) {
             throw new InvalidCallException('Setting read-only property: ' . static::class . '::' . $name);
         }
@@ -185,7 +195,7 @@ trait MagicPropertiesTrait
     {
         return method_exists($this, "get$name")
             || method_exists($this, "set$name")
-            || method_exists($this, "get{$name}Query")
+            || $this->hasRelationQuery($name)
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
     }
@@ -193,7 +203,7 @@ trait MagicPropertiesTrait
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, "get$name")
-            || method_exists($this, "get{$name}Query")
+            || $this->hasRelationQuery($name)
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
     }
