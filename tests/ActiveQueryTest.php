@@ -40,7 +40,7 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
-        $this->assertEquals(Customer::class, $query->getARClass());
+        $this->assertEquals(Customer::class, $query->getArClass());
         $this->assertEquals(['a' => 'b'], $query->getOn());
         $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
         $customerQuery->resetJoinWith();
@@ -2503,8 +2503,8 @@ abstract class ActiveQueryTest extends TestCase
     {
         $query = new ActiveQuery(Customer::class);
 
-        $this->assertSame(Customer::class, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame(Customer::class, $query->getArClass());
+        $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 
     public function testARClassAsInstance(): void
@@ -2512,8 +2512,8 @@ abstract class ActiveQueryTest extends TestCase
         $customer = new Customer();
         $query = new ActiveQuery($customer);
 
-        $this->assertSame($customer, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame($customer, $query->getArClass());
+        $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 
     public function testARClassAsClosure(): void
@@ -2521,7 +2521,7 @@ abstract class ActiveQueryTest extends TestCase
         $closure = fn (): Customer => new Customer();
         $query = new ActiveQuery($closure);
 
-        $this->assertSame($closure, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame($closure, $query->getArClass());
+        $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 }
