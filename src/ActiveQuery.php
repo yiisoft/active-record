@@ -120,7 +120,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     final public function __construct(
         protected string|ActiveRecordInterface|Closure $arClass
     ) {
-        parent::__construct($this->getARInstance()->db());
+        parent::__construct($this->getArInstance()->db());
     }
 
     public function each(): DataReaderInterface
@@ -273,7 +273,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     private function removeDuplicatedRows(array $rows): array
     {
-        $instance = $this->getARInstance();
+        $instance = $this->getArInstance();
         $pks = $instance->primaryKey();
 
         if (empty($pks)) {
@@ -416,7 +416,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $this->join = [];
 
-        $arClass = $this->getARInstance();
+        $arClass = $this->getArInstance();
 
         foreach ($this->joinWith as [$with, $eagerLoading, $joinType]) {
             $this->joinWithRelations($arClass, $with, $joinType);
@@ -517,7 +517,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 }
 
                 if ($relation instanceof ActiveQueryInterface) {
-                    $primaryModel = $relation->getARInstance();
+                    $primaryModel = $relation->getArInstance();
                     $parent = $relation;
                 }
 
@@ -779,7 +779,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     protected function getPrimaryTableName(): string
     {
-        return $this->getARInstance()->tableName();
+        return $this->getArInstance()->tableName();
     }
 
     public function getOn(): array|string|null
@@ -800,7 +800,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->sql;
     }
 
-    public function getARClass(): string|ActiveRecordInterface|Closure
+    public function getArClass(): string|ActiveRecordInterface|Closure
     {
         return $this->arClass;
     }
@@ -809,7 +809,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $values = (array) $values;
 
-        $arInstance = $this->getARInstance();
+        $arInstance = $this->getArInstance();
         $primaryKey = $arInstance->primaryKey();
 
         if (empty($primaryKey)) {
@@ -845,7 +845,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function getARInstance(): ActiveRecordInterface
+    public function getArInstance(): ActiveRecordInterface
     {
         if ($this->arClass instanceof ActiveRecordInterface) {
             return clone $this->arClass;
