@@ -432,7 +432,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if (is_array($via)) {
                 [$viaName, $viaRelation] = $via;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
-                $viaClass = $viaRelation->getARInstance();
+                $viaClass = $viaRelation->getArInstance();
                 // unset $viaName so that it can be reloaded to reflect the change.
                 /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
@@ -825,7 +825,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if (is_array($viaRelation)) {
                 [$viaName, $viaRelation] = $viaRelation;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
-                $viaClass = $viaRelation->getARInstance();
+                $viaClass = $viaRelation->getArInstance();
                 /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             }
@@ -941,7 +941,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if (is_array($viaRelation)) {
                 [$viaName, $viaRelation] = $viaRelation;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
-                $viaClass = $viaRelation->getARInstance();
+                $viaClass = $viaRelation->getArInstance();
                 /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             } else {
@@ -984,7 +984,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 }
             }
         } else {
-            $relatedModel = $relation->getARInstance();
+            $relatedModel = $relation->getArInstance();
 
             $link = $relation->getLink();
             if (!$delete && count($link) === 1 && is_array($this->get($b = reset($link)))) {
