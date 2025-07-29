@@ -11,9 +11,9 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\QueryBuilder\Condition\InCondition;
-use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlapsCondition;
-use Yiisoft\Db\QueryBuilder\Condition\JsonOverlapsCondition;
+use Yiisoft\Db\QueryBuilder\Condition\In;
+use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
+use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
 
 use function array_column;
 use function array_combine;
@@ -571,9 +571,9 @@ trait ActiveRelationTrait
             $propertyName = array_key_first($this->link);
 
             match ($this->getArInstance()->columnType($propertyName)) {
-                ColumnType::ARRAY => $this->andWhere(new ArrayOverlapsCondition($columnName, $values)),
-                ColumnType::JSON => $this->andWhere(new JsonOverlapsCondition($columnName, $values)),
-                default => $this->andWhere(new InCondition($columnName, 'IN', $values)),
+                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, $values)),
+                ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
+                default => $this->andWhere(new In($columnName, 'IN', $values)),
             };
 
             return;
@@ -607,7 +607,7 @@ trait ActiveRelationTrait
             return;
         }
 
-        $this->andWhere(new InCondition($columnNames, 'IN', $values));
+        $this->andWhere(new In($columnNames, 'IN', $values));
     }
 
     private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
