@@ -40,7 +40,7 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = new ActiveQuery(Customer::class);
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
-        $this->assertEquals(Customer::class, $query->getARClass());
+        $this->assertEquals(Customer::class, $query->getArClass());
         $this->assertEquals(['a' => 'b'], $query->getOn());
         $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
         $customerQuery->resetJoinWith();
@@ -787,15 +787,15 @@ abstract class ActiveQueryTest extends TestCase
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where(
-                ['b.name' => 'Yii 1.1 Application Development Cookbook']
+                ['b.name' => 'Yii3 Cookbook']
             )->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
             $orders = $query->where(
-                ['{{@item}}.name' => 'Yii 1.1 Application Development Cookbook']
+                ['{{@item}}.name' => 'Yii3 Cookbook']
             )->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->where(
-                [$query->applyAlias('book', 'name') => 'Yii 1.1 Application Development Cookbook']
+                [$query->applyAlias('book', 'name') => 'Yii3 Cookbook']
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 
@@ -1441,6 +1441,31 @@ abstract class ActiveQueryTest extends TestCase
 
         $arClass->updateCounters(['status' => 1]);
         $this->assertEquals(1, $arClass->getStatus());
+    }
+
+    public function testViaTableWithStringColumn(): void
+    {
+        $orderQuery = new ActiveQuery(Order::class);
+        $orders = $orderQuery->with('orderItemsByName')->orderBy('id')->all();
+
+        $this->assertCount(3, $orders);
+        $this->assertTrue($orders[0]->isRelationPopulated('orderItemsByName'));
+        $this->assertTrue($orders[1]->isRelationPopulated('orderItemsByName'));
+        $this->assertTrue($orders[2]->isRelationPopulated('orderItemsByName'));
+
+        $orderItems1 = $orders[0]->getOrderItemsByName();
+        $orderItems2 = $orders[1]->getOrderItemsByName();
+        $orderItems3 = $orders[2]->getOrderItemsByName();
+
+        $this->assertCount(2, $orderItems1);
+        $this->assertCount(3, $orderItems2);
+        $this->assertCount(1, $orderItems3);
+        $this->assertSame(1, $orderItems1[0]->getId());
+        $this->assertSame(2, $orderItems1[1]->getId());
+        $this->assertSame(3, $orderItems2[0]->getId());
+        $this->assertSame(4, $orderItems2[1]->getId());
+        $this->assertSame(5, $orderItems2[2]->getId());
+        $this->assertSame(2, $orderItems3[0]->getId());
     }
 
     public function testPopulateWithoutPk(): void
@@ -2474,29 +2499,29 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertFalse($customerA->equals($customerB));
     }
 
-    public function testARClassAsString(): void
+    public function testArClassAsString(): void
     {
         $query = new ActiveQuery(Customer::class);
 
-        $this->assertSame(Customer::class, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame(Customer::class, $query->getArClass());
+        $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 
-    public function testARClassAsInstance(): void
+    public function testArClassAsInstance(): void
     {
         $customer = new Customer();
         $query = new ActiveQuery($customer);
 
-        $this->assertSame($customer, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame($customer, $query->getArClass());
+        $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 
-    public function testARClassAsClosure(): void
+    public function testArClassAsClosure(): void
     {
         $closure = fn (): Customer => new Customer();
         $query = new ActiveQuery($closure);
 
-        $this->assertSame($closure, $query->getARClass());
-        $this->assertInstanceOf(Customer::class, $query->getARInstance());
+        $this->assertSame($closure, $query->getArClass());
+        $this->assertInstanceOf(Customer::class, $query->getArInstance());
     }
 }

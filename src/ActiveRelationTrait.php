@@ -11,9 +11,9 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlapsCondition;
-use Yiisoft\Db\QueryBuilder\Condition\InCondition;
-use Yiisoft\Db\QueryBuilder\Condition\JsonOverlapsCondition;
+use Yiisoft\Db\QueryBuilder\Condition\In;
+use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
+use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
 
 use function array_column;
 use function array_combine;
@@ -26,6 +26,7 @@ use function array_key_first;
 use function array_keys;
 use function array_merge;
 use function array_unique;
+use function array_values;
 use function count;
 use function is_array;
 use function is_object;
@@ -222,7 +223,7 @@ trait ActiveRelationTrait
                 $relatedModel->populateRelation($this->inverseOf, $primaryModel);
             }
         } else {
-            $inverseRelation = $this->getARInstance()->relationQuery($this->inverseOf);
+            $inverseRelation = $this->getArInstance()->relationQuery($this->inverseOf);
             $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
 
             /** @var array $relatedModel */
@@ -337,7 +338,7 @@ trait ActiveRelationTrait
 
         /** @var ActiveQuery $relation */
         $relation = is_array($model)
-            ? $this->getARInstance()->relationQuery($name)
+            ? $this->getArInstance()->relationQuery($name)
             : $model->relationQuery($name);
 
         $link = $relation->getLink();
@@ -430,7 +431,7 @@ trait ActiveRelationTrait
             foreach ($models as $model) {
                 $keys = $this->getModelKeys($model, $linkKeys);
                 /** @var bool[][] $filtered */
-                $filtered = array_intersect_key($map, array_fill_keys($keys, null));
+                $filtered = array_values(array_intersect_key($map, array_fill_keys($keys, null)));
 
                 foreach (array_keys(array_replace(...$filtered)) as $key2) {
                     $buckets[$key2][] = $model;
@@ -491,7 +492,7 @@ trait ActiveRelationTrait
     {
         if (!empty($this->join) || !empty($this->joinWith)) {
             if (empty($this->from)) {
-                $alias = $this->getARInstance()->tableName();
+                $alias = $this->getArInstance()->tableName();
             } else {
                 $alias = array_key_first($this->from);
 
@@ -569,10 +570,10 @@ trait ActiveRelationTrait
             /** @var string $propertyName */
             $propertyName = array_key_first($this->link);
 
-            match ($this->getARInstance()->columnType($propertyName)) {
-                ColumnType::ARRAY => $this->andWhere(new ArrayOverlapsCondition($columnName, $values)),
-                ColumnType::JSON => $this->andWhere(new JsonOverlapsCondition($columnName, $values)),
-                default => $this->andWhere(new InCondition($columnName, 'IN', $values)),
+            match ($this->getArInstance()->columnType($propertyName)) {
+                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, $values)),
+                ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
+                default => $this->andWhere(new In($columnName, 'IN', $values)),
             };
 
             return;
@@ -606,7 +607,7 @@ trait ActiveRelationTrait
             return;
         }
 
-        $this->andWhere(new InCondition($columnNames, 'IN', $values));
+        $this->andWhere(new In($columnNames, 'IN', $values));
     }
 
     private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array

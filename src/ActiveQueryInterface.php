@@ -317,7 +317,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @psalm-return ARClass
      */
-    public function getARClass(): string|ActiveRecordInterface|Closure;
+    public function getArClass(): string|ActiveRecordInterface|Closure;
 
     public function on(array|string|null $value): static;
 
@@ -455,7 +455,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws NotInstantiableException
      * @return ActiveRecordInterface The model instance associated with this query.
      */
-    public function getARInstance(): ActiveRecordInterface;
+    public function getArInstance(): ActiveRecordInterface;
 
     /**
      * @return bool Whether this query represents a relation to more than one record.

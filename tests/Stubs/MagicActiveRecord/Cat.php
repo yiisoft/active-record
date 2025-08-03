@@ -15,7 +15,7 @@ final class Cat extends Animal
         $this->setDoes('meow');
     }
 
-    public function getException(): void
+    public function getException(): never
     {
         throw new Exception('no');
     }

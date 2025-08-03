@@ -129,7 +129,7 @@ trait ActiveQueryTrait
         $models = [];
 
         foreach ($rows as $row) {
-            $arClass = $this->getARInstance();
+            $arClass = $this->getArInstance();
             $arClass->populateRecord($row);
 
             $models[] = $arClass;
@@ -159,7 +159,7 @@ trait ActiveQueryTrait
         $primaryModel = reset($models);
 
         if (!$primaryModel instanceof ActiveRecordInterface) {
-            $primaryModel = $this->getARInstance();
+            $primaryModel = $this->getArInstance();
         }
 
         $relations = $this->normalizeRelations($primaryModel, $with);

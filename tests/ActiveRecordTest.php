@@ -1127,7 +1127,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaJson()[1]->getPromotionsViaJson(), 'id'));
     }
 
-    public function testLazzyRelationViaJson(): void
+    public function testLazyRelationViaJson(): void
     {
         if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
             $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
