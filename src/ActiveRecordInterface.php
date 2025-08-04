@@ -293,6 +293,8 @@ interface ActiveRecordInterface
      * @param array $extraColumns More column values to be saved into the junction table. This parameter is only
      * meaningful for a relationship involving a junction table (that's a relation set with
      * {@see ActiveQueryInterface::via()}).
+     *
+     * @psalm-param array<string, mixed> $extraColumns
      */
     public function link(string $relationName, self $linkModel, array $extraColumns = []): void;
 
