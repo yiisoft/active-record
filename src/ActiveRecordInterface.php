@@ -314,7 +314,7 @@ interface ActiveRecordInterface
     /**
      * @psalm-param ModelClass|null $modelClass
      */
-    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface;
+    public static function query(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
 
     /**
      * Returns the primary key name(s) for this AR class.

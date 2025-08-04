@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use DivisionByZeroError;
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;

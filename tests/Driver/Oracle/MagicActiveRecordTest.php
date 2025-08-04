@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\MagicCustomer as Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;

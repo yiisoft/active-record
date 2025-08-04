@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\NotFoundException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 
