@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -23,7 +22,6 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  *
- * @psalm-type ARClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
  * @psalm-import-type IndexKey from ArArrayHelper
  */
 interface ActiveQueryInterface extends QueryInterface
@@ -279,7 +277,7 @@ interface ActiveQueryInterface extends QueryInterface
     public function viaTable(string $tableName, array $link, callable|null $callable = null): static;
 
     /**
-     * Define an alias for the table defined in {@see arClass}.
+     * Define an alias for the table defined in {@see ActiveRecordInterface}.
      *
      * This method will adjust {@see from()} so that an already defined alias will be overwritten.
      *
@@ -311,13 +309,6 @@ interface ActiveQueryInterface extends QueryInterface
      * This is set by {@see ActiveRecord::findBySql()}.
      */
     public function getSql(): string|null;
-
-    /**
-     * @return ActiveRecordInterface|Closure|string The AR class associated with this query.
-     *
-     * @psalm-return ARClass
-     */
-    public function getArClass(): string|ActiveRecordInterface|Closure;
 
     public function on(array|string|null $value): static;
 
@@ -450,12 +441,9 @@ interface ActiveQueryInterface extends QueryInterface
     public function getLink(): array;
 
     /**
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotInstantiableException
      * @return ActiveRecordInterface The model instance associated with this query.
      */
-    public function getArInstance(): ActiveRecordInterface;
+    public function getModel(): ActiveRecordInterface;
 
     /**
      * @return bool Whether this query represents a relation to more than one record.
