@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Trait;
 
 use Closure;
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Event\AfterCreateQuery;

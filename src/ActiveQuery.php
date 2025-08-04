@@ -278,11 +278,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     private function removeDuplicatedRows(array $rows): array
     {
-        $instance = $this->getModel();
-        $pks = $instance->primaryKey();
+        $model = $this->getModel();
+        $pks = $model->primaryKey();
 
         if (empty($pks)) {
-            throw new InvalidConfigException('Primary key of "' . $instance::class . '" can not be empty.');
+            throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
         }
 
         foreach ($pks as $pk) {

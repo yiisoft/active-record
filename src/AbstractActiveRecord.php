@@ -431,15 +431,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if (is_array($via)) {
                 [$viaName, $viaRelation] = $via;
-                /** @psalm-var ActiveQueryInterface $viaRelation */
+                /** @var ActiveQueryInterface $viaRelation */
                 $viaModel = $viaRelation->getModel();
                 // unset $viaName so that it can be reloaded to reflect the change.
-                /** @psalm-var string $viaName */
+                /** @var string $viaName */
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $via;
                 $from = $via->getFrom();
-                /** @psalm-var string $viaTable */
                 $viaTable = reset($from);
             }
 
@@ -447,40 +446,21 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             $viaLink = $viaRelation->getLink();
 
-            /**
-             * @psalm-var string $a
-             * @psalm-var string $b
-             */
             foreach ($viaLink as $a => $b) {
-                /** @psalm-var mixed */
                 $columns[$a] = $this->get($b);
             }
 
             $link = $relation->getLink();
 
-            /**
-             * @psalm-var string $a
-             * @psalm-var string $b
-             */
             foreach ($link as $a => $b) {
-                /** @psalm-var mixed */
                 $columns[$b] = $linkModel->get($a);
             }
 
-            /**
-             * @psalm-var string $k
-             * @psalm-var mixed $v
-             */
             foreach ($extraColumns as $k => $v) {
-                /** @psalm-var mixed */
                 $columns[$k] = $v;
             }
 
-            if ($viaModel instanceof ActiveRecordInterface) {
-                /**
-                 * @psalm-var string $column
-                 * @psalm-var mixed $value
-                 */
+            if ($viaModel !== null) {
                 foreach ($columns as $column => $value) {
                     $viaModel->set($column, $value);
                 }
@@ -972,7 +952,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 }
             }
 
-            if ($viaModel instanceof ActiveRecordInterface) {
+            if ($viaModel !== null) {
                 if ($delete) {
                     $viaModel->deleteAll($condition);
                 } else {
@@ -1066,6 +1046,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @return ActiveQueryInterface The relational query object.
      *
      * @psalm-param ModelClass $modelClass
+     *
      * {@see hasOne()}
      * {@see hasMany()}
      */

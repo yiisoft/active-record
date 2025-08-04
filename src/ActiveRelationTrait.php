@@ -675,7 +675,8 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @psalm-return string[]
+     * @return string[]
+     * @psalm-return array<string, string>
      */
     public function getLink(): array
     {
