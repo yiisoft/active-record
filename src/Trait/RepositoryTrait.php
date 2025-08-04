@@ -51,7 +51,7 @@ trait RepositoryTrait
      */
     public static function find(array|string|ExpressionInterface|null $condition = null, array $params = []): ActiveQueryInterface
     {
-        $query = static::instantiate()->query();
+        $query = static::query();
 
         if ($condition === null) {
             return $query;
@@ -160,7 +160,7 @@ trait RepositoryTrait
      */
     public static function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null
     {
-        return static::instantiate()->query()->findByPk($values);
+        return static::query()->findByPk($values);
     }
 
     /**
@@ -203,7 +203,7 @@ trait RepositoryTrait
      */
     public static function findBySql(string $sql, array $params = []): ActiveQueryInterface
     {
-        return static::instantiate()->query()->sql($sql)->params($params);
+        return static::query()->sql($sql)->params($params);
     }
 
     /**
@@ -272,10 +272,5 @@ trait RepositoryTrait
         array $params = [],
     ): ActiveRecordInterface|array|null {
         return static::findOne($condition, $params) ?? throw new NotFoundException('No records found.');
-    }
-
-    protected static function instantiate(): ActiveRecordInterface
-    {
-        return new static();
     }
 }

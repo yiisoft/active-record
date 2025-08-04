@@ -98,6 +98,7 @@ CREATE TABLE "order" (
   "customer_id" integer NOT NULL references "customer"("id") on DELETE CASCADE,
   "created_at" integer NOT NULL,
   "updated_at" integer NOT NULL,
+  "deleted_at" integer,
   "total" decimal(10,0) NOT NULL,
   CONSTRAINT "order_PK" PRIMARY KEY ("id") ENABLE
 );

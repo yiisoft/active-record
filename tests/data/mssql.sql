@@ -72,6 +72,7 @@ CREATE TABLE [dbo].[order] (
     [customer_id] [int] NOT NULL,
     [created_at] [int] NOT NULL,
     [updated_at] [int] NOT NULL,
+    [deleted_at] [int],
     [total] [decimal](10,0) NOT NULL,
     CONSTRAINT [PK_order] PRIMARY KEY CLUSTERED (
         [id] ASC

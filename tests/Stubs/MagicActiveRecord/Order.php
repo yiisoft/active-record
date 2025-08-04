@@ -9,6 +9,7 @@ use DateTimeInterface;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
 use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
+use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 use Yiisoft\ActiveRecord\Trait\EventsTrait;
 
@@ -19,10 +20,12 @@ use Yiisoft\ActiveRecord\Trait\EventsTrait;
  * @property int $customer_id
  * @property int $created_at
  * @property int $updated_at
+ * @property int $deleted_at
  * @property string $total
  */
 #[DefaultDateTimeOnInsert]
 #[SetDateTimeOnUpdate]
+#[SoftDelete]
 class Order extends MagicActiveRecord
 {
     use EventsTrait;

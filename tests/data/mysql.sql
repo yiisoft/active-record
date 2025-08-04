@@ -87,6 +87,7 @@ CREATE TABLE `order` (
   `customer_id` int(11) NOT NULL,
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
+  `deleted_at` int(11),
   `total` decimal(10,0) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_order_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE

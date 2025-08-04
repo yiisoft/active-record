@@ -96,6 +96,7 @@ CREATE TABLE "order" (
   customer_id integer NOT NULL references "customer"(id) on UPDATE CASCADE on DELETE CASCADE,
   created_at integer NOT NULL,
   updated_at integer NOT NULL,
+  deleted_at integer,
   total decimal(10,0) NOT NULL
 );
 

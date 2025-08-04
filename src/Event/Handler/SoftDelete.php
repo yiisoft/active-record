@@ -6,7 +6,10 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 
 use Attribute;
 use DateTimeImmutable;
+use Yiisoft\ActiveRecord\Event\AfterCreateQuery;
+use Yiisoft\ActiveRecord\Event\BeforeCreateCommand;
 use Yiisoft\ActiveRecord\Event\BeforeDelete;
+use Yiisoft\Db\QueryBuilder\Condition\Equals;
 
 /**
  * Attribute for implementing soft deletion in Active Record models. Instead of deleting records from the
@@ -34,8 +37,21 @@ final class SoftDelete extends AttributeHandlerProvider
     public function getEventHandlers(): array
     {
         return [
+            AfterCreateQuery::class => $this->afterCreateQuery(...),
             BeforeDelete::class => $this->beforeDelete(...),
         ];
+    }
+
+    private function afterCreateQuery(AfterCreateQuery $event): void
+    {
+        $model = $event->getModel();
+        $tableName = $model->tableName();
+
+        foreach ($this->getPropertyNames() as $propertyName) {
+            if ($model->hasProperty($propertyName)) {
+                $event->query->andWhere(new Equals("$tableName.$propertyName", null));
+            }
+        }
     }
 
     private function beforeDelete(BeforeDelete $event): void

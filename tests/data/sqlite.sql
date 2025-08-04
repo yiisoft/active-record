@@ -75,6 +75,7 @@ CREATE TABLE "order" (
   customer_id INTEGER NOT NULL,
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
   total decimal(10,0) NOT NULL,
   PRIMARY KEY (id)
 );
