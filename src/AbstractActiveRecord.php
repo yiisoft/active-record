@@ -452,7 +452,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             $link = $relation->getLink();
 
-             foreach ($link as $a => $b) {
+            foreach ($link as $a => $b) {
                 $columns[$b] = $linkModel->get($a);
             }
 
