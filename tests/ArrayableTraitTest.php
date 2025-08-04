@@ -13,7 +13,7 @@ abstract class ArrayableTraitTest extends TestCase
 {
     public function testFields(): void
     {
-        $customerQuery = new ActiveQuery(CustomerForArrayable::class);
+        $customerQuery = CustomerForArrayable::query();
 
         $fields = $customerQuery->findByPk(1)->fields();
 
@@ -35,7 +35,7 @@ abstract class ArrayableTraitTest extends TestCase
 
     public function testToArray(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
 
         $this->assertSame(
@@ -54,7 +54,7 @@ abstract class ArrayableTraitTest extends TestCase
 
     public function testToArrayWithClosure(): void
     {
-        $customerQuery = new ActiveQuery(CustomerClosureField::class);
+        $customerQuery = CustomerClosureField::query();
         $customer = $customerQuery->findByPk(1);
 
         $this->assertSame(
@@ -73,7 +73,7 @@ abstract class ArrayableTraitTest extends TestCase
 
     public function testToArrayForArrayable(): void
     {
-        $customerQuery = new ActiveQuery(CustomerForArrayable::class);
+        $customerQuery = CustomerForArrayable::query();
 
         /** @var CustomerForArrayable $customer */
         $customer = $customerQuery->findByPk(1);

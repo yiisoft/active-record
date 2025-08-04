@@ -18,11 +18,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 
     public function testBit(): void
     {
-        $bitValueQuery = new ActiveQuery(BitValues::class);
+        $bitValueQuery = BitValues::query();
         $falseBit = $bitValueQuery->findByPk(1);
         $this->assertSame(0, $falseBit->val);
 
-        $bitValueQuery = new ActiveQuery(BitValues::class);
+        $bitValueQuery = BitValues::query();
         $trueBit = $bitValueQuery->findByPk(2);
         $this->assertSame(1, $trueBit->val);
     }

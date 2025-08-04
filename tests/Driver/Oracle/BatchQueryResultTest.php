@@ -18,7 +18,7 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
 
     public function testBatchWithIndexBy(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');
 

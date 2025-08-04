@@ -98,6 +98,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         array|bool $updateProperties = true,
     ): bool;
 
+    /**
+     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance
+     * of the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
+     * will be used.
+     *
+     * @psalm-param ModelClass $modelClass
+     */
+    public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    {
+        return static::query($modelClass);
+    }
+
     public function delete(): int
     {
         return $this->deleteInternal();
@@ -363,18 +375,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->insertInternal($properties);
     }
 
-    /**
-     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance of
-     * the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
-     * will be used.
-     *
-     * @psalm-param ModelClass $modelClass
-     */
-    public function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
-    {
-        return new ActiveQuery($modelClass ?? $this);
-    }
-
     public function isChanged(): bool
     {
         return !empty($this->newValues());
@@ -564,6 +564,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $this->related[$name] = $records;
     }
 
+    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    {
+        return new ActiveQuery($modelClass ?? static::class);
+    }
+
     /**
      * Repopulates this active record with the latest data.
      *
@@ -572,7 +577,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function refresh(): bool
     {
-        $record = $this->query()->findByPk($this->primaryKeyOldValues());
+        $record = $this->createQuery()->findByPk($this->primaryKeyOldValues());
 
         return $this->refreshInternal($record);
     }
@@ -1050,7 +1055,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         array $link,
         bool $multiple,
     ): ActiveQueryInterface {
-        return $this->query($modelClass)->primaryModel($this)->link($link)->multiple($multiple);
+        return $this->createQuery($modelClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
 
     /**

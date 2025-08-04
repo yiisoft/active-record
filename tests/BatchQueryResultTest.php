@@ -12,7 +12,7 @@ abstract class BatchQueryResultTest extends TestCase
 {
     public function testQuery(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->orderBy('id');
 
@@ -22,7 +22,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertSame($result->getQuery(), $query);
 
         /** normal query */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->orderBy('id');
 
@@ -65,7 +65,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertCount(0, $allRows);
 
         /** query with index */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->indexBy('name');
 
@@ -81,7 +81,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertEquals('address3', $allRows['user3']->getAddress());
 
         /** each */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->orderBy('id');
 
@@ -96,7 +96,7 @@ abstract class BatchQueryResultTest extends TestCase
         $this->assertEquals('user3', $allRows[2]->getName());
 
         /** each with key */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->orderBy('id')->indexBy('name');
 
@@ -115,7 +115,7 @@ abstract class BatchQueryResultTest extends TestCase
     public function testActiveQuery(): void
     {
         /** batch with eager loading */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->with('orders')->orderBy('id');
 
@@ -133,7 +133,7 @@ abstract class BatchQueryResultTest extends TestCase
 
     public function testBatchWithIndexBy(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');
 
