@@ -289,12 +289,12 @@ interface ActiveRecordInterface
      * This method requires that the primary key value isn't `null`.
      *
      * @param string $relationName The relation name, for example, `orders` (case-sensitive).
-     * @param self $arClass The record to be linked with the current one.
+     * @param self $linkModel The record to be linked with the current one.
      * @param array $extraColumns More column values to be saved into the junction table. This parameter is only
      * meaningful for a relationship involving a junction table (that's a relation set with
      * {@see ActiveQueryInterface::via()}).
      */
-    public function link(string $relationName, self $arClass, array $extraColumns = []): void;
+    public function link(string $relationName, self $linkModel, array $extraColumns = []): void;
 
     /**
      * Populates the named relation with the related records.
@@ -542,12 +542,12 @@ interface ActiveRecordInterface
      * Otherwise, the foreign key will be set `null` and the record will be saved without validation.
      *
      * @param string $relationName The relation name, for example, `orders` (case-sensitive).
-     * @param self $arClass The active record to be unlinked from the current one.
+     * @param self $linkedModel The active record to be unlinked from the current one.
      * @param bool $delete Whether to delete the active record that contains the foreign key.
      * If false, the active record's foreign key will be set `null` and saved.
      * If true, the active record containing the foreign key will be deleted.
      */
-    public function unlink(string $relationName, self $arClass, bool $delete = false): void;
+    public function unlink(string $relationName, self $linkedModel, bool $delete = false): void;
 
     /**
      * Returns the old property values.

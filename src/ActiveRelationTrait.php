@@ -223,7 +223,7 @@ trait ActiveRelationTrait
                 $relatedModel->populateRelation($this->inverseOf, $primaryModel);
             }
         } else {
-            $inverseRelation = $this->getArInstance()->relationQuery($this->inverseOf);
+            $inverseRelation = $this->getModel()->relationQuery($this->inverseOf);
             $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
 
             /** @var array $relatedModel */
@@ -338,7 +338,7 @@ trait ActiveRelationTrait
 
         /** @var ActiveQuery $relation */
         $relation = is_array($model)
-            ? $this->getArInstance()->relationQuery($name)
+            ? $this->getModel()->relationQuery($name)
             : $model->relationQuery($name);
 
         $link = $relation->getLink();
@@ -492,7 +492,7 @@ trait ActiveRelationTrait
     {
         if (!empty($this->join) || !empty($this->joinWith)) {
             if (empty($this->from)) {
-                $alias = $this->getArInstance()->tableName();
+                $alias = $this->getModel()->tableName();
             } else {
                 $alias = array_key_first($this->from);
 
@@ -570,7 +570,7 @@ trait ActiveRelationTrait
             /** @var string $propertyName */
             $propertyName = array_key_first($this->link);
 
-            match ($this->getArInstance()->columnType($propertyName)) {
+            match ($this->getModel()->columnType($propertyName)) {
                 ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, $values)),
                 ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
                 default => $this->andWhere(new In($columnName, 'IN', $values)),

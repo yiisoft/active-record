@@ -43,7 +43,7 @@ use function strtolower;
  *
  * See {@see ActiveRecord} for a concrete implementation.
  *
- * @psalm-import-type ARClass from ActiveQueryInterface
+ * @psalm-import-type ModelClass from ActiveQuery
  */
 abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
@@ -304,7 +304,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of
+     * @param ActiveRecordInterface|Closure|string $modelClass The class name of the related record, or an instance of
      * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
      * the record associated with the `$class` model, while the values of the array refer to the corresponding property
@@ -312,11 +312,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param ARClass $class
+     * @psalm-param ModelClass $modelClass
      */
-    public function hasMany(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface
+    public function hasMany(string|ActiveRecordInterface|Closure $modelClass, array $link): ActiveQueryInterface
     {
-        return $this->createRelationQuery($class, $link, true);
+        return $this->createRelationQuery($modelClass, $link, true);
     }
 
     /**
@@ -343,7 +343,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param ActiveRecordInterface|Closure|string $class The class name of the related record, or an instance of
+     * @param ActiveRecordInterface|Closure|string $modelClass The class name of the related record, or an instance of
      * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
      * the record associated with the `$class` model, while the values of the array refer to the corresponding property
@@ -351,11 +351,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param ARClass $class
+     * @psalm-param ModelClass $modelClass
      */
-    public function hasOne(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface
+    public function hasOne(string|ActiveRecordInterface|Closure $modelClass, array $link): ActiveQueryInterface
     {
-        return $this->createRelationQuery($class, $link, false);
+        return $this->createRelationQuery($modelClass, $link, false);
     }
 
     public function insert(array|null $properties = null): bool
@@ -364,15 +364,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * @param ActiveRecordInterface|Closure|string|null $arClass The class name of the related record, or an instance of
+     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance of
      * the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
      * will be used.
      *
-     * @psalm-param ARClass $arClass
+     * @psalm-param ModelClass $modelClass
      */
-    public function query(ActiveRecordInterface|Closure|null|string $arClass = null): ActiveQueryInterface
+    public function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
     {
-        return new ActiveQuery($arClass ?? $this);
+        return new ActiveQuery($modelClass ?? $this);
     }
 
     public function isChanged(): bool
@@ -415,15 +415,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return array_key_exists($name, $this->related);
     }
 
-    public function link(string $relationName, ActiveRecordInterface $arClass, array $extraColumns = []): void
+    public function link(string $relationName, ActiveRecordInterface $linkModel, array $extraColumns = []): void
     {
-        $viaClass = null;
+        $viaModel = null;
         $viaTable = null;
         $relation = $this->relationQuery($relationName);
         $via = $relation->getVia();
 
         if ($via !== null) {
-            if ($this->isNewRecord() || $arClass->isNewRecord()) {
+            if ($this->isNewRecord() || $linkModel->isNewRecord()) {
                 throw new InvalidCallException(
                     'Unable to link models: the models being linked cannot be newly created.'
                 );
@@ -432,7 +432,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if (is_array($via)) {
                 [$viaName, $viaRelation] = $via;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
-                $viaClass = $viaRelation->getArInstance();
+                $viaModel = $viaRelation->getModel();
                 // unset $viaName so that it can be reloaded to reflect the change.
                 /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
@@ -464,7 +464,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
              */
             foreach ($link as $a => $b) {
                 /** @psalm-var mixed */
-                $columns[$b] = $arClass->get($a);
+                $columns[$b] = $linkModel->get($a);
             }
 
             /**
@@ -476,38 +476,38 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 $columns[$k] = $v;
             }
 
-            if ($viaClass instanceof ActiveRecordInterface) {
+            if ($viaModel instanceof ActiveRecordInterface) {
                 /**
                  * @psalm-var string $column
                  * @psalm-var mixed $value
                  */
                 foreach ($columns as $column => $value) {
-                    $viaClass->set($column, $value);
+                    $viaModel->set($column, $value);
                 }
 
-                $viaClass->insert();
+                $viaModel->insert();
             } elseif (is_string($viaTable)) {
                 $this->db()->createCommand()->insert($viaTable, $columns)->execute();
             }
         } else {
             $link = $relation->getLink();
-            $p1 = $arClass->isPrimaryKey(array_keys($link));
+            $p1 = $linkModel->isPrimaryKey(array_keys($link));
             $p2 = $this->isPrimaryKey(array_values($link));
 
             if ($p1 && $p2) {
-                if ($this->isNewRecord() && $arClass->isNewRecord()) {
+                if ($this->isNewRecord() && $linkModel->isNewRecord()) {
                     throw new InvalidCallException('Unable to link models: at most one model can be newly created.');
                 }
 
                 if ($this->isNewRecord()) {
-                    $this->bindModels(array_flip($link), $this, $arClass);
+                    $this->bindModels(array_flip($link), $this, $linkModel);
                 } else {
-                    $this->bindModels($link, $arClass, $this);
+                    $this->bindModels($link, $linkModel, $this);
                 }
             } elseif ($p1) {
-                $this->bindModels(array_flip($link), $this, $arClass);
+                $this->bindModels(array_flip($link), $this, $linkModel);
             } elseif ($p2) {
-                $this->bindModels($link, $arClass, $this);
+                $this->bindModels($link, $linkModel, $this);
             } else {
                 throw new InvalidCallException(
                     'Unable to link models: the link defining the relation does not involve any primary key.'
@@ -517,22 +517,22 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         // Update lazily loaded related objects.
         if (!$relation->getMultiple()) {
-            $this->related[$relationName] = $arClass;
+            $this->related[$relationName] = $linkModel;
         } elseif (isset($this->related[$relationName])) {
             /** @psalm-var ActiveRecordInterface[] $this->related[$relationName] */
             $indexBy = $relation->getIndexBy();
             if ($indexBy !== null) {
                 if ($indexBy instanceof Closure) {
-                    $index = $indexBy($arClass->propertyValues());
+                    $index = $indexBy($linkModel->propertyValues());
                 } else {
-                    $index = $arClass->get($indexBy);
+                    $index = $linkModel->get($indexBy);
                 }
 
                 if ($index !== null) {
-                    $this->related[$relationName][$index] = $arClass;
+                    $this->related[$relationName][$index] = $linkModel;
                 }
             } else {
-                $this->related[$relationName][] = $arClass;
+                $this->related[$relationName][] = $linkModel;
             }
         }
     }
@@ -814,9 +814,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->upsertInternal($insertProperties, $updateProperties);
     }
 
-    public function unlink(string $relationName, ActiveRecordInterface $arClass, bool $delete = false): void
+    public function unlink(string $relationName, ActiveRecordInterface $linkedModel, bool $delete = false): void
     {
-        $viaClass = null;
+        $viaModel = null;
         $viaTable = null;
         $relation = $this->relationQuery($relationName);
         $viaRelation = $relation->getVia();
@@ -825,7 +825,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if (is_array($viaRelation)) {
                 [$viaName, $viaRelation] = $viaRelation;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
-                $viaClass = $viaRelation->getArInstance();
+                $viaModel = $viaRelation->getModel();
                 /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             }
@@ -839,15 +839,13 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 $viaTable = reset($from);
 
                 foreach ($viaRelation->getLink() as $a => $b) {
-                    /** @psalm-var mixed */
                     $columns[$a] = $this->get($b);
                 }
 
                 $link = $relation->getLink();
 
                 foreach ($link as $a => $b) {
-                    /** @psalm-var mixed */
-                    $columns[$b] = $arClass->get($a);
+                    $columns[$b] = $linkedModel->get($a);
                 }
 
                 $nulls = array_fill_keys(array_keys($columns), null);
@@ -857,11 +855,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 }
             }
 
-            if ($viaClass instanceof ActiveRecordInterface) {
+            if ($viaModel !== null) {
                 if ($delete) {
-                    $viaClass->deleteAll($columns);
+                    $viaModel->deleteAll($columns);
                 } else {
-                    $viaClass->updateAll($nulls, $columns);
+                    $viaModel->updateAll($nulls, $columns);
                 }
             } elseif (is_string($viaTable)) {
                 $command = $this->db()->createCommand();
@@ -871,23 +869,23 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                     $command->update($viaTable, $nulls, $columns)->execute();
                 }
             }
-        } elseif ($relation instanceof ActiveQueryInterface) {
+        } else {
             if ($this->isPrimaryKey($relation->getLink())) {
                 if ($delete) {
-                    $arClass->delete();
+                    $linkedModel->delete();
                 } else {
                     foreach ($relation->getLink() as $a => $b) {
-                        $arClass->set($a, null);
+                        $linkedModel->set($a, null);
                     }
-                    $arClass->save();
+                    $linkedModel->save();
                 }
-            } elseif ($arClass->isPrimaryKey(array_keys($relation->getLink()))) {
+            } elseif ($linkedModel->isPrimaryKey(array_keys($relation->getLink()))) {
                 foreach ($relation->getLink() as $a => $b) {
                     /** @psalm-var mixed $values */
                     $values = $this->get($b);
                     /** relation via array valued property */
                     if (is_array($values)) {
-                        if (($key = array_search($arClass->get($a), $values)) !== false) {
+                        if (($key = array_search($linkedModel->get($a), $values)) !== false) {
                             unset($values[$key]);
                             $this->set($b, array_values($values));
                         }
@@ -907,7 +905,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             /** @psalm-var array<array-key, ActiveRecordInterface> $related */
             $related = $this->related[$relationName];
             foreach ($related as $a => $b) {
-                if ($arClass->primaryKeyValues() === $b->primaryKeyValues()) {
+                if ($linkedModel->primaryKeyValues() === $b->primaryKeyValues()) {
                     unset($this->related[$relationName][$a]);
                 }
             }
@@ -932,7 +930,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function unlinkAll(string $relationName, bool $delete = false): void
     {
-        $viaClass = null;
+        $viaModel = null;
         $viaTable = null;
         $relation = $this->relationQuery($relationName);
         $viaRelation = $relation->getVia();
@@ -941,7 +939,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if (is_array($viaRelation)) {
                 [$viaName, $viaRelation] = $viaRelation;
                 /** @psalm-var ActiveQueryInterface $viaRelation */
-                $viaClass = $viaRelation->getArInstance();
+                $viaModel = $viaRelation->getModel();
                 /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             } else {
@@ -969,11 +967,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 }
             }
 
-            if ($viaClass instanceof ActiveRecordInterface) {
+            if ($viaModel !== null) {
                 if ($delete) {
-                    $viaClass->deleteAll($condition);
+                    $viaModel->deleteAll($condition);
                 } else {
-                    $viaClass->updateAll($nulls, $condition);
+                    $viaModel->updateAll($nulls, $condition);
                 }
             } elseif (is_string($viaTable)) {
                 $command = $this->db()->createCommand();
@@ -984,7 +982,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 }
             }
         } else {
-            $relatedModel = $relation->getArInstance();
+            $relatedModel = $relation->getModel();
 
             $link = $relation->getLink();
             if (!$delete && count($link) === 1 && is_array($this->get($b = reset($link)))) {
@@ -1056,20 +1054,23 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param ActiveRecordInterface|Closure|string $arClass The class name of the related record.
+     * @param ActiveRecordInterface|Closure|string $modelClass The class name of the related record.
      * @param array $link The primary-foreign key constraint.
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param ARClass $arClass
-
+     * @psalm-param ModelClass $modelClass
+     *
      * {@see hasOne()}
      * {@see hasMany()}
      */
-    protected function createRelationQuery(string|ActiveRecordInterface|Closure $arClass, array $link, bool $multiple): ActiveQueryInterface
-    {
-        return $this->query($arClass)->primaryModel($this)->link($link)->multiple($multiple);
+    protected function createRelationQuery(
+        string|ActiveRecordInterface|Closure $modelClass,
+        array $link,
+        bool $multiple,
+    ): ActiveQueryInterface {
+        return $this->query($modelClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
 
     /**
