@@ -74,9 +74,9 @@ interface ActiveRecordInterface
      * > Warning: If you don't specify any condition, this method will delete **all** rows in the table.
      *
      * ```php
-     * $aqClasses = Customer::query()->where('status = 3')->all();
-     * foreach ($aqClasses as $aqClass) {
-     *     $aqClass->delete();
+     * $customers = Customer::query()->where('status = 3')->all();
+     * foreach ($customers as $customer) {
+     *     $customer->delete();
      * }
      * ```
      *
