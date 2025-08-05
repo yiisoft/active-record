@@ -35,6 +35,15 @@ interface ActiveRecordInterface
     public function columnType(string $propertyName): string;
 
     /**
+     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance
+     * of the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
+     * will be used.
+     *
+     * @psalm-param ModelClass $modelClass
+     */
+    public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface;
+
+    /**
      * Returns the database connection used by the Active Record instance.
      */
     public function db(): ConnectionInterface;
