@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Trait;
 
 use Closure;
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Factory\Factory;
@@ -16,7 +15,7 @@ use function method_exists;
 /**
  * Trait to add factory support to ActiveRecord.
  *
- * @see AbstractActiveRecord::query()
+ * @see AbstractActiveRecord::createQuery()
  */
 trait FactoryTrait
 {
@@ -32,30 +31,28 @@ trait FactoryTrait
         return $new;
     }
 
-    public function query(ActiveRecordInterface|Closure|null|string $arClass = null): ActiveQueryInterface
+    public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
     {
-        if ($arClass === null) {
-            return new ActiveQuery($this);
-        }
-
         if (!isset($this->factory)) {
-            return new ActiveQuery($arClass);
+            return parent::createQuery($modelClass);
         }
 
-        if (is_string($arClass)) {
-            if (method_exists($arClass, 'withFactory')) {
-                return new ActiveQuery(
-                    fn (): ActiveRecordInterface => $this->factory->create($arClass)->withFactory($this->factory)
+        if (is_string($modelClass)) {
+            if (method_exists($modelClass, 'withFactory')) {
+                return parent::createQuery(
+                    fn (): ActiveRecordInterface => $this->factory->create($modelClass)->withFactory($this->factory)
                 );
             }
 
-            return new ActiveQuery(fn (): ActiveRecordInterface => $this->factory->create($arClass));
+            return parent::createQuery(fn (): ActiveRecordInterface => $this->factory->create($modelClass));
         }
 
-        if ($arClass instanceof ActiveRecordInterface && method_exists($arClass, 'withFactory')) {
-            return new ActiveQuery($arClass->withFactory($this->factory));
+        $modelClass ??= $this;
+
+        if ($modelClass instanceof ActiveRecordInterface && method_exists($modelClass, 'withFactory')) {
+            return parent::createQuery($modelClass->withFactory($this->factory));
         }
 
-        return new ActiveQuery($arClass);
+        return parent::createQuery($modelClass);
     }
 }

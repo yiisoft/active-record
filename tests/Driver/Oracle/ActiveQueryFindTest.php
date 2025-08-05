@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer as CustomerWithRownumid;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -19,17 +18,17 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
     public function testFindLimit(): void
     {
         /** one */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
+        $customerQuery = CustomerWithRownumid::query();
         $customer = $customerQuery->orderBy('id')->one();
         $this->assertEquals('user1', $customer->getName());
 
         /** all */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
+        $customerQuery = CustomerWithRownumid::query();
         $customers = $customerQuery->all();
         $this->assertCount(3, $customers);
 
         /** limit */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
+        $customerQuery = CustomerWithRownumid::query();
         $customers = $customerQuery->orderBy('id')->limit(1)->all();
         $this->assertCount(1, $customers);
         $this->assertEquals('user1', $customers[0]->getName());
@@ -51,7 +50,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $this->assertCount(0, $customers);
 
         /** offset */
-        $customerQuery = new ActiveQuery(CustomerWithRownumid::class);
+        $customerQuery = CustomerWithRownumid::query();
         $customer = $customerQuery->orderBy('id')->offset(0)->one();
         $this->assertEquals('user1', $customer->getName());
 

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\BoolAR;
@@ -46,7 +45,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betaQuery = new ActiveQuery(Beta::class);
+        $betaQuery = Beta::query();
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
 
@@ -81,7 +80,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->refresh();
         $this->assertTrue($customer->bool_status);
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(3, $customers);
 
@@ -93,7 +92,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     {
         $command = $this->db()->createCommand();
         $command->batchInsert('bool_values', ['bool_col'], [[true], [false]])->execute();
-        $boolARQuery = new ActiveQuery(BoolAR::class);
+        $boolARQuery = BoolAR::query();
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
         $this->assertFalse($boolARQuery->setWhere(['bool_col' => false])->one()->bool_col);
@@ -146,7 +145,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $user->updated_at = time();
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class);
+        $userQuery = UserAR::query();
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->setWhere(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->setWhere(['is_deleted' => [true, false]])->all());
@@ -266,7 +265,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $type->save();
 
-        $typeQuery = new ActiveQuery($type::class);
+        $typeQuery = $type::query();
 
         $type = $typeQuery->one();
 

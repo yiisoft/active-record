@@ -66,8 +66,7 @@ use const ARRAY_FILTER_USE_KEY;
  * $user->save(); // a new row is inserted into user table
  *
  * // the following will retrieve the user 'CeBe' from the database
- * $userQuery = new ActiveQuery(User::class);
- * $user = $userQuery->where(['name' => 'CeBe'])->one();
+ * $user = User::query()->where(['name' => 'CeBe'])->one();
  *
  * // this will get related records from orders table when relation is defined
  * $orders = $user->orders;

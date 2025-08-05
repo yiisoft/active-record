@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constant\ColumnType;
@@ -12,6 +13,9 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
+/**
+ * @psalm-import-type ModelClass from ActiveQuery
+ */
 interface ActiveRecordInterface
 {
     /**
@@ -29,6 +33,15 @@ interface ActiveRecordInterface
      * @psalm-return ColumnType::*
      */
     public function columnType(string $propertyName): string;
+
+    /**
+     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance
+     * of the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
+     * will be used.
+     *
+     * @psalm-param ModelClass $modelClass
+     */
+    public function createQuery(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
 
     /**
      * Returns the database connection used by the Active Record instance.
@@ -61,10 +74,9 @@ interface ActiveRecordInterface
      * > Warning: If you don't specify any condition, this method will delete **all** rows in the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $aqClasses = $customerQuery->where('status = 3')->all();
-     * foreach ($aqClasses as $aqClass) {
-     *     $aqClass->delete();
+     * $customers = Customer::query()->where('status = 3')->all();
+     * foreach ($customers as $customer) {
+     *     $customer->delete();
      * }
      * ```
      *
@@ -309,6 +321,11 @@ interface ActiveRecordInterface
     public function populateRelation(string $name, array|self|null $records): void;
 
     /**
+     * @psalm-param ModelClass|null $modelClass
+     */
+    public static function query(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
+
+    /**
      * Returns the primary key name(s) for this AR class.
      *
      * The default implementation will return the primary key(s) as declared in the DB table that's associated with
@@ -422,7 +439,7 @@ interface ActiveRecordInterface
      * For example, to update a customer record:
      *
      * ```php
-     * $customer = (new ActiveQuery(Customer::class))->findByPk(1);
+     * $customer = Customer::query()->findByPk(1);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
@@ -471,8 +488,7 @@ interface ActiveRecordInterface
      * > Warning: If you don't specify any condition, this method will update **all** rows in the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $customers = $customerQuery->where('status = 2')->all();
+     * $customers = Customer::query()->where('status = 2')->all();
      * foreach ($customers as $customer) {
      *     $customer->status = 1;
      *     $customer->update();

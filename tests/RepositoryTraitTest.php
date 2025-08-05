@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\NotFoundException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 
@@ -12,7 +11,7 @@ abstract class RepositoryTraitTest extends TestCase
 {
     public function testFind(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->setWhere(['id' => 1]),
@@ -22,7 +21,7 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindOne(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->where(['id' => 1])->one(),
@@ -48,7 +47,7 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindOneOrFail(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->where(['id' => 1])->one(),
@@ -63,7 +62,7 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindAll(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->all(),
@@ -81,7 +80,7 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindAllOrFail(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->where(['id' => [1, 2, 3]])->all(),
@@ -96,7 +95,7 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindByPk(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->where(['id' => 1])->one(),
@@ -109,7 +108,7 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindByPkOrFail(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->where(['id' => 1])->one(),
@@ -124,7 +123,7 @@ abstract class RepositoryTraitTest extends TestCase
 
     public function testFindBySql(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->sql('SELECT * FROM {{customer}}'),

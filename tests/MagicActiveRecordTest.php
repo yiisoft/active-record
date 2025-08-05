@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use DivisionByZeroError;
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
@@ -195,7 +194,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class);
+        $aqClass = Type::query();
         $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
@@ -221,7 +220,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $dog = new Dog();
         $dog->save();
 
-        $animal = (new ActiveQuery(Animal::class))->resultCallback(ModelFactory::create(...));
+        $animal = Animal::query()->resultCallback(ModelFactory::create(...));
 
         $animals = $animal->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animals->getDoes());
@@ -444,11 +443,11 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->refresh();
         $this->assertFalse($customer->bool_status);
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => false])->all();
         $this->assertCount(2, $customers);
     }
@@ -515,7 +514,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertTrue($customer->hasProperty('email'));
         $this->assertFalse($customer->hasProperty('notExist'));
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
         $this->assertTrue($customer->hasProperty('id'));
         $this->assertTrue($customer->hasProperty('email'));
@@ -537,7 +536,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertFalse($customer->refresh());
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
         $customer->name = 'to be refreshed';
 
@@ -573,7 +572,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $order = $orderQuery->findByPk(2);
 
         $this->assertCount(1, $order->itemsFor8);
@@ -583,7 +582,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertCount(0, $order->itemsFor8);
         $this->assertCount(2, $order->orderItemsWithNullFK);
 
-        $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class);
+        $orderItemQuery = OrderItemWithNullFK::query();
         $this->assertCount(1, $orderItemQuery->where([
             'order_id' => 2,
             'item_id' => 5,
@@ -596,7 +595,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testVirtualRelation(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         /** @var Order $order */
         $order = $orderQuery->findByPk(2);
 
@@ -611,14 +610,14 @@ abstract class MagicActiveRecordTest extends TestCase
      */
     public function testJoinWithEager(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
         $eagerItemsCount = 0;
         foreach ($eagerCustomers as $customer) {
             $eagerItemsCount += is_countable($customer->items2) ? count($customer->items2) : 0;
         }
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $lazyCustomers = $customerQuery->all();
         $lazyItemsCount = 0;
         foreach ($lazyCustomers as $customer) {
@@ -642,7 +641,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame(1, $customer->primaryKeyValue());
         $this->assertSame(['id' => 1], $customer->primaryKeyValues());
 
-        $orderItemQuery = new ActiveQuery(OrderItem::class);
+        $orderItemQuery = OrderItem::query();
         $orderItem = $orderItemQuery->findByPk([1, 2]);
 
         $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->primaryKeyValues());
@@ -681,7 +680,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertSame(1, $customer->primaryKeyOldValue());
         $this->assertSame(['id' => 1], $customer->primaryKeyOldValues());
 
-        $orderItemQuery = new ActiveQuery(OrderItem::class);
+        $orderItemQuery = OrderItem::query();
         $orderItem = $orderItemQuery->findByPk([1, 2]);
         $orderItem->order_id = 3;
         $orderItem->item_id = 4;
@@ -745,7 +744,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testGetDirtyValuesAfterFind(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
 
         $this->assertSame([], $customer->newValues());
@@ -772,7 +771,7 @@ abstract class MagicActiveRecordTest extends TestCase
             'address' => null,
         ], $customer->newValues());
 
-        $customerQuery = new ActiveQuery(CustomerWithProperties::class);
+        $customerQuery = CustomerWithProperties::query();
         $customer = $customerQuery->findByPk(1);
 
         $this->assertSame([], $customer->newValues());
@@ -833,7 +832,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
     public function testIsChanged(): void
     {
-        $itemQuery = new ActiveQuery(Item::class);
+        $itemQuery = Item::query();
         $item = $itemQuery->findByPk(1);
 
         $this->assertFalse($item->isChanged());

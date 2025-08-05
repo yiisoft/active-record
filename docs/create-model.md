@@ -274,9 +274,7 @@ Now you can use `$user->getProfile()` and `$user->getOrders()` to access the rel
 ```php
 use Yiisoft\ActiveRecord\ActiveQuery;
 
-$userQuery = new ActiveQuery(User::class);
-
-$user = $userQuery->where(['id' => 1])->one();
+$user = User::query()->where(['id' => 1])->one();
 
 $profile = $user->getProfile();
 $orders = $user->getOrders();
