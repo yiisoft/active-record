@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Event\Handler;
 use Attribute;
 use DateTimeImmutable;
 use Yiisoft\ActiveRecord\Event\AfterCreateQuery;
-use Yiisoft\ActiveRecord\Event\BeforeCreateCommand;
 use Yiisoft\ActiveRecord\Event\BeforeDelete;
 use Yiisoft\Db\QueryBuilder\Condition\Equals;
 
