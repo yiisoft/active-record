@@ -33,7 +33,7 @@ trait FactoryTrait
 
     public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
     {
-        if (!isset($this->factory) || !$this->factory instanceof Factory) {
+        if (!isset($this->factory)) {
             return parent::createQuery($modelClass);
         }
 
