@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Item;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Promotion;
@@ -83,7 +82,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class);
+        $aqClass = Type::query();
         $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
@@ -120,7 +119,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betaQuery = new ActiveQuery(Beta::class);
+        $betaQuery = Beta::query();
         $betas = $betaQuery->with('alpha')->all();
         $this->assertNotEmpty($betas);
 
@@ -140,7 +139,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $command = $this->db()->createCommand();
         $command->insertBatch('bool_values', [[true], [false]], ['bool_col'])->execute();
-        $boolARQuery = new ActiveQuery(BoolAR::class);
+        $boolARQuery = BoolAR::query();
 
         $this->assertTrue($boolARQuery->where(['bool_col' => true])->one()->bool_col);
         $this->assertFalse($boolARQuery->setWhere(['bool_col' => false])->one()->bool_col);
@@ -193,7 +192,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $user->updated_at = time();
         $user->save();
 
-        $userQuery = new ActiveQuery(UserAR::class);
+        $userQuery = UserAR::query();
         $this->assertCount(1, $userQuery->where(['is_deleted' => false])->all());
         $this->assertCount(0, $userQuery->setWhere(['is_deleted' => true])->all());
         $this->assertCount(1, $userQuery->setWhere(['is_deleted' => [true, false]])->all());
@@ -315,7 +314,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $type->save();
 
-        $typeQuery = new ActiveQuery($type::class);
+        $typeQuery = $type::query();
 
         $type = $typeQuery->one();
 
@@ -340,7 +339,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testRelationViaArray(): void
     {
-        $promotionQuery = new ActiveQuery(Promotion::class);
+        $promotionQuery = Promotion::query();
         /** @var Promotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaArray')->all();
 
@@ -367,7 +366,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
     public function testLazzyRelationViaArray(): void
     {
-        $itemQuery = new ActiveQuery(Item::class);
+        $itemQuery = Item::query();
         /** @var Item[] $items */
         $items = $itemQuery->all();
 

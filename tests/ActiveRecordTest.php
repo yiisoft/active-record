@@ -202,7 +202,7 @@ abstract class ActiveRecordTest extends TestCase
         $arClass->save();
 
         /** @var $model Type */
-        $aqClass = new ActiveQuery(Type::class);
+        $aqClass = Type::query();
         $query = $aqClass->one();
 
         $this->assertSame(123, $query->int_col);
@@ -228,7 +228,7 @@ abstract class ActiveRecordTest extends TestCase
         $dog = new Dog();
         $dog->save();
 
-        $animal = (new ActiveQuery(Animal::class))->resultCallback(ModelFactory::create(...));
+        $animal = Animal::query()->resultCallback(ModelFactory::create(...));
 
         $animals = $animal->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animals->getDoes());
@@ -626,11 +626,11 @@ abstract class ActiveRecordTest extends TestCase
         $customer->refresh();
         $this->assertFalse($customer->getBoolStatus());
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => true])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => false])->all();
         $this->assertCount(2, $customers);
     }
@@ -699,7 +699,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customer->hasProperty('email'));
         $this->assertFalse($customer->hasProperty('notExist'));
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
         $this->assertTrue($customer->hasProperty('id'));
         $this->assertTrue($customer->hasProperty('email'));
@@ -712,7 +712,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertFalse($customer->refresh());
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
         $customer->setName('to be refreshed');
 
@@ -748,7 +748,7 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $order = $orderQuery->findByPk(2);
 
         $this->assertCount(1, $order->getItemsFor8());
@@ -758,7 +758,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(0, $order->getItemsFor8());
         $this->assertCount(2, $order->getOrderItemsWithNullFK());
 
-        $orderItemQuery = new ActiveQuery(OrderItemWithNullFK::class);
+        $orderItemQuery = OrderItemWithNullFK::query();
         $this->assertCount(1, $orderItemQuery->where([
             'order_id' => 2,
             'item_id' => 5,
@@ -771,7 +771,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testVirtualRelation(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         /** @var Order $order */
         $order = $orderQuery->findByPk(2);
 
@@ -786,14 +786,14 @@ abstract class ActiveRecordTest extends TestCase
      */
     public function testJoinWithEager(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $eagerCustomers = $customerQuery->joinWith(['items2'])->all();
         $eagerItemsCount = 0;
         foreach ($eagerCustomers as $customer) {
             $eagerItemsCount += is_countable($customer->getItems2()) ? count($customer->getItems2()) : 0;
         }
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $lazyCustomers = $customerQuery->all();
         $lazyItemsCount = 0;
         foreach ($lazyCustomers as $customer) {
@@ -817,7 +817,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(1, $customer->primaryKeyValue());
         $this->assertSame(['id' => 1], $customer->primaryKeyValues());
 
-        $orderItemQuery = new ActiveQuery(OrderItem::class);
+        $orderItemQuery = OrderItem::query();
         $orderItem = $orderItemQuery->findByPk([1, 2]);
 
         $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->primaryKeyValues());
@@ -856,7 +856,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(1, $customer->primaryKeyOldValue());
         $this->assertSame(['id' => 1], $customer->primaryKeyOldValues());
 
-        $orderItemQuery = new ActiveQuery(OrderItem::class);
+        $orderItemQuery = OrderItem::query();
         $orderItem = $orderItemQuery->findByPk([1, 2]);
         $orderItem->setOrderId(3);
         $orderItem->setItemId(4);
@@ -942,7 +942,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testGetDirtyValuesAfterFind(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
 
         $this->assertSame([], $customer->newValues());
@@ -963,7 +963,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationWithInstance(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(2);
 
         $orders = $customer->getOrdersUsingInstance();
@@ -1065,7 +1065,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testWithFactoryNonInitiated(): void
     {
-        $orderQuery = new ActiveQuery(OrderWithFactory::class);
+        $orderQuery = OrderWithFactory::query();
         $order = $orderQuery->findByPk(2);
 
         $customer = $order->getCustomer();
@@ -1087,7 +1087,7 @@ abstract class ActiveRecordTest extends TestCase
             serialize($profile)
         );
 
-        $profileQuery = new ActiveQuery(Profile::class);
+        $profileQuery = Profile::query();
         $profile = $profileQuery->findByPk(1);
 
         $this->assertEquals(
@@ -1102,7 +1102,7 @@ abstract class ActiveRecordTest extends TestCase
             $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
         }
 
-        $promotionQuery = new ActiveQuery(Promotion::class);
+        $promotionQuery = Promotion::query();
         /** @var Promotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaJson')->all();
 
@@ -1133,7 +1133,7 @@ abstract class ActiveRecordTest extends TestCase
             $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
         }
 
-        $itemQuery = new ActiveQuery(Item::class);
+        $itemQuery = Item::query();
         /** @var Item[] $items */
         $items = $itemQuery->all();
 
@@ -1152,7 +1152,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testIsChanged(): void
     {
-        $itemQuery = new ActiveQuery(Item::class);
+        $itemQuery = Item::query();
         $item = $itemQuery->findByPk(1);
 
         $this->assertFalse($item->isChanged());

@@ -402,9 +402,7 @@ To do this, use the `ActiveQueryInterface::with()` method.
 ```php
 use Yiisoft\ActiveRecord\ActiveQuery;
 
-$userQuery = new ActiveQuery(User::class);
-
-$users = $userQuery->with('profile', 'orders')->all();
+$users = User::query()->with('profile', 'orders')->all();
 ```
 
 In the example, `profile` and `orders` are the relation names that you want to load in advance.
@@ -451,9 +449,7 @@ Now you can use `$user->getProfile()` and `$user->getOrders()` to access the rel
 ```php
 use Yiisoft\ActiveRecord\ActiveQuery;
 
-$userQuery = (new ActiveQuery(User::class))->where(['id' => 1]);
-
-$user = $userQuery->one();
+$user = User::query()->where(['id' => 1])->one();
 
 $profile = $user->getProfile();
 $orders = $user->getOrders();

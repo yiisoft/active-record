@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Mssql;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\TestTrigger;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\TestTriggerAlert;
 use Yiisoft\ActiveRecord\Tests\Support\MssqlHelper;
@@ -50,7 +49,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $this->assertTrue($record->save());
         $this->assertEquals(1, $record->id);
 
-        $testRecordQuery = new ActiveQuery(TestTriggerAlert::class);
+        $testRecordQuery = TestTriggerAlert::query();
 
         $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
     }

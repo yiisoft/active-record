@@ -23,6 +23,8 @@ use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 
+use function is_string;
+
 /**
  * Trait to implement event dispatching for ActiveRecord.
  *
@@ -80,6 +82,29 @@ trait EventsTrait
         $eventDispatcher->dispatch(new AfterPopulate($this, $data));
     }
 
+    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    {
+        $model = match (true) {
+            $modelClass === null => new static(),
+            is_string($modelClass) => new $modelClass(),
+            $modelClass instanceof ActiveRecordInterface => $modelClass,
+            default => ($modelClass)(),
+        };
+
+        $eventDispatcher = EventDispatcherProvider::get($model::class);
+        $eventDispatcher->dispatch($event = new BeforeCreateQuery($model));
+
+        if ($event->isDefaultPrevented()) {
+            return $event->getReturnValue();
+        }
+
+        $query = parent::query($model);
+
+        $eventDispatcher->dispatch(new AfterCreateQuery($model, $query));
+
+        return $query;
+    }
+
     public function save(array|null $properties = null): bool
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
@@ -126,28 +151,5 @@ trait EventsTrait
         $eventDispatcher->dispatch(new AfterUpsert($this, $result));
 
         return $result;
-    }
-
-    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
-    {
-        $model = match (true) {
-            $modelClass === null => new static(),
-            is_string($modelClass) => new $modelClass(),
-            $modelClass instanceof ActiveRecordInterface => $modelClass,
-            default => ($modelClass)(),
-        };
-
-        $eventDispatcher = EventDispatcherProvider::get($model::class);
-        $eventDispatcher->dispatch($event = new BeforeCreateQuery($model));
-
-        if ($event->isDefaultPrevented()) {
-            return $event->getReturnValue();
-        }
-
-        $query = parent::query($model);
-
-        $eventDispatcher->dispatch(new AfterCreateQuery($model, $query));
-
-        return $query;
     }
 }

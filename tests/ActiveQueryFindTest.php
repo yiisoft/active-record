@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
@@ -20,7 +19,7 @@ abstract class ActiveQueryFindTest extends TestCase
 {
     public function testFindScalar(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         /** query scalar */
         $customerName = $customerQuery->where(['[[id]]' => 2])->select('[[name]]')->scalar();
@@ -30,7 +29,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindExists(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $this->assertTrue($customerQuery->where(['[[id]]' => 2])->exists());
         $this->assertTrue($customerQuery->setWhere(['[[id]]' => 2])->select('[[name]]')->exists());
@@ -41,7 +40,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindColumn(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             ['user1', 'user2', 'user3'],
@@ -56,7 +55,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindLazyViaTable(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
 
         $orders = $orderQuery->findByPk(2);
         $this->assertCount(0, $orders->getBooks());
@@ -68,7 +67,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerViaTable(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $orders = $orderQuery->with('books')->orderBy('id')->all();
         $this->assertCount(3, $orders);
 
@@ -88,7 +87,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertEquals(2, $order->getBooks()[0]->get('id'));
 
         /** https://github.com/yiisoft/yii2/issues/1402 */
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $orders = $orderQuery->with('books')->orderBy('id')->asArray()->all();
         $this->assertCount(3, $orders);
         $this->assertIsArray($orders[0]['orderItems'][0]);
@@ -107,7 +106,7 @@ abstract class ActiveQueryFindTest extends TestCase
      */
     public function testFindCompositeRelationWithJoin(): void
     {
-        $orderItemQuery = new ActiveQuery(OrderItem::class);
+        $orderItemQuery = OrderItem::query();
 
         /** @var $orderItems OrderItem */
         $orderItems = $orderItemQuery->findByPk([1, 1]);
@@ -121,7 +120,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindSimpleRelationWithJoin(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
 
         $orders = $orderQuery->findByPk(1);
         $customerNoJoin = $orders->getCustomer();
@@ -138,7 +137,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFind(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $this->assertInstanceOf(ActiveQueryInterface::class, $customerQuery);
 
         /** find one */
@@ -146,7 +145,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertInstanceOf(Customer::class, $customer);
 
         /** find all */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->all();
         $this->assertCount(3, $customers);
         $this->assertInstanceOf(Customer::class, $customers[0]);
@@ -154,7 +153,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertInstanceOf(Customer::class, $customers[2]);
 
         /** find by column */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->where(['name' => 'user2'])->one();
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals(2, $customer->getId());
@@ -168,7 +167,7 @@ abstract class ActiveQueryFindTest extends TestCase
     public function testFindAsArray(): void
     {
         /** asArray */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->where(['id' => 2])->asArray()->one();
         $this->assertEquals([
             'id' => 2,
@@ -181,7 +180,7 @@ abstract class ActiveQueryFindTest extends TestCase
         ], $customer);
 
         /** find all asArray */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->asArray()->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers[0]);
@@ -203,7 +202,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindIndexBy(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $customers = $customerQuery->indexBy('name')->orderBy('id')->all();
 
@@ -213,7 +212,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertInstanceOf(Customer::class, $customers['user3']);
 
         /** indexBy callable */
-        $customer = new ActiveQuery(Customer::class);
+        $customer = Customer::query();
 
         $customers = $customer
             ->indexBy(fn (Customer $customer) => $customer->getId() . '-' . $customer->getName())
@@ -228,7 +227,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindIndexByAsArray(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->asArray()->indexBy('name')->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers['user1']);
@@ -248,7 +247,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertArrayHasKey('status', $customers['user3']);
 
         /** indexBy callable + asArray */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->indexBy(fn ($customer) => $customer['id'] . '-' . $customer['name'])->asArray()->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers['1-user1']);
@@ -270,14 +269,14 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindCount(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $this->assertEquals(3, $customerQuery->count());
         $this->assertEquals(1, $customerQuery->where(['id' => 1])->count());
         $this->assertEquals(2, $customerQuery->setWhere(['id' => [1, 2]])->count());
         $this->assertEquals(2, $customerQuery->setWhere(['id' => [1, 2]])->offset(1)->count());
         $this->assertEquals(2, $customerQuery->setWhere(['id' => [1, 2]])->offset(2)->count());
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $this->assertEquals(3, $customerQuery->limit(1)->count());
         $this->assertEquals(3, $customerQuery->limit(2)->count());
         $this->assertEquals(3, $customerQuery->limit(10)->count());
@@ -287,17 +286,17 @@ abstract class ActiveQueryFindTest extends TestCase
     public function testFindLimit(): void
     {
         /** one */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->orderBy('id')->one();
         $this->assertEquals('user1', $customer->getName());
 
         /** all */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->all();
         $this->assertCount(3, $customers);
 
         /** limit */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->orderBy('id')->limit(1)->all();
         $this->assertCount(1, $customers);
         $this->assertEquals('user1', $customers[0]->getName());
@@ -319,7 +318,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertCount(0, $customers);
 
         /** offset */
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->orderBy('id')->offset(0)->one();
         $this->assertEquals('user1', $customer->getName());
 
@@ -335,7 +334,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindComplexCondition(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             2,
@@ -372,7 +371,7 @@ abstract class ActiveQueryFindTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $customer = $customerQuery->findByPk(2);
         $customer->setName(null);
@@ -385,7 +384,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEager(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->with('orders')->indexBy('id')->all();
 
         ksort($customers);
@@ -406,7 +405,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertCount(1, $customer->relatedRecords());
 
         /** multiple with() calls */
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $orders = $orderQuery->with('customer', 'items')->all();
         $this->assertCount(3, $orders);
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
@@ -420,7 +419,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerViaRelation(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $orders = $orderQuery->with('items')->orderBy('id')->all();
         $this->assertCount(3, $orders);
 
@@ -434,7 +433,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindNestedRelation(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->with('orders', 'orders.items')->indexBy('id')->all();
 
         ksort($customers);
@@ -468,7 +467,7 @@ abstract class ActiveQueryFindTest extends TestCase
      */
     public function testFindEagerViaRelationPreserveOrder(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $orders = $orderQuery->with('itemsInOrder1')->orderBy('created_at')->all();
         $this->assertCount(3, $orders);
 
@@ -497,7 +496,7 @@ abstract class ActiveQueryFindTest extends TestCase
     public function testFindEagerViaRelationPreserveOrderB(): void
     {
         /** different order in via table. */
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $orders = $orderQuery->with('itemsInOrder2')->orderBy('created_at')->all();
         $this->assertCount(3, $orders);
 
@@ -525,7 +524,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEmptyInCondition(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['id' => [1]])->all();
         $this->assertCount(1, $customers);
 
@@ -541,8 +540,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerIndexBy(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
-        $order = $orderQuery->with('itemsIndexed')->where(['id' => 1])->one();
+        $order = Order::query()->with('itemsIndexed')->andWhere(['id' => 1])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
 
         $items = $order->getItemsIndexed();
@@ -550,7 +548,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertTrue(isset($items[1]));
         $this->assertTrue(isset($items[2]));
 
-        $order = $orderQuery->with('itemsIndexed')->setWhere(['id' => 2])->one();
+        $order = Order::query()->with('itemsIndexed')->andWhere(['id' => 2])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
 
         $items = $order->getItemsIndexed();
@@ -562,7 +560,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindLazy(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(2);
         $this->assertFalse($customer->isRelationPopulated('orders'));
 
@@ -586,7 +584,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindLazyVia(): void
     {
-        $orderQuery = new ActiveQuery(Order::class);
+        $orderQuery = Order::query();
         $order = $orderQuery->findByPk(1);
 
         $this->assertEquals(1, $order->getId());
@@ -597,7 +595,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPk(): void
     {
-        $customerQuery = new ActiveQuery(new Customer());
+        $customerQuery = Customer::query();
 
         $this->assertEquals(
             $customerQuery->where(['id' => 1])->one(),
@@ -610,7 +608,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPkComposite(): void
     {
-        $query = new ActiveQuery(OrderItem::class);
+        $query = OrderItem::query();
 
         $orderItem = $query->findByPk([1, 2]);
 
@@ -626,7 +624,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPkWithoutPk(): void
     {
-        $query = new ActiveQuery(Type::class);
+        $query = Type::query();
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type must have a primary key.');
@@ -636,7 +634,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindByPkWithJoin(): void
     {
-        $query = new ActiveQuery(Order::class);
+        $query = Order::query();
 
         $query->joinWith('items');
 

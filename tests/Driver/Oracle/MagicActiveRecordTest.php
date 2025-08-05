@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\MagicCustomer as Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
@@ -67,11 +66,11 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customer->refresh();
         $this->assertFalse($customer->bool_status);
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => '1'])->all();
         $this->assertCount(2, $customers);
 
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => '0'])->all();
         $this->assertCount(2, $customers);
     }

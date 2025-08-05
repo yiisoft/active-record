@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -18,7 +17,7 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
 
     public function testBatchWithIndexBy(): void
     {
-        $customerQuery = new ActiveQuery(Customer::class);
+        $customerQuery = Customer::query();
 
         $query = $customerQuery->orderBy('id')->limit(3)->indexBy('id');
 

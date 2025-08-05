@@ -77,7 +77,7 @@ use function substr;
  * These options can be configured using methods of the same name. For example:
  *
  * ```php
- * $customerQuery = new ActiveQuery(Customer::class);
+ * $customerQuery = Customer::query();
  * $query = $customerQuery->with('orders')->asArray()->all();
  * ```
  *

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Sqlite;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
@@ -40,7 +39,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betaQuery = new ActiveQuery(Beta::class);
+        $betaQuery = Beta::query();
 
         $betas = $betaQuery->with('alpha')->all();
 

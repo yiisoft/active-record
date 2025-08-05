@@ -98,13 +98,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         array|bool $updateProperties = true,
     ): bool;
 
-    /**
-     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance
-     * of the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
-     * will be used.
-     *
-     * @psalm-param ModelClass $modelClass
-     */
     public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
     {
         return static::query($modelClass);

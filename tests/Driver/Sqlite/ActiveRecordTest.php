@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Sqlite;
 
-use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Support\SqliteHelper;
@@ -46,7 +45,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betaQuery = new ActiveQuery(Beta::class);
+        $betaQuery = Beta::query();
 
         $betas = $betaQuery->with('alpha')->all();
 

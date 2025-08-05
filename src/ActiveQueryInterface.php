@@ -62,7 +62,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * ```php
      * // Create active query
-     * CustomerQuery = new ActiveQuery(Customer::class);
+     * CustomerQuery = Customer::query();
      * // find customers together with their orders and country
      * CustomerQuery->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
@@ -151,11 +151,11 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * ```php
      * // Find all orders that contain books, and eager loading "books".
-     * $orderQuery = new ActiveQuery(Order::class);
+     * $orderQuery = Order::query();
      * $orderQuery->joinWith('books', true, 'INNER JOIN')->all();
      *
      * // Find all orders, eagerly load "books", and sort the orders and books by the book names.
-     * $orderQuery = new ActiveQuery(Order::class, $db);
+     * $orderQuery = Order::query();
      * $orderQuery->joinWith([
      *     'books' => function (ActiveQuery $query) {
      *         $query->orderBy('item.name');
@@ -163,7 +163,7 @@ interface ActiveQueryInterface extends QueryInterface
      * ])->all();
      *
      * // Find all orders that contain books of the category 'Science fiction', using the alias "b" for the book table.
-     * $order = new ActiveQuery(Order::class, $db);
+     * $order = Order::query();
      * $orderQuery->joinWith(['books b'], true, 'INNER JOIN')->where(['b.category' => 'Science fiction'])->all();
      * ```
      * @param array|bool $eagerLoading Whether to eager load the relations specified in `$with`. When this is boolean.
@@ -353,7 +353,7 @@ interface ActiveQueryInterface extends QueryInterface
      * In the examples below, the `id` column is the primary key of the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class);
+     * $customerQuery = Customer::query();
      *
      * $customer = $customerQuery->findByPk(1); // WHERE id = 1
      * ```
@@ -365,7 +365,7 @@ interface ActiveQueryInterface extends QueryInterface
      * In the examples below, the `id` and `id2` columns are the composite primary key of the table.
      *
      * ```php
-     * $orderItemQuery = new ActiveQuery(OrderItem::class);
+     * $orderItemQuery = OrderItem::query();
      *
      * $orderItem = $orderItemQuery->findByPk([1, 2]); // WHERE id = 1 AND id2 = 2
      * ```
@@ -378,7 +378,7 @@ interface ActiveQueryInterface extends QueryInterface
      * {
      *     $id = (string) $request->getAttribute('id');
      *
-     *     $customerQuery = new ActiveQuery(Customer::class);
+     *     $customerQuery = Customer::query();
      *     $customer = $customerQuery->findByPk($id);
      * }
      * ```

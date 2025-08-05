@@ -152,16 +152,14 @@ trait ActiveRelationTrait
      * Let's suppose customer has several orders. If only one order was loaded:
      *
      * ```php
-     * $orderQuery = new ActiveQuery(Order::class);
-     * $orders = $orderQuery->where(['id' => 1])->all();
+     * $orders = Order::query()->where(['id' => 1])->all();
      * $customerOrders = $orders[0]->customer->orders;
      * ```
      *
      * variable `$customerOrders` will contain only one order. If orders was loaded like this:
      *
      * ```php
-     * $orderQuery = new ActiveQuery(Order::class);
-     * $orders = $orderQuery->with('customer')->where(['customer_id' => 1])->all();
+     * $orders = Order::query()->with('customer')->where(['customer_id' => 1])->all();
      * $customerOrders = $orders[0]->customer->orders;
      * ```
      *

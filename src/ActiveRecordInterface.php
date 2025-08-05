@@ -35,6 +35,15 @@ interface ActiveRecordInterface
     public function columnType(string $propertyName): string;
 
     /**
+     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance
+     * of the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
+     * will be used.
+     *
+     * @psalm-param ModelClass $modelClass
+     */
+    public function createQuery(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
+
+    /**
      * Returns the database connection used by the Active Record instance.
      */
     public function db(): ConnectionInterface;
@@ -65,10 +74,9 @@ interface ActiveRecordInterface
      * > Warning: If you don't specify any condition, this method will delete **all** rows in the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $aqClasses = $customerQuery->where('status = 3')->all();
-     * foreach ($aqClasses as $aqClass) {
-     *     $aqClass->delete();
+     * $customers = Customer::query()->where('status = 3')->all();
+     * foreach ($customers as $customer) {
+     *     $customer->delete();
      * }
      * ```
      *
@@ -315,7 +323,7 @@ interface ActiveRecordInterface
     /**
      * @psalm-param ModelClass|null $modelClass
      */
-    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface;
+    public static function query(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
 
     /**
      * Returns the primary key name(s) for this AR class.
@@ -431,7 +439,7 @@ interface ActiveRecordInterface
      * For example, to update a customer record:
      *
      * ```php
-     * $customer = (new ActiveQuery(Customer::class))->findByPk(1);
+     * $customer = Customer::query()->findByPk(1);
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->update();
@@ -480,8 +488,7 @@ interface ActiveRecordInterface
      * > Warning: If you don't specify any condition, this method will update **all** rows in the table.
      *
      * ```php
-     * $customerQuery = new ActiveQuery(Customer::class);
-     * $customers = $customerQuery->where('status = 2')->all();
+     * $customers = Customer::query()->where('status = 2')->all();
      * foreach ($customers as $customer) {
      *     $customer->status = 1;
      *     $customer->update();
