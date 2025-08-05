@@ -41,7 +41,7 @@ interface ActiveRecordInterface
      *
      * @psalm-param ModelClass $modelClass
      */
-    public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface;
+    public function createQuery(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
 
     /**
      * Returns the database connection used by the Active Record instance.
