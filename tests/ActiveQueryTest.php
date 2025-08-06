@@ -1097,7 +1097,8 @@ abstract class ActiveQueryTest extends TestCase
                 'customer' => function ($query) {
                     $query->where(['{{customer}}.[[id]]' => 2]);
                 },
-            ])->andWhere(['order.id' => [1, 2]])
+            ])
+            ->andWhere(['order.id' => [1, 2]])
             ->orderBy('order.id')
             ->all();
 

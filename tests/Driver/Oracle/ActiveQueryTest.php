@@ -278,8 +278,8 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 
         /** with eager loading */
         $query = Order::query()
-            ->joinWith('bookItems', true)
-            ->joinWith('movieItems', true)
+            ->joinWith('bookItems')
+            ->joinWith('movieItems')
             ->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
