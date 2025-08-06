@@ -27,4 +27,4 @@ jobs:
       php: >-
         ['8.1', '8.2', '8.3', '8.4']
       required-packages: >-
-        ['db']
+        ['db', 'yiisoft/event-dispatcher']
