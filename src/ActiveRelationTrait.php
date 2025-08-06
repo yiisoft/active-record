@@ -571,7 +571,7 @@ trait ActiveRelationTrait
             match ($this->getModel()->columnType($propertyName)) {
                 ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, $values)),
                 ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
-                default => $this->andWhere(new In($columnName, 'IN', $values)),
+                default => $this->andWhere(new In($columnName, $values)),
             };
 
             return;
@@ -605,7 +605,7 @@ trait ActiveRelationTrait
             return;
         }
 
-        $this->andWhere(new In($columnNames, 'IN', $values));
+        $this->andWhere(new In($columnNames, $values));
     }
 
     private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
