@@ -164,15 +164,13 @@ $user->set('email', 'yiiliveext@mail.ru');
 $user->save();
 ```
 
-Usage with `ActiveQuery`:
+Using with `ActiveRecord::query()`:
 
 ```php
 use App\Entity\User;
 use Yiisoft\ActiveRecord\ActiveQuery;
 
-$userQuery = new ActiveQuery(User::class);
-
-$user = $userQuery->where(['id' => 1])->one();
+$user = User::query()->where(['id' => 1])->one();
 
 $username = $user->get('username');
 $email = $user->get('email');

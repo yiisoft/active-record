@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+use Closure;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ArrayableActiveRecord;
 use Yiisoft\ActiveRecord\Trait\RepositoryTrait;
 
@@ -269,5 +271,10 @@ class Customer extends ArrayableActiveRecord
     public function getOrdersUsingInstance(): array
     {
         return $this->relation('ordersUsingInstance');
+    }
+
+    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    {
+        return new CustomerQuery($modelClass ?? static::class);
     }
 }

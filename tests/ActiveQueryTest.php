@@ -422,8 +422,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering, eager loading, conditions on both primary and relation */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->innerJoinWith(
+        $orders = Order::query()->innerJoinWith(
             [
                 'customer' => function ($query) {
                     $query->where(['customer.id' => 2]);
@@ -435,8 +434,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->innerJoinWith(
+        $orders = Order::query()->innerJoinWith(
             [
                 'customer' => static function ($query) {
                     $query->where('{{customer}}.[[id]]=2');
@@ -451,8 +449,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertFalse($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading, conditions on both primary and relation */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->innerJoinWith(
+        $orders = Order::query()->innerJoinWith(
             [
                 'customer' => static function ($query) {
                     $query->where(['customer.id' => 2]);
@@ -465,8 +462,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertFalse($orders[0]->isRelationPopulated('customer'));
 
         /** join with via-relation */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->innerJoinWith('books')->orderBy('order.id')->all();
+        $orders = Order::query()->innerJoinWith('books')->orderBy('order.id')->all();
         $this->assertCount(2, $orders);
         $this->assertCount(2, $orders[0]->getBooks());
         $this->assertCount(1, $orders[1]->getBooks());
@@ -476,8 +472,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
         /** join with sub-relation */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->innerJoinWith(
+        $orders = Order::query()->innerJoinWith(
             [
                 'items' => function ($q) {
                     $q->orderBy('item.id');
@@ -495,8 +490,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
 
         /** join with table alias */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->joinWith(
+        $orders = Order::query()->joinWith(
             [
                 'customer' => function ($q) {
                     $q->from('customer c');
@@ -512,8 +506,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** join with table alias */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->joinWith('customer as c')->orderBy('c.id DESC, order.id')->all();
+        $orders = Order::query()->joinWith('customer as c')->orderBy('c.id DESC, order.id')->all();
         $this->assertCount(3, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertEquals(3, $orders[1]->getId());
@@ -523,8 +516,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** join with table alias sub-relation */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->innerJoinWith(
+        $orders = Order::query()->innerJoinWith(
             [
                 'items as t' => function ($q) {
                     $q->orderBy('t.id');
@@ -542,8 +534,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
 
         /** join with ON condition */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->joinWith('books2')->orderBy('order.id')->all();
+        $orders = Order::query()->joinWith('books2')->orderBy('order.id')->all();
         $this->assertCount(3, $orders);
         $this->assertCount(2, $orders[0]->getBooks2());
         $this->assertCount(0, $orders[1]->getBooks2());
@@ -556,21 +547,17 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('books2'));
 
         /** lazy loading with ON condition */
-        $orderQuery = Order::query();
-        $order = $orderQuery->findByPk(1);
+        $order = Order::query()->findByPk(1);
         $this->assertCount(2, $order->getBooks2());
 
-        $orderQuery = Order::query();
-        $order = $orderQuery->findByPk(2);
+        $order = Order::query()->findByPk(2);
         $this->assertCount(0, $order->getBooks2());
 
-        $order = Order::query();
-        $order = $order->findByPk(3);
+        $order = Order::query()->findByPk(3);
         $this->assertCount(1, $order->getBooks2());
 
         /** eager loading with ON condition */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->with('books2')->all();
+        $orders = Order::query()->with('books2')->all();
         $this->assertCount(3, $orders);
         $this->assertCount(2, $orders[0]->getBooks2());
         $this->assertCount(0, $orders[1]->getBooks2());
@@ -583,8 +570,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('books2'));
 
         /** join with count and query */
-        $orderQuery = Order::query();
-        $query = $orderQuery->joinWith('customer');
+        $query = Order::query()->joinWith('customer');
         $count = $query->count();
         $this->assertEquals(3, $count);
 
@@ -592,8 +578,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders);
 
         /** {@see https://github.com/yiisoft/yii2/issues/2880} */
-        $orderQuery = Order::query();
-        $query = $orderQuery->findByPk(1);
+        $query = Order::query()->findByPk(1);
         $customer = $query->getCustomerQuery()->joinWith(
             [
                 'orders' => static function ($q) {
@@ -603,8 +588,7 @@ abstract class ActiveQueryTest extends TestCase
         )->one();
         $this->assertEquals(1, $customer->getId());
 
-        $orderQuery = Order::query();
-        $order = $orderQuery->joinWith(
+        $order = Order::query()->joinWith(
             [
                 'items' => static function ($q) {
                     $q->from(['items' => 'item'])->orderBy('items.id');
@@ -613,8 +597,7 @@ abstract class ActiveQueryTest extends TestCase
         )->orderBy('order.id')->one();
 
         /** join with sub-relation called inside Closure */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->joinWith(
+        $orders = Order::query()->joinWith(
             [
                 'items' => static function ($q) {
                     $q->orderBy('item.id');
@@ -640,15 +623,13 @@ abstract class ActiveQueryTest extends TestCase
     public function testJoinWithAndScope(): void
     {
         /**  hasOne inner join */
-        $customer = new CustomerQuery(Customer::class);
-        $customers = $customer->active()->innerJoinWith('profile')->orderBy('customer.id')->all();
+        $customers = Customer::query()->active()->innerJoinWith('profile')->orderBy('customer.id')->all();
         $this->assertCount(1, $customers);
         $this->assertEquals(1, $customers[0]->getId());
         $this->assertTrue($customers[0]->isRelationPopulated('profile'));
 
         /** hasOne outer join */
-        $customer = new CustomerQuery(Customer::class);
-        $customers = $customer->active()->joinWith('profile')->orderBy('customer.id')->all();
+        $customers = Customer::query()->active()->joinWith('profile')->orderBy('customer.id')->all();
         $this->assertCount(2, $customers);
         $this->assertEquals(1, $customers[0]->getId());
         $this->assertEquals(2, $customers[1]->getId());
@@ -658,8 +639,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($customers[1]->isRelationPopulated('profile'));
 
         /** hasMany */
-        $customer = new CustomerQuery(Customer::class);
-        $customers = $customer->active()->joinWith(
+        $customers = Customer::query()->active()->joinWith(
             [
                 'orders' => static function ($q) {
                     $q->orderBy('order.id');
@@ -742,8 +722,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** inner join filtering and eager loading */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(['customer c']);
+        $query = Order::query()->innerJoinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
@@ -762,8 +741,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(['customer c'], false);
+        $query = Order::query()->innerJoinWith(['customer c'], false);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
@@ -782,8 +760,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertFalse($orders[1]->isRelationPopulated('customer'));
 
         /** join with via-relation */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(['books b']);
+        $query = Order::query()->innerJoinWith(['books b']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where(
@@ -808,8 +785,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
         /** joining sub relations */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(
+        $query = Order::query()->innerJoinWith(
             [
                 'items i' => static function ($q) use ($aliasMethod) {
                     /** @var $q ActiveQuery */
@@ -853,8 +829,7 @@ abstract class ActiveQueryTest extends TestCase
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod);
 
-            $orderQuery = Order::query();
-            $orders = $orderQuery->joinWith(["$relationName b"])->orderBy('order.id')->all();
+            $orders = Order::query()->joinWith(["$relationName b"])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->relation($relationName));
@@ -872,8 +847,7 @@ abstract class ActiveQueryTest extends TestCase
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
-            $orderQuery = Order::query();
-            $orders = $orderQuery->joinWith([$relationName])->orderBy('order.id')->all();
+            $orders = Order::query()->joinWith([$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->relation($relationName));
@@ -888,8 +862,7 @@ abstract class ActiveQueryTest extends TestCase
         }
 
         /** join with count and query */
-        $orderQuery = Order::query();
-        $query = $orderQuery->joinWith(['customer c']);
+        $query = Order::query()->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $count = $query->count('c.id');
@@ -905,8 +878,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders);
 
         /** relational query */
-        $orderQuery = Order::query();
-        $order = $orderQuery->findByPk(1);
+        $order = Order::query()->findByPk(1);
 
         $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
 
@@ -922,8 +894,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertNotNull($customer);
 
         /** join with sub-relation called inside Closure */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->joinWith(
+        $orders = Order::query()->joinWith(
             [
                 'items' => static function ($q) use ($aliasMethod) {
                     /** @var $q ActiveQuery */
@@ -958,8 +929,10 @@ abstract class ActiveQueryTest extends TestCase
          * join with the same table but different aliases alias is defined in the relation definition without eager
          * loading
          */
-        $query = Order::query();
-        $query->joinWith('bookItems', false)->joinWith('movieItems', false)->where(['movies.name' => 'Toy Story']);
+        $query = Order::query()
+            ->joinWith('bookItems', false)
+            ->joinWith('movieItems', false)
+            ->where(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -971,8 +944,10 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertFalse($orders[0]->isRelationPopulated('movieItems'));
 
         /** with eager loading */
-        $query = Order::query();
-        $query->joinWith('bookItems', true)->joinWith('movieItems', true)->where(['movies.name' => 'Toy Story']);
+        $query = Order::query()
+            ->joinWith('bookItems', true)
+            ->joinWith('movieItems', true)
+            ->where(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -989,8 +964,7 @@ abstract class ActiveQueryTest extends TestCase
          * join with the same table but different aliases alias is defined in the call to joinWith() without eager
          * loading
          */
-        $query = Order::query();
-        $query
+        $query = Order::query()
             ->joinWith(
                 [
                     'itemsIndexed books' => static function ($q) {
@@ -1016,8 +990,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, only for one relation as it would be overwritten otherwise. */
-        $query = Order::query();
-        $query
+        $query = Order::query()
             ->joinWith(
                 [
                     'itemsIndexed books' => static function ($q) {
@@ -1041,8 +1014,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, and the other relation */
-        $query = Order::query();
-        $query
+        $query = Order::query()
             ->joinWith(
                 [
                     'itemsIndexed books' => static function ($q) {
@@ -1119,15 +1091,16 @@ abstract class ActiveQueryTest extends TestCase
     public function testJoinWithDuplicateCallbackFilteringConditionsOnPrimary(): void
     {
         /** inner join filtering, eager loading, conditions on both primary and relation */
-        $orderQuery = Order::query();
-
-        $orders = $orderQuery
+        $orders = Order::query()
             ->innerJoinWith('customer')
             ->joinWith([
                 'customer' => function ($query) {
                     $query->where(['{{customer}}.[[id]]' => 2]);
                 },
-            ])->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
+            ])
+            ->where(['order.id' => [1, 2]])
+            ->orderBy('order.id')
+            ->all();
 
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
@@ -1285,25 +1258,22 @@ abstract class ActiveQueryTest extends TestCase
     public function testInverseOf(): void
     {
         /** eager loading: find one and all */
-        $customerQuery = Customer::query();
-        $customer = $customerQuery->with('orders2')->where(['id' => 1])->one();
+        $customer = Customer::query()->with('orders2')->where(['id' => 1])->one();
         $this->assertSame($customer->getOrders2()[0]->getCustomer2(), $customer);
 
-        $customers = $customerQuery->with('orders2')->setWhere(['id' => [1, 3]])->all();
+        $customers = Customer::query()->with('orders2')->where(['id' => [1, 3]])->all();
         $this->assertEmpty($customers[1]->getOrders2());
         $this->assertSame($customers[0]->getOrders2()[0]->getCustomer2(), $customers[0]);
 
         /** lazy loading */
-        $customerQuery = Customer::query();
-        $customer = $customerQuery->findByPk(2);
+        $customer = Customer::query()->findByPk(2);
         $orders = $customer->getOrders2();
         $this->assertCount(2, $orders);
         $this->assertSame($customer->getOrders2()[0]->getCustomer2(), $customer);
         $this->assertSame($customer->getOrders2()[1]->getCustomer2(), $customer);
 
         /** ad-hoc lazy loading */
-        $customerQuery = Customer::query();
-        $customer = $customerQuery->findByPk(2);
+        $customer = Customer::query()->findByPk(2);
         $orders = $customer->getOrders2Query()->all();
         $this->assertCount(2, $orders);
         $this->assertSame($orders[0]->getCustomer2(), $customer);
@@ -1318,43 +1288,34 @@ abstract class ActiveQueryTest extends TestCase
         );
 
         /** the other way around */
-        $customerQuery = Customer::query();
-        $customer = $customerQuery->with('orders2')->where(['id' => 1])->asArray()->one();
+        $customer = Customer::query()->with('orders2')->where(['id' => 1])->asArray()->one();
         $this->assertSame($customer['orders2'][0]['customer2']['id'], $customer['id']);
 
-        $customerQuery = Customer::query();
-        $customers = $customerQuery->with('orders2')->where(['id' => [1, 3]])->asArray()->all();
+        $customers = Customer::query()->with('orders2')->where(['id' => [1, 3]])->asArray()->all();
         $this->assertSame($customer['orders2'][0]['customer2']['id'], $customers[0]['id']);
         $this->assertEmpty($customers[1]['orders2']);
 
-        $orderQuery = Order::query();
-        $orders = $orderQuery->with('customer2')->where(['id' => 1])->all();
+        $orders = Order::query()->with('customer2')->where(['id' => 1])->all();
         $this->assertSame($orders[0]->getCustomer2()->getOrders2(), [$orders[0]]);
 
-        $orderQuery = Order::query();
-        $order = $orderQuery->with('customer2')->where(['id' => 1])->one();
+        $order = Order::query()->with('customer2')->where(['id' => 1])->one();
         $this->assertSame($order->getCustomer2()->getOrders2(), [$order]);
 
-        $orderQuery = Order::query();
-        $orders = $orderQuery->with('customer2')->where(['id' => 1])->asArray()->all();
+        $orders = Order::query()->with('customer2')->where(['id' => 1])->asArray()->all();
         $this->assertSame($orders[0]['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
-        $orderQuery = Order::query();
-        $order = $orderQuery->with('customer2')->where(['id' => 1])->asArray()->one();
+        $order = Order::query()->with('customer2')->where(['id' => 1])->asArray()->one();
         $this->assertSame($order['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
-        $orderQuery = Order::query();
-        $orders = $orderQuery->with('customer2')->where(['id' => [1, 3]])->all();
+        $orders = Order::query()->with('customer2')->where(['id' => [1, 3]])->all();
         $this->assertSame($orders[0]->getCustomer2()->getOrders2(), [$orders[0]]);
         $this->assertSame($orders[1]->getCustomer2()->getOrders2(), [$orders[1]]);
 
-        $orderQuery = Order::query();
-        $orders = $orderQuery->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->all();
+        $orders = Order::query()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->all();
         $this->assertSame($orders[0]->getCustomer2()->getOrders2(), $orders);
         $this->assertSame($orders[1]->getCustomer2()->getOrders2(), $orders);
 
-        $orderQuery = Order::query();
-        $orders = $orderQuery->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->asArray()->all();
+        $orders = Order::query()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->asArray()->all();
         $this->assertSame($orders[0]['customer2']['orders2'][0]['id'], $orders[0]['id']);
         $this->assertSame($orders[0]['customer2']['orders2'][1]['id'], $orders[1]['id']);
         $this->assertSame($orders[1]['customer2']['orders2'][0]['id'], $orders[0]['id']);
@@ -1590,8 +1551,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $orderQuery = Order::query();
-        $order = $orderQuery->with('orderItems2')->where(['id' => 1])->one();
+        $order = Order::query()->with('orderItems2')->where(['id' => 1])->one();
 
         $orderItem = new OrderItem();
 
