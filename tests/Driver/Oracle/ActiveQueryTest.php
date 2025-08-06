@@ -34,8 +34,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
     {
         $orders = [];
         /** left join and eager loading */
-        $orderQuery = Order::query();
-        $query = $orderQuery->joinWith(['customer c']);
+        $query = Order::query()->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->orderBy('c.id DESC, order.id')->all();
@@ -56,8 +55,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[2]->isRelationPopulated('customer'));
 
         /** inner join filtering and eager loading */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(['customer c']);
+        $query = Order::query()->innerJoinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
@@ -76,8 +74,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
 
         /** inner join filtering without eager loading */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(['customer c'], false);
+        $query = Order::query()->innerJoinWith(['customer c'], false);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
@@ -96,8 +93,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertFalse($orders[1]->isRelationPopulated('customer'));
 
         /** join with via-relation */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(['books b']);
+        $query = Order::query()->innerJoinWith(['books b']);
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->where(
@@ -122,8 +118,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[1]->isRelationPopulated('books'));
 
         /** joining sub relations */
-        $orderQuery = Order::query();
-        $query = $orderQuery->innerJoinWith(
+        $query = Order::query()->innerJoinWith(
             [
                 'items i' => static function ($q) use ($aliasMethod) {
                     /** @var $q ActiveQuery */
@@ -167,8 +162,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod);
 
-            $orderQuery = Order::query();
-            $orders = $orderQuery->joinWith(["$relationName b"])->orderBy('order.id')->all();
+            $orders = Order::query()->joinWith(["$relationName b"])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->relation($relationName));
@@ -186,8 +180,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         if ($aliasMethod === 'explicit' || $aliasMethod === 'querysyntax') {
             $relationName = 'books' . ucfirst($aliasMethod) . 'A';
 
-            $orderQuery = Order::query();
-            $orders = $orderQuery->joinWith([$relationName])->orderBy('order.id')->all();
+            $orders = Order::query()->joinWith([$relationName])->orderBy('order.id')->all();
 
             $this->assertCount(3, $orders);
             $this->assertCount(2, $orders[0]->relation($relationName));
@@ -202,8 +195,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         }
 
         /** join with count and query */
-        $orderQuery = Order::query();
-        $query = $orderQuery->joinWith(['customer c']);
+        $query = Order::query()->joinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
             $count = $query->count('{{c}}.[[id]]');
@@ -219,8 +211,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertCount(3, $orders);
 
         /** relational query */
-        $orderQuery = Order::query();
-        $order = $orderQuery->findByPk(1);
+        $order = Order::query()->findByPk(1);
 
         $customerQuery = $order->getCustomerQuery()->innerJoinWith(['orders o'], false);
 
@@ -236,8 +227,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertNotNull($customer);
 
         /** join with sub-relation called inside Closure */
-        $orderQuery = Order::query();
-        $orders = $orderQuery->joinWith(
+        $orders = Order::query()->joinWith(
             [
                 'items' => static function ($q) use ($aliasMethod) {
                     /** @var $q ActiveQuery */
@@ -272,8 +262,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
          * join with the same table but different aliases alias is defined in the relation definition without eager
          * loading
          */
-        $query = Order::query();
-        $query
+        $query = Order::query()
             ->joinWith('bookItems', false)
             ->joinWith('movieItems', false)
             ->where(['{{movies}}.[[name]]' => 'Toy Story']);
@@ -288,8 +277,10 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertFalse($orders[0]->isRelationPopulated('movieItems'));
 
         /** with eager loading */
-        $query = Order::query();
-        $query->joinWith('bookItems', true)->joinWith('movieItems', true)->where(['{{movies}}.[[name]]' => 'Toy Story']);
+        $query = Order::query()
+            ->joinWith('bookItems')
+            ->joinWith('movieItems')
+            ->where(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -306,8 +297,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
          * join with the same table but different aliases alias is defined in the call to joinWith() without eager
          * loading
          */
-        $query = Order::query();
-        $query
+        $query = Order::query()
             ->joinWith(
                 [
                     'itemsIndexed books' => static function ($q) {
@@ -333,8 +323,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, only for one relation as it would be overwritten otherwise. */
-        $query = Order::query();
-        $query
+        $query = Order::query()
             ->joinWith(
                 [
                     'itemsIndexed books' => static function ($q) {
@@ -358,8 +347,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
 
         /** with eager loading, and the other relation */
-        $query = Order::query();
-        $query
+        $query = Order::query()
             ->joinWith(
                 [
                     'itemsIndexed books' => static function ($q) {
