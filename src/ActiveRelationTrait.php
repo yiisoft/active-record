@@ -482,9 +482,11 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @param array $columnNames The column names to prefix.
+     * @param string[] $columnNames The column names to prefix.
      *
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     *
+     * @return string[]
      */
     private function prefixKeyColumns(array $columnNames): array
     {
