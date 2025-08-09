@@ -99,7 +99,7 @@ use function substr;
  * as inverse of another relation and {@see onCondition()} which adds a condition that is to be added to relational
  * query join condition.
  *
- * @psalm-type ModelClass = class-string<ActiveRecordInterface>|ActiveRecordInterface
+ * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
  * @psalm-import-type IndexKey from ArArrayHelper
  *
  * @psalm-property IndexKey|null $indexBy
@@ -119,7 +119,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @psalm-param ModelClass $modelClass
      */
     final public function __construct(
-        string|ActiveRecordInterface $modelClass
+        ActiveRecordInterface|string $modelClass
     ) {
         $this->model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
