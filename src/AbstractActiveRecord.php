@@ -309,8 +309,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param ActiveRecordInterface|Closure|string $modelClass The class name of the related record, or an instance of
-     * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     * @param ActiveRecordInterface|string $modelClass The class name of the related record, or an instance of
+     * the related record.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
      * the record associated with the `$class` model, while the values of the array refer to the corresponding property
      * names in **this** active record class.
@@ -319,7 +319,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @psalm-param ModelClass $modelClass
      */
-    public function hasMany(string|ActiveRecordInterface|Closure $modelClass, array $link): ActiveQueryInterface
+    public function hasMany(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($modelClass, $link, true);
     }
@@ -348,8 +348,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * Call methods declared in {@see ActiveQuery} to further customize the relation.
      *
-     * @param ActiveRecordInterface|Closure|string $modelClass The class name of the related record, or an instance of
-     * the related record, or a Closure to create an {@see ActiveRecordInterface} object.
+     * @param ActiveRecordInterface|string $modelClass The class name of the related record, or an instance of
+     * the related record.
      * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
      * the record associated with the `$class` model, while the values of the array refer to the corresponding property
      * names in **this** active record class.
@@ -358,7 +358,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @psalm-param ModelClass $modelClass
      */
-    public function hasOne(string|ActiveRecordInterface|Closure $modelClass, array $link): ActiveQueryInterface
+    public function hasOne(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($modelClass, $link, false);
     }
@@ -1044,7 +1044,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * {@see hasMany()}
      */
     protected function createRelationQuery(
-        string|ActiveRecordInterface $modelClass,
+        ActiveRecordInterface|string $modelClass,
         array $link,
         bool $multiple,
     ): ActiveQueryInterface {
