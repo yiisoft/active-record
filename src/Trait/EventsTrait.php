@@ -31,6 +31,8 @@ use function is_string;
  * @see ActiveRecordInterface::delete()
  * @see ActiveRecordInterface::insert()
  * @see ActiveRecordInterface::populateRecord()
+ * @see ActiveRecordInterface::query()
+ * @see ActiveRecordInterface::save()
  * @see ActiveRecordInterface::update()
  * @see ActiveRecordInterface::upsert()
  */
