@@ -15,10 +15,6 @@ final class OrderWithFactory extends Order
     {
         return match ($name) {
             'customerWithFactory' => $this->hasOne(CustomerWithFactory::class, ['id' => 'customer_id']),
-            'customerWithFactoryClosure' => $this->hasOne(
-                fn () => $this->factory->create(CustomerWithFactory::class),
-                ['id' => 'customer_id']
-            ),
             'customerWithFactoryInstance' => $this->hasOne(
                 $this->factory->create(CustomerWithFactory::class),
                 ['id' => 'customer_id']
@@ -30,11 +26,6 @@ final class OrderWithFactory extends Order
     public function getCustomerWithFactory(): CustomerWithFactory|null
     {
         return $this->relation('customerWithFactory');
-    }
-
-    public function getCustomerWithFactoryClosure(): CustomerWithFactory|null
-    {
-        return $this->relation('customerWithFactoryClosure');
     }
 
     public function getCustomerWithFactoryInstance(): CustomerWithFactory|null

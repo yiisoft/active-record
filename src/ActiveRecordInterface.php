@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Constant\ColumnType;
@@ -35,13 +34,14 @@ interface ActiveRecordInterface
     public function columnType(string $propertyName): string;
 
     /**
-     * @param ActiveRecordInterface|Closure|string|null $modelClass The class name of the related record, or an instance
-     * of the related record, or a Closure to create an {@see ActiveRecordInterface} object. If `null`, the current model
-     * will be used.
+     * Create {@see ActiveQueryInterface} instance for the given model class.
      *
-     * @psalm-param ModelClass $modelClass
+     * @param ActiveRecordInterface|string|null $modelClass The class name of the related record, or an instance
+     * of the related record. If `null`, the current model will be used.
+     *
+     * @psalm-param ModelClass|null $modelClass
      */
-    public function createQuery(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
+    public function createQuery(self|string|null $modelClass = null): ActiveQueryInterface;
 
     /**
      * Returns the database connection used by the Active Record instance.
@@ -321,9 +321,14 @@ interface ActiveRecordInterface
     public function populateRelation(string $name, array|self|null $records): void;
 
     /**
+     * Create {@see ActiveQueryInterface} instance for the given model class.
+     *
+     * @param ActiveRecordInterface|string|null $modelClass The class name of the related record, or an instance
+     * of the related record. If `null`, the current model class will be used.
+     *
      * @psalm-param ModelClass|null $modelClass
      */
-    public static function query(self|Closure|null|string $modelClass = null): ActiveQueryInterface;
+    public static function query(self|string|null $modelClass = null): ActiveQueryInterface;
 
     /**
      * Returns the primary key name(s) for this AR class.

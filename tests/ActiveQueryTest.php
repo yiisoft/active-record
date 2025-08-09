@@ -2473,12 +2473,4 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertInstanceOf(Customer::class, $query->getModel());
     }
-
-    public function testArClassAsClosure(): void
-    {
-        $closure = fn (): Customer => new Customer();
-        $query = new ActiveQuery($closure);
-
-        $this->assertInstanceOf(Customer::class, $query->getModel());
-    }
 }

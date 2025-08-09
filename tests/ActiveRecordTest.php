@@ -1006,17 +1006,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
     }
 
-    public function testWithFactoryClosureRelation(): void
-    {
-        $factory = $this->createFactory();
-
-        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
-        $order = $orderQuery->findByPk(2);
-
-        $this->assertInstanceOf(OrderWithFactory::class, $order);
-        $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactoryClosure());
-    }
-
     public function testWithFactoryInstanceRelation(): void
     {
         $factory = $this->createFactory();
