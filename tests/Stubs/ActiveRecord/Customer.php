@@ -273,7 +273,7 @@ class Customer extends ArrayableActiveRecord
         return $this->relation('ordersUsingInstance');
     }
 
-    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    public static function query(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
         return new CustomerQuery($modelClass ?? static::class);
     }

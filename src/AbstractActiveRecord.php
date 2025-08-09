@@ -98,7 +98,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         array|bool $updateProperties = true,
     ): bool;
 
-    public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
         return static::query($modelClass ?? $this);
     }
@@ -557,7 +557,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $this->related[$name] = $records;
     }
 
-    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    public static function query(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
         return new ActiveQuery($modelClass ?? static::class);
     }
@@ -1032,7 +1032,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Creates a query instance for `has-one` or `has-many` relation.
      *
-     * @param ActiveRecordInterface|Closure|string $modelClass The class name of the related record.
+     * @param ActiveRecordInterface|string $modelClass The class name of the related record.
      * @param array $link The primary-foreign key constraint.
      * @param bool $multiple Whether this query represents a relation to more than one record.
      *
@@ -1044,7 +1044,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * {@see hasMany()}
      */
     protected function createRelationQuery(
-        string|ActiveRecordInterface|Closure $modelClass,
+        string|ActiveRecordInterface $modelClass,
         array $link,
         bool $multiple,
     ): ActiveQueryInterface {
