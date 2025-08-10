@@ -540,8 +540,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
     public function testFindEagerIndexBy(): void
     {
-        $orderQuery = Order::query();
-        $order = $orderQuery->with('itemsIndexed')->where(['id' => 1])->one();
+        $order = Order::query()->with('itemsIndexed')->andWhere(['id' => 1])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
 
         $items = $order->getItemsIndexed();
@@ -549,7 +548,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $this->assertTrue(isset($items[1]));
         $this->assertTrue(isset($items[2]));
 
-        $order = $orderQuery->with('itemsIndexed')->setWhere(['id' => 2])->one();
+        $order = Order::query()->with('itemsIndexed')->andWhere(['id' => 2])->one();
         $this->assertTrue($order->isRelationPopulated('itemsIndexed'));
 
         $items = $order->getItemsIndexed();
