@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
@@ -99,7 +98,7 @@ use function substr;
  * as inverse of another relation and {@see onCondition()} which adds a condition that is to be added to relational
  * query join condition.
  *
- * @psalm-type ModelClass = class-string<ActiveRecordInterface>|ActiveRecordInterface|Closure():ActiveRecordInterface
+ * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
  * @psalm-import-type IndexKey from ArArrayHelper
  *
  * @psalm-property IndexKey|null $indexBy
@@ -119,13 +118,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @psalm-param ModelClass $modelClass
      */
     final public function __construct(
-        string|ActiveRecordInterface|Closure $modelClass
+        ActiveRecordInterface|string $modelClass
     ) {
-        $this->model = match (true) {
-            $modelClass instanceof ActiveRecordInterface => $modelClass,
-            $modelClass instanceof Closure => ($modelClass)(),
-            default => new $modelClass(),
-        };
+        $this->model = $modelClass instanceof ActiveRecordInterface
+            ? $modelClass
+            : new $modelClass();
 
         parent::__construct($this->model->db());
     }

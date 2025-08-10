@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Trait;
 
-use Closure;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Factory\Factory;
@@ -31,28 +30,20 @@ trait FactoryTrait
         return $new;
     }
 
-    public function createQuery(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
         if (!isset($this->factory)) {
             return parent::createQuery($modelClass);
         }
 
-        if (is_string($modelClass)) {
-            if (method_exists($modelClass, 'withFactory')) {
-                return parent::createQuery(
-                    fn (): ActiveRecordInterface => $this->factory->create($modelClass)->withFactory($this->factory)
-                );
-            }
+        $model = is_string($modelClass)
+            ? $this->factory->create($modelClass)
+            : $modelClass ?? $this;
 
-            return parent::createQuery(fn (): ActiveRecordInterface => $this->factory->create($modelClass));
+        if (method_exists($model, 'withFactory')) {
+            return parent::createQuery($model->withFactory($this->factory));
         }
 
-        $modelClass ??= $this;
-
-        if ($modelClass instanceof ActiveRecordInterface && method_exists($modelClass, 'withFactory')) {
-            return parent::createQuery($modelClass->withFactory($this->factory));
-        }
-
-        return parent::createQuery($modelClass);
+        return parent::createQuery($model);
     }
 }
