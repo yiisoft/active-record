@@ -696,11 +696,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->updateInternal($properties);
     }
 
-    public function updateAll(array $propertyValues, array|string $condition = [], array $params = []): int
+    public function updateAll(array $propertyValues, array|string $condition = []): int
     {
         $command = $this->db()->createCommand();
 
-        $command->update($this->tableName(), $propertyValues, $condition, $params);
+        $command->update($this->tableName(), $propertyValues, $condition);
 
         return $command->execute();
     }
@@ -721,7 +721,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * Use negative values if you want to decrement the counters.
      * @param array|string $condition The conditions that will be put in the `WHERE` part of the `UPDATE` SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
-     * @param array $params The parameters (name => value) to be bound to the query.
      *
      * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
      *
@@ -731,7 +730,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return int The number of rows updated.
      */
-    public function updateAllCounters(array $counters, array|string $condition = '', array $params = []): int
+    public function updateAllCounters(array $counters, array|string $condition = ''): int
     {
         $n = 0;
 
@@ -742,7 +741,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         $command = $this->db()->createCommand();
-        $command->update($this->tableName(), $counters, $condition, $params);
+        $command->update($this->tableName(), $counters, $condition);
 
         return $command->execute();
     }
