@@ -696,7 +696,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->updateInternal($properties);
     }
 
-    public function updateAll(array $propertyValues, array|string $condition = [], array $params = []): int
+    public function updateAll(array $propertyValues, array|string $condition = []): int
     {
         $command = $this->db()->createCommand();
 
