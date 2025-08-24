@@ -87,7 +87,8 @@ class ActiveRecord extends AbstractActiveRecord
 
     public function column(string $propertyName): ColumnInterface
     {
-        return $this->tableSchema()->getColumn($propertyName) ?? new StringColumn(name: $propertyName);
+        return $this->tableSchema()->getColumn($propertyName)
+            ?? $this->db()->getColumnBuilderClass()::string()->withName($propertyName);
     }
 
     /**
