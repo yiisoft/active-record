@@ -15,8 +15,6 @@ use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
 use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
-use Yiisoft\Db\Schema\Column\AbstractArrayColumn;
-use Yiisoft\Db\Schema\Column\AbstractJsonColumn;
 
 use function array_column;
 use function array_combine;
