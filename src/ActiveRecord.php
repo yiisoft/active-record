@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Schema\Column\ColumnInterface;
+use Yiisoft\Db\Schema\Column\StringColumn;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_diff_key;
@@ -84,9 +85,9 @@ class ActiveRecord extends AbstractActiveRecord
         return $this->tableSchema()->getColumnNames();
     }
 
-    public function columnType(string $propertyName): string
+    public function column(string $propertyName): ColumnInterface
     {
-        return $this->tableSchema()->getColumn($propertyName)?->getType() ?? ColumnType::STRING;
+        return $this->tableSchema()->getColumn($propertyName) ?? new StringColumn(name: $propertyName);
     }
 
     /**

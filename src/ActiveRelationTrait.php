@@ -11,9 +11,12 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Expression\ArrayExpression;
 use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
 use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
+use Yiisoft\Db\Schema\Column\AbstractArrayColumn;
+use Yiisoft\Db\Schema\Column\AbstractJsonColumn;
 
 use function array_column;
 use function array_combine;
@@ -569,9 +572,10 @@ trait ActiveRelationTrait
             $columnName = reset($columnNames);
             /** @var string $propertyName */
             $propertyName = array_key_first($this->link);
+            $column = $this->getModel()->column($propertyName);
 
-            match ($this->getModel()->columnType($propertyName)) {
-                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, $values)),
+            match ($column->getType()) {
+                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, new ArrayExpression($values, $column))),
                 ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
                 default => $this->andWhere(new In($columnName, $values)),
             };
