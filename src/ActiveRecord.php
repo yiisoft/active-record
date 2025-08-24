@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -88,7 +89,7 @@ class ActiveRecord extends AbstractActiveRecord
     public function column(string $propertyName): ColumnInterface
     {
         return $this->tableSchema()->getColumn($propertyName)
-            ?? $this->db()->getColumnBuilderClass()::string()->withName($propertyName);
+            ?? $this->db()->getColumnFactory()->fromType(ColumnType::STRING, ['name' => $propertyName]);
     }
 
     /**
