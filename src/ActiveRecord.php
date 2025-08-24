@@ -9,7 +9,6 @@ use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
-use Yiisoft\Db\Schema\Column\StringColumn;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_diff_key;
