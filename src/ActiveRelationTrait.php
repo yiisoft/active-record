@@ -11,7 +11,7 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Expression\ArrayExpression;
+use Yiisoft\Db\Expression\Value\ArrayExpression;
 use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
 use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
-use Yiisoft\Db\Expression\ArrayExpression;
+use Yiisoft\Db\Expression\Value\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Expression\JsonExpression;
+use Yiisoft\Db\Expression\Value\JsonExpression;
 
 final class ArrayAndJsonTypes extends ActiveRecord
 {
