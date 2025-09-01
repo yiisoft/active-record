@@ -12,9 +12,9 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Expression\ArrayExpression;
+use Yiisoft\Db\Expression\Value\ArrayExpression;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Expression\JsonExpression;
+use Yiisoft\Db\Expression\Value\JsonExpression;
 use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
