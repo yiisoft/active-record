@@ -12,9 +12,9 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Expression\Value\ArrayExpression;
+use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\Expression\Expression;
-use Yiisoft\Db\Expression\Value\JsonExpression;
+use Yiisoft\Db\Expression\Value\JsonValue;
 use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
@@ -185,16 +185,16 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         return [
             'simple arrays values' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int4'),
+                    new ArrayValue([1,-2,null,'42'], 'int4'),
                     [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    new ArrayValue([['text'], [null], [1]], 'text[][]'),
                     [['text'], [null], ['1']],
                 ],
                 'json_col' => [['a' => 1, 'b' => null, 'c' => [1,3,5]]],
                 'jsonb_col' => [[null, 'a', 'b', '\"', '{"af"}']],
-                'jsonarray_col' => [new ArrayExpression([[',', 'null', true, 'false', 'f']], 'json')],
+                'jsonarray_col' => [new ArrayValue([[',', 'null', true, 'false', 'f']], 'json')],
             ]],
             'null arrays values' => [[
                 'intarray_col' => [
@@ -219,19 +219,19 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
             ]],
             'arrays packed in classes' => [[
                 'intarray_col' => [
-                    new ArrayExpression([1,-2,null,'42'], 'int'),
+                    new ArrayValue([1,-2,null,'42'], 'int'),
                     [1,-2,null,42],
                 ],
                 'textarray2_col' => [
-                    new ArrayExpression([['text'], [null], [1]], 'text[][]'),
+                    new ArrayValue([['text'], [null], [1]], 'text[][]'),
                     [['text'], [null], ['1']],
                 ],
                 'json_col' => [
-                    new JsonExpression(['a' => 1, 'b' => null, 'c' => [1,3,5]]),
+                    new JsonValue(['a' => 1, 'b' => null, 'c' => [1,3,5]]),
                     ['a' => 1, 'b' => null, 'c' => [1,3,5]],
                 ],
                 'jsonb_col' => [
-                    new JsonExpression([null, 'a', 'b', '\"', '{"af"}']),
+                    new JsonValue([null, 'a', 'b', '\"', '{"af"}']),
                     [null, 'a', 'b', '\"', '{"af"}'],
                 ],
                 'jsonarray_col' => [
@@ -273,8 +273,8 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
             $expected = $expected[1] ?? $expected[0];
             $value = $type->$property;
 
-            if ($expected instanceof ArrayExpression) {
-                $expected = $expected->getValue();
+            if ($expected instanceof ArrayValue) {
+                $expected = $expected->value;
             }
 
             $this->assertSame($expected, $value, 'In column ' . $property);

@@ -11,7 +11,7 @@ use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Expression\Value\ArrayExpression;
+use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
 use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
@@ -573,7 +573,7 @@ trait ActiveRelationTrait
             $column = $this->getModel()->column($propertyName);
 
             match ($column->getType()) {
-                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, new ArrayExpression($values, $column))),
+                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, new ArrayValue($values, $column))),
                 ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
                 default => $this->andWhere(new In($columnName, $values)),
             };
