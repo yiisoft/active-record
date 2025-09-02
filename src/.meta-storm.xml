@@ -10,7 +10,7 @@
         <classMethod class="\Yiisoft\ActiveRecord\ActiveRecordInterface" method="hasProperty" argument="0">
             <properties relatedTo="variable" />
         </classMethod>
-        <classMethod class="\Yiisoft\ActiveRecord\ActiveRecordInterface" method="columnType" argument="0">
+        <classMethod class="\Yiisoft\ActiveRecord\ActiveRecordInterface" method="column" argument="0">
             <properties relatedTo="variable" />
         </classMethod>
     </definitions>
