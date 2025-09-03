@@ -152,17 +152,19 @@ Notes:
 
 ### Private properties
 
-To use `private` properties inside the model class, you need to copy `propertyValuesInternal()` and `populateProperty()` 
-methods from the `ActiveRecord` class and adjust them to work with the `private` properties.
+To use `private` properties inside the model class, you need to use the `PrivatePropertiesTrait` trait.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Trait\PrivatePropertiesTrait;
 
 /**
  * Entity User.
  **/
 final class User extends ActiveRecord
 {
+    use PrivatePropertiesTrait;
+
     private int $id;
     private string $username;
     private string $email;
@@ -175,17 +177,6 @@ final class User extends ActiveRecord
     
     // Getters and setters as for protected properties
     // ...
-
-    // Copied `propertyValuesInternal()` and `populateProperty()` methods from `ActiveRecord` class
-    protected function propertyValuesInternal(): array
-    {
-        return get_object_vars($this);
-    }
-    
-    protected function populateProperty(string $name, mixed $value): void
-    {
-        $this->$name = $value;
-    }
 }
 ```
 
