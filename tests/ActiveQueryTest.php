@@ -27,7 +27,7 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Exception\UnknownPropertyException;
+use Yiisoft\ActiveRecord\UnknownPropertyException;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function sort;
