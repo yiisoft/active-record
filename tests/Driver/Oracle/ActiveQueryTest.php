@@ -58,11 +58,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()->innerJoinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
+            $orders = $query->andWhere('{{c}}.[[id]]=2')->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
+            $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 [$query->applyAlias('customer', 'id') => 2]
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
@@ -77,11 +77,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()->innerJoinWith(['customer c'], false);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
+            $orders = $query->andWhere('{{c}}.[[id]]=2')->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
+            $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 [$query->applyAlias('customer', 'id') => 2]
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
@@ -96,15 +96,15 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()->innerJoinWith(['books b']);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 ['b.name' => 'Yii3 Cookbook']
             )->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 ['{{@item}}.name' => 'Yii3 Cookbook']
             )->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 [$query->applyAlias('book', 'name') => 'Yii3 Cookbook']
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
@@ -265,7 +265,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()
             ->joinWith('bookItems', false)
             ->joinWith('movieItems', false)
-            ->where(['{{movies}}.[[name]]' => 'Toy Story']);
+            ->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -280,7 +280,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()
             ->joinWith('bookItems')
             ->joinWith('movieItems')
-            ->where(['{{movies}}.[[name]]' => 'Toy Story']);
+            ->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -312,7 +312,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                     },
                 ],
                 false
-            )->where(['{{movies}}.[[name]]' => 'Toy Story']);
+            )->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -339,7 +339,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                     },
                 ],
                 true
-            )->where(['{{movies}}.[[name]]' => 'Toy Story']);
+            )->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
         $this->assertCount(3, $orders[0]->getItemsIndexed());
@@ -364,7 +364,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                 ],
                 false
             )
-            ->where(['{{movies}}.[[name]]' => 'Toy Story']);
+            ->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
         $this->assertCount(0, $orders[0]->getItemsIndexed());

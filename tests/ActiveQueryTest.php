@@ -428,7 +428,7 @@ abstract class ActiveQueryTest extends TestCase
                     $query->where(['customer.id' => 2]);
                 },
             ]
-        )->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
+        )->andWhere(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
@@ -456,7 +456,7 @@ abstract class ActiveQueryTest extends TestCase
                 },
             ],
             false
-        )->where(['order.id' => [1, 2]])->orderBy('order.id')->all();
+        )->andWhere(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('customer'));
@@ -725,11 +725,11 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()->innerJoinWith(['customer c']);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
+            $orders = $query->andWhere('{{c}}.[[id]]=2')->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
+            $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 [$query->applyAlias('customer', 'id') => 2]
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
@@ -744,11 +744,11 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()->innerJoinWith(['customer c'], false);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where('{{c}}.[[id]]=2')->orderBy('order.id')->all();
+            $orders = $query->andWhere('{{c}}.[[id]]=2')->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
+            $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 [$query->applyAlias('customer', 'id') => 2]
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
@@ -763,15 +763,15 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()->innerJoinWith(['books b']);
 
         if ($aliasMethod === 'explicit') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 ['b.name' => 'Yii3 Cookbook']
             )->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 ['{{@item}}.name' => 'Yii3 Cookbook']
             )->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
-            $orders = $query->where(
+            $orders = $query->andWhere(
                 [$query->applyAlias('book', 'name') => 'Yii3 Cookbook']
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
@@ -932,7 +932,7 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()
             ->joinWith('bookItems', false)
             ->joinWith('movieItems', false)
-            ->where(['movies.name' => 'Toy Story']);
+            ->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -947,7 +947,7 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()
             ->joinWith('bookItems', true)
             ->joinWith('movieItems', true)
-            ->where(['movies.name' => 'Toy Story']);
+            ->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -979,7 +979,7 @@ abstract class ActiveQueryTest extends TestCase
                     },
                 ],
                 false
-            )->where(['movies.name' => 'Toy Story']);
+            )->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
@@ -1006,7 +1006,7 @@ abstract class ActiveQueryTest extends TestCase
                     },
                 ],
                 true
-            )->where(['movies.name' => 'Toy Story']);
+            )->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
         $this->assertCount(3, $orders[0]->getItemsIndexed());
@@ -1031,7 +1031,7 @@ abstract class ActiveQueryTest extends TestCase
                 ],
                 false
             )
-            ->where(['movies.name' => 'Toy Story']);
+            ->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
         $this->assertCount(0, $orders[0]->getItemsIndexed());
@@ -1098,7 +1098,7 @@ abstract class ActiveQueryTest extends TestCase
                     $query->where(['{{customer}}.[[id]]' => 2]);
                 },
             ])
-            ->where(['order.id' => [1, 2]])
+            ->andWhere(['order.id' => [1, 2]])
             ->orderBy('order.id')
             ->all();
 
@@ -1295,27 +1295,27 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($customer['orders2'][0]['customer2']['id'], $customers[0]['id']);
         $this->assertEmpty($customers[1]['orders2']);
 
-        $orders = Order::query()->with('customer2')->where(['id' => 1])->all();
+        $orders = Order::query()->with('customer2')->andWhere(['id' => 1])->all();
         $this->assertSame($orders[0]->getCustomer2()->getOrders2(), [$orders[0]]);
 
-        $order = Order::query()->with('customer2')->where(['id' => 1])->one();
+        $order = Order::query()->with('customer2')->andWhere(['id' => 1])->one();
         $this->assertSame($order->getCustomer2()->getOrders2(), [$order]);
 
-        $orders = Order::query()->with('customer2')->where(['id' => 1])->asArray()->all();
+        $orders = Order::query()->with('customer2')->andWhere(['id' => 1])->asArray()->all();
         $this->assertSame($orders[0]['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
-        $order = Order::query()->with('customer2')->where(['id' => 1])->asArray()->one();
+        $order = Order::query()->with('customer2')->andWhere(['id' => 1])->asArray()->one();
         $this->assertSame($order['customer2']['orders2'][0]['id'], $orders[0]['id']);
 
-        $orders = Order::query()->with('customer2')->where(['id' => [1, 3]])->all();
+        $orders = Order::query()->with('customer2')->andWhere(['id' => [1, 3]])->all();
         $this->assertSame($orders[0]->getCustomer2()->getOrders2(), [$orders[0]]);
         $this->assertSame($orders[1]->getCustomer2()->getOrders2(), [$orders[1]]);
 
-        $orders = Order::query()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->all();
+        $orders = Order::query()->with('customer2')->andWhere(['id' => [2, 3]])->orderBy('id')->all();
         $this->assertSame($orders[0]->getCustomer2()->getOrders2(), $orders);
         $this->assertSame($orders[1]->getCustomer2()->getOrders2(), $orders);
 
-        $orders = Order::query()->with('customer2')->where(['id' => [2, 3]])->orderBy('id')->asArray()->all();
+        $orders = Order::query()->with('customer2')->andWhere(['id' => [2, 3]])->orderBy('id')->asArray()->all();
         $this->assertSame($orders[0]['customer2']['orders2'][0]['id'], $orders[0]['id']);
         $this->assertSame($orders[0]['customer2']['orders2'][1]['id'], $orders[1]['id']);
         $this->assertSame($orders[1]['customer2']['orders2'][0]['id'], $orders[0]['id']);
@@ -1551,7 +1551,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $order = Order::query()->with('orderItems2')->where(['id' => 1])->one();
+        $order = Order::query()->with('orderItems2')->andWhere(['id' => 1])->one();
 
         $orderItem = new OrderItem();
 
@@ -1625,8 +1625,7 @@ abstract class ActiveQueryTest extends TestCase
         $itemsCount = $itemQuery->where(['category_id' => 2])->count();
         $this->assertEquals(3, $itemsCount);
 
-        $orderQuery = Order::query();
-        $orderQuery = $orderQuery->with('limitedItems')->where(['id' => 2]);
+        $orderQuery = Order::query()->with('limitedItems')->andWhere(['id' => 2]);
 
         /**
          * Ensure that limitedItems relation returns only one item (category_id = 2 and id in (4, 5)).

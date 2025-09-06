@@ -7,7 +7,11 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
+use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
+use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
+use Yiisoft\ActiveRecord\Trait\EventsTrait;
 
 /**
  * Class Order.
@@ -15,10 +19,17 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  * @property int $id
  * @property int $customer_id
  * @property int $created_at
+ * @property int $updated_at
+ * @property int $deleted_at
  * @property string $total
  */
+#[DefaultDateTimeOnInsert]
+#[SetDateTimeOnUpdate]
+#[SoftDelete]
 class Order extends MagicActiveRecord
 {
+    use EventsTrait;
+
     public const TABLE_NAME = 'order';
 
     private string|int|null $virtualCustomerId = null;
