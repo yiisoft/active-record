@@ -14,7 +14,6 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Db\Exception\StaleObjectException;
 use Yiisoft\Db\Expression\Expression;
 
 use function array_diff_key;
@@ -903,7 +902,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @throws Exception
      * @throws ReflectionException
-     * @throws StaleObjectException
      * @throws Throwable
      */
     public function unlinkAll(string $relationName, bool $delete = false): void
@@ -1055,7 +1053,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * {@see delete()}
      *
      * @throws Exception
-     * @throws StaleObjectException
      * @throws Throwable
      *
      * @return int The number of rows deleted.
@@ -1153,7 +1150,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @throws Exception
      * @throws NotSupportedException
-     * @throws StaleObjectException
      *
      * @return int The number of rows affected.
      */
