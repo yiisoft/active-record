@@ -35,7 +35,7 @@ class SetValueOnUpdate extends AttributeHandlerProvider
 
     private function beforeUpdate(BeforeUpdate $event): void
     {
-        $model = $event->getModel();
+        $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         foreach ($this->getPropertyNames() as $propertyName) {
@@ -47,7 +47,7 @@ class SetValueOnUpdate extends AttributeHandlerProvider
 
     private function beforeUpsert(BeforeUpsert $event): void
     {
-        $model = $event->getModel();
+        $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         $updateProperties = match ($event->updateProperties) {

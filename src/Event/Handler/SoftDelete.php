@@ -10,6 +10,8 @@ use Yiisoft\ActiveRecord\Event\AfterCreateQuery;
 use Yiisoft\ActiveRecord\Event\BeforeDelete;
 use Yiisoft\Db\QueryBuilder\Condition\Equals;
 
+use function is_callable;
+
 /**
  * Attribute for implementing soft deletion in Active Record models. Instead of deleting records from the
  * database, it sets a value of the date and time for properties to indicate that the record has been logically deleted.
@@ -43,7 +45,7 @@ final class SoftDelete extends AttributeHandlerProvider
 
     private function afterCreateQuery(AfterCreateQuery $event): void
     {
-        $model = $event->getModel();
+        $model = $event->model;
         $tableName = $model->tableName();
 
         foreach ($this->getPropertyNames() as $propertyName) {
@@ -55,7 +57,7 @@ final class SoftDelete extends AttributeHandlerProvider
 
     private function beforeDelete(BeforeDelete $event): void
     {
-        $model = $event->getModel();
+        $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         $propertyValues = [];
