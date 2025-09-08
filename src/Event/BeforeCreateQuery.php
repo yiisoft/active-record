@@ -13,9 +13,4 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class BeforeCreateQuery extends AbstractEvent
 {
-    public function __construct(
-        ActiveRecordInterface $model,
-    ) {
-        parent::__construct($model);
-    }
 }

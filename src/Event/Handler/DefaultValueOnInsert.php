@@ -36,7 +36,7 @@ class DefaultValueOnInsert extends AttributeHandlerProvider
 
     private function beforeInsert(BeforeInsert $event): void
     {
-        $model = $event->getModel();
+        $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         foreach ($this->getPropertyNames() as $propertyName) {
@@ -48,7 +48,7 @@ class DefaultValueOnInsert extends AttributeHandlerProvider
 
     private function beforeUpsert(BeforeUpsert $event): void
     {
-        $model = $event->getModel();
+        $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         foreach ($this->getPropertyNames() as $propertyName) {

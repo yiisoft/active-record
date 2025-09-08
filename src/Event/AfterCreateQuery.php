@@ -16,7 +16,7 @@ final class AfterCreateQuery extends AbstractEvent
 {
     public function __construct(
         ActiveRecordInterface $model,
-        public ActiveQueryInterface &$query,
+        public readonly ActiveQueryInterface $query,
     ) {
         parent::__construct($model);
     }

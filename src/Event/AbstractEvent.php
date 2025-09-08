@@ -22,16 +22,9 @@ abstract class AbstractEvent implements StoppableEventInterface
     /**
      * @param ActiveRecordInterface $model The target model associated with this event.
      */
-    public function __construct(private readonly ActiveRecordInterface $model)
-    {
-    }
-
-    /**
-     * @return ActiveRecordInterface The target model associated with this event.
-     */
-    public function getModel(): ActiveRecordInterface
-    {
-        return $this->model;
+    public function __construct(
+        public readonly ActiveRecordInterface $model,
+    ) {
     }
 
     /**
