@@ -10,6 +10,7 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 /**
@@ -503,6 +504,8 @@ interface ActiveRecordInterface
      * @param array $propertyValues Property values (name-value pairs) to be saved into the table.
      * @param array|string $condition The conditions that will be put in the `WHERE` part of the `UPDATE` SQL.
      * Please refer to {@see Query::where()} on how to specify this parameter.
+     * @param array|ExpressionInterface|string|null $from The FROM part of the `UPDATE` SQL.
+     * Please refer to {@see QueryPartsInterface::from()} on how to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      *
      * @throws InvalidConfigException
@@ -511,7 +514,7 @@ interface ActiveRecordInterface
      *
      * @return int The number of rows updated.
      */
-    public function updateAll(array $propertyValues, array|string $condition = [], array $params = []): int;
+    public function updateAll(array $propertyValues, array|string $condition = [], array|ExpressionInterface|string|null $from = null, array $params = []): int;
 
     /**
      * Insert a row into the associated database table if the record doesn't already exist (matching unique constraints)
