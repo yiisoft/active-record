@@ -12,6 +12,7 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\BatchQueryResultInterface;
 use Yiisoft\Db\Query\DataReaderInterface;
 use Yiisoft\Db\Query\Query;
 use Yiisoft\Db\Query\QueryInterface;
@@ -843,9 +844,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return clone $this->model;
     }
 
+    public function batch(int $batchSize = 100): BatchQueryResultInterface
+    {
+        /** @psalm-suppress InvalidArgument */
+        return parent::batch($batchSize)->indexBy(null)->resultCallback($this->index(...));
+    }
+
     protected function index(array $rows): array
     {
-        return ArArrayHelper::index($this->populate($rows), $this->indexBy);
+        return ArArrayHelper::index($this->populate(array_values($rows)), $this->indexBy);
     }
 
     private function createInstance(): static
