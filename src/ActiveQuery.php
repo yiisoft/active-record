@@ -852,7 +852,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     protected function index(array $rows): array
     {
-        return ArArrayHelper::index($this->populate(array_values($rows)), $this->indexBy);
+        /** @var list<array> $rows */
+        return ArArrayHelper::index($this->populate($rows), $this->indexBy);
     }
 
     private function createInstance(): static
