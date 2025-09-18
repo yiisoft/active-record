@@ -39,7 +39,7 @@ trait ArrayableTrait
      *
      * You may override this method to return a list of expandable fields.
      *
-     * @return (string|Closure)[] The list of expandable field names or field definitions. Please refer
+     * @return (Closure|string)[] The list of expandable field names or field definitions. Please refer
      * to {@see fields()} on the format of the return value.
      *
      * @psalm-return FieldsArray
@@ -93,7 +93,7 @@ trait ArrayableTrait
      *
      * The default implementation returns the names of the properties of this record indexed by themselves.
      *
-     * @return (string|Closure)[] The list of field names or field definitions.
+     * @return (Closure|string)[] The list of field names or field definitions.
      *
      * @psalm-return FieldsArray
      */
