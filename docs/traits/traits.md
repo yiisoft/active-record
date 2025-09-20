@@ -1,4 +1,4 @@
-# Traits
+# Extending with traits
 
 The library provides several traits that can be used to extend the functionality of `ActiveRecord` models.
 These traits can be included in your model classes to add specific behaviors or features.
