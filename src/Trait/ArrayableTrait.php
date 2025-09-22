@@ -13,7 +13,7 @@ use function array_combine;
 use function array_keys;
 
 /**
- * Trait to implement {@see \Yiisoft\Arrays\ArrayableInterface} interface for ActiveRecord.
+ * Trait to implement {@see ArrayableInterface} interface for ActiveRecord.
  *
  * @method string[] propertyNames()
  * @see ActiveRecordInterface::propertyNames()
