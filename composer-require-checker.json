@@ -1,10 +1,15 @@
 {
     "symbol-whitelist": [
+        "Psr\\EventDispatcher\\EventDispatcherInterface",
+        "Psr\\EventDispatcher\\StoppableEventInterface",
         "Psr\\Http\\Message\\ResponseInterface",
         "Psr\\Http\\Message\\ServerRequestInterface",
         "Psr\\Http\\Server\\MiddlewareInterface",
         "Psr\\Http\\Server\\RequestHandlerInterface",
         "Yiisoft\\Arrays\\ArrayableTrait",
+        "Yiisoft\\EventDispatcher\\Dispatcher\\Dispatcher",
+        "Yiisoft\\EventDispatcher\\Provider\\ListenerCollection",
+        "Yiisoft\\EventDispatcher\\Provider\\Provider",
         "Yiisoft\\Factory\\Factory"
     ]
 }

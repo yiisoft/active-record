@@ -97,6 +97,8 @@ CREATE TABLE "order" (
   "id" integer not null,
   "customer_id" integer NOT NULL references "customer"("id") on DELETE CASCADE,
   "created_at" integer NOT NULL,
+  "updated_at" integer NOT NULL,
+  "deleted_at" integer,
   "total" decimal(10,0) NOT NULL,
   CONSTRAINT "order_PK" PRIMARY KEY ("id") ENABLE
 );
@@ -404,9 +406,9 @@ INSERT INTO "item" ("name", "category_id") VALUES ('Ice Age', 2);
 INSERT INTO "item" ("name", "category_id") VALUES ('Toy Story', 2);
 INSERT INTO "item" ("name", "category_id") VALUES ('Cars', 2);
 
-INSERT INTO "order" ("customer_id", "created_at", "total") VALUES (1, 1325282384, 110.0);
-INSERT INTO "order" ("customer_id", "created_at", "total") VALUES (2, 1325334482, 33.0);
-INSERT INTO "order" ("customer_id", "created_at", "total") VALUES (2, 1325502201, 40.0);
+INSERT INTO "order" ("customer_id", "created_at", "updated_at", "total") VALUES (1, 1325282384, 1325282384, 110.0);
+INSERT INTO "order" ("customer_id", "created_at", "updated_at", "total") VALUES (2, 1325334482, 1325334482, 33.0);
+INSERT INTO "order" ("customer_id", "created_at", "updated_at", "total") VALUES (2, 1325502201, 1325502201, 40.0);
 
 INSERT INTO "order_with_null_fk" ("customer_id", "created_at", "total") VALUES (1, 1325282384, 110.0);
 INSERT INTO "order_with_null_fk" ("customer_id", "created_at", "total") VALUES (2, 1325334482, 33.0);

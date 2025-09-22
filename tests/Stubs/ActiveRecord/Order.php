@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+use DateTimeInterface;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
+use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
+use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
+use Yiisoft\ActiveRecord\Trait\EventsTrait;
 
 /**
  * Class Order.
@@ -15,12 +20,19 @@ use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 class Order extends ActiveRecord
 {
     use CustomTableNameTrait;
+    use EventsTrait;
 
     public const TABLE_NAME = 'order';
 
     protected int|null $id;
     protected int $customer_id;
-    protected int $created_at;
+    #[DefaultDateTimeOnInsert]
+    protected int|DateTimeInterface $created_at;
+    #[DefaultDateTimeOnInsert]
+    #[SetDateTimeOnUpdate]
+    protected int|DateTimeInterface $updated_at;
+    #[SoftDelete]
+    protected int|DateTimeInterface|null $deleted_at;
     protected float $total;
 
     protected string|int|null $virtualCustomerId = null;
@@ -40,7 +52,7 @@ class Order extends ActiveRecord
         return $this->customer_id;
     }
 
-    public function getCreatedAt(): int
+    public function getCreatedAt(): int|DateTimeInterface
     {
         return $this->created_at;
     }
@@ -48,6 +60,11 @@ class Order extends ActiveRecord
     public function getTotal(): float
     {
         return $this->total;
+    }
+
+    public function getUpdatedAt(): int|DateTimeInterface
+    {
+        return $this->updated_at;
     }
 
     public function setId(int|null $id): void
@@ -60,9 +77,14 @@ class Order extends ActiveRecord
         $this->set('customer_id', $customerId);
     }
 
-    public function setCreatedAt(int $createdAt): void
+    public function setCreatedAt(int|DateTimeInterface $createdAt): void
     {
         $this->created_at = $createdAt;
+    }
+
+    public function setUpdatedAt(int|DateTimeInterface $updatedAt): void
+    {
+        $this->updated_at = $updatedAt;
     }
 
     public function setTotal(float $total): void
