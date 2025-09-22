@@ -86,6 +86,8 @@ CREATE TABLE `order` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11) NOT NULL,
   `created_at` int(11) NOT NULL,
+  `updated_at` int(11) NOT NULL,
+  `deleted_at` int(11),
   `total` decimal(10,0) NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_order_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE
@@ -266,9 +268,9 @@ INSERT INTO `promotion` (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals'
 INSERT INTO `promotion` (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
 INSERT INTO `promotion` (json_item_ids, title) VALUES ('[]', 'Free!');
 
-INSERT INTO `order` (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
-INSERT INTO `order` (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);
-INSERT INTO `order` (customer_id, created_at, total) VALUES (2, 1325502201, 40.0);
+INSERT INTO `order` (customer_id, created_at, updated_at, total) VALUES (1, 1325282384, 1325282384, 110.0);
+INSERT INTO `order` (customer_id, created_at, updated_at, total) VALUES (2, 1325334482, 1325334482, 33.0);
+INSERT INTO `order` (customer_id, created_at, updated_at, total) VALUES (2, 1325502201, 1325502201, 40.0);
 
 INSERT INTO `order_with_null_fk` (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO `order_with_null_fk` (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);

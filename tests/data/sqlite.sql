@@ -74,6 +74,8 @@ CREATE TABLE "order" (
   id INTEGER NOT NULL,
   customer_id INTEGER NOT NULL,
   created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  deleted_at INTEGER,
   total decimal(10,0) NOT NULL,
   PRIMARY KEY (id)
 );
@@ -233,9 +235,9 @@ INSERT INTO "promotion" (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals'
 INSERT INTO "promotion" (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
 INSERT INTO "promotion" (json_item_ids, title) VALUES ('[]', 'Free!');
 
-INSERT INTO "order" (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
-INSERT INTO "order" (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);
-INSERT INTO "order" (customer_id, created_at, total) VALUES (2, 1325502201, 40.0);
+INSERT INTO "order" (customer_id, created_at, updated_at, total) VALUES (1, 1325282384, 1325282384, 110.0);
+INSERT INTO "order" (customer_id, created_at, updated_at, total) VALUES (2, 1325334482, 1325334482, 33.0);
+INSERT INTO "order" (customer_id, created_at, updated_at, total) VALUES (2, 1325502201, 1325502201, 40.0);
 
 INSERT INTO "order_with_null_fk" (customer_id, created_at, total) VALUES (1, 1325282384, 110.0);
 INSERT INTO "order_with_null_fk" (customer_id, created_at, total) VALUES (2, 1325334482, 33.0);
