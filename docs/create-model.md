@@ -273,6 +273,8 @@ $orders = $user->getOrders();
 
 For more information on defining relations, see [Define Relations](define-relations.md).
 
-Also see [Using Dependency Injection With Active Record Model](using-di.md).
+Also see
+- [Using Dependency Injection With Active Record Model](using-di.md);
+- [Extending functionality with traits](traits/traits.md).
 
 Back to [README](../README.md)
