@@ -824,7 +824,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         }
 
-        return $this->setWhere(array_combine($primaryKey, $values))->one();
+        return (clone $this)->andWhere(array_combine($primaryKey, $values))->one();
     }
 
     public function on(array|string|null $value): static
