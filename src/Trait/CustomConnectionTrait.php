@@ -9,7 +9,7 @@ use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
- * Trait to implement custom connection name for ActiveRecord.
+ * Trait to implement a custom connection name for ActiveRecord.
  *
  * @see AbstractActiveRecord::db()
  */

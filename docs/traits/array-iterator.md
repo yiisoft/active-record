@@ -31,4 +31,4 @@ foreach ($user as $property => $value) {
 }
 ```
 
-Back to [Extending with traits](traits.md).
+Back to [Extending Functionality With Traits](traits.md).

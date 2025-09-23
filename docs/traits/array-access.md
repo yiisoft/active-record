@@ -32,4 +32,4 @@ unset($user['username']); // Unset the property or set it to null using array sy
 isset($user['username']); // Check if the property exists and is not null using array syntax
 ```
 
-Back to [Extending with traits](traits.md).
+Back to [Extending Functionality With Traits](traits.md).

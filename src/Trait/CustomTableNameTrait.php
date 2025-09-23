@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Trait;
 
 /**
- * Trait to implement custom table name for ActiveRecord.
+ * Trait to implement a custom table name for ActiveRecord.
  *
  * @see ActiveRecordInterface::tableName()
  */

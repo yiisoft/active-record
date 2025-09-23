@@ -6,8 +6,9 @@ These traits can be included in your model classes to add specific behaviors or 
 - [ArrayableTrait](arrayable.md) provides `toArray()` method to convert a model to an array format;
 - [ArrayAccessTrait](array-access.md) allows accessing model properties and relations using array syntax;
 - [ArrayIteratorTrait](array-iterator.md) allows accessing model properties and relations iteratively;
-- `CustomConnectionTrait` allows using a custom database connection for a model;
-- `CustomTableNameTrait` allows using a custom table name for a model;
+- [CustomConnectionTrait](custom-connection.md) allows using a custom database connection for a model;
+- [CustomTableNameTrait](custom-table-name.md) allows using a custom table name for a model;
+- `EventsTrait` allows using event handlers for model events;
 - `FactoryTrait` allows creating models and relations using [yiisoft/factory](https://github.com/yiisoft/factory);
 - `MagicPropertiesTrait` stores properties in a private property and provides magic getters
   and setters for accessing the model properties and relations;
