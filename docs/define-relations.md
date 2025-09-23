@@ -1,4 +1,4 @@
-# Active Record Relations
+# Define Active Record Relations
 
 ```mermaid
 erDiagram

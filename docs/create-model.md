@@ -274,7 +274,8 @@ $orders = $user->getOrders();
 For more information on defining relations, see [Define Relations](define-relations.md).
 
 Also see
+- [Extending Functionality With Traits](traits/traits.md);
 - [Using Dependency Injection With Active Record Model](using-di.md);
-- [Extending functionality with traits](traits/traits.md).
+- [Optimistic Locking](optimistic-locking.md).
 
 Back to [README](../README.md)

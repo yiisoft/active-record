@@ -1,11 +1,11 @@
-# Extending with traits
+# Extending Functionality With Traits
 
 The library provides several traits that can be used to extend the functionality of `ActiveRecord` models.
 These traits can be included in your model classes to add specific behaviors or features.
 
 - [ArrayableTrait](arrayable.md) provides `toArray()` method to convert a model to an array format;
-- `ArrayAccessTrait` allows accessing model properties and relations using array syntax;
-- `ArrayIteratorTrait` allows accessing model properties and relations iteratively;
+- [ArrayAccessTrait](array-access.md) allows accessing model properties and relations using array syntax;
+- [ArrayIteratorTrait](array-iterator.md) allows accessing model properties and relations iteratively;
 - `CustomConnectionTrait` allows using a custom database connection for a model;
 - `CustomTableNameTrait` allows using a custom table name for a model;
 - `FactoryTrait` allows creating models and relations using [yiisoft/factory](https://github.com/yiisoft/factory);
@@ -17,4 +17,4 @@ These traits can be included in your model classes to add specific behaviors or 
   in a model;
 - `RepositoryTrait` provides methods to interact with a model as a repository.
 
-Back to [Create Active Record Model](../create-model.md)
+Back to [README](../../README.md)

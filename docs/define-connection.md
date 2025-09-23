@@ -1,4 +1,4 @@
-# Define the database connection for Active Record
+# Define the Database Connection for Active Record
 
 To use the Active Record, you need to define the DB connection in one of the following ways:
 

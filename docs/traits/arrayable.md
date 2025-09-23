@@ -1,14 +1,16 @@
 # ArrayableTrait
 
-This trait provides methods to convert an `ActiveRecord` instance to an array format, using the `fields()`
-and `extraFields()` methods to determine which properties and relations should be included in the output.
+`ArrayableTrait` implements the [\Yiisoft\Arrays\ArrayableInterface](https://github.com/yiisoft/arrays/blob/master/src/ArrayableInterface.php) interface and provides methods to convert 
+an `ActiveRecord` instance to an array format, using the `fields()` and `extraFields()` methods to determine which 
+properties and relations should be included in the output.
 
 ## Methods
 
 The following methods are provided by the `ArrayableTrait`:
+
 - `extraFields()` returns an associative array of relation names that can be included in the array representation 
-  of the record, with keys equal to values.
-- `fields()` returns an associative array of the record's property names, with keys equal to values.
+  of the record, with keys equal to values;
+- `fields()` returns an associative array of the record's property names, with keys equal to values;
 - `toArray()` converts the `ActiveRecord` instance to an array using the defined fields and extra fields.
 
 ## Usage
@@ -16,8 +18,9 @@ The following methods are provided by the `ArrayableTrait`:
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\Trait\ArrayableTrait;
+use Yiisoft\Arrays\ArrayableInterface;
 
-class User extends ActiveRecord
+final class User extends ActiveRecord implements ArrayableInterface
 {
     use ArrayableTrait;
 
@@ -34,3 +37,5 @@ You can override the `fields()` and `extraFields()` methods in your `ActiveRecor
 and relations are included in the array representation.
 
 Both `fields()` and `extraFields()` may return values that are either strings or `Closure` instances.
+
+Back to [Extending with traits](traits.md).

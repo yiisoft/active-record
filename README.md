@@ -178,8 +178,13 @@ $email = $user->get('email');
 
 ## Documentation
 
-- [Optimistic Locking](docs/optimistic-locking.md)
-- [Internals](docs/internals.md)
+- [Define the Database Connection for Active Record](docs/define-connection.md);
+- [Create Active Record Model](docs/create-model.md);
+- [Define Active Record Relations](docs/define-relations.md);
+- [Extending Functionality With Traits](docs/traits/traits.md);
+- [Using Dependency Injection With Active Record Model](docs/using-di.md);
+- [Optimistic Locking](docs/optimistic-locking.md);
+- [Internals](docs/internals.md).
 
 If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
 You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
