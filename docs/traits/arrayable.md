@@ -38,4 +38,4 @@ and relations are included in the array representation.
 
 Both `fields()` and `extraFields()` may return values that are either strings or `Closure` instances.
 
-Back to [Extending with traits](traits.md).
+Back to [Extending Functionality With Traits](traits.md).
