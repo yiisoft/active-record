@@ -1,6 +1,6 @@
 # EventsTrait
 
-`EventsTrait` allows using events in your Active Record classes.
+`EventsTrait` allows using events in Active Record classes.
 
 ```mermaid
 flowchart TD
@@ -31,6 +31,9 @@ Upsert       | [BeforeUpsert](../../src/Event/BeforeUpsert.php)           | [Aft
 Delete       | [BeforeDelete](../../src/Event/BeforeDelete.php)           | [AfterDelete](../../src/Event/AfterDelete.php)           
 
 Each action is called by the corresponding method in the Active Record class, e.g. `insert()`, `update()`, `delete()`.
+
+> [!IMPORTANT]
+> Action **Save** also calling **Insert** or **Update** action depending on the record state.
 
 ## Handling Events
 
