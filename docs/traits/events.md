@@ -2,6 +2,17 @@
 
 `EventsTrait` allows using events in your Active Record classes.
 
+```mermaid
+flowchart TD
+    Start((Call Action))
+    Start --> Before(Event Before Action)
+    Before --> DefaultPrevented{Is<br>Default<br>Prevented}
+    DefaultPrevented -- Yes --> Return(((Return)))
+    DefaultPrevented -- No --> Action[Action Processing]
+    Action --> After(Event After Action)
+    After --> Finish(((Return)))
+```
+
 ## Events
 
 Each event is represented as a class which extending [AbstractEvent](../../src/Event/AbstractEvent.php) class 
@@ -9,7 +20,7 @@ and has an `ActiveRecordInterface` instance as a target object.
 
 The following events are supported:
 
-Actions      | Events Before the Action                                   | Events After the Action                                  
+Action       | Event Before Action                                        | Event After Action                                       
 -------------|------------------------------------------------------------|----------------------------------------------------------
 Create Query | [BeforeCreateQuery](../../src/Event/BeforeCreateQuery.php) | [AfterCreateQuery](../../src/Event/AfterCreateQuery.php) 
 Populate     | [BeforePopulate](../../src/Event/BeforePopulate.php)       | [AfterPopulate](../../src/Event/AfterPopulate.php)       
@@ -18,6 +29,8 @@ Insert       | [BeforeInsert](../../src/Event/BeforeInsert.php)           | [Aft
 Update       | [BeforeUpdate](../../src/Event/BeforeUpdate.php)           | [AfterUpdate](../../src/Event/AfterUpdate.php)           
 Upsert       | [BeforeUpsert](../../src/Event/BeforeUpsert.php)           | [AfterUpsert](../../src/Event/AfterUpsert.php)           
 Delete       | [BeforeDelete](../../src/Event/BeforeDelete.php)           | [AfterDelete](../../src/Event/AfterDelete.php)           
+
+Each action is called by the corresponding method in the Active Record class, e.g. `insert()`, `update()`, `delete()`.
 
 ## Handling Events
 
@@ -36,8 +49,9 @@ The following event handlers are provided:
 
 ## Creating Event Handlers
 
-To create your own event handler you should create a class which extends [AttributeHandlerProvider](../../src/Event/Handler/AttributeHandlerProvider.php) class.
-The class should implement `getEventHandlers()` method which should return an array of event handler definitions.
+To create your own event handler you should create a class which extends [AttributeHandlerProvider](../../src/Event/Handler/AttributeHandlerProvider.php) class
+and implement `getEventHandlers()` method which should return an array of event handler definitions 
+with the event class name as a key and the handler closure as a value.
 
 The following example shows how to create a custom event handler which increments the value of the property by one 
 on each update:
