@@ -15,7 +15,7 @@ flowchart TD
 
 ## Events
 
-Each event is represented as a class which extending [AbstractEvent](../../src/Event/AbstractEvent.php) class 
+Each event is represented as a class that extends [AbstractEvent](../../src/Event/AbstractEvent.php) class 
 and has an `ActiveRecordInterface` instance as a target object.
 
 The following events are supported:
