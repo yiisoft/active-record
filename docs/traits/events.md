@@ -43,12 +43,12 @@ The following event handlers are provided:
 
 | Event Handlers                                                                 | Handled Events                 | Description                                                                                                  |
 |--------------------------------------------------------------------------------|--------------------------------|--------------------------------------------------------------------------------------------------------------|
-| [DefaultDateTimeOnInsert](../../src/Event/Handler/DefaultDateTimeOnInsert.php) | BeforeInsert, BeforeUpsert     | Setting default date and time for the properties before inserting (by default `created_at` and `updated_at`) |
-| [DefaultValue](../../src/Event/Handler/DefaultValue.php)                       | AfterPopulate                  | Setting default value for the properties after populating                                                    |
-| [DefaultValueOnInsert](../../src/Event/Handler/DefaultValueOnInsert.php)       | BeforeInsert, BeforeUpsert     | Setting default value for the properties before inserting                                                    |
-| [SetDateTimeOnUpdate](../../src/Event/Handler/SetDateTimeOnUpdate.php)         | BeforeUpdate, BeforeUpsert     | Setting date and time for the properties before updating (by default `updated_at`)                           |
-| [SetValueOnUpdate](../../src/Event/Handler/SetValueOnUpdate.php)               | BeforeUpdate, BeforeUpsert     | Setting value for the properties before updating                                                             |
-| [SoftDelete](../../src/Event/Handler/SoftDelete.php)                           | AfterCreateQuery, BeforeDelete | Implementing soft deletion                                                                                   |
+| [DefaultDateTimeOnInsert](../../src/Event/Handler/DefaultDateTimeOnInsert.php) | BeforeInsert, BeforeUpsert     | Sets default date and time for the properties before inserting (by default `created_at` and `updated_at`)    |
+| [DefaultValue](../../src/Event/Handler/DefaultValue.php)                       | AfterPopulate                  | Sets default value for the properties after populating                                                       |
+| [DefaultValueOnInsert](../../src/Event/Handler/DefaultValueOnInsert.php)       | BeforeInsert, BeforeUpsert     | Sets default value for the properties before inserting                                                       |
+| [SetDateTimeOnUpdate](../../src/Event/Handler/SetDateTimeOnUpdate.php)         | BeforeUpdate, BeforeUpsert     | Sets date and time for the properties before updating (by default `updated_at`)                              |
+| [SetValueOnUpdate](../../src/Event/Handler/SetValueOnUpdate.php)               | BeforeUpdate, BeforeUpsert     | Sets value for the properties before updating                                                                |
+| [SoftDelete](../../src/Event/Handler/SoftDelete.php)                           | AfterCreateQuery, BeforeDelete | Implements soft deletion                                                                                     |
 
 ## Creating Event Handlers
 
