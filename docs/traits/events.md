@@ -9,7 +9,7 @@ title: Flow Chart Of Events
 flowchart TD
     Start((Call Action))
     Start --> Before(Event Before Action)
-    Before --> DefaultPrevented{Is<br>Default<br>Prevented}
+    Before --> DefaultPrevented{Is<br>Default<br>Prevented?}
     DefaultPrevented -- Yes --> Return(((Return)))
     DefaultPrevented -- No --> Action[Action Processing]
     Action --> After(Event After Action)
