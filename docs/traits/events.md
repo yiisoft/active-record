@@ -91,7 +91,7 @@ final class UpdatedCount extends AttributeHandlerProvider
 
 ## Usage
 
-To use events in your Active Record class you should specify the event handlers using attributes.
+To use events in Active Record classes you should specify the event handlers using [attributes](https://www.php.net/manual/en/language.attributes.overview.php).
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
