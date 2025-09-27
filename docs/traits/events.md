@@ -3,6 +3,9 @@
 `EventsTrait` allows using events in Active Record classes.
 
 ```mermaid
+---
+title: Flow Chart Of Events
+---
 flowchart TD
     Start((Call Action))
     Start --> Before(Event Before Action)
