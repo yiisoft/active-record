@@ -9,7 +9,7 @@ into it.
 
 ## Define The Active Record Model
 
-Yii Active Record provides a `FactoryTrait` trait that allows to use the factory with the Active Record class.
+Yii Active Record provides a [FactoryTrait](traits/factory.md) trait that allows to use the factory with the Active Record class.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveQueryInterface;

@@ -117,3 +117,5 @@ $user->update(); // `updated_at` will be set to the current date and time before
 $user->delete(); // `deleted_at` will be set to the current date and time and the record will not be deleted from the database
 User::query()->all(); // Only records with `deleted_at` equals to NULL will be returned
 ```
+
+Back to [Extending Functionality With Traits](traits.md).

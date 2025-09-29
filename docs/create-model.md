@@ -152,7 +152,7 @@ Notes:
 
 ### Private properties
 
-To use `private` properties inside the model class, you need to use the `PrivatePropertiesTrait` trait.
+To use `private` properties inside the model class, you need to use the [PrivatePropertiesTrait](traits/private-properties.md) trait.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
@@ -175,7 +175,7 @@ final class User extends ActiveRecord
         return '{{%user}}';
     }
     
-    // Getters and setters as for protected properties
+    // Getters and setters as for the private properties
     // ...
 }
 ```
