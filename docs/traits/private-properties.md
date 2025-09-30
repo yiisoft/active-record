@@ -7,7 +7,7 @@ Private properties can be used to store model data securely, as they are not acc
 > [!NOTE]
 > This trait is not required when using protected or public properties.
 
-Without this trait, Active Record will not be able to access private properties for population and retrieval values.
+Without this trait, Active Record will not be able to access private properties for population and retrieval of values.
 
 ## Usage
 
