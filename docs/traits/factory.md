@@ -15,6 +15,7 @@ The following method is provided by the `FactoryTrait`:
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\Trait\FactoryTrait;
+use Yiisoft\Factory\Factory;
 
 final class User extends ActiveRecord
 {
@@ -29,7 +30,7 @@ final class User extends ActiveRecord
 $user = $factory->create(User::class); // returns a new User instance with an initialized `Factory` and `MyService` instances.
 ```
 
-If the `$factory` property is initialized, then the defined relations will be created using the same factory. 
+If the `$factory` property is initialized, then the defined relations will be created using this factory. 
 
 See also
 
