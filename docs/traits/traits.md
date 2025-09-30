@@ -9,12 +9,12 @@ These traits can be included in your model classes to add specific behaviors or 
 - [CustomConnectionTrait](custom-connection.md) allows using a custom database connection for a model;
 - [CustomTableNameTrait](custom-table-name.md) allows using a custom table name for a model;
 - [EventsTrait](events.md) allows using events and handlers for a model;
-- `FactoryTrait` allows creating models and relations using [yiisoft/factory](https://github.com/yiisoft/factory);
+- [FactoryTrait](factory.md) allows creating models and relations using [yiisoft/factory](https://github.com/yiisoft/factory);
 - `MagicPropertiesTrait` stores properties in a private property and provides magic getters
   and setters for accessing the model properties and relations;
 - `MagicRelationsTrait` allows using methods with prefix `get` and suffix `Query` to define
   relations (e.g. `getOrdersQuery()` for `orders` relation);
-- `PrivateProopertiesTrait` allows using [private properties](../create-model.md#private-properties) 
+- [PrivatePropertiesTrait](private-properties.md) allows using [private properties](../create-model.md#private-properties) 
   in a model;
 - `RepositoryTrait` provides methods to interact with a model as a repository.
 
