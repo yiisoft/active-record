@@ -26,8 +26,8 @@ use Yiisoft\ActiveRecord\NotFoundException;
  *     public bool $is_active;
  * }
  *
- * $user = User::find()->where(['id' => 1])->one();
- * $users = User::find()->where(['is_active' => true])->all();
+ * $user = User::find(['id' => 1])->one();
+ * $users = User::find(['is_active' => true])->limit(5)->all();
  *
  * $user = User::findByPk(1);
  *
