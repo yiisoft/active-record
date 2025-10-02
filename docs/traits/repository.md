@@ -42,7 +42,7 @@ $user = User::findOneOrFail(['id' => 1]); // throws NotFoundException if not fou
 $users = User::findAll(['is_active' => true]);
 $users = User::findAllOrFail(['is_active' => true]); // throws NotFoundException if not found
 
-$users = User::findBySql('SELECT * FROM customer')->all();
+$users = User::findBySql('SELECT * FROM user')->all();
 ```
 
 Back to [Extending Functionality With Traits](traits.md).
