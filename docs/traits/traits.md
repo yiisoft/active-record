@@ -16,6 +16,6 @@ These traits can be included in your model classes to add specific behaviors or 
   relations (e.g. `getOrdersQuery()` for `orders` relation);
 - [PrivatePropertiesTrait](private-properties.md) allows using [private properties](../create-model.md#private-properties) 
   in a model;
-- `RepositoryTrait` provides methods to interact with a model as a repository.
+- [RepositoryTrait](repository.md) provides methods to interact with a model as a repository.
 
 Back to [README](../../README.md)
