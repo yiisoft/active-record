@@ -15,7 +15,7 @@ final class DefaultValueOnInsertAr extends ActiveRecord
     public int $id;
 
     #[DefaultValueOnInsert('Vasya')]
-    public ?string $name;
+    public ?string $name = null;
 
     public function tableName(): string
     {

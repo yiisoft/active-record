@@ -15,7 +15,7 @@ final class DefaultValueAr extends ActiveRecord
     public int $id;
 
     #[DefaultValue('unknown')]
-    public ?string $name;
+    public ?string $name = null;
 
     public function tableName(): string
     {

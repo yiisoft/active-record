@@ -15,7 +15,7 @@ final class SetValueOnUpdateAr extends ActiveRecord
     public int $id;
 
     #[SetValueOnUpdate('Updated')]
-    public ?string $name;
+    public ?string $name = null;
 
     public function tableName(): string
     {
