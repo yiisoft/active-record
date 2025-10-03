@@ -435,9 +435,9 @@ CREATE TABLE `T_upsert_1` (
 
 CREATE TABLE `tbl_user`
 (
-    id INTEGER NOT NULL PRIMARY KEY,
-    name varchar(128)
-);
+    `id` INTEGER NOT NULL PRIMARY KEY,
+   `name` varchar(128)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `tbl_user` (id, name) VALUES (1, `Sergei`);
+INSERT INTO `tbl_user` (id, name) VALUES (1, 'Sergei');
 INSERT INTO `tbl_user` (id, name) VALUES (1, null);
