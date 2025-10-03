@@ -408,3 +408,12 @@ CREATE TABLE [dbo].[test_trigger_alert] (
   [stringcol] [varchar](32) DEFAULT NULL,
   PRIMARY KEY (id)
 );
+
+CREATE TABLE "tbl_default_value"
+(
+    id INTEGER NOT NULL PRIMARY KEY,
+    name varchar(128)
+);
+
+INSERT INTO "tbl_default_value" (id, name) VALUES (1, 'Sergei');
+INSERT INTO "tbl_default_value" (id, name) VALUES (1, null);

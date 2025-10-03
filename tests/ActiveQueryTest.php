@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use PHPUnit\Framework\Attributes\TestWith;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
@@ -12,6 +13,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
@@ -2471,5 +2473,13 @@ abstract class ActiveQueryTest extends TestCase
         $query = $customer->createQuery();
 
         $this->assertInstanceOf(Customer::class, $query->getModel());
+    }
+
+    #[TestWith(['Sergei', 1])]
+    #[TestWith(['unknown', 2])]
+    public function testDefaultValue(string $expected, int $id): void
+    {
+        $record = DefaultValueAr::query()->findByPk($id);
+        $this->assertSame($expected, $record->name);
     }
 }
