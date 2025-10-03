@@ -438,7 +438,7 @@ DROP TABLE IF EXISTS `tbl_user`;
 CREATE TABLE `tbl_user`
 (
     `id` INTEGER NOT NULL PRIMARY KEY,
-   `name` varchar(128)
+    `name` varchar(128) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `tbl_user` (id, name) VALUES (1, 'Sergei');
