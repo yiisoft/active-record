@@ -14,6 +14,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
@@ -2480,6 +2481,39 @@ abstract class ActiveQueryTest extends TestCase
     public function testDefaultValue(string $expected, int $id): void
     {
         $record = DefaultValueAr::query()->findByPk($id);
+        $this->assertSame($expected, $record->name);
+    }
+
+    #[TestWith(['Sergei', 'Sergei'])]
+    #[TestWith(['Vasya', null])]
+    public function testDefaultValueOnInsertSave(string $expected, ?string $value): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new DefaultValueOnInsertAr();
+        $record->name = $value;
+        $record->save();
+
+        $this->assertSame($expected, $record->name);
+
+        $record = DefaultValueOnInsertAr::query()->findByPk($record->id);
+        $this->assertSame($expected, $record->name);
+    }
+
+    #[TestWith(['Sergei', 'Sergei'])]
+    #[TestWith(['Vasya', null])]
+    public function testDefaultValueOnInsertUpsert(string $expected, ?string $value): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new DefaultValueOnInsertAr();
+        $record->id = 99;
+        $record->name = $value;
+        $record->upsert();
+
+        $this->assertSame($expected, $record->name);
+
+        $record = DefaultValueOnInsertAr::query()->findByPk(99);
         $this->assertSame($expected, $record->name);
     }
 }
