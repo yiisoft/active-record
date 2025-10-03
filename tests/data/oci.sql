@@ -466,7 +466,8 @@ INSERT INTO "bit_values" ("id", "val")
 CREATE TABLE "tbl_user"
 (
     id INTEGER NOT NULL PRIMARY KEY,
-    name varchar(128)
+    name varchar(128),
+    CONSTRAINT "tbl_user_PK" PRIMARY KEY ("id") ENABLE
 );
 
 INSERT INTO "tbl_user" (id, name) VALUES (1, 'Sergei');
