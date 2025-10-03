@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use PHPUnit\Framework\Attributes\TestWith;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
@@ -13,9 +12,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
@@ -2475,83 +2471,5 @@ abstract class ActiveQueryTest extends TestCase
         $query = $customer->createQuery();
 
         $this->assertInstanceOf(Customer::class, $query->getModel());
-    }
-
-    #[TestWith(['Sergei', 1])]
-    #[TestWith(['unknown', 2])]
-    public function testDefaultValue(string $expected, int $id): void
-    {
-        $record = DefaultValueAr::query()->findByPk($id);
-        $this->assertSame($expected, $record->name);
-    }
-
-    #[TestWith(['Sergei', 'Sergei'])]
-    #[TestWith(['Vasya', null])]
-    public function testDefaultValueOnInsertSave(string $expected, ?string $value): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $record = new DefaultValueOnInsertAr();
-        $record->name = $value;
-        $record->save();
-
-        $this->assertSame($expected, $record->name);
-
-        $record = DefaultValueOnInsertAr::query()->findByPk($record->id);
-        $this->assertSame($expected, $record->name);
-    }
-
-    #[TestWith(['Sergei', 'Sergei'])]
-    #[TestWith(['Vasya', null])]
-    public function testDefaultValueOnInsertUpsert(string $expected, ?string $value): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $record = new DefaultValueOnInsertAr();
-        $record->id = 99;
-        $record->name = $value;
-        $record->upsert();
-
-        $this->assertSame($expected, $record->name);
-
-        $record = DefaultValueOnInsertAr::query()->findByPk(99);
-        $this->assertSame($expected, $record->name);
-    }
-
-    public function testSetValueOnUpdateSave(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $record = SetValueOnUpdateAr::query()->findByPk(1);
-        $record->save();
-
-        $this->assertSame('Updated', $record->name);
-
-        $record = SetValueOnUpdateAr::query()->findByPk($record->id);
-        $this->assertSame('Updated', $record->name);
-    }
-
-    public function testSetValueOnUpdateUpsert(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $record = new SetValueOnUpdateAr();
-        $record->id = 1;
-        $record->name = 'Kesha';
-        $record->upsert();
-        $this->assertSame('Updated', $record->name);
-
-        $record = SetValueOnUpdateAr::query()->findByPk($record->id);
-        $this->assertSame('Updated', $record->name);
-
-        $record = new SetValueOnUpdateAr();
-        $record->id = 1;
-        $record->upsert(updateProperties: ['name' => 'Kesha']);
-        $this->assertSame('Updated', $record->name);
-
-        $record = new SetValueOnUpdateAr();
-        $record->id = 1;
-        $record->upsert(updateProperties: false);
-        $this->assertSame('Updated', $record->name);
     }
 }

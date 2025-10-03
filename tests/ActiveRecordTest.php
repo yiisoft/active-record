@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 use ArgumentCountError;
 use DivisionByZeroError;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\ConnectionProvider;
@@ -16,6 +17,8 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
@@ -26,6 +29,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
@@ -1373,5 +1377,83 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertSame($createdAt, $order->getCreatedAt());
         $this->assertSame($newUpdatedAt, $order->getUpdatedAt());
+    }
+
+    #[TestWith(['Sergei', 1])]
+    #[TestWith(['unknown', 2])]
+    public function testDefaultValue(string $expected, int $id): void
+    {
+        $record = DefaultValueAr::query()->findByPk($id);
+        $this->assertSame($expected, $record->name);
+    }
+
+    #[TestWith(['Sergei', 'Sergei'])]
+    #[TestWith(['Vasya', null])]
+    public function testDefaultValueOnInsertSave(string $expected, ?string $value): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new DefaultValueOnInsertAr();
+        $record->name = $value;
+        $record->save();
+
+        $this->assertSame($expected, $record->name);
+
+        $record = DefaultValueOnInsertAr::query()->findByPk($record->id);
+        $this->assertSame($expected, $record->name);
+    }
+
+    #[TestWith(['Sergei', 'Sergei'])]
+    #[TestWith(['Vasya', null])]
+    public function testDefaultValueOnInsertUpsert(string $expected, ?string $value): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new DefaultValueOnInsertAr();
+        $record->id = 99;
+        $record->name = $value;
+        $record->upsert();
+
+        $this->assertSame($expected, $record->name);
+
+        $record = DefaultValueOnInsertAr::query()->findByPk(99);
+        $this->assertSame($expected, $record->name);
+    }
+
+    public function testSetValueOnUpdateSave(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = SetValueOnUpdateAr::query()->findByPk(1);
+        $record->save();
+
+        $this->assertSame('Updated', $record->name);
+
+        $record = SetValueOnUpdateAr::query()->findByPk($record->id);
+        $this->assertSame('Updated', $record->name);
+    }
+
+    public function testSetValueOnUpdateUpsert(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 1;
+        $record->name = 'Kesha';
+        $record->upsert();
+        $this->assertSame('Updated', $record->name);
+
+        $record = SetValueOnUpdateAr::query()->findByPk($record->id);
+        $this->assertSame('Updated', $record->name);
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 1;
+        $record->upsert(updateProperties: ['name' => 'Kesha']);
+        $this->assertSame('Updated', $record->name);
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 1;
+        $record->upsert(updateProperties: false);
+        $this->assertSame('Updated', $record->name);
     }
 }
