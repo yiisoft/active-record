@@ -1404,19 +1404,20 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame($expected, $record->name);
     }
 
-    #[TestWith(['Sergei', 'Sergei'])]
+    #[TestWith(['Kesha', 'Kesha'])]
     #[TestWith(['Vasya', null])]
     public function testDefaultValueOnInsertUpsert(string $expected, ?string $value): void
     {
         $this->reloadFixtureAfterTest();
 
         $record = new DefaultValueOnInsertAr();
+        $record->id = 1;
         $record->name = $value;
         $record->upsert();
 
         $this->assertSame($expected, $record->name);
 
-        $record = DefaultValueOnInsertAr::query()->findByPk($record->id);
+        $record = DefaultValueOnInsertAr::query()->findByPk(1);
         $this->assertSame($expected, $record->name);
     }
 
