@@ -15,6 +15,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
@@ -2515,5 +2516,42 @@ abstract class ActiveQueryTest extends TestCase
 
         $record = DefaultValueOnInsertAr::query()->findByPk(99);
         $this->assertSame($expected, $record->name);
+    }
+
+    public function testSetValueOnUpdateSave(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = SetValueOnUpdateAr::query()->findByPk(1);
+        $record->save();
+
+        $this->assertSame('Updated', $record->name);
+
+        $record = SetValueOnUpdateAr::query()->findByPk($record->id);
+        $this->assertSame('Updated', $record->name);
+    }
+
+    public function testSetValueOnUpdateUpsert(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 1;
+        $record->name = 'Kesha';
+        $record->upsert();
+        $this->assertSame('Updated', $record->name);
+
+        $record = SetValueOnUpdateAr::query()->findByPk($record->id);
+        $this->assertSame('Updated', $record->name);
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 1;
+        $record->upsert(updateProperties: ['name' => 'Kesha']);
+        $this->assertSame('Updated', $record->name);
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 1;
+        $record->upsert(updateProperties: false);
+        $this->assertSame('Updated', $record->name);
     }
 }

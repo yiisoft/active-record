@@ -57,10 +57,7 @@ class SetValueOnUpdate extends AttributeHandlerProvider
         };
 
         foreach ($this->getPropertyNames() as $propertyName) {
-            if ($model->hasProperty($propertyName)
-                && $model->get($propertyName) === null
-                && !isset($updateProperties[$propertyName])
-            ) {
+            if ($model->hasProperty($propertyName)) {
                 $updateProperties ??= array_keys($model->newValues());
                 /** @psalm-suppress PossiblyInvalidArrayAssignment */
                 $updateProperties[$propertyName] = $value;
