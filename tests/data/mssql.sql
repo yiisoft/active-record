@@ -423,3 +423,4 @@ CREATE TABLE [tbl_user]
 SET IDENTITY_INSERT [tbl_user] ON;
 INSERT INTO [tbl_user] (id, name) VALUES (1, 'Sergei');
 INSERT INTO [tbl_user] (id, name) VALUES (2, null);
+SET IDENTITY_INSERT [tbl_user] OFF;
