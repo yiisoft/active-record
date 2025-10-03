@@ -415,7 +415,7 @@ CREATE TABLE [tbl_user]
 (
     [id] [int] IDENTITY NOT NULL,
     [name] varchar(128),
-    CONSTRAINT [PK_profile] PRIMARY KEY CLUSTERED (
+    CONSTRAINT [PK_tbl_user] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
 );
