@@ -1394,6 +1394,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->reloadFixtureAfterTest();
 
         $record = new DefaultValueOnInsertAr();
+        $record->id = 99;
         $record->name = $value;
         $record->save();
 
@@ -1410,12 +1411,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->reloadFixtureAfterTest();
 
         $record = new DefaultValueOnInsertAr();
+        $record->id = 99;
         $record->name = $value;
         $record->upsert();
 
         $this->assertSame($expected, $record->name);
 
-        $record = DefaultValueOnInsertAr::query()->findByPk($record->id);
+        $record = DefaultValueOnInsertAr::query()->findByPk(99);
         $this->assertSame($expected, $record->name);
     }
 

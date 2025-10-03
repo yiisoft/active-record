@@ -460,10 +460,10 @@ DROP TABLE IF EXISTS "tbl_user" CASCADE;
 
 CREATE TABLE "tbl_user"
 (
-    "id" SERIAL NOT NULL PRIMARY KEY,
+    "id" INT NOT NULL PRIMARY KEY,
     "name" varchar(128)
 );
 
 INSERT INTO "tbl_user" (id, name) VALUES (1, 'Sergei');
 INSERT INTO "tbl_user" (id, name) VALUES (2, null);
-ALTER SEQUENCE tbl_user_id_seq RESTART WITH 3;
+

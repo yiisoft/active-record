@@ -413,14 +413,10 @@ IF OBJECT_ID('[tbl_user]', 'U') IS NOT NULL DROP TABLE [tbl_user];
 
 CREATE TABLE [tbl_user]
 (
-    [id] [int] IDENTITY NOT NULL,
-    [name] varchar(128),
-    CONSTRAINT [PK_tbl_user] PRIMARY KEY CLUSTERED (
-        [id] ASC
-    ) ON [PRIMARY]
+    [id] INT NOT NULL,
+    [name] VARCHAR(128),
+    CONSTRAINT [PK_tbl_user] PRIMARY KEY CLUSTERED ([id] ASC)
 );
 
-SET IDENTITY_INSERT [tbl_user] ON;
 INSERT INTO [tbl_user] (id, name) VALUES (1, 'Sergei');
 INSERT INTO [tbl_user] (id, name) VALUES (2, null);
-SET IDENTITY_INSERT [tbl_user] OFF;
