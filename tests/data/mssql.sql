@@ -414,7 +414,10 @@ IF OBJECT_ID('[tbl_user]', 'U') IS NOT NULL DROP TABLE [tbl_user];
 CREATE TABLE [tbl_user]
 (
     [id] [int] IDENTITY NOT NULL,
-    [name] varchar(128)
+    [name] varchar(128),
+    CONSTRAINT [PK_profile] PRIMARY KEY CLUSTERED (
+        [id] ASC
+    ) ON [PRIMARY]
 );
 
 INSERT INTO [tbl_user] (id, name) VALUES (1, 'Sergei');
