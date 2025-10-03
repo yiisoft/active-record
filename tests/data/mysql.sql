@@ -440,4 +440,4 @@ CREATE TABLE `tbl_user`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO `tbl_user` (id, name) VALUES (1, 'Sergei');
-INSERT INTO `tbl_user` (id, name) VALUES (1, null);
+INSERT INTO `tbl_user` (id, name) VALUES (2, null);

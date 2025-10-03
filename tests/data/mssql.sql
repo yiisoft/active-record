@@ -409,11 +409,11 @@ CREATE TABLE [dbo].[test_trigger_alert] (
   PRIMARY KEY (id)
 );
 
-CREATE TABLE "tbl_user"
+CREATE TABLE [tbl_user]
 (
-    id INTEGER NOT NULL PRIMARY KEY,
-    name varchar(128)
+    [id] [int] IDENTITY NOT NULL,
+    [name] varchar(128)
 );
 
-INSERT INTO "tbl_user" (id, name) VALUES (1, 'Sergei');
-INSERT INTO "tbl_user" (id, name) VALUES (1, null);
+INSERT INTO [tbl_user] (id, name) VALUES (1, 'Sergei');
+INSERT INTO [tbl_user] (id, name) VALUES 2, null);
