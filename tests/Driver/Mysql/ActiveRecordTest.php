@@ -103,4 +103,9 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
     }
+
+    public function testSetValueOnUpdateUpsert(): void
+    {
+        $this->markTestSkipped('MySQL does not support RETURNING clause in UPDATE statement.');
+    }
 }

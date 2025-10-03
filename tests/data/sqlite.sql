@@ -393,3 +393,14 @@ CREATE TABLE "T_upsert_1"
 (
     "a" INTEGER NOT NULL PRIMARY KEY
 );
+
+DROP TABLE IF EXISTS "tbl_user";
+
+CREATE TABLE "tbl_user"
+(
+    id INTEGER NOT NULL PRIMARY KEY,
+    name varchar(128)
+);
+
+INSERT INTO "tbl_user" (id, name) VALUES (1, 'Sergei');
+INSERT INTO "tbl_user" (id, name) VALUES (2, null);

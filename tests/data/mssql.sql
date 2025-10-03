@@ -408,3 +408,15 @@ CREATE TABLE [dbo].[test_trigger_alert] (
   [stringcol] [varchar](32) DEFAULT NULL,
   PRIMARY KEY (id)
 );
+
+IF OBJECT_ID('[tbl_user]', 'U') IS NOT NULL DROP TABLE [tbl_user];
+
+CREATE TABLE [tbl_user]
+(
+    [id] INT NOT NULL,
+    [name] VARCHAR(128),
+    CONSTRAINT [PK_tbl_user] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+INSERT INTO [tbl_user] (id, name) VALUES (1, 'Sergei');
+INSERT INTO [tbl_user] (id, name) VALUES (2, null);
