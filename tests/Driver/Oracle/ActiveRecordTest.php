@@ -99,11 +99,6 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $customer->upsert($insertProperties, $updateProperties);
     }
 
-    public function testDefaultValueOnInsertUpsert(string $expected, ?string $value): void
-    {
-        $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
-    }
-
     public function testSetValueOnUpdateUpsert(): void
     {
         $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
