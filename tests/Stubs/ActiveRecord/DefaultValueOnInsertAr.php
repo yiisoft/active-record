@@ -19,6 +19,6 @@ final class DefaultValueOnInsertAr extends ActiveRecord
 
     public function tableName(): string
     {
-        return 'tbl_default_value';
+        return 'tbl_user';
     }
 }

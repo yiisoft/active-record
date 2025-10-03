@@ -394,11 +394,11 @@ CREATE TABLE "T_upsert_1"
     "a" INTEGER NOT NULL PRIMARY KEY
 );
 
-CREATE TABLE "tbl_default_value"
+CREATE TABLE "tbl_user"
 (
     id INTEGER NOT NULL PRIMARY KEY,
     name varchar(128)
 );
 
-INSERT INTO "tbl_default_value" (id, name) VALUES (1, 'Sergei');
-INSERT INTO "tbl_default_value" (id, name) VALUES (2, null);
+INSERT INTO "tbl_user" (id, name) VALUES (1, 'Sergei');
+INSERT INTO "tbl_user" (id, name) VALUES (2, null);
