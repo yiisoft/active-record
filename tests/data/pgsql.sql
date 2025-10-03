@@ -456,6 +456,7 @@ CREATE TABLE "T_upsert_1"
     "a" INT NOT NULL PRIMARY KEY
 );
 
+DROP TABLE IF EXISTS "tbl_user" CASCADE;
 
 CREATE TABLE "tbl_user"
 (

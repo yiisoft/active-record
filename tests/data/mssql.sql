@@ -409,6 +409,8 @@ CREATE TABLE [dbo].[test_trigger_alert] (
   PRIMARY KEY (id)
 );
 
+IF OBJECT_ID('[tbl_user]', 'U') IS NOT NULL DROP TABLE [tbl_user];
+
 CREATE TABLE [tbl_user]
 (
     [id] [int] IDENTITY NOT NULL,

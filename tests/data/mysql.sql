@@ -433,6 +433,8 @@ CREATE TABLE `T_upsert_1` (
   PRIMARY KEY (`a`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `tbl_user`;
+
 CREATE TABLE `tbl_user`
 (
     `id` INTEGER NOT NULL PRIMARY KEY,
