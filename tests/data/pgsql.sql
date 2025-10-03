@@ -466,3 +466,4 @@ CREATE TABLE "tbl_user"
 
 INSERT INTO "tbl_user" (id, name) VALUES (1, 'Sergei');
 INSERT INTO "tbl_user" (id, name) VALUES (2, null);
+ALTER SEQUENCE tbl_user_id_seq RESTART WITH 3;
