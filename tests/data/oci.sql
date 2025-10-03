@@ -467,10 +467,10 @@ INSERT INTO "bit_values" ("id", "val")
 
 CREATE TABLE "tbl_user"
 (
-    id INTEGER NOT NULL,
-    name varchar(128),
+    "id" INTEGER NOT NULL,
+    "name" varchar(128),
     CONSTRAINT "tbl_user_PK" PRIMARY KEY ("id") ENABLE
 );
 
-INSERT INTO "tbl_user" (id, name) VALUES (1, 'Sergei');
-INSERT INTO "tbl_user" (id, name) VALUES (2, null);
+INSERT INTO "tbl_user" ("id", "name") VALUES (1, 'Sergei');
+INSERT INTO "tbl_user" ("id", "name") VALUES (2, null);
