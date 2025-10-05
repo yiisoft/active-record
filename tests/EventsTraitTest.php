@@ -9,6 +9,7 @@ use Yiisoft\ActiveRecord\Event\BeforeInsert;
 use Yiisoft\ActiveRecord\Event\BeforePopulate;
 use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
+use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryEventsModel;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
@@ -220,5 +221,56 @@ abstract class EventsTraitTest extends TestCase
 
         $reloadedModel = CategoryEventsModel::query()->findByPk(1);
         $this->assertSame($originalName, $reloadedModel->name);
+    }
+
+    public function testUpsertWithEventPrevention(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event): void {
+                    if ($event instanceof BeforeUpsert) {
+                        $event->preventDefault();
+                    }
+                }
+            )
+        );
+
+        $model = new CategoryEventsModel();
+        $model->name = 'Prevented Upsert';
+
+        $result = $model->upsert();
+
+        $this->assertFalse($result);
+        $this->assertNull($model->id);
+        $this->assertSame('Prevented Upsert', $model->name);
+    }
+
+    public function testUpsertWithEventPreventionAndCustomReturnValue(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event): void {
+                    if ($event instanceof BeforeUpsert) {
+                        $event->preventDefault();
+                        $event->returnValue(true);
+                    }
+                }
+            )
+        );
+
+        $model = new CategoryEventsModel();
+        $model->name = 'Custom Return Upsert';
+
+        $result = $model->upsert();
+
+        $this->assertTrue($result);
+        $this->assertNull($model->id);
+        $this->assertSame('Custom Return Upsert', $model->name);
     }
 }
