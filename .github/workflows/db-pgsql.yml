@@ -45,9 +45,9 @@ jobs:
       postgres:
         image: postgres:17
         env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: root
-          POSTGRES_DB: yiitest
+          POSTGRES_DB: data-db-test
+          POSTGRES_USER: yii
+          POSTGRES_PASSWORD: q1w2e3r4
         ports:
           - 5432:5432
         options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -75,6 +75,12 @@ jobs:
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Pgsql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+        env:
+          YII_PGSQL_DATABASE: ar-test
+          YII_PGSQL_HOST: 127.0.0.1
+          YII_PGSQL_PORT: 5432
+          YII_PGSQL_USER: yii
+          YII_PGSQL_PASSWORD: q1w2e3r4
 
       - name: Upload coverage to Codecov.
         uses: codecov/codecov-action@v3

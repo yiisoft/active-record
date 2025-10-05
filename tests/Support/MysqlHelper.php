@@ -10,15 +10,16 @@ use Yiisoft\Db\Mysql\Driver;
 
 final class MysqlHelper extends ConnectionHelper
 {
-    private string $dsn = 'mysql:host=127.0.0.1;dbname=yiitest;port=3306';
-    private string $username = 'root';
-    private string $password = '';
-    private string $charset = 'UTF8MB4';
-
     public function createConnection(): ConnectionInterface
     {
-        $pdoDriver = new Driver($this->dsn, $this->username, $this->password);
-        $pdoDriver->charset($this->charset);
+        $database = getenv('YII_MYSQL_DATABASE');
+        $host = getenv('YII_MYSQL_HOST');
+        $port = getenv('YII_MYSQL_PORT');
+        $user = getenv('YII_MYSQL_USER');
+        $password = getenv('YII_MYSQL_PASSWORD');
+
+        $pdoDriver = new Driver("mysql:host=$host;dbname=$database;port=$port", $user, $password);
+        $pdoDriver->charset('UTF8MB4');
 
         return new Connection($pdoDriver, $this->createSchemaCache());
     }

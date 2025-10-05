@@ -11,15 +11,16 @@ use Yiisoft\Db\Oracle\Driver;
 
 final class OracleHelper extends ConnectionHelper
 {
-    private string $dsn = 'oci:dbname=localhost/XE;';
-    private string $username = 'system';
-    private string $password = 'root';
-    private string $charset = 'AL32UTF8';
-
     public function createConnection(): ConnectionInterface
     {
-        $pdoDriver = new Driver($this->dsn, $this->username, $this->password);
-        $pdoDriver->charset($this->charset);
+        $database = getenv('YII_ORACLE_DATABASE');
+        $host = getenv('YII_ORACLE_HOST');
+        $port = getenv('YII_ORACLE_PORT');
+        $user = getenv('YII_ORACLE_USER');
+        $password = getenv('YII_ORACLE_PASSWORD');
+
+        $pdoDriver = new Driver("oci:dbname=//$host:$port/$database", $user, $password);
+        $pdoDriver->charset('AL32UTF8');
         $pdoDriver->attributes([PDO::ATTR_STRINGIFY_FETCHES => true]);
 
         return new Connection($pdoDriver, $this->createSchemaCache());

@@ -35,12 +35,3 @@ phpunit.phar
 /phpunit.xml
 
 .phpunit.result.cache
-
-# ignore dev installed apps and extensions
-/apps
-/extensions
-/packages
-
-# NPM packages
-/node_modules
-.env

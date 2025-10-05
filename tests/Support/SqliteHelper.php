@@ -10,12 +10,10 @@ use Yiisoft\Db\Sqlite\Driver;
 
 final class SqliteHelper extends ConnectionHelper
 {
-    private string $charset = 'UTF8';
-
     public function createConnection(): ConnectionInterface
     {
         $pdoDriver = new Driver('sqlite::memory:');
-        $pdoDriver->charset($this->charset);
+        $pdoDriver->charset('UTF8');
 
         return new Connection($pdoDriver, $this->createSchemaCache());
     }
