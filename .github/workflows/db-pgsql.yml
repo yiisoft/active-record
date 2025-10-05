@@ -70,14 +70,11 @@ jobs:
       - name: Remove unused dependencies of DB drivers
         run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-mssql yiisoft/db-oracle
 
-      - name: Install dependencies with composer
-        run: composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
-
-      - name: Install db and db-pgsql.
+      - name: Install Yii DB PostgreSQL driver
         uses: yiisoft/actions/install-packages@master
         with:
           packages: >-
-            ['db', 'db-pgsql']
+            ['db-pgsql']
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Pgsql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
