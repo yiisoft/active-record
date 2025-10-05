@@ -186,8 +186,8 @@ class ActiveRecord extends AbstractActiveRecord
 
             if (!empty($updateNames)) {
                 $updateProperties = array_merge(
-                    $this->newPropertyValues($updateNames),
                     array_diff_key($updateProperties, $updateNames),
+                    $this->newPropertyValues($updateNames),
                 );
             }
 
