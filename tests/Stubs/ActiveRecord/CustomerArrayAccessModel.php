@@ -15,9 +15,11 @@ final class CustomerArrayAccessModel extends ArrayableActiveRecord implements Ar
 
     public ?int $id = null;
     public ?string $name = null;
+    public ?string $address = null;
     public ?string $email = null;
     public ?int $profile_id = null;
-    protected ?int $status = 0;
+    public ?int $status = 0;
+    public bool|int|null $bool_status = false;
     public mixed $customProperty = null;
 
     public function tableName(): string
