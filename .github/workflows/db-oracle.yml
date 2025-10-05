@@ -48,7 +48,7 @@ jobs:
           - 1521:1521
         env:
           ORACLE_RANDOM_PASSWORD: yes
-          ORACLE_DATABASE: data_db_test
+          ORACLE_DATABASE: ar_test
           APP_USER: yii
           APP_USER_PASSWORD: q1w2e3r4
         options: >-
@@ -85,7 +85,7 @@ jobs:
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Oracle --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
         env:
-          YII_ORACLE_DATABASE: data_db_test
+          YII_ORACLE_DATABASE: ar_test
           YII_ORACLE_HOST: localhost
           YII_ORACLE_PORT: 1521
           YII_ORACLE_USER: yii
