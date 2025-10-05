@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use Yiisoft\ActiveRecord\Event\BeforeCreateQuery;
 use Yiisoft\ActiveRecord\Event\BeforeInsert;
 use Yiisoft\ActiveRecord\Event\BeforePopulate;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
@@ -88,5 +89,26 @@ abstract class EventsTraitTest extends TestCase
 
         $this->assertNull($model->id);
         $this->assertNull($model->name);
+    }
+
+    public function testQueryWithEventPrevention(): void
+    {
+        $customQuery = CategoryEventsModel::query()->where(['name' => 'test']);
+
+        EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event) use ($customQuery): void {
+                    if ($event instanceof BeforeCreateQuery) {
+                        $event->preventDefault();
+                        $event->returnValue($customQuery);
+                    }
+                }
+            )
+        );
+
+        $query = CategoryEventsModel::query();
+
+        $this->assertSame($customQuery, $query);
     }
 }
