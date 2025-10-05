@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 use Yiisoft\ActiveRecord\Event\BeforeCreateQuery;
 use Yiisoft\ActiveRecord\Event\BeforeInsert;
 use Yiisoft\ActiveRecord\Event\BeforePopulate;
+use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryEventsModel;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
@@ -110,5 +111,56 @@ abstract class EventsTraitTest extends TestCase
         $query = CategoryEventsModel::query();
 
         $this->assertSame($customQuery, $query);
+    }
+
+    public function testSaveWithEventPrevention(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event): void {
+                    if ($event instanceof BeforeSave) {
+                        $event->preventDefault();
+                    }
+                }
+            )
+        );
+
+        $model = new CategoryEventsModel();
+        $model->name = 'Prevented Save';
+
+        $result = $model->save();
+
+        $this->assertFalse($result);
+        $this->assertNull($model->id);
+        $this->assertSame('Prevented Save', $model->name);
+    }
+
+    public function testSaveWithEventPreventionAndCustomReturnValue(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event): void {
+                    if ($event instanceof BeforeSave) {
+                        $event->preventDefault();
+                        $event->returnValue(true);
+                    }
+                }
+            )
+        );
+
+        $model = new CategoryEventsModel();
+        $model->name = 'Custom Return Save';
+
+        $result = $model->save();
+
+        $this->assertTrue($result);
+        $this->assertNull($model->id);
+        $this->assertSame('Custom Return Save', $model->name);
     }
 }
