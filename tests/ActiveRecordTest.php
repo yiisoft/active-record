@@ -11,7 +11,10 @@ use PHPUnit\Framework\Attributes\TestWith;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\ConnectionProvider;
+use Yiisoft\ActiveRecord\Event\AfterDelete;
+use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryAfterDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\StopPropagation;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -41,6 +44,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\ActiveRecord\UnknownPropertyException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Factory\Factory;
+use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 abstract class ActiveRecordTest extends TestCase
 {
@@ -1486,5 +1490,25 @@ abstract class ActiveRecordTest extends TestCase
         $category->save();
 
         $this->assertSame('Test', $category->name);
+    }
+
+    public function testAfterDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        EventDispatcherProvider::set(
+            CategoryAfterDelete::class,
+            new SimpleEventDispatcher(
+                static function(object $event) {
+                    if ($event instanceof AfterDelete) {
+                        $event->model->isDeleted = true;
+                    }
+                }
+            )
+        );
+        $category = CategoryAfterDelete::query()->findByPk(1);
+        $category->delete();
+
+        $this->assertTrue($category->isDeleted);
     }
 }

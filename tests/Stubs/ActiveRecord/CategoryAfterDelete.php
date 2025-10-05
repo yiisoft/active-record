@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
+
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Trait\EventsTrait;
+
+final class CategoryAfterDelete extends ActiveRecord
+{
+    use EventsTrait;
+
+    public ?int $id;
+    public string $name;
+    public bool $isDeleted = false;
+
+    public function tableName(): string
+    {
+        return 'category';
+    }
+}
