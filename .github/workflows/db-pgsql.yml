@@ -45,7 +45,7 @@ jobs:
       postgres:
         image: postgres:17
         env:
-          POSTGRES_DB: data-db-test
+          POSTGRES_DB: ar-test
           POSTGRES_USER: yii
           POSTGRES_PASSWORD: q1w2e3r4
         ports:

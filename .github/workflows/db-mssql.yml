@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Create MS SQL Database
-        run: docker exec -i mssql /opt/mssql-tools${{ matrix.mssql.odbc-version }}/bin/sqlcmd ${{ matrix.mssql.flag }} -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE [data-db-test]'
+        run: docker exec -i mssql /opt/mssql-tools${{ matrix.mssql.odbc-version }}/bin/sqlcmd ${{ matrix.mssql.flag }} -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE [ar-test]'
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2

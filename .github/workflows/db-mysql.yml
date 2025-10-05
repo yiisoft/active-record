@@ -46,7 +46,7 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_DATABASE: data-db-test
+          MYSQL_DATABASE: ar-test
           MYSQL_USER: yii
           MYSQL_PASSWORD: 'q1w2e3r4'
         ports:
