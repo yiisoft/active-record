@@ -11,7 +11,7 @@ final class CategoryAfterDelete extends ActiveRecord
 {
     use EventsTrait;
 
-    public ?int $id;
+    public ?int $id = null;
     public string $name;
     public bool $isDeleted = false;
 

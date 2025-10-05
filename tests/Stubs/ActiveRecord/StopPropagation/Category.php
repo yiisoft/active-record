@@ -13,7 +13,7 @@ final class Category extends ActiveRecord
 {
     use EventsTrait;
 
-    public ?int $id;
+    public ?int $id = null;
 
     #[SetValueOnUpdate('xxx')]
     public string $name;
