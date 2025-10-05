@@ -27,9 +27,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      COMPOSER_ROOT_VERSION: dev-master
       extensions: pdo, pdo_pgsql
-      key: cache-v1
 
     runs-on: ubuntu-latest
 
