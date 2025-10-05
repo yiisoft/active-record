@@ -1298,6 +1298,24 @@ abstract class ActiveRecordTest extends TestCase
                     'bool_status' => true,
                 ],
             ],
+            'update with same string key and int value' => [
+                'values' => [
+                    'address' => 'old address',
+                ],
+                'insertProperties' => [
+                    'email' => 'user3@example.com',
+                    'address' => 'insert address',
+                ],
+                'updateProperties' => [
+                    'address',
+                    'address' => 'update address',
+                ],
+                'expected' => [
+                    'id' => 3,
+                    'email' => 'user3@example.com',
+                    'address' => 'insert address',
+                ],
+            ],
         ];
     }
 
