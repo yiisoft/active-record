@@ -11,7 +11,7 @@ final class CategoryPrivatePropertiesModel extends ActiveRecord
 {
     use PrivatePropertiesTrait;
 
-    private ?int $id = null;
+    private int $id;
     private ?string $name = null;
 
     public function tableName(): string
@@ -21,7 +21,7 @@ final class CategoryPrivatePropertiesModel extends ActiveRecord
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id ?? null;
     }
 
     public function setId(?int $id): void
