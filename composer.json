@@ -44,7 +44,6 @@
         "yiisoft/aliases": "^2.0",
         "yiisoft/arrays": "^3.2",
         "yiisoft/cache": "^3.1",
-        "yiisoft/cache": "^3.0",
         "yiisoft/db-mssql": "dev-master",
         "yiisoft/db-mysql": "dev-master",
         "yiisoft/db-oracle": "dev-master",
