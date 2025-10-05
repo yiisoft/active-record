@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use ArrayIterator;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryArrayIteratorModel;
 
 abstract class ArrayIteratorTraitTest extends TestCase
