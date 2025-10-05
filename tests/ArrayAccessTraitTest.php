@@ -54,7 +54,7 @@ abstract class ArrayAccessTraitTest extends TestCase
     {
         $model = new CustomerArrayAccessModel();
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $model['nonexistent'];
     }
 

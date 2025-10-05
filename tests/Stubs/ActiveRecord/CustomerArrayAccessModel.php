@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use ArrayAccess;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ArrayableActiveRecord;
 use Yiisoft\ActiveRecord\Trait\ArrayAccessTrait;
 
