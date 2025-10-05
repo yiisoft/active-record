@@ -12,6 +12,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\StopPropagation;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
@@ -1474,5 +1475,16 @@ abstract class ActiveRecordTest extends TestCase
         $record->id = 1;
         $record->upsert(updateProperties: false);
         $this->assertSame('Updated', $record->name);
+    }
+
+    public function testStopPropagation(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $category = StopPropagation\Category::query()->findByPk(1);
+        $category->name = 'Test';
+        $category->save();
+
+        $this->assertSame('Test', $category->name);
     }
 }
