@@ -8,6 +8,8 @@ use Attribute;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 
+use function array_diff_key;
+use function array_fill_keys;
 use function is_callable;
 
 /**
@@ -50,16 +52,17 @@ class SetValueOnUpdate extends AttributeHandlerProvider
         $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
-        $updateProperties = match ($event->updateProperties) {
-            true => $event->insertProperties,
-            false => [],
-            default => $event->updateProperties,
-        };
-
         foreach ($this->getPropertyNames() as $propertyName) {
             if ($model->hasProperty($propertyName)) {
-                $updateProperties ??= array_keys($model->newValues());
-                /** @psalm-suppress PossiblyInvalidArrayAssignment */
+                $updateProperties ??= match ($event->updateProperties) {
+                    true => array_diff_key(
+                        $event->insertProperties ?? $model->newValues(),
+                        array_fill_keys($model->primaryKey(), null)
+                    ),
+                    false => [],
+                    default => $event->updateProperties,
+                };
+
                 $updateProperties[$propertyName] = $value;
             }
         }
