@@ -168,8 +168,6 @@ abstract class EventsTraitTest extends TestCase
 
     public function testUpdateWithEventPrevention(): void
     {
-        $this->reloadFixtureAfterTest();
-
         EventDispatcherProvider::set(
             CategoryEventsModel::class,
             new SimpleEventDispatcher(
