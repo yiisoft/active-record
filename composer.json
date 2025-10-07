@@ -33,15 +33,21 @@
         "yiisoft/db": "dev-master"
     },
     "require-dev": {
+        "ext-pdo": "*",
         "maglnet/composer-require-checker": "^4.7.1",
         "phpunit/phpunit": "^10.5.58",
         "rector/rector": "^2.1.7",
         "roave/infection-static-analysis-plugin": "^1.35",
         "spatie/phpunit-watcher": "^1.24",
         "vimeo/psalm": "^5.26.1 || ^6.8.8",
+        "vlucas/phpdotenv": "^5.6",
         "yiisoft/aliases": "^2.0",
         "yiisoft/arrays": "^3.2",
         "yiisoft/cache": "^3.1",
+        "yiisoft/db-mssql": "dev-master",
+        "yiisoft/db-mysql": "dev-master",
+        "yiisoft/db-oracle": "dev-master",
+        "yiisoft/db-pgsql": "dev-master",
         "yiisoft/db-sqlite": "dev-master",
         "yiisoft/di": "^1.4",
         "yiisoft/event-dispatcher": "^1.1",
@@ -68,7 +74,8 @@
     "autoload-dev": {
         "psr-4": {
             "Yiisoft\\ActiveRecord\\Tests\\": "tests"
-        }
+        },
+        "files": ["tests/bootstrap.php"]
     },
     "extra": {
         "branch-alias": {

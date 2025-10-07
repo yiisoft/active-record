@@ -61,8 +61,8 @@ jobs:
       - name: Checkout.
         uses: actions/checkout@v4
 
-      - name: Create MS SQL Database.
-        run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE yiitest'
+      - name: Create MS SQL Database
+        run: docker exec -i mssql /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U SA -P 'YourStrong!Passw0rd' -Q 'CREATE DATABASE [ar-test]'
 
       - name: Install PHP with extensions.
         uses: shivammathur/setup-php@v2
@@ -75,6 +75,9 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
+      - name: Remove unused dependencies of DB drivers
+        run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-pgsql yiisoft/db-oracle
+
       - name: Install db and db-mssql.
         uses: yiisoft/actions/install-packages@master
         with:
@@ -83,6 +86,12 @@ jobs:
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Mssql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+        env:
+          YII_MSSQL_DATABASE: ar-test
+          YII_MSSQL_HOST: 127.0.0.1
+          YII_MSSQL_PORT: 1433
+          YII_MSSQL_USER: SA
+          YII_MSSQL_PASSWORD: YourStrong!Passw0rd
 
       - name: Upload coverage to Codecov.
         uses: codecov/codecov-action@v5

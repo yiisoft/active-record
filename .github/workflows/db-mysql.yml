@@ -46,8 +46,9 @@ jobs:
         image: mysql:latest
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_PASSWORD: ''
-          MYSQL_DATABASE: yiitest
+          MYSQL_DATABASE: ar-test
+          MYSQL_USER: yii
+          MYSQL_PASSWORD: 'q1w2e3r4'
         ports:
           - 3306:3306
         options: --name=mysql --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -67,6 +68,9 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
+      - name: Remove unused dependencies of DB drivers
+        run: composer remove --dev yiisoft/db-sqlite yiisoft/db-pgsql yiisoft/db-mssql yiisoft/db-oracle
+
       - name: Install db and db-mysql.
         uses: yiisoft/actions/install-packages@master
         with:
@@ -75,6 +79,12 @@ jobs:
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Mysql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+        env:
+          YII_MYSQL_DATABASE: ar-test
+          YII_MYSQL_HOST: 127.0.0.1
+          YII_MYSQL_PORT: 3306
+          YII_MYSQL_USER: yii
+          YII_MYSQL_PASSWORD: q1w2e3r4
 
       - name: Upload coverage to Codecov.
         uses: codecov/codecov-action@v5

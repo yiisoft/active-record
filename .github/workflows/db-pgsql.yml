@@ -27,9 +27,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      COMPOSER_ROOT_VERSION: dev-master
       extensions: pdo, pdo_pgsql
-      key: cache-v1
 
     runs-on: ubuntu-latest
 
@@ -45,9 +43,9 @@ jobs:
       postgres:
         image: postgres:17
         env:
-          POSTGRES_USER: root
-          POSTGRES_PASSWORD: root
-          POSTGRES_DB: yiitest
+          POSTGRES_DB: ar-test
+          POSTGRES_USER: yii
+          POSTGRES_PASSWORD: q1w2e3r4
         ports:
           - 5432:5432
         options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -67,7 +65,10 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
-      - name: Install db and db-pgsql.
+      - name: Remove unused dependencies of DB drivers
+        run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-mssql yiisoft/db-oracle
+
+      - name: Install Yii DB + PostgreSQL driver
         uses: yiisoft/actions/install-packages@master
         with:
           packages: >-
@@ -75,6 +76,12 @@ jobs:
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Pgsql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+        env:
+          YII_PGSQL_DATABASE: ar-test
+          YII_PGSQL_HOST: 127.0.0.1
+          YII_PGSQL_PORT: 5432
+          YII_PGSQL_USER: yii
+          YII_PGSQL_PASSWORD: q1w2e3r4
 
       - name: Upload coverage to Codecov.
         uses: codecov/codecov-action@v3

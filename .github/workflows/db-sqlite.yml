@@ -60,6 +60,9 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
+      - name: Remove unused dependencies of DB drivers
+        run: composer remove --dev yiisoft/db-mysql yiisoft/db-pgsql yiisoft/db-mssql yiisoft/db-oracle
+
       - name: Install db and db-sqlite.
         uses: yiisoft/actions/install-packages@master
         with:

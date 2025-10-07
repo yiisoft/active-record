@@ -47,7 +47,10 @@ jobs:
         ports:
           - 1521:1521
         env:
-          ORACLE_PASSWORD : root
+          ORACLE_RANDOM_PASSWORD: yes
+          ORACLE_DATABASE: ar_test
+          APP_USER: yii
+          APP_USER_PASSWORD: q1w2e3r4
         options: >-
           --name=oci
           --health-cmd healthcheck.sh
@@ -73,6 +76,9 @@ jobs:
       - name: Update composer.
         run: composer self-update
 
+      - name: Remove unused dependencies of DB drivers
+        run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-pgsql yiisoft/db-mssql
+
       - name: Install db and db-oracle.
         uses: yiisoft/actions/install-packages@master
         with:
@@ -81,6 +87,12 @@ jobs:
 
       - name: Run tests with phpunit.
         run: vendor/bin/phpunit --testsuite=Oracle --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
+        env:
+          YII_ORACLE_DATABASE: ar_test
+          YII_ORACLE_HOST: localhost
+          YII_ORACLE_PORT: 1521
+          YII_ORACLE_USER: yii
+          YII_ORACLE_PASSWORD: q1w2e3r4
 
       - name: Upload coverage to Codecov.
         uses: codecov/codecov-action@v5

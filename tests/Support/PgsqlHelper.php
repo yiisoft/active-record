@@ -10,15 +10,16 @@ use Yiisoft\Db\Pgsql\Driver;
 
 final class PgsqlHelper extends ConnectionHelper
 {
-    private string $dsn = 'pgsql:host=127.0.0.1;dbname=yiitest;port=5432';
-    private string $username = 'root';
-    private string $password = 'root';
-    private string $charset = 'UTF8';
-
     public function createConnection(): ConnectionInterface
     {
-        $pdoDriver = new Driver($this->dsn, $this->username, $this->password);
-        $pdoDriver->charset($this->charset);
+        $database = getenv('YII_PGSQL_DATABASE');
+        $host = getenv('YII_PGSQL_HOST');
+        $port = getenv('YII_PGSQL_PORT');
+        $user = getenv('YII_PGSQL_USER');
+        $password = getenv('YII_PGSQL_PASSWORD');
+
+        $pdoDriver = new Driver("pgsql:host=$host;dbname=$database;port=$port", $user, $password);
+        $pdoDriver->charset('UTF8');
 
         return new Connection($pdoDriver, $this->createSchemaCache());
     }
