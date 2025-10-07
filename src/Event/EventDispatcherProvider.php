@@ -57,6 +57,14 @@ final class EventDispatcherProvider
     }
 
     /**
+     * Resets the list of dispatchers.
+     */
+    public static function reset(): void
+    {
+        self::$dispatchers = [];
+    }
+
+    /**
      * Get listeners from attributes defined in the target object class.
      *
      * @psalm-param class-string $targetClass
