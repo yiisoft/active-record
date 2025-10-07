@@ -44,8 +44,7 @@ abstract class ArrayIteratorTraitTest extends TestCase
             $iteratedData[$property] = $value;
         }
 
-        $this->assertSame(2, $iteratedData['id']);
-        $this->assertSame('Foreach Category', $iteratedData['name']);
+        $this->assertSame(['id' => 2, 'name' => 'Foreach Category'], $iteratedData);
     }
 
     public function testIteratorCount(): void
