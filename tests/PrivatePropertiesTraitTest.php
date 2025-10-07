@@ -15,10 +15,7 @@ abstract class PrivatePropertiesTraitTest extends TestCase
 
         $values = $model->propertyValues();
 
-        $this->assertArrayHasKey('id', $values);
-        $this->assertArrayHasKey('name', $values);
-        $this->assertSame(1, $values['id']);
-        $this->assertNull($values['name']);
+        $this->assertSame(['id' => 1, 'name' => null], $values);
     }
 
     public function testPopulateRecord(): void
