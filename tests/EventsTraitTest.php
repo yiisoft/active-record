@@ -47,8 +47,6 @@ abstract class EventsTraitTest extends TestCase
 
     public function testInsertWithEventPreventionAndCustomReturnValue(): void
     {
-        $this->reloadFixtureAfterTest();
-
         EventDispatcherProvider::set(
             CategoryEventsModel::class,
             new SimpleEventDispatcher(
