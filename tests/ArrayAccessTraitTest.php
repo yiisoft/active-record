@@ -43,8 +43,6 @@ abstract class ArrayAccessTraitTest extends TestCase
 
     public function testOffsetGetWithRelation(): void
     {
-        $this->reloadFixtureAfterTest();
-
         $model = CustomerArrayAccessModel::query()->with('profile')->findByPk(1);
 
         $this->assertInstanceOf(Profile::class, $model['profile']);
