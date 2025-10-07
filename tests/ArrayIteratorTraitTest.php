@@ -17,9 +17,7 @@ abstract class ArrayIteratorTraitTest extends TestCase
         $iterator = $model->getIterator();
         $arrayData = $iterator->getArrayCopy();
 
-        $this->assertCount(2, $arrayData);
-        $this->assertSame(1, $arrayData['id']);
-        $this->assertSame('Test Category', $arrayData['name']);
+        $this->assertSame(['id' => 1, 'name' => 'Test Category'], $arrayData);
     }
 
     public function testIteratorWithNullValues(): void
