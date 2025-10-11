@@ -18,4 +18,64 @@ These traits can be included in your model classes to add specific behaviors or 
   in a model;
 - [RepositoryTrait](repository.md) provides methods to interact with a model as a repository.
 
+All traits are optional and can be used as needed. They can be combined to create models with the desired functionality.
+
+For example, to create an Active Record class that supports array access and can be converted to an array:
+
+```php
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Trait\ArrayableTrait;
+use Yiisoft\ActiveRecord\Trait\ArrayAccessTrait;
+use Yiisoft\ActiveRecord\Trait\ArrayIteratorTrait;
+
+class ArrayActiveRecord extends ActiveRecord
+{
+    use ArrayableTrait;
+    use ArrayAccessTrait;
+    use ArrayIteratorTrait;
+}
+```
+
+Then you can create your model class by extending `ArrayActiveRecord`:
+
+```php
+final class User extends ArrayActiveRecord
+{
+    protected int $id;
+    protected string $username;
+    protected string $email;
+    protected string $status = 'active';
+}
+```
+
+Another example, to create an Active Record class that uses magic properties and relations:
+
+```php
+use Yiisoft\ActiveRecord\ActiveRecord;
+use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
+use Yiisoft\ActiveRecord\Trait\MagicRelationsTrait;
+
+class MagicActiveRecord extends ActiveRecord
+{
+    use MagicPropertiesTrait;
+    use MagicRelationsTrait;
+}
+```
+
+Then you can create your model class by extending `MagicActiveRecord`:
+
+```php
+/**
+ * Entity User.
+ *
+ * @property int $id
+ * @property string $username
+ * @property string $email
+ * @property string $status
+ */
+final class User extends MagicActiveRecord
+{
+}
+```
+
 Back to [README](../../README.md)
