@@ -214,8 +214,8 @@ final class User extends ActiveRecord
 You can use `$user->id`, `$user->username`, `$user->email` to access the properties as with dynamic properties.
 
 Notes:
-- It needs to use the `MagicPropertiesTrait` to enable magic properties;
-- Compared to dynamic properties, they're stored in the `private array $properties` property;
+- It needs to use the [MagicPropertiesTrait](traits/magic-properties.md) to enable magic properties;
+- Compared to dynamic properties, they're stored in the `private array $propertyValues` property;
 - ✔️ It allows accessing relations as properties;
 - ❌ It doesn't use strict typing and can be a reason of hard-to-detect errors;
 - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.

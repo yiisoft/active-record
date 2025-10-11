@@ -46,16 +46,6 @@ trait MagicPropertiesTrait
     private array $propertyValues = [];
 
     /**
-     * Returns a value indicating whether the record has a relation query with the specified name.
-     *
-     * @param string $name The name of the relation query.
-     */
-    public function hasRelationQuery(string $name): bool
-    {
-        return method_exists($this, "get{$name}Query");
-    }
-
-    /**
      * PHP getter magic method.
      * This method is overridden so that values and related objects can be accessed like properties.
      *
@@ -165,6 +155,16 @@ trait MagicPropertiesTrait
         return isset($this->propertyValues[$name]) || in_array($name, $this->propertyNames(), true);
     }
 
+    /**
+     * Returns a value indicating whether the record has a relation query with the specified name.
+     *
+     * @param string $name The name of the relation query.
+     */
+    public function hasRelationQuery(string $name): bool
+    {
+        return method_exists($this, "get{$name}Query");
+    }
+
     public function set(string $propertyName, mixed $value): void
     {
         if ($this->hasProperty($propertyName)) {
@@ -200,6 +200,9 @@ trait MagicPropertiesTrait
             || $this->hasProperty($name);
     }
 
+    /**
+     * Returns a value indicating whether a property can be read.
+     */
     public function canGetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, "get$name")
@@ -208,6 +211,9 @@ trait MagicPropertiesTrait
             || $this->hasProperty($name);
     }
 
+    /**
+     * Returns a value indicating whether a property can be set.
+     */
     public function canSetProperty(string $name, bool $checkVars = true): bool
     {
         return method_exists($this, "set$name")
