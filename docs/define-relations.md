@@ -42,14 +42,14 @@ $ordersQuery = $user->relationQuery('orders');
 
 ### Using `MagicRelationsTrait`
 
-Alternatively, you can use `MagicRelationsTrait` trait to define relations in the Active Record model. This trait allows
-you to define relation methods directly in the model without overriding `relationQuery()` method. The relation
-methods should have a specific naming convention to be recognized by the trait. The method names should have prefix 
-`get` and suffix `Query` and returns an object implementing `ActiveQueryInterface` interface.
+Alternatively, you can use [MagicRelationsTrait](traits/magic-relations.md) trait to define relations in the Active Record model.
+This trait allows you to define relation methods directly in the model without overriding `relationQuery()` method.
+The relation methods should have a specific naming convention to be recognized by the trait. The method names should 
+have prefix `get` and suffix `Query` and returns an object implementing `ActiveQueryInterface` interface.
 
 ```php
-use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\MagicRelationsTrait;
 
 final class User extends ActiveRecord
