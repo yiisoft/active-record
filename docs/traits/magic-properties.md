@@ -3,16 +3,17 @@
 `MagicPropertiesTrait` allows to use magic getters and setters to access model properties and relations.
 It stores properties in the `private array $propertyValues` property and provides magic methods for accessing them.
 
-It also allows to call getter and setter methods if they are defined in the model class as a property
-(e.g. `getUsername()` and `setUsername($value)` for `username` property).
+It also allows to call getter and setter methods as a property if they are defined in the model class
+(e.g. `getFullName()` and `setFullName($fullName)` for `fullName` property).
 
 > [!NOTE]
-> This trait is not required when using protected or public properties.
-> 
-> Using magic properties is not recommended for production code, as it is less secure and less performant than using
-> protected or private properties with getters and setters.
-> 
-> Magic properties are more error-prone, as typos in property names will not be caught by static analysis tools or IDEs.
+> This trait is not required when using private, protected or public properties.
+
+> [!IMPORTANT]
+> - ✔️ It allows accessing relations as properties;
+> - ❌ It doesn't use strict typing and can be a reason of hard-to-detect errors; 
+> - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.
+  Sometimes it can be 100 times slower than explicitly defined properties;
 
 ## Methods
 
@@ -39,6 +40,7 @@ use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
  * @property int $id
  * @property string $firstName
  * @property string $lastName
+ * @property string $fullName
  * 
  * The properties in PHPDoc are optional and used by static analysis and by IDEs for autocompletion, type hinting, 
  * code generation, and inspection tools. This doesn't affect code execution.
