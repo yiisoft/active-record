@@ -7,13 +7,13 @@ It also allows to call getter and setter methods as a property if they are defin
 (e.g. `getFullName()` and `setFullName($fullName)` for `fullName` property).
 
 > [!NOTE]
-> This trait is not required when using private, protected or public properties.
+> This trait is not required when using private, protected, public or dynamic properties.
 
 > [!IMPORTANT]
 > - ✔️ It allows accessing relations as properties;
 > - ❌ It doesn't use strict typing and can be a reason of hard-to-detect errors; 
 > - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.
-  Sometimes it can be 100 times slower than explicitly defined properties;
+> Sometimes it can be 100 times slower than explicitly defined properties;
 
 ## Methods
 
