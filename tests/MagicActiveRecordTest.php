@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use DivisionByZeroError;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
@@ -901,5 +902,47 @@ abstract class MagicActiveRecordTest extends TestCase
             'Setting unknown property: ' . Customer::class . '::nonExistentProperty'
         );
         $customer->nonExistentProperty = 'value';
+    }
+
+    public static function dataIsProperty(): array
+    {
+        return [
+            'table column property' => [true, 'name'],
+            'another table column' => [true, 'email'],
+            'relation query' => [true, 'profile'],
+            'setter only' => [true, 'ordersReadOnly'],
+            'public class property' => [true, 'status2'],
+            'another public class property' => [true, 'sumTotal'],
+            'non-existent property' => [false, 'nonExistent'],
+        ];
+    }
+
+    #[DataProvider('dataIsProperty')]
+    public function testIsProperty(bool $expected, string $name): void
+    {
+        $customer = new Customer();
+
+        $this->assertSame($expected, $customer->isProperty($name));
+    }
+
+    public static function dataIsPropertyWithoutCheckVars(): array
+    {
+        return [
+            'table column property' => [true, 'name'],
+            'another table column' => [true, 'email'],
+            'relation query' => [true, 'profile'],
+            'setter only' => [true, 'ordersReadOnly'],
+            'public class property' => [false, 'status2'],
+            'another public class property' => [false, 'sumTotal'],
+            'non-existent property' => [false, 'nonExistent'],
+        ];
+    }
+
+    #[DataProvider('dataIsPropertyWithoutCheckVars')]
+    public function testIsPropertyWithoutCheckVars(bool $expected, string $name): void
+    {
+        $customer = new Customer();
+
+        $this->assertSame($expected, $customer->isProperty($name, false));
     }
 }
