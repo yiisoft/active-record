@@ -2,6 +2,8 @@
  * This is the database schema for testing Oracle support of Yii Active Record.
  */
 
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user_profile"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "composite_fk"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "order_item"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "order_item_name"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
@@ -474,3 +476,19 @@ CREATE TABLE "tbl_user"
 
 INSERT INTO "tbl_user" ("id", "name") VALUES (1, 'Sergei');
 INSERT INTO "tbl_user" ("id", "name") VALUES (2, null);
+
+CREATE TABLE "user" (
+  "id" INTEGER NOT NULL,
+  "username" VARCHAR2(255) NOT NULL,
+  CONSTRAINT "user_PK" PRIMARY KEY ("id") ENABLE
+);
+
+CREATE TABLE "user_profile" (
+  "id" INTEGER NOT NULL,
+  "bio" CLOB NOT NULL,
+  CONSTRAINT "user_profile_PK" PRIMARY KEY ("id") ENABLE,
+  CONSTRAINT "user_profile_user_FK" FOREIGN KEY ("id") REFERENCES "user" ("id") ON DELETE CASCADE ENABLE
+);
+
+INSERT INTO "user" ("id", "username") VALUES (1, 'john_doe');
+INSERT INTO "user" ("id", "username") VALUES (2, 'jane_smith');

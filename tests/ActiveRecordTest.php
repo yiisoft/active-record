@@ -35,6 +35,8 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\User;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserProfile;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
 use Yiisoft\Db\Exception\Exception;
@@ -1540,5 +1542,23 @@ abstract class ActiveRecordTest extends TestCase
         $itemIds = ArArrayHelper::getColumn($orderItems, 'id');
 
         $this->assertContains(3, $itemIds);
+    }
+
+    public function testLinkBothNewRecordsWithSharedPrimaryKey(): void
+    {
+        $user = new User();
+        $user->setId(100);
+        $user->setUsername('testuser');
+
+        $profile = new UserProfile();
+        $profile->setId(100);
+        $profile->setBio('Test bio');
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: at most one model can be newly created.'
+        );
+
+        $user->link('profile', $profile);
     }
 }

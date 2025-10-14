@@ -3,6 +3,8 @@
  * The database setup in config.php is required to perform then relevant tests:
  */
 
+DROP TABLE IF EXISTS `user_profile` CASCADE;
+DROP TABLE IF EXISTS `user` CASCADE;
 DROP TABLE IF EXISTS `composite_fk` CASCADE;
 DROP TABLE IF EXISTS `order_item` CASCADE;
 DROP TABLE IF EXISTS `order_item_name` CASCADE;
@@ -443,3 +445,17 @@ CREATE TABLE `tbl_user`
 
 INSERT INTO `tbl_user` (id, name) VALUES (1, 'Sergei');
 INSERT INTO `tbl_user` (id, name) VALUES (2, null);
+
+CREATE TABLE `user` (
+  `id` INT NOT NULL PRIMARY KEY,
+  `username` VARCHAR(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `user_profile` (
+  `id` INT NOT NULL PRIMARY KEY,
+  `bio` TEXT NOT NULL,
+  FOREIGN KEY (`id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `user` (id, username) VALUES (1, 'john_doe');
+INSERT INTO `user` (id, username) VALUES (2, 'jane_smith');

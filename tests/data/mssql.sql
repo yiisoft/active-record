@@ -1,3 +1,5 @@
+IF OBJECT_ID('[dbo].[user_profile]', 'U') IS NOT NULL DROP TABLE [dbo].[user_profile];
+IF OBJECT_ID('[dbo].[user]', 'U') IS NOT NULL DROP TABLE [dbo].[user];
 IF OBJECT_ID('[dbo].[composite_fk]', 'U') IS NOT NULL DROP TABLE [dbo].[composite_fk];
 IF OBJECT_ID('[dbo].[order_item]', 'U') IS NOT NULL DROP TABLE [dbo].[order_item];
 IF OBJECT_ID('[dbo].[order_item_name]', 'U') IS NOT NULL DROP TABLE [dbo].[order_item_name];
@@ -420,3 +422,19 @@ CREATE TABLE [tbl_user]
 
 INSERT INTO [tbl_user] (id, name) VALUES (1, 'Sergei');
 INSERT INTO [tbl_user] (id, name) VALUES (2, null);
+
+CREATE TABLE [dbo].[user] (
+  [id] INT NOT NULL,
+  [username] VARCHAR(255) NOT NULL,
+  CONSTRAINT [PK_user] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[user_profile] (
+  [id] INT NOT NULL,
+  [bio] TEXT NOT NULL,
+  CONSTRAINT [PK_user_profile] PRIMARY KEY CLUSTERED ([id] ASC),
+  CONSTRAINT [FK_user_profile_user] FOREIGN KEY ([id]) REFERENCES [dbo].[user] ([id]) ON DELETE CASCADE
+);
+
+INSERT INTO [dbo].[user] (id, username) VALUES (1, 'john_doe');
+INSERT INTO [dbo].[user] (id, username) VALUES (2, 'jane_smith');
