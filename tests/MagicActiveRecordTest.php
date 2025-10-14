@@ -945,4 +945,15 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertSame($expected, $customer->isProperty($name, false));
     }
+
+    public function testRelationQueryNonExistentRelation(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Customer::class . ' has no relation named "nonExistentRelation".'
+        );
+        $customer->relationQuery('nonExistentRelation');
+    }
 }
