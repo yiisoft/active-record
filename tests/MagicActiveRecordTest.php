@@ -849,4 +849,15 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertTrue($newItem->isChanged());
     }
+
+    public function testGettingWriteOnlyProperty(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Getting write-only property: ' . Customer::class . '::ordersReadOnly'
+        );
+        $customer->ordersReadOnly;
+    }
 }
