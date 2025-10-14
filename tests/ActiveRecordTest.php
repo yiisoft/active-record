@@ -1561,4 +1561,19 @@ abstract class ActiveRecordTest extends TestCase
 
         $user->link('profile', $profile);
     }
+
+    public function testLinkNewRecordToExistingWithSharedPrimaryKey(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $user = User::query()->findByPk(1);
+
+        $profile = new UserProfile();
+        $profile->setBio('Bio for existing user');
+
+        $profile->link('user', $user);
+
+        $this->assertEquals(1, $profile->getId());
+        $this->assertFalse($profile->isNewRecord());
+    }
 }
