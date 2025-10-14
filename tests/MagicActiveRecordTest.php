@@ -877,4 +877,29 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($orderItem->isRelationPopulated('order'));
         $this->assertNull($orderItem->order_id);
     }
+
+    public function testUnsetPopulatedRelation(): void
+    {
+        $customerQuery = Customer::query();
+        $customer = $customerQuery->findByPk(1);
+
+        $orders = $customer->orders;
+        $this->assertNotEmpty($orders);
+        $this->assertTrue($customer->isRelationPopulated('orders'));
+
+        unset($customer->orders);
+
+        $this->assertFalse($customer->isRelationPopulated('orders'));
+    }
+
+    public function testSettingUnknownProperty(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(UnknownPropertyException::class);
+        $this->expectExceptionMessage(
+            'Setting unknown property: ' . Customer::class . '::nonExistentProperty'
+        );
+        $customer->nonExistentProperty = 'value';
+    }
 }
