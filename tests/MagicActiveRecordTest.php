@@ -860,4 +860,21 @@ abstract class MagicActiveRecordTest extends TestCase
         );
         $customer->ordersReadOnly;
     }
+
+    public function testUnsetPropertyWithDependentRelations(): void
+    {
+        $orderItem = new OrderItem();
+        $orderItem->order_id = 1;
+        $orderItem->item_id = 2;
+
+        $order = $orderItem->order;
+        $this->assertNotNull($order);
+        $this->assertEquals(1, $order->id);
+        $this->assertTrue($orderItem->isRelationPopulated('order'));
+
+        unset($orderItem->order_id);
+
+        $this->assertFalse($orderItem->isRelationPopulated('order'));
+        $this->assertNull($orderItem->order_id);
+    }
 }
