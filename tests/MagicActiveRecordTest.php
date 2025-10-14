@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use DateTimeZone;
 use DivisionByZeroError;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
@@ -955,5 +956,20 @@ abstract class MagicActiveRecordTest extends TestCase
             Customer::class . ' has no relation named "nonExistentRelation".'
         );
         $customer->relationQuery('nonExistentRelation');
+    }
+
+    public function testRelationQueryInvalidReturnType(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Relation query method "'
+            . Customer::class
+            . '::getItemQuery()" should return type "'
+            . ActiveQueryInterface::class
+            . '", but  returns "void" type.'
+        );
+        $customer->relationQuery('item');
     }
 }
