@@ -4,6 +4,8 @@
  * and create an account 'postgres/postgres' which owns this test database.
  */
 
+DROP TABLE IF EXISTS "article_comment" CASCADE;
+DROP TABLE IF EXISTS "article" CASCADE;
 DROP TABLE IF EXISTS "user_profile" CASCADE;
 DROP TABLE IF EXISTS "user" CASCADE;
 DROP TABLE IF EXISTS "composite_fk" CASCADE;
@@ -482,4 +484,19 @@ CREATE TABLE "user_profile" (
 
 INSERT INTO "user" (id, username) VALUES (1, 'john_doe');
 INSERT INTO "user" (id, username) VALUES (2, 'jane_smith');
+
+CREATE TABLE "article" (
+  "id" SERIAL NOT NULL PRIMARY KEY,
+  "title" VARCHAR(255) NOT NULL,
+  "slug" VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE "article_comment" (
+  "id" SERIAL NOT NULL PRIMARY KEY,
+  "article_slug" VARCHAR(255) NOT NULL,
+  "comment_text" TEXT NOT NULL
+);
+
+INSERT INTO "article" (id, title, slug) VALUES (1, 'First Article', 'first-article');
+INSERT INTO "article" (id, title, slug) VALUES (2, 'Second Article', 'second-article');
 

@@ -3,6 +3,8 @@
  * The database setup in config.php is required to perform then relevant tests:
  */
 
+DROP TABLE IF EXISTS "article_comment";
+DROP TABLE IF EXISTS "article";
 DROP TABLE IF EXISTS "user_profile";
 DROP TABLE IF EXISTS "user";
 DROP TABLE IF EXISTS "composite_fk";
@@ -420,3 +422,18 @@ CREATE TABLE "user_profile" (
 
 INSERT INTO "user" (id, username) VALUES (1, 'john_doe');
 INSERT INTO "user" (id, username) VALUES (2, 'jane_smith');
+
+CREATE TABLE "article" (
+  id INTEGER NOT NULL PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE "article_comment" (
+  id INTEGER NOT NULL PRIMARY KEY,
+  article_slug VARCHAR(255) NOT NULL,
+  comment_text TEXT NOT NULL
+);
+
+INSERT INTO "article" (id, title, slug) VALUES (1, 'First Article', 'first-article');
+INSERT INTO "article" (id, title, slug) VALUES (2, 'Second Article', 'second-article');

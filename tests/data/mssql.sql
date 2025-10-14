@@ -1,3 +1,5 @@
+IF OBJECT_ID('[dbo].[article_comment]', 'U') IS NOT NULL DROP TABLE [dbo].[article_comment];
+IF OBJECT_ID('[dbo].[article]', 'U') IS NOT NULL DROP TABLE [dbo].[article];
 IF OBJECT_ID('[dbo].[user_profile]', 'U') IS NOT NULL DROP TABLE [dbo].[user_profile];
 IF OBJECT_ID('[dbo].[user]', 'U') IS NOT NULL DROP TABLE [dbo].[user];
 IF OBJECT_ID('[dbo].[composite_fk]', 'U') IS NOT NULL DROP TABLE [dbo].[composite_fk];
@@ -438,3 +440,23 @@ CREATE TABLE [dbo].[user_profile] (
 
 INSERT INTO [dbo].[user] (id, username) VALUES (1, 'john_doe');
 INSERT INTO [dbo].[user] (id, username) VALUES (2, 'jane_smith');
+
+CREATE TABLE [dbo].[article] (
+  [id] INT IDENTITY(1,1) NOT NULL,
+  [title] VARCHAR(255) NOT NULL,
+  [slug] VARCHAR(255) NOT NULL,
+  CONSTRAINT [PK_article] PRIMARY KEY CLUSTERED ([id] ASC),
+  CONSTRAINT [UQ_article_slug] UNIQUE ([slug])
+);
+
+CREATE TABLE [dbo].[article_comment] (
+  [id] INT IDENTITY(1,1) NOT NULL,
+  [article_slug] VARCHAR(255) NOT NULL,
+  [comment_text] TEXT NOT NULL,
+  CONSTRAINT [PK_article_comment] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+SET IDENTITY_INSERT [dbo].[article] ON;
+INSERT INTO [dbo].[article] (id, title, slug) VALUES (1, 'First Article', 'first-article');
+INSERT INTO [dbo].[article] (id, title, slug) VALUES (2, 'Second Article', 'second-article');
+SET IDENTITY_INSERT [dbo].[article] OFF;

@@ -2,6 +2,8 @@
  * This is the database schema for testing Oracle support of Yii Active Record.
  */
 
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "article_comment"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "article"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user_profile"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "composite_fk"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
@@ -492,3 +494,27 @@ CREATE TABLE "user_profile" (
 
 INSERT INTO "user" ("id", "username") VALUES (1, 'john_doe');
 INSERT INTO "user" ("id", "username") VALUES (2, 'jane_smith');
+
+BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "article_SEQ"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2289 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "article_comment_SEQ"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2289 THEN RAISE; END IF; END;--
+
+CREATE SEQUENCE "article_SEQ" START WITH 3 INCREMENT BY 1;--
+CREATE SEQUENCE "article_comment_SEQ" START WITH 1 INCREMENT BY 1;--
+
+CREATE TABLE "article" (
+  "id" INTEGER NOT NULL,
+  "title" VARCHAR2(255) NOT NULL,
+  "slug" VARCHAR2(255) NOT NULL,
+  CONSTRAINT "article_PK" PRIMARY KEY ("id") ENABLE,
+  CONSTRAINT "article_slug_UQ" UNIQUE ("slug") ENABLE
+);
+
+CREATE TABLE "article_comment" (
+  "id" INTEGER NOT NULL,
+  "article_slug" VARCHAR2(255) NOT NULL,
+  "comment_text" CLOB NOT NULL,
+  CONSTRAINT "article_comment_PK" PRIMARY KEY ("id") ENABLE
+);
+
+INSERT INTO "article" ("id", "title", "slug") VALUES (1, 'First Article', 'first-article');
+INSERT INTO "article" ("id", "title", "slug") VALUES (2, 'Second Article', 'second-article');

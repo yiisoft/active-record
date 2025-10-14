@@ -34,6 +34,8 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Article;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\User;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserProfile;
@@ -1590,5 +1592,22 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertEquals(1, $profile->getId());
         $this->assertFalse($profile->isNewRecord());
+    }
+
+    public function testLinkWithNonPrimaryKeyFields(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $article = Article::query()->findByPk(1);
+        $this->assertNotNull($article);
+
+        $comment = new ArticleComment();
+        $comment->setCommentText('Test comment');
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: the link defining the relation does not involve any primary key.'
+        );
+        $article->link('comments', $comment);
     }
 }
