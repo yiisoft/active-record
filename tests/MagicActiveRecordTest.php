@@ -972,4 +972,17 @@ abstract class MagicActiveRecordTest extends TestCase
         );
         $customer->relationQuery('item');
     }
+
+    public function testRelationQueryCaseSensitive(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Relation names are case sensitive. '
+            . Customer::class
+            . ' has a relation named "profile" instead of "Profile".'
+        );
+        $customer->relationQuery('Profile');
+    }
 }
