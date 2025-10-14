@@ -1576,4 +1576,19 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals(1, $profile->getId());
         $this->assertFalse($profile->isNewRecord());
     }
+
+    public function testLinkExistingRecordToNewWithSharedPrimaryKey(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $user = User::query()->findByPk(1);
+
+        $profile = new UserProfile();
+        $profile->setBio('New profile for existing user');
+
+        $user->link('profile', $profile);
+
+        $this->assertEquals(1, $profile->getId());
+        $this->assertFalse($profile->isNewRecord());
+    }
 }
