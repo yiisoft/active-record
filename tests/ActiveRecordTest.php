@@ -1523,4 +1523,22 @@ abstract class ActiveRecordTest extends TestCase
         );
         $customer->link('items2', $item);
     }
+
+    public function testLinkViaTable(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+        $this->assertNotNull($customer);
+
+        $item = Item::query()->findByPk(3);
+        $this->assertNotNull($item);
+
+        $customer->link('orderItems', $item, ['quantity' => 5, 'subtotal' => 50.00]);
+
+        $orderItems = $customer->relation('orderItems');
+        $itemIds = ArArrayHelper::getColumn($orderItems, 'id');
+
+        $this->assertContains(3, $itemIds);
+    }
 }
