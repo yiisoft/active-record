@@ -1511,4 +1511,16 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertTrue($category->isDeleted);
     }
+
+    public function testLinkViaRelationWithNewRecord(): void
+    {
+        $customer = new Customer();
+        $item = new Item();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: the models being linked cannot be newly created.'
+        );
+        $customer->link('items2', $item);
+    }
 }
