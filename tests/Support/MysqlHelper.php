@@ -14,6 +14,9 @@ final class MysqlHelper extends ConnectionHelper
 {
     public function createConnection(): ConnectionInterface
     {
+        var_dump(getenv('YII_MYSQL_DATABASE'));
+        var_dump(getenv('YII_MYSQL_DATABASE', true));
+
         $database = getenv('YII_MYSQL_DATABASE');
         $host = getenv('YII_MYSQL_HOST');
         $port = getenv('YII_MYSQL_PORT');
