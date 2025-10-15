@@ -163,16 +163,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->oldValues[$propertyName] ?? null;
     }
 
-    /**
-     * Returns the property values that have been modified since they're loaded or saved most recently.
-     *
-     * The comparison of new and old values uses `===`.
-     *
-     * @param array|null $propertyNames The names of the properties whose values may be returned if they're changed recently.
-     * If null, {@see propertyNames()} will be used.
-     *
-     * @return array The changed property values (name-value pairs).
-     */
     public function newValues(array|null $propertyNames = null): array
     {
         $values = $this->propertyValues($propertyNames);

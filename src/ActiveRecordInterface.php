@@ -210,7 +210,7 @@ interface ActiveRecordInterface
      * You may specify the properties to be inserted as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see newValues() changed property values} will be inserted into a database.
+     * Only the {@see newValues()} changed property values will be inserted into a database.
      *
      * If the table's primary key is auto incremental and is `null` during insertion, it will be populated with the
      * actual value after insertion.
@@ -395,7 +395,7 @@ interface ActiveRecordInterface
      * You may specify the properties to be updated as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see newValues() changed property values} will be saved into a database.
+     * Only the {@see newValues()} changed property values will be saved into a database.
      *
      * This method will call {@see insert()} when {@see isNewRecord()} is true, or {@see update()} when
      * {@see isNewRecord()|isNewRecord} is false.
@@ -438,7 +438,7 @@ interface ActiveRecordInterface
      *
      * The method will then save the specified properties into a database.
      *
-     * Only the {@see newValues() changed property values} will be saved into a database.
+     * Only the {@see newValues()} changed property values will be saved into a database.
      *
      * For example, to update a customer record:
      *
@@ -520,7 +520,7 @@ interface ActiveRecordInterface
      * Insert a row into the associated database table if the record doesn't already exist (matching unique constraints)
      * or update the record if it exists, with populating model by the returning record values.
      *
-     * Only the {@see newValues() changed property values} will be inserted or updated.
+     * Only the {@see newValues()} changed property values will be inserted or updated.
      *
      * If the table's primary key is auto incremental and is `null` during execution, it will be populated with the
      * actual value after insertion or update.
@@ -579,6 +579,18 @@ interface ActiveRecordInterface
      * @return array The old property values (name-value pairs).
      */
     public function oldValues(): array;
+
+    /**
+     * Returns the property values that have been modified since they're loaded or saved most recently.
+     *
+     * The comparison of new and old values uses `===`.
+     *
+     * @param array|null $propertyNames The names of the properties whose values may be returned if they're changed
+     * recently. If `null`, {@see propertyNames()} will be used.
+     *
+     * @return array The changed property values (name-value pairs).
+     */
+    public function newValues(array|null $propertyNames = null): array;
 
     /**
      * Populates an active record object using a row of data from the database/storage.
