@@ -20,6 +20,8 @@ services:
       - all
   php-mysql:
     <<: *php-base
+    environment:
+      YII_MYSQL_HOST: mysql
     profiles:
       - mysql
       - all
@@ -48,6 +50,8 @@ services:
       - all
   php-pgsql:
     <<: *php-base
+    environment:
+      YII_PGSQL_HOST: postgres
     profiles:
       - pgsql
       - all
@@ -75,6 +79,10 @@ services:
       - all
   php-mssql:
     <<: *php-base
+    environment:
+      YII_MSSQL_HOST: mssql
+      YII_MSSQL_USER: yii
+      YII_MSSQL_PASSWORD: q1w2e3r4!
     profiles:
       - mssql
       - all
@@ -106,6 +114,8 @@ services:
       - all
   php-oracle:
     <<: *php-base
+    environment:
+      YII_ORACLE_HOST: oracle
     profiles:
       - oracle
       - all
