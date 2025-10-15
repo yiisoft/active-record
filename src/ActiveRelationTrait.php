@@ -628,7 +628,7 @@ trait ActiveRelationTrait
         if (is_array($model)) {
             foreach ($properties as $property) {
                 if (isset($model[$property])) {
-                    /** @var array<string|int>|string */
+                    /** @var array<int|string>|string */
                     $key[] = is_array($model[$property])
                         ? $model[$property]
                         : (string) $model[$property];
@@ -638,7 +638,7 @@ trait ActiveRelationTrait
             foreach ($properties as $property) {
                 $value = $model->get($property);
                 if ($value !== null) {
-                    /** @var array<string|int>|string */
+                    /** @var array<int|string>|string */
                     $key[] = is_array($value)
                         ? $value
                         : (string) $value;
