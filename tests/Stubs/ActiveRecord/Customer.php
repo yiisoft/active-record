@@ -56,6 +56,7 @@ class Customer extends ArrayableActiveRecord
             'orders2' => $this->getOrders2Query(),
             'orderItems' => $this->getOrderItemsQuery(),
             'orderItems2' => $this->getOrderItems2Query(),
+            'orderItemsIndexedByClosure' => $this->getOrderItemsIndexedByClosureQuery(),
             'items2' => $this->getItems2Query(),
             'ordersUsingInstance' => $this->hasMany(new Order(), ['customer_id' => 'id']),
             default => parent::relationQuery($name),
@@ -254,6 +255,18 @@ class Customer extends ArrayableActiveRecord
     {
         return $this->hasMany(OrderItem::class, ['order_id' => 'id'])
             ->via('ordersNoOrder');
+    }
+
+    public function getOrderItemsIndexedByClosure(): array
+    {
+        return $this->relation('orderItemsIndexedByClosure');
+    }
+
+    public function getOrderItemsIndexedByClosureQuery(): ActiveQuery
+    {
+        return $this
+            ->hasMany(Order::class, ['customer_id' => 'id'])
+            ->indexBy(fn (Order $order) => 'order_' . $order->getId());
     }
 
     public function getItems2(): array

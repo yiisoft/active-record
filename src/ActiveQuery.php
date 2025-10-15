@@ -100,9 +100,9 @@ use function substr;
  * query join condition.
  *
  * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
- * @psalm-import-type IndexKey from ArArrayHelper
+ * @psalm-import-type IndexBy from QueryInterface
  *
- * @psalm-property IndexKey|null $indexBy
+ * @psalm-property IndexBy|null $indexBy
  * @psalm-suppress ClassMustBeFinal
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
