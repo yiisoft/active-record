@@ -1610,4 +1610,25 @@ abstract class ActiveRecordTest extends TestCase
         );
         $article->link('comments', $comment);
     }
+
+    public function testLinkWithIndexByAsClosure(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+        $this->assertNotNull($customer);
+
+        $existingOrders = $customer->getOrderItemsIndexedByClosure();
+
+        $newOrder = new Order();
+        $newOrder->setCreatedAt(time());
+        $newOrder->setTotal(150.0);
+        $customer->link('orderItemsIndexedByClosure', $newOrder);
+
+        $expectedIndex = 'order_' . $newOrder->getId();
+        $updatedOrders = $customer->getOrderItemsIndexedByClosure();
+        $this->assertArrayHasKey($expectedIndex, $updatedOrders);
+        $this->assertSame($newOrder, $updatedOrders[$expectedIndex]);
+        $this->assertCount(\count($existingOrders) + 1, $updatedOrders);
+    }
 }

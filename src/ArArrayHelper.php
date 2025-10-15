@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 use Traversable;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function array_combine;
 use function array_key_exists;
@@ -21,7 +22,7 @@ use function substr;
  * Array manipulation methods for ActiveRecord.
  *
  * @psalm-type Row = ActiveRecordInterface|array
- * @psalm-type IndexKey = string|Closure(Row):array-key
+ * @psalm-import-type IndexBy from QueryInterface
  */
 final class ArArrayHelper
 {
@@ -139,7 +140,7 @@ final class ArArrayHelper
      *
      * @psalm-template TRow of Row
      * @psalm-param array<TRow> $rows
-     * @psalm-param IndexKey|null $indexBy
+     * @psalm-param IndexBy|null $indexBy
      * @psalm-return array<TRow>
      */
     public static function index(array $rows, Closure|string|null $indexBy = null): array

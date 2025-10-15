@@ -21,8 +21,6 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  * represents a relation between two active record classes and will return related records only.
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
- *
- * @psalm-import-type IndexKey from ArArrayHelper
  */
 interface ActiveQueryInterface extends QueryInterface
 {

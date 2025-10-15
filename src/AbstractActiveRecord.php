@@ -497,7 +497,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $indexBy = $relation->getIndexBy();
             if ($indexBy !== null) {
                 if ($indexBy instanceof Closure) {
-                    $index = $indexBy($linkModel->propertyValues());
+                    $index = $indexBy($linkModel);
                 } else {
                     $index = $linkModel->get($indexBy);
                 }
