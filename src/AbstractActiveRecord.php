@@ -536,9 +536,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     public function populateRecord(array|object $row): void
     {
-        if ($row instanceof ActiveRecordInterface) {
-            $row = $row->propertyValues();
-        }
+        $row = ArArrayHelper::toArray($row);
 
         foreach ($row as $name => $value) {
             $this->populateProperty($name, $value);
