@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 use Traversable;
-
 use Yiisoft\Db\Query\QueryInterface;
 
 use function array_combine;
