@@ -34,7 +34,11 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Article;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\User;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserProfile;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
 use Yiisoft\Db\Exception\Exception;
@@ -1510,5 +1514,100 @@ abstract class ActiveRecordTest extends TestCase
         $category->delete();
 
         $this->assertTrue($category->isDeleted);
+    }
+
+    public function testLinkViaRelationWithNewRecord(): void
+    {
+        $customer = new Customer();
+        $item = new Item();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: the models being linked cannot be newly created.'
+        );
+        $customer->link('items2', $item);
+    }
+
+    public function testLinkViaTable(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+        $this->assertNotNull($customer);
+
+        $item = Item::query()->findByPk(3);
+        $this->assertNotNull($item);
+
+        $customer->link('orderItems', $item, ['quantity' => 5, 'subtotal' => 50.00]);
+
+        $orderItems = $customer->relation('orderItems');
+        $itemIds = ArArrayHelper::getColumn($orderItems, 'id');
+
+        $this->assertContains(3, $itemIds);
+    }
+
+    public function testLinkBothNewRecordsWithSharedPrimaryKey(): void
+    {
+        $user = new User();
+        $user->setId(100);
+        $user->setUsername('testuser');
+
+        $profile = new UserProfile();
+        $profile->setId(100);
+        $profile->setBio('Test bio');
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: at most one model can be newly created.'
+        );
+
+        $user->link('profile', $profile);
+    }
+
+    public function testLinkNewRecordToExistingWithSharedPrimaryKey(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $user = User::query()->findByPk(1);
+
+        $profile = new UserProfile();
+        $profile->setBio('Bio for existing user');
+
+        $profile->link('user', $user);
+
+        $this->assertEquals(1, $profile->getId());
+        $this->assertFalse($profile->isNewRecord());
+    }
+
+    public function testLinkExistingRecordToNewWithSharedPrimaryKey(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $user = User::query()->findByPk(1);
+
+        $profile = new UserProfile();
+        $profile->setBio('New profile for existing user');
+
+        $user->link('profile', $profile);
+
+        $this->assertEquals(1, $profile->getId());
+        $this->assertFalse($profile->isNewRecord());
+    }
+
+    public function testLinkWithNonPrimaryKeyFields(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $article = Article::query()->findByPk(1);
+        $this->assertNotNull($article);
+
+        $comment = new ArticleComment();
+        $comment->setCommentText('Test comment');
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: the link defining the relation does not involve any primary key.'
+        );
+        $article->link('comments', $comment);
     }
 }
