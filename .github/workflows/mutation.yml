@@ -74,9 +74,4 @@ jobs:
         run: |
           vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --only-covered --test-framework-options="--testsuite=Pgsql"
         env:
-          YII_PGSQL_DATABASE: ar-test
-          YII_PGSQL_HOST: 127.0.0.1
-          YII_PGSQL_PORT: 5432
-          YII_PGSQL_USER: yii
-          YII_PGSQL_PASSWORD: q1w2e3r4
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

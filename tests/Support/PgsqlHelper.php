@@ -8,6 +8,8 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Pgsql\Connection;
 use Yiisoft\Db\Pgsql\Driver;
 
+use function getenv;
+
 final class PgsqlHelper extends ConnectionHelper
 {
     public function createConnection(): ConnectionInterface

@@ -8,6 +8,8 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Mysql\Connection;
 use Yiisoft\Db\Mysql\Driver;
 
+use function getenv;
+
 final class MysqlHelper extends ConnectionHelper
 {
     public function createConnection(): ConnectionInterface

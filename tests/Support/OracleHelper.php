@@ -9,6 +9,8 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Oracle\Connection;
 use Yiisoft\Db\Oracle\Driver;
 
+use function getenv;
+
 final class OracleHelper extends ConnectionHelper
 {
     public function createConnection(): ConnectionInterface
