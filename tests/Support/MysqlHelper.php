@@ -14,11 +14,11 @@ final class MysqlHelper extends ConnectionHelper
 {
     public function createConnection(): ConnectionInterface
     {
-        $database = getenv('YII_MYSQL_DATABASE') ?: 'ar-test';
-        $host = getenv('YII_MYSQL_HOST') ?: '127.0.0.1';
-        $port = getenv('YII_MYSQL_PORT') ?: '3306';
-        $user = getenv('YII_MYSQL_USER') ?: 'yii';
-        $password = getenv('YII_MYSQL_PASSWORD') ?: 'q1w2e3r4';
+        $database = getenv('YII_MYSQL_DATABASE');
+        $host = getenv('YII_MYSQL_HOST');
+        $port = getenv('YII_MYSQL_PORT');
+        $user = getenv('YII_MYSQL_USER');
+        $password = getenv('YII_MYSQL_PASSWORD');
 
         $pdoDriver = new Driver("mysql:host=$host;dbname=$database;port=$port", $user, $password);
         $pdoDriver->charset('UTF8MB4');
