@@ -1631,4 +1631,18 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame($newOrder, $updatedOrders[$expectedIndex]);
         $this->assertCount(\count($existingOrders) + 1, $updatedOrders);
     }
+
+    public function testMarkPropertyChanged(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+        $this->assertFalse($customer->isPropertyChanged('name'));
+
+        $customer->markPropertyChanged('name');
+        $this->assertTrue($customer->isPropertyChanged('name'));
+
+        $affectedRows = $customer->update();
+        $this->assertSame(1, $affectedRows);
+    }
 }
