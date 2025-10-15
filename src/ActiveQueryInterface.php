@@ -21,6 +21,8 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  * represents a relation between two active record classes and will return related records only.
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
+ *
+ * @psalm-type Via = array{string, ActiveQueryInterface, bool}|ActiveQueryInterface
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -397,11 +399,13 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * It's used to set the query options for the query.
      *
-     * @param array $value The columns of the primary and foreign tables that establish a relation.
+     * @param string[] $value The columns of the primary and foreign tables that establish a relation.
      * The array keys must be columns of the table for this relation, and the array values must be the corresponding
      * columns from the primary table.
      * Don't prefix or quote the column names as Yii will do this automatically.
      * This property is only used in relational context.
+     *
+     * @psalm-param array<string, string> $value
      */
     public function link(array $value): static;
 
@@ -417,11 +421,13 @@ interface ActiveQueryInterface extends QueryInterface
 
     /**
      * @return ActiveQueryInterface|array|null The query associated with the junction table.
-     * Please call {@see Actiquery::via} to set this property instead of directly setting it.
+     * Please call {@see via()} to set this property instead of directly setting it.
      *
      * This property is only used in relational context.
      *
-     * @see Actiquery::via
+     * @see via()
+     *
+     * @psalm-return Via|null
      */
     public function getVia(): array|self|null;
 

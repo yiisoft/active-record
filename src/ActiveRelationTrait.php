@@ -12,6 +12,7 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Value\ArrayValue;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\QueryBuilder\Condition\In;
 use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
 use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
@@ -32,19 +33,24 @@ use function count;
 use function is_array;
 use function is_object;
 use function is_string;
-use function key;
 use function reset;
 use function serialize;
 
 /**
- * ActiveRelationTrait implements the common methods and properties for active record relational queries.
+ * `ActiveRelationTrait` implements the common methods and properties for active record relational queries.
+ *
+ * @psalm-require-implements ActiveQueryInterface
+ *
+ * @psalm-import-type Via from ActiveQueryInterface
+ * @psalm-import-type IndexBy from QueryInterface
  */
 trait ActiveRelationTrait
 {
     private bool $multiple = false;
     private ActiveRecordInterface|null $primaryModel = null;
-    /** @psalm-var string[] */
+    /** @psalm-var array<string, string> */
     private array $link = [];
+
     /**
      * @var string|null the name of the relation that is the inverse of this relation.
      *
@@ -61,10 +67,11 @@ trait ActiveRelationTrait
      */
     private string|null $inverseOf = null;
     /**
-     * @var ActiveQueryInterface|array|null the relation associated with the junction table.
-     * @psalm-var array{string, ActiveQueryInterface, bool}|ActiveQueryInterface|null
+     * @var ActiveQueryInterface|array|null The relation associated with the junction table.
+     * @psalm-var Via|null
      */
     private array|ActiveQueryInterface|null $via = null;
+    /** @psalm-var array<array<true>> */
     private array $viaMap = [];
 
     /**
@@ -383,11 +390,17 @@ trait ActiveRelationTrait
         }
     }
 
+    /**
+     * @psalm-param list<ActiveRecordInterface|array> $models
+     * @psalm-param list<ActiveRecordInterface|array>|null $viaModels
+     * @psalm-return array<list<ActiveRecordInterface|array>>|array<ActiveRecordInterface|array>
+     */
     private function buildBuckets(
         array $models,
         array|null $viaModels = null,
         self|null $viaQuery = null
     ): array {
+        $map = null;
         if ($viaModels !== null) {
             $map = [];
             $linkValues = $this->link;
@@ -402,6 +415,7 @@ trait ActiveRelationTrait
             }
 
             if (!empty($map)) {
+                /** @psalm-var array<array<true>> $map */
                 $map = array_replace_recursive(...$map);
             }
 
@@ -411,13 +425,12 @@ trait ActiveRelationTrait
             }
 
             while ($viaVia) {
-                /**
-                 * @var ActiveQuery $viaViaQuery
-                 *
-                 * @psalm-suppress RedundantCondition
-                 */
+                /** @var self $viaViaQuery */
                 $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
-                $map = $this->mapVia($map, $viaViaQuery->viaMap);
+                $map = array_map(
+                    static fn (array $item) => array_replace(...array_intersect_key($viaViaQuery->viaMap, $item)),
+                    $map,
+                );
 
                 $viaVia = $viaViaQuery->getVia();
             }
@@ -426,7 +439,7 @@ trait ActiveRelationTrait
         $buckets = [];
         $linkKeys = array_keys($this->link);
 
-        if (isset($map)) {
+        if ($map !== null) {
             foreach ($models as $model) {
                 $keys = $this->getModelKeys($model, $linkKeys);
                 /** @var bool[][] $filtered */
@@ -439,8 +452,8 @@ trait ActiveRelationTrait
         } else {
             foreach ($models as $model) {
                 $keys = $this->getModelKeys($model, $linkKeys);
-
                 foreach ($keys as $key) {
+                    /** @psalm-suppress MixedArrayOffset */
                     $buckets[$key][] = $model;
                 }
             }
@@ -456,22 +469,14 @@ trait ActiveRelationTrait
         return $buckets;
     }
 
-    private function mapVia(array $map, array $viaMap): array
-    {
-        $resultMap = [];
-
-        foreach ($map as $key => $linkKeys) {
-            $resultMap[$key] = array_replace(...array_intersect_key($viaMap, $linkKeys));
-        }
-
-        return $resultMap;
-    }
-
     /**
      * Indexes buckets by a column name.
      *
      * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a {@see Closure} that returns the index value based on the given models data.
+     *
+     * @psalm-param array<string, list<ActiveRecordInterface|array>> $buckets
+     * @psalm-param IndexBy $indexBy
      */
     private function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
@@ -612,6 +617,10 @@ trait ActiveRelationTrait
         $this->andWhere(new In($columnNames, $values));
     }
 
+    /**
+     * @psalm-param array<string> $properties
+     * @psalm-return array<string|int>
+     */
     private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
     {
         $key = [];
@@ -619,6 +628,7 @@ trait ActiveRelationTrait
         if (is_array($model)) {
             foreach ($properties as $property) {
                 if (isset($model[$property])) {
+                    /** @var array<string|int>|string */
                     $key[] = is_array($model[$property])
                         ? $model[$property]
                         : (string) $model[$property];
@@ -627,8 +637,8 @@ trait ActiveRelationTrait
         } else {
             foreach ($properties as $property) {
                 $value = $model->get($property);
-
                 if ($value !== null) {
+                    /** @var array<string|int>|string */
                     $key[] = is_array($value)
                         ? $value
                         : (string) $value;
@@ -685,6 +695,9 @@ trait ActiveRelationTrait
         return $this->link;
     }
 
+    /**
+     * @psalm-return Via|null
+     */
     public function getVia(): array|ActiveQueryInterface|null
     {
         return $this->via;
@@ -704,10 +717,12 @@ trait ActiveRelationTrait
         return $this;
     }
 
+    /**
+     * @psalm-param array<string, string> $value
+     */
     public function link(array $value): static
     {
         $this->link = $value;
-
         return $this;
     }
 }

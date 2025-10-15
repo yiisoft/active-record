@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use RuntimeException;
 use Traversable;
 use Yiisoft\Db\Query\QueryInterface;
 
@@ -108,6 +109,11 @@ final class ArArrayHelper
 
         if (!empty($key) && ($pos = strrpos($key, '.')) !== false) {
             $array = self::getValueByPath($array, substr($key, 0, $pos), $default);
+            if (!is_array($array) && !($array instanceof ActiveRecordInterface)) {
+                throw new RuntimeException(
+                    'Trying to get property of non-array or non-ActiveRecordInterface instance.',
+                );
+            }
             $key = substr($key, $pos + 1);
 
             return self::getValueByPath($array, $key, $default);
