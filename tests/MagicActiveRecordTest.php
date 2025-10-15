@@ -7,6 +7,8 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use DivisionByZeroError;
+use PHPUnit\Framework\Attributes\DataProvider;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
@@ -848,5 +850,139 @@ abstract class MagicActiveRecordTest extends TestCase
         $newItem->set('name', 'New name');
 
         $this->assertTrue($newItem->isChanged());
+    }
+
+    public function testGettingWriteOnlyProperty(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Getting write-only property: ' . Customer::class . '::ordersReadOnly'
+        );
+        $customer->ordersReadOnly;
+    }
+
+    public function testUnsetPropertyWithDependentRelations(): void
+    {
+        $orderItem = new OrderItem();
+        $orderItem->order_id = 1;
+        $orderItem->item_id = 2;
+
+        $order = $orderItem->order;
+        $this->assertNotNull($order);
+        $this->assertEquals(1, $order->id);
+        $this->assertTrue($orderItem->isRelationPopulated('order'));
+
+        unset($orderItem->order_id);
+
+        $this->assertFalse($orderItem->isRelationPopulated('order'));
+        $this->assertNull($orderItem->order_id);
+    }
+
+    public function testUnsetPopulatedRelation(): void
+    {
+        $customerQuery = Customer::query();
+        $customer = $customerQuery->findByPk(1);
+
+        $orders = $customer->orders;
+        $this->assertNotEmpty($orders);
+        $this->assertTrue($customer->isRelationPopulated('orders'));
+
+        unset($customer->orders);
+
+        $this->assertFalse($customer->isRelationPopulated('orders'));
+    }
+
+    public function testSettingUnknownProperty(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(UnknownPropertyException::class);
+        $this->expectExceptionMessage(
+            'Setting unknown property: ' . Customer::class . '::nonExistentProperty'
+        );
+        $customer->nonExistentProperty = 'value';
+    }
+
+    public static function dataIsProperty(): array
+    {
+        return [
+            'table column property' => [true, 'name'],
+            'another table column' => [true, 'email'],
+            'relation query' => [true, 'profile'],
+            'setter only' => [true, 'ordersReadOnly'],
+            'public class property' => [true, 'status2'],
+            'another public class property' => [true, 'sumTotal'],
+            'non-existent property' => [false, 'nonExistent'],
+        ];
+    }
+
+    #[DataProvider('dataIsProperty')]
+    public function testIsProperty(bool $expected, string $name): void
+    {
+        $customer = new Customer();
+
+        $this->assertSame($expected, $customer->isProperty($name));
+    }
+
+    public static function dataIsPropertyWithoutCheckVars(): array
+    {
+        return [
+            'table column property' => [true, 'name'],
+            'another table column' => [true, 'email'],
+            'relation query' => [true, 'profile'],
+            'setter only' => [true, 'ordersReadOnly'],
+            'public class property' => [false, 'status2'],
+            'another public class property' => [false, 'sumTotal'],
+            'non-existent property' => [false, 'nonExistent'],
+        ];
+    }
+
+    #[DataProvider('dataIsPropertyWithoutCheckVars')]
+    public function testIsPropertyWithoutCheckVars(bool $expected, string $name): void
+    {
+        $customer = new Customer();
+
+        $this->assertSame($expected, $customer->isProperty($name, false));
+    }
+
+    public function testRelationQueryNonExistentRelation(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Customer::class . ' has no relation named "nonExistentRelation".'
+        );
+        $customer->relationQuery('nonExistentRelation');
+    }
+
+    public function testRelationQueryInvalidReturnType(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Relation query method "'
+            . Customer::class
+            . '::getItemQuery()" should return type "'
+            . ActiveQueryInterface::class
+            . '", but  returns "void" type.'
+        );
+        $customer->relationQuery('item');
+    }
+
+    public function testRelationQueryCaseSensitive(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Relation names are case sensitive. '
+            . Customer::class
+            . ' has a relation named "profile" instead of "Profile".'
+        );
+        $customer->relationQuery('Profile');
     }
 }
