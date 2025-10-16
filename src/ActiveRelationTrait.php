@@ -475,7 +475,7 @@ trait ActiveRelationTrait
      * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a {@see Closure} that returns the index value based on the given models data.
      *
-     * @psalm-param array<string, list<ActiveRecordInterface|array>> $buckets
+     * @psalm-param array<list<ActiveRecordInterface|array>> $buckets
      * @psalm-param IndexBy $indexBy
      */
     private function indexBuckets(array $buckets, Closure|string $indexBy): array
