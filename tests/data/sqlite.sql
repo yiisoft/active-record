@@ -437,3 +437,26 @@ CREATE TABLE "article_comment" (
 
 INSERT INTO "article" (id, title, slug) VALUES (1, 'First Article', 'first-article');
 INSERT INTO "article" (id, title, slug) VALUES (2, 'Second Article', 'second-article');
+
+DROP TABLE IF EXISTS "uuid_promotion";
+DROP TABLE IF EXISTS "uuid_item";
+
+CREATE TABLE "uuid_item" (
+  id VARCHAR(36) NOT NULL,
+  name VARCHAR(128) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE "uuid_promotion" (
+  id VARCHAR(36) NOT NULL,
+  json_item_ids JSON NOT NULL,
+  title VARCHAR(128) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+INSERT INTO "uuid_item" (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440001', 'UUID Item 1');
+INSERT INTO "uuid_item" (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440002', 'UUID Item 2');
+
+INSERT INTO "uuid_promotion" (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440001', '["650e8400-e29b-41d4-a716-446655440001","650e8400-e29b-41d4-a716-446655440002"]', 'UUID Promo: Both Items');
+INSERT INTO "uuid_promotion" (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440002', '["650e8400-e29b-41d4-a716-446655440001"]', 'UUID Promo: Item 1 Only');
+INSERT INTO "uuid_promotion" (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440003', '[]', 'UUID Promo: No Items');
