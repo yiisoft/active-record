@@ -34,7 +34,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UuidPromotion;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UuidItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Article;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
