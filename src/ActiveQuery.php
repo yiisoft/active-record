@@ -290,6 +290,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if (count($pks) === 1) {
+            /** @psalm-var non-empty-list<string|int> $hash */
             $hash = array_column($rows, reset($pks));
         } else {
             $flippedPks = array_flip($pks);
@@ -299,7 +300,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             );
         }
 
-        /** @psalm-var non-empty-list<array> */
         return array_values(array_combine($hash, $rows));
     }
 

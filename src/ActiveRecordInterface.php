@@ -330,9 +330,9 @@ interface ActiveRecordInterface
     public static function query(self|string|null $modelClass = null): ActiveQueryInterface;
 
     /**
-     * Returns the primary key name(s) for this AR class.
+     * Returns the primary key names for this AR class.
      *
-     * The default implementation will return the primary key(s) as declared in the DB table that's associated with
+     * The default implementation will return the primary keys as declared in the DB table that's associated with
      * this AR class.
      *
      * If the DB table doesn't declare any primary key, you should override this method to return the property names
