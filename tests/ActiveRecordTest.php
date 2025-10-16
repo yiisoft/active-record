@@ -1184,7 +1184,7 @@ abstract class ActiveRecordTest extends TestCase
         /** @var UuidPromotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaJsonIndexed')->all();
 
-        $items0 = $promotions[1]->getItemsViaJsonIndexed();
+        $items0 = $promotions[0]->getItemsViaJsonIndexed();
         $this->assertArrayHasKey('650e8400-e29b-41d4-a716-446655440001', $items0);
         $this->assertArrayHasKey('650e8400-e29b-41d4-a716-446655440002', $items0);
         $this->assertCount(2, $items0);
