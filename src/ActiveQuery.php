@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Command\CommandInterface;
@@ -24,6 +25,7 @@ use function array_column;
 use function array_combine;
 use function array_flip;
 use function array_intersect_key;
+use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function array_values;
@@ -113,6 +115,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private ActiveRecordInterface $model;
     private string|null $sql = null;
     private array|string|null $on = null;
+
+    /**
+     * @psalm-var list<list{array<string|Closure>, (array|bool), array|string}>
+     */
     private array $joinWith = [];
 
     /**

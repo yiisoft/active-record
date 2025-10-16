@@ -174,6 +174,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @param array|string $joinType The join type of the relations specified in `$with`.  When this is a string, it
      * applies to all relations specified in `$with`. Use an array in the format of `relationName => joinType` to
      * specify different join types for different relations.
+     *
+     * @psalm-param array<string|Closure>|string $with
      */
     public function joinWith(
         array|string $with,
