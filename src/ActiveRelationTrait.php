@@ -7,33 +7,23 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
 use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
-use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Expression\Value\ArrayValue;
-use Yiisoft\Db\QueryBuilder\Condition\In;
-use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
-use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
 
 use function array_column;
 use function array_combine;
-use function array_diff_key;
 use function array_fill_keys;
-use function array_filter;
 use function array_flip;
 use function array_intersect_key;
-use function array_key_first;
 use function array_keys;
 use function array_merge;
-use function array_unique;
 use function array_values;
 use function count;
 use function is_array;
 use function is_object;
-use function is_string;
-use function key;
 use function reset;
 use function serialize;
 
@@ -243,7 +233,7 @@ trait ActiveRelationTrait
     {
         if ($this->via instanceof ActiveQueryInterface) {
             $viaQuery = $this->via;
-            $viaModels = $this->findJunctionRows($viaQuery, $primaryModels);
+            $viaModels = JunctionRowsFinder::find($viaQuery, $primaryModels);
             ModelRelationFilter::apply($this, $viaModels);
         } elseif (is_array($this->via)) {
             [$viaName, $viaQuery] = $this->via;
@@ -513,24 +503,6 @@ trait ActiveRelationTrait
             1 => is_array($key[0]) ? $key[0] : [$key[0]],
             default => [serialize($key)],
         };
-    }
-
-    /**
-     * @param ActiveRecordInterface[]|array[] $primaryModels either array of AR instances or arrays.
-     *
-     * @throws Exception
-     * @throws Throwable
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     * @return array[]
-     *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     */
-    private function findJunctionRows(ActiveQueryInterface $query, array $primaryModels): array
-    {
-        ModelRelationFilter::apply($query, $primaryModels);
-
-        /** @var array[] */
-        return $query->asArray()->all();
     }
 
     public function getMultiple(): bool
