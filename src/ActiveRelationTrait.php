@@ -329,6 +329,7 @@ trait ActiveRelationTrait
     /**
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      *
+     * @psalm-param list<ActiveRecordInterface|array> $models
      * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
      */
     private function populateInverseRelation(
@@ -358,11 +359,16 @@ trait ActiveRelationTrait
         $relation->populateRelationFromBuckets($models, $buckets, $name, $link);
     }
 
+    /**
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param array<list<ActiveRecordInterface|array>>|array<ActiveRecordInterface|array> $buckets
+     * @psalm-param array<string,string> $link
+     */
     private function populateRelationFromBuckets(
         array &$models,
         array $buckets,
         string $name,
-        array $link
+        array $link,
     ): void {
         $indexBy = $this->getIndexBy();
         $default = $this->multiple ? [] : null;
@@ -386,7 +392,6 @@ trait ActiveRelationTrait
             if ($model instanceof ActiveRecordInterface) {
                 $model->populateRelation($name, $value);
             } else {
-                /** @var array $model */
                 $model[$name] = $value;
             }
         }
@@ -479,6 +484,7 @@ trait ActiveRelationTrait
      *
      * @psalm-param array<list<ActiveRecordInterface|array>> $buckets
      * @psalm-param IndexBy $indexBy
+     * @psalm-return array<list<ActiveRecordInterface|array>>
      */
     private function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
