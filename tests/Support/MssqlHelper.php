@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Support;
 
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Mssql\Column\ColumnFactory;
 use Yiisoft\Db\Mssql\Connection;
 use Yiisoft\Db\Mssql\Driver;
 
@@ -27,6 +29,16 @@ final class MssqlHelper extends ConnectionHelper
         );
         $pdoDriver->charset('UTF8');
 
-        return new Connection($pdoDriver, $this->createSchemaCache());
+        return new Connection(
+            $pdoDriver,
+            $this->createSchemaCache(),
+            new ColumnFactory([
+                'nvarchar' => function (string $dbType, array &$info): string|null {
+                    return $info['table'] === 'uuid_promotion'
+                        ? ColumnType::JSON
+                        : null;
+                },
+            ]),
+        );
     }
 }

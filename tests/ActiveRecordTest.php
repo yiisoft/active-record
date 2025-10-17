@@ -1155,10 +1155,6 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationViaJsonUuid(): void
     {
-        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
-            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
-        }
-
         $promotionQuery = UuidPromotion::query();
         /** @var UuidPromotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaJson')->all();
@@ -1176,10 +1172,6 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationViaJsonUuidIndexBy(): void
     {
-        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
-            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
-        }
-
         $promotionQuery = UuidPromotion::query();
         /** @var UuidPromotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaJsonIndexed')->all();
