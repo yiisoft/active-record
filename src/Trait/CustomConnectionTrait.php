@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Trait;
 
 use Yiisoft\ActiveRecord\AbstractActiveRecord;
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Connection\ConnectionProvider;
 
 /**
  * Trait to implement a custom connection name for ActiveRecord.
