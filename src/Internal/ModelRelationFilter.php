@@ -37,6 +37,7 @@ final class ModelRelationFilter
         $values = [];
 
         if (count($columnNames) === 1) {
+            /** @var string $linkedProperty Single key */
             $linkedProperty = reset($link);
 
             if ($model instanceof ActiveRecordInterface) {
