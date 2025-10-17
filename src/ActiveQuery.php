@@ -242,7 +242,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return [];
         }
 
-        if (!empty($this->join) && $this->indexBy === null) {
+        if (!empty($this->joins) && $this->indexBy === null) {
             $rows = $this->removeDuplicatedRows($rows);
         }
 
@@ -415,9 +415,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function buildJoinWith(): void
     {
-        $join = $this->join;
+        $joins = $this->joins;
 
-        $this->join = [];
+        $this->joins = [];
 
         $model = $this->getModel();
 
@@ -447,30 +447,30 @@ class ActiveQuery extends Query implements ActiveQueryInterface
          */
         $uniqueJoins = [];
 
-        foreach ($this->join as $j) {
-            $uniqueJoins[serialize($j)] = $j;
+        foreach ($this->joins as $join) {
+            $uniqueJoins[serialize($join)] = $join;
         }
-        $this->join = array_values($uniqueJoins);
+        $this->joins = array_values($uniqueJoins);
 
         /**
          * @link https://github.com/yiisoft/yii2/issues/16092
          */
         $uniqueJoinsByTableName = [];
 
-        foreach ($this->join as $config) {
-            $tableName = serialize($config[1]);
+        foreach ($this->joins as $join) {
+            $tableName = serialize($join[1]);
             if (!array_key_exists($tableName, $uniqueJoinsByTableName)) {
-                $uniqueJoinsByTableName[$tableName] = $config;
+                $uniqueJoinsByTableName[$tableName] = $join;
             }
         }
 
-        $this->join = array_values($uniqueJoinsByTableName);
+        $this->joins = array_values($uniqueJoinsByTableName);
 
-        if (!empty($join)) {
+        if (!empty($joins)) {
             /**
              * Append explicit join to {@see joinWith()} {@link https://github.com/yiisoft/yii2/issues/2880}
              */
-            $this->join = empty($this->join) ? $join : array_merge($this->join, $join);
+            $this->joins = empty($this->joins) ? $joins : array_merge($this->joins, $joins);
         }
     }
 
@@ -683,7 +683,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         if (!empty($child->getJoins())) {
             foreach ($child->getJoins() as $join) {
-                $this->join[] = $join;
+                $this->joins[] = $join;
             }
         }
 
@@ -869,7 +869,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->distinct($this->distinct)
             ->from($this->from)
             ->groupBy($this->groupBy)
-            ->setJoins($this->join)
+            ->setJoins($this->joins)
             ->having($this->having)
             ->setUnions($this->union)
             ->params($this->params)
