@@ -33,11 +33,9 @@ final class MssqlHelper extends ConnectionHelper
             $pdoDriver,
             $this->createSchemaCache(),
             new ColumnFactory([
-                'nvarchar' => function (string $dbType, array &$info): string|null {
-                    return $info['table'] === 'uuid_promotion'
-                        ? ColumnType::JSON
-                        : null;
-                },
+                'nvarchar' => fn(string $dbType, array &$info): string|null => $info['table'] === 'uuid_promotion'
+                    ? ColumnType::JSON
+                    : null,
             ]),
         );
     }
