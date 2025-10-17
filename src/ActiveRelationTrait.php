@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
@@ -243,7 +244,7 @@ trait ActiveRelationTrait
         if ($this->via instanceof ActiveQueryInterface) {
             $viaQuery = $this->via;
             $viaModels = $this->findJunctionRows($viaQuery, $primaryModels);
-            $this->filterByModels($this, $viaModels);
+            ModelRelationFilter::apply($this, $viaModels);
         } elseif (is_array($this->via)) {
             [$viaName, $viaQuery] = $this->via;
 
@@ -254,9 +255,9 @@ trait ActiveRelationTrait
 
             $viaQuery->primaryModel(null);
             $viaModels = $viaQuery->populateRelation($viaName, $primaryModels);
-            $this->filterByModels($this, $viaModels);
+            ModelRelationFilter::apply($this, $viaModels);
         } else {
-            $this->filterByModels($this, $primaryModels);
+            ModelRelationFilter::apply($this, $primaryModels);
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
@@ -483,137 +484,6 @@ trait ActiveRelationTrait
         return $buckets;
     }
 
-    /**
-     * @param string[] $columnNames The column names to prefix.
-     *
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     *
-     * @return string[]
-     */
-    private function prefixKeyColumns(ActiveQueryInterface $query, array $columnNames): array
-    {
-        if (!empty($query->getJoins()) || !empty($query->getJoinWith())) {
-            $from = $query->getFrom();
-            if (empty($from)) {
-                $alias = $this->getModel()->tableName();
-            } else {
-                $alias = array_key_first($from);
-
-                if (!is_string($alias)) {
-                    $alias = reset($from);
-                }
-            }
-
-            foreach ($columnNames as $i => $columnName) {
-                $columnNames[$i] = "$alias.$columnName";
-            }
-        }
-
-        return $columnNames;
-    }
-
-    /**
-     * @param ActiveRecordInterface[]|array[] $models
-     *
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
-    protected function filterByModels(ActiveQueryInterface $query, array $models): void
-    {
-        $link = $query->getLink();
-        $properties = array_keys($link);
-        $columnNames = $this->prefixKeyColumns($query, $properties);
-
-        $model = reset($models);
-        $values = [];
-
-        if (count($columnNames) === 1) {
-            $linkedProperty = reset($link);
-
-            if ($model instanceof ActiveRecordInterface) {
-                /** @var ActiveRecordInterface $model */
-                foreach ($models as $model) {
-                    $value = $model->get($linkedProperty);
-
-                    if ($value !== null) {
-                        if (is_array($value)) {
-                            $values = [...$values, ...$value];
-                        } else {
-                            $values[] = $value;
-                        }
-                    }
-                }
-            } else {
-                /** @var array $model */
-                foreach ($models as $model) {
-                    if (isset($model[$linkedProperty])) {
-                        $value = $model[$linkedProperty];
-
-                        if (is_array($value)) {
-                            $values = [...$values, ...$value];
-                        } else {
-                            $values[] = $value;
-                        }
-                    }
-                }
-            }
-
-            if (empty($values)) {
-                $query->emulateExecution();
-                $query->andWhere('1=0');
-                return;
-            }
-
-            $scalarValues = array_filter($values, is_scalar(...));
-            $nonScalarValues = array_diff_key($values, $scalarValues);
-
-            $scalarValues = array_unique($scalarValues);
-            $values = [...$scalarValues, ...$nonScalarValues];
-
-            $columnName = reset($columnNames);
-            /** @var string $propertyName */
-            $propertyName = array_key_first($link);
-            $column = $query->getModel()->column($propertyName);
-
-            match ($column->getType()) {
-                ColumnType::ARRAY => $query->andWhere(new ArrayOverlaps($columnName, new ArrayValue($values, $column))),
-                ColumnType::JSON => $query->andWhere(new JsonOverlaps($columnName, $values)),
-                default => $query->andWhere(new In($columnName, $values)),
-            };
-
-            return;
-        }
-
-        $nulls = array_fill_keys($link, null);
-
-        if ($model instanceof ActiveRecordInterface) {
-            /** @var ActiveRecordInterface $model */
-            foreach ($models as $model) {
-                $value = $model->propertyValues($query->getLink());
-
-                if (!empty($value)) {
-                    $values[] = array_combine($columnNames, array_merge($nulls, $value));
-                }
-            }
-        } else {
-            /** @var array $model */
-            foreach ($models as $model) {
-                $value = array_intersect_key($model, $nulls);
-
-                if (!empty($value)) {
-                    $values[] = array_combine($columnNames, array_merge($nulls, $value));
-                }
-            }
-        }
-
-        if (empty($values)) {
-            $query->emulateExecution();
-            $query->andWhere('1=0');
-            return;
-        }
-
-        $query->andWhere(new In($columnNames, $values));
-    }
-
     private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
     {
         $key = [];
@@ -657,7 +527,7 @@ trait ActiveRelationTrait
      */
     private function findJunctionRows(ActiveQueryInterface $query, array $primaryModels): array
     {
-        $this->filterByModels($query, $primaryModels);
+        ModelRelationFilter::apply($query, $primaryModels);
 
         /** @var array[] */
         return $query->asArray()->all();
