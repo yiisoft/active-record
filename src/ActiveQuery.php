@@ -178,9 +178,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             if ($this->via instanceof ActiveQueryInterface) {
                 /** via junction table */
                 /** @var self $this->via */
-                $viaModels = $this->via->findJunctionRows([$this->primaryModel]);
+                $viaModels = $this->findJunctionRows($this->via, [$this->primaryModel]);
 
-                $this->filterByModels($viaModels);
+                $this->filterByModels($this, $viaModels);
             } elseif (is_array($this->via)) {
                 [$viaName, $viaQuery, $viaCallableUsed] = $this->via;
 
@@ -205,9 +205,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     }
                     $viaModels = $model === null ? [] : [$model];
                 }
-                $this->filterByModels($viaModels);
+                $this->filterByModels($this, $viaModels);
             } else {
-                $this->filterByModels([$this->primaryModel]);
+                $this->filterByModels($this, [$this->primaryModel]);
             }
 
             $query = $this->createInstance();

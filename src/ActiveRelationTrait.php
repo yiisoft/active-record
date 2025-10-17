@@ -241,10 +241,9 @@ trait ActiveRelationTrait
     public function populateRelation(string $name, array &$primaryModels): array
     {
         if ($this->via instanceof ActiveQueryInterface) {
-            /** @var self $viaQuery */
             $viaQuery = $this->via;
-            $viaModels = $viaQuery->findJunctionRows($primaryModels);
-            $this->filterByModels($viaModels);
+            $viaModels = $this->findJunctionRows($viaQuery, $primaryModels);
+            $this->filterByModels($this, $viaModels);
         } elseif (is_array($this->via)) {
             [$viaName, $viaQuery] = $this->via;
 
@@ -255,9 +254,9 @@ trait ActiveRelationTrait
 
             $viaQuery->primaryModel(null);
             $viaModels = $viaQuery->populateRelation($viaName, $primaryModels);
-            $this->filterByModels($viaModels);
+            $this->filterByModels($this, $viaModels);
         } else {
-            $this->filterByModels($primaryModels);
+            $this->filterByModels($this, $primaryModels);
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
@@ -491,16 +490,17 @@ trait ActiveRelationTrait
      *
      * @return string[]
      */
-    private function prefixKeyColumns(array $columnNames): array
+    private function prefixKeyColumns(ActiveQueryInterface $query, array $columnNames): array
     {
-        if (!empty($this->join) || !empty($this->joinWith)) {
-            if (empty($this->from)) {
+        if (!empty($query->getJoins()) || !empty($query->getJoinWith())) {
+            $from = $query->getFrom();
+            if (empty($from)) {
                 $alias = $this->getModel()->tableName();
             } else {
-                $alias = array_key_first($this->from);
+                $alias = array_key_first($from);
 
                 if (!is_string($alias)) {
-                    $alias = reset($this->from);
+                    $alias = reset($from);
                 }
             }
 
@@ -517,17 +517,17 @@ trait ActiveRelationTrait
      *
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      */
-    protected function filterByModels(array $models): void
+    protected function filterByModels(ActiveQueryInterface $query, array $models): void
     {
-        $properties = array_keys($this->link);
-        $columnNames = $this->prefixKeyColumns($properties);
+        $link = $query->getLink();
+        $properties = array_keys($link);
+        $columnNames = $this->prefixKeyColumns($query, $properties);
 
         $model = reset($models);
         $values = [];
 
         if (count($columnNames) === 1) {
-            /** @var string $linkedProperty single key */
-            $linkedProperty = reset($this->link);
+            $linkedProperty = reset($link);
 
             if ($model instanceof ActiveRecordInterface) {
                 /** @var ActiveRecordInterface $model */
@@ -558,8 +558,8 @@ trait ActiveRelationTrait
             }
 
             if (empty($values)) {
-                $this->emulateExecution();
-                $this->andWhere('1=0');
+                $query->emulateExecution();
+                $query->andWhere('1=0');
                 return;
             }
 
@@ -571,24 +571,24 @@ trait ActiveRelationTrait
 
             $columnName = reset($columnNames);
             /** @var string $propertyName */
-            $propertyName = array_key_first($this->link);
-            $column = $this->getModel()->column($propertyName);
+            $propertyName = array_key_first($link);
+            $column = $query->getModel()->column($propertyName);
 
             match ($column->getType()) {
-                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, new ArrayValue($values, $column))),
-                ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
-                default => $this->andWhere(new In($columnName, $values)),
+                ColumnType::ARRAY => $query->andWhere(new ArrayOverlaps($columnName, new ArrayValue($values, $column))),
+                ColumnType::JSON => $query->andWhere(new JsonOverlaps($columnName, $values)),
+                default => $query->andWhere(new In($columnName, $values)),
             };
 
             return;
         }
 
-        $nulls = array_fill_keys($this->link, null);
+        $nulls = array_fill_keys($link, null);
 
         if ($model instanceof ActiveRecordInterface) {
             /** @var ActiveRecordInterface $model */
             foreach ($models as $model) {
-                $value = $model->propertyValues($this->link);
+                $value = $model->propertyValues($query->getLink());
 
                 if (!empty($value)) {
                     $values[] = array_combine($columnNames, array_merge($nulls, $value));
@@ -606,12 +606,12 @@ trait ActiveRelationTrait
         }
 
         if (empty($values)) {
-            $this->emulateExecution();
-            $this->andWhere('1=0');
+            $query->emulateExecution();
+            $query->andWhere('1=0');
             return;
         }
 
-        $this->andWhere(new In($columnNames, $values));
+        $query->andWhere(new In($columnNames, $values));
     }
 
     private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
@@ -655,12 +655,12 @@ trait ActiveRelationTrait
      *
      * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
      */
-    private function findJunctionRows(array $primaryModels): array
+    private function findJunctionRows(ActiveQueryInterface $query, array $primaryModels): array
     {
-        $this->filterByModels($primaryModels);
+        $this->filterByModels($query, $primaryModels);
 
         /** @var array[] */
-        return $this->asArray()->all();
+        return $query->asArray()->all();
     }
 
     public function getMultiple(): bool
