@@ -493,7 +493,7 @@ trait ActiveRelationTrait
      */
     private function prefixKeyColumns(array $columnNames): array
     {
-        if (!empty($this->join) || !empty($this->joinWith)) {
+        if (!empty($this->joins) || !empty($this->joinWith)) {
             if (empty($this->from)) {
                 $alias = $this->getModel()->tableName();
             } else {
