@@ -1196,7 +1196,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(1, $items1);
         $this->assertSame('UUID Item 1', $items1['650e8400-e29b-41d4-a716-446655440001']->name);
 
-        $this->assertCount(0, $promotions[2]->getItemsViaJsonIndexed());
+        $this->assertSame([], $promotions[2]->getItemsViaJsonIndexed());
     }
 
     public function testIsChanged(): void
