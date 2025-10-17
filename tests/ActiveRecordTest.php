@@ -33,6 +33,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UuidPromotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Article;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
@@ -1150,6 +1151,44 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame([2, 3], ArArrayHelper::getColumn($items[2]->getPromotionsViaJson(), 'id'));
         $this->assertSame([2], ArArrayHelper::getColumn($items[3]->getPromotionsViaJson(), 'id'));
         $this->assertSame([2], ArArrayHelper::getColumn($items[4]->getPromotionsViaJson(), 'id'));
+    }
+
+    public function testRelationViaJsonUuid(): void
+    {
+        $promotionQuery = UuidPromotion::query();
+        /** @var UuidPromotion[] $promotions */
+        $promotions = $promotionQuery->with('itemsViaJson')->all();
+
+        $this->assertSame(
+            ['650e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440002'],
+            ArArrayHelper::getColumn($promotions[0]->getItemsViaJson(), 'id')
+        );
+        $this->assertSame(
+            ['650e8400-e29b-41d4-a716-446655440001'],
+            ArArrayHelper::getColumn($promotions[1]->getItemsViaJson(), 'id')
+        );
+        $this->assertCount(0, $promotions[2]->getItemsViaJson());
+    }
+
+    public function testRelationViaJsonUuidIndexBy(): void
+    {
+        $promotionQuery = UuidPromotion::query();
+        /** @var UuidPromotion[] $promotions */
+        $promotions = $promotionQuery->with('itemsViaJsonIndexed')->all();
+
+        $items0 = $promotions[0]->getItemsViaJsonIndexed();
+        $this->assertArrayHasKey('650e8400-e29b-41d4-a716-446655440001', $items0);
+        $this->assertArrayHasKey('650e8400-e29b-41d4-a716-446655440002', $items0);
+        $this->assertCount(2, $items0);
+        $this->assertSame('UUID Item 1', $items0['650e8400-e29b-41d4-a716-446655440001']->name);
+        $this->assertSame('UUID Item 2', $items0['650e8400-e29b-41d4-a716-446655440002']->name);
+
+        $items1 = $promotions[1]->getItemsViaJsonIndexed();
+        $this->assertArrayHasKey('650e8400-e29b-41d4-a716-446655440001', $items1);
+        $this->assertCount(1, $items1);
+        $this->assertSame('UUID Item 1', $items1['650e8400-e29b-41d4-a716-446655440001']->name);
+
+        $this->assertSame([], $promotions[2]->getItemsViaJsonIndexed());
     }
 
     public function testIsChanged(): void
