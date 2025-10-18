@@ -363,16 +363,18 @@ trait ActiveRelationTrait
         foreach ($models as &$model) {
             $keys = $this->getModelKeys($model, $link);
 
-            /** @psalm-suppress NamedArgumentNotAllowed */
-            $value = match (count($keys)) {
-                0 => $default,
-                1 => $buckets[$keys[0]] ?? $default,
-                default => !$this->multiple
-                    ? $default
-                    : ($indexBy !== null
-                        ? array_replace(...array_intersect_key($buckets, array_flip($keys)))
-                        : array_merge(...array_intersect_key($buckets, array_flip($keys)))),
-            };
+            if (empty($keys)) {
+                $value = $default;
+            } elseif (count($keys) === 1) {
+                $value = $buckets[$keys[0]] ?? $default;
+            } else {
+                if ($this->multiple) {
+                    $arrays = array_values(array_intersect_key($buckets, array_flip($keys)));
+                    $value = $indexBy === null ? array_merge(...$arrays) : array_replace(...$arrays);
+                } else {
+                    $value = $default;
+                }
+            }
 
             if ($model instanceof ActiveRecordInterface) {
                 $model->populateRelation($name, $value);
@@ -491,7 +493,7 @@ trait ActiveRelationTrait
      */
     private function prefixKeyColumns(array $columnNames): array
     {
-        if (!empty($this->join) || !empty($this->joinWith)) {
+        if (!empty($this->joins) || !empty($this->joinWith)) {
             if (empty($this->from)) {
                 $alias = $this->getModel()->tableName();
             } else {

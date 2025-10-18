@@ -2,6 +2,8 @@
  * This is the database schema for testing Oracle support of Yii Active Record.
  */
 
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "uuid_promotion"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "uuid_item"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "article_comment"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "article"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "user_profile"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
@@ -517,3 +519,23 @@ CREATE TABLE "article_comment" (
 
 INSERT INTO "article" ("id", "title", "slug") VALUES (1, 'First Article', 'first-article');
 INSERT INTO "article" ("id", "title", "slug") VALUES (2, 'Second Article', 'second-article');
+
+CREATE TABLE "uuid_item" (
+  "id" VARCHAR2(36) NOT NULL,
+  "name" VARCHAR2(128) NOT NULL,
+  CONSTRAINT "uuid_item_PK" PRIMARY KEY ("id") ENABLE
+);
+
+CREATE TABLE "uuid_promotion" (
+  "id" VARCHAR2(36) NOT NULL,
+  "json_item_ids" CLOB CHECK ("json_item_ids" IS JSON),
+  "title" VARCHAR2(128) NOT NULL,
+  CONSTRAINT "uuid_promotion_PK" PRIMARY KEY ("id") ENABLE
+);
+
+INSERT INTO "uuid_item" ("id", "name") VALUES ('650e8400-e29b-41d4-a716-446655440001', 'UUID Item 1');
+INSERT INTO "uuid_item" ("id", "name") VALUES ('650e8400-e29b-41d4-a716-446655440002', 'UUID Item 2');
+
+INSERT INTO "uuid_promotion" ("id", "json_item_ids", "title") VALUES ('850e8400-e29b-41d4-a716-446655440001', '["650e8400-e29b-41d4-a716-446655440001","650e8400-e29b-41d4-a716-446655440002"]', 'UUID Promo: Both Items');
+INSERT INTO "uuid_promotion" ("id", "json_item_ids", "title") VALUES ('850e8400-e29b-41d4-a716-446655440002', '["650e8400-e29b-41d4-a716-446655440001"]', 'UUID Promo: Item 1 Only');
+INSERT INTO "uuid_promotion" ("id", "json_item_ids", "title") VALUES ('850e8400-e29b-41d4-a716-446655440003', '[]', 'UUID Promo: No Items');

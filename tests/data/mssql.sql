@@ -1,3 +1,5 @@
+IF OBJECT_ID('[dbo].[uuid_promotion]', 'U') IS NOT NULL DROP TABLE [dbo].[uuid_promotion];
+IF OBJECT_ID('[dbo].[uuid_item]', 'U') IS NOT NULL DROP TABLE [dbo].[uuid_item];
 IF OBJECT_ID('[dbo].[article_comment]', 'U') IS NOT NULL DROP TABLE [dbo].[article_comment];
 IF OBJECT_ID('[dbo].[article]', 'U') IS NOT NULL DROP TABLE [dbo].[article];
 IF OBJECT_ID('[dbo].[user_profile]', 'U') IS NOT NULL DROP TABLE [dbo].[user_profile];
@@ -460,3 +462,24 @@ SET IDENTITY_INSERT [dbo].[article] ON;
 INSERT INTO [dbo].[article] (id, title, slug) VALUES (1, 'First Article', 'first-article');
 INSERT INTO [dbo].[article] (id, title, slug) VALUES (2, 'Second Article', 'second-article');
 SET IDENTITY_INSERT [dbo].[article] OFF;
+
+CREATE TABLE [dbo].[uuid_item] (
+  [id] VARCHAR(36) NOT NULL,
+  [name] VARCHAR(128) NOT NULL,
+  CONSTRAINT [PK_uuid_item] PRIMARY KEY CLUSTERED ([id] ASC)
+);
+
+CREATE TABLE [dbo].[uuid_promotion] (
+  [id] VARCHAR(36) NOT NULL,
+  [json_item_ids] NVARCHAR(MAX) NOT NULL,
+  [title] VARCHAR(128) NOT NULL,
+  CONSTRAINT [PK_uuid_promotion] PRIMARY KEY CLUSTERED ([id] ASC),
+  CONSTRAINT [CK_uuid_promotion_json_item_ids] CHECK (ISJSON([json_item_ids]) = 1)
+);
+
+INSERT INTO [dbo].[uuid_item] (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440001', 'UUID Item 1');
+INSERT INTO [dbo].[uuid_item] (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440002', 'UUID Item 2');
+
+INSERT INTO [dbo].[uuid_promotion] (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440001', '["650e8400-e29b-41d4-a716-446655440001","650e8400-e29b-41d4-a716-446655440002"]', 'UUID Promo: Both Items');
+INSERT INTO [dbo].[uuid_promotion] (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440002', '["650e8400-e29b-41d4-a716-446655440001"]', 'UUID Promo: Item 1 Only');
+INSERT INTO [dbo].[uuid_promotion] (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440003', '[]', 'UUID Promo: No Items');

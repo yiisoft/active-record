@@ -13,6 +13,8 @@ DROP TABLE IF EXISTS `order_item_name` CASCADE;
 DROP TABLE IF EXISTS `order_item_with_null_fk` CASCADE;
 DROP TABLE IF EXISTS `item` CASCADE;
 DROP TABLE IF EXISTS `promotion` CASCADE;
+DROP TABLE IF EXISTS `uuid_promotion` CASCADE;
+DROP TABLE IF EXISTS `uuid_item` CASCADE;
 DROP TABLE IF EXISTS `order` CASCADE;
 DROP TABLE IF EXISTS `order_with_null_fk` CASCADE;
 DROP TABLE IF EXISTS `category` CASCADE;
@@ -84,6 +86,19 @@ CREATE TABLE `promotion` (
   `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `json_item_ids` json NOT NULL,
   `title` varchar(126) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `uuid_item` (
+  `id` VARCHAR(36) NOT NULL,
+  `name` VARCHAR(128) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `uuid_promotion` (
+  `id` VARCHAR(36) NOT NULL,
+  `json_item_ids` JSON NOT NULL,
+  `title` VARCHAR(128) NOT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `order` (
@@ -271,6 +286,13 @@ INSERT INTO `promotion` (json_item_ids, title) VALUES ('[1,2]', 'Discounted item
 INSERT INTO `promotion` (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals');
 INSERT INTO `promotion` (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
 INSERT INTO `promotion` (json_item_ids, title) VALUES ('[]', 'Free!');
+
+INSERT INTO `uuid_item` (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440001', 'UUID Item 1');
+INSERT INTO `uuid_item` (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440002', 'UUID Item 2');
+
+INSERT INTO `uuid_promotion` (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440001', '["650e8400-e29b-41d4-a716-446655440001","650e8400-e29b-41d4-a716-446655440002"]', 'UUID Promo: Both Items');
+INSERT INTO `uuid_promotion` (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440002', '["650e8400-e29b-41d4-a716-446655440001"]', 'UUID Promo: Item 1 Only');
+INSERT INTO `uuid_promotion` (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440003', '[]', 'UUID Promo: No Items');
 
 INSERT INTO `order` (customer_id, created_at, updated_at, total) VALUES (1, 1325282384, 1325282384, 110.0);
 INSERT INTO `order` (customer_id, created_at, updated_at, total) VALUES (2, 1325334482, 1325334482, 33.0);
