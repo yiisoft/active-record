@@ -86,7 +86,7 @@ For more information about how to configure the connection, follow [Yii Database
 
 ```php
 use Psr\Container\ContainerInterface;
-use Yiisoft\ActiveRecord\ConnectionProvider;
+use Yiisoft\Db\Connection\ConnectionProvider;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 return [
