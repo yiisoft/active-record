@@ -6,6 +6,8 @@ namespace Yiisoft\ActiveRecord;
 
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
+use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
@@ -176,11 +178,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $where = $this->getWhere();
 
             if ($this->via instanceof ActiveQueryInterface) {
-                /** via junction table */
-                /** @var self $this->via */
-                $viaModels = $this->via->findJunctionRows([$this->primaryModel]);
+                $viaModels = JunctionRowsFinder::find($this->via, [$this->primaryModel]);
 
-                $this->filterByModels($viaModels);
+                ModelRelationFilter::apply($this, $viaModels);
             } elseif (is_array($this->via)) {
                 [$viaName, $viaQuery, $viaCallableUsed] = $this->via;
 
@@ -205,9 +205,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     }
                     $viaModels = $model === null ? [] : [$model];
                 }
-                $this->filterByModels($viaModels);
+                ModelRelationFilter::apply($this, $viaModels);
             } else {
-                $this->filterByModels([$this->primaryModel]);
+                ModelRelationFilter::apply($this, [$this->primaryModel]);
             }
 
             $query = $this->createInstance();

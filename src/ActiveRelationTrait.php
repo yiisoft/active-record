@@ -7,32 +7,23 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
-use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
+use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\Expression\Value\ArrayValue;
-use Yiisoft\Db\QueryBuilder\Condition\In;
-use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
-use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
 
 use function array_column;
 use function array_combine;
-use function array_diff_key;
 use function array_fill_keys;
-use function array_filter;
 use function array_flip;
 use function array_intersect_key;
-use function array_key_first;
 use function array_keys;
 use function array_merge;
-use function array_unique;
 use function array_values;
 use function count;
 use function is_array;
 use function is_object;
-use function is_string;
-use function key;
 use function reset;
 use function serialize;
 
@@ -241,10 +232,9 @@ trait ActiveRelationTrait
     public function populateRelation(string $name, array &$primaryModels): array
     {
         if ($this->via instanceof ActiveQueryInterface) {
-            /** @var self $viaQuery */
             $viaQuery = $this->via;
-            $viaModels = $viaQuery->findJunctionRows($primaryModels);
-            $this->filterByModels($viaModels);
+            $viaModels = JunctionRowsFinder::find($viaQuery, $primaryModels);
+            ModelRelationFilter::apply($this, $viaModels);
         } elseif (is_array($this->via)) {
             [$viaName, $viaQuery] = $this->via;
 
@@ -255,9 +245,9 @@ trait ActiveRelationTrait
 
             $viaQuery->primaryModel(null);
             $viaModels = $viaQuery->populateRelation($viaName, $primaryModels);
-            $this->filterByModels($viaModels);
+            ModelRelationFilter::apply($this, $viaModels);
         } else {
-            $this->filterByModels($primaryModels);
+            ModelRelationFilter::apply($this, $primaryModels);
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
@@ -484,136 +474,6 @@ trait ActiveRelationTrait
         return $buckets;
     }
 
-    /**
-     * @param string[] $columnNames The column names to prefix.
-     *
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     *
-     * @return string[]
-     */
-    private function prefixKeyColumns(array $columnNames): array
-    {
-        if (!empty($this->joins) || !empty($this->joinWith)) {
-            if (empty($this->from)) {
-                $alias = $this->getModel()->tableName();
-            } else {
-                $alias = array_key_first($this->from);
-
-                if (!is_string($alias)) {
-                    $alias = reset($this->from);
-                }
-            }
-
-            foreach ($columnNames as $i => $columnName) {
-                $columnNames[$i] = "$alias.$columnName";
-            }
-        }
-
-        return $columnNames;
-    }
-
-    /**
-     * @param ActiveRecordInterface[]|array[] $models
-     *
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
-    protected function filterByModels(array $models): void
-    {
-        $properties = array_keys($this->link);
-        $columnNames = $this->prefixKeyColumns($properties);
-
-        $model = reset($models);
-        $values = [];
-
-        if (count($columnNames) === 1) {
-            /** @var string $linkedProperty single key */
-            $linkedProperty = reset($this->link);
-
-            if ($model instanceof ActiveRecordInterface) {
-                /** @var ActiveRecordInterface $model */
-                foreach ($models as $model) {
-                    $value = $model->get($linkedProperty);
-
-                    if ($value !== null) {
-                        if (is_array($value)) {
-                            $values = [...$values, ...$value];
-                        } else {
-                            $values[] = $value;
-                        }
-                    }
-                }
-            } else {
-                /** @var array $model */
-                foreach ($models as $model) {
-                    if (isset($model[$linkedProperty])) {
-                        $value = $model[$linkedProperty];
-
-                        if (is_array($value)) {
-                            $values = [...$values, ...$value];
-                        } else {
-                            $values[] = $value;
-                        }
-                    }
-                }
-            }
-
-            if (empty($values)) {
-                $this->emulateExecution();
-                $this->andWhere('1=0');
-                return;
-            }
-
-            $scalarValues = array_filter($values, is_scalar(...));
-            $nonScalarValues = array_diff_key($values, $scalarValues);
-
-            $scalarValues = array_unique($scalarValues);
-            $values = [...$scalarValues, ...$nonScalarValues];
-
-            $columnName = reset($columnNames);
-            /** @var string $propertyName */
-            $propertyName = array_key_first($this->link);
-            $column = $this->getModel()->column($propertyName);
-
-            match ($column->getType()) {
-                ColumnType::ARRAY => $this->andWhere(new ArrayOverlaps($columnName, new ArrayValue($values, $column))),
-                ColumnType::JSON => $this->andWhere(new JsonOverlaps($columnName, $values)),
-                default => $this->andWhere(new In($columnName, $values)),
-            };
-
-            return;
-        }
-
-        $nulls = array_fill_keys($this->link, null);
-
-        if ($model instanceof ActiveRecordInterface) {
-            /** @var ActiveRecordInterface $model */
-            foreach ($models as $model) {
-                $value = $model->propertyValues($this->link);
-
-                if (!empty($value)) {
-                    $values[] = array_combine($columnNames, array_merge($nulls, $value));
-                }
-            }
-        } else {
-            /** @var array $model */
-            foreach ($models as $model) {
-                $value = array_intersect_key($model, $nulls);
-
-                if (!empty($value)) {
-                    $values[] = array_combine($columnNames, array_merge($nulls, $value));
-                }
-            }
-        }
-
-        if (empty($values)) {
-            $this->emulateExecution();
-            $this->andWhere('1=0');
-            return;
-        }
-
-        $this->andWhere(new In($columnNames, $values));
-    }
-
     private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
     {
         $key = [];
@@ -643,24 +503,6 @@ trait ActiveRelationTrait
             1 => is_array($key[0]) ? $key[0] : [$key[0]],
             default => [serialize($key)],
         };
-    }
-
-    /**
-     * @param ActiveRecordInterface[]|array[] $primaryModels either array of AR instances or arrays.
-     *
-     * @throws Exception
-     * @throws Throwable
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     * @return array[]
-     *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     */
-    private function findJunctionRows(array $primaryModels): array
-    {
-        $this->filterByModels($primaryModels);
-
-        /** @var array[] */
-        return $this->asArray()->all();
     }
 
     public function getMultiple(): bool
