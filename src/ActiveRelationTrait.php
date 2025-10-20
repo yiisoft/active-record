@@ -7,7 +7,8 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
-use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
+use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -19,15 +20,11 @@ use Yiisoft\Db\QueryBuilder\Condition\JsonOverlaps;
 
 use function array_column;
 use function array_combine;
-use function array_diff_key;
 use function array_fill_keys;
-use function array_filter;
 use function array_flip;
 use function array_intersect_key;
-use function array_key_first;
 use function array_keys;
 use function array_merge;
-use function array_unique;
 use function array_values;
 use function count;
 use function is_array;
@@ -248,10 +245,9 @@ trait ActiveRelationTrait
     public function populateRelation(string $name, array &$primaryModels): array
     {
         if ($this->via instanceof ActiveQueryInterface) {
-            /** @var self $viaQuery */
             $viaQuery = $this->via;
-            $viaModels = $viaQuery->findJunctionRows($primaryModels);
-            $this->filterByModels($viaModels);
+            $viaModels = JunctionRowsFinder::find($viaQuery, $primaryModels);
+            ModelRelationFilter::apply($this, $viaModels);
         } elseif (is_array($this->via)) {
             [$viaName, $viaQuery] = $this->via;
 
@@ -262,9 +258,9 @@ trait ActiveRelationTrait
 
             $viaQuery->primaryModel(null);
             $viaModels = $viaQuery->populateRelation($viaName, $primaryModels);
-            $this->filterByModels($viaModels);
+            ModelRelationFilter::apply($this, $viaModels);
         } else {
-            $this->filterByModels($primaryModels);
+            ModelRelationFilter::apply($this, $primaryModels);
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
@@ -659,24 +655,6 @@ trait ActiveRelationTrait
             1 => is_array($key[0]) ? $key[0] : [$key[0]],
             default => [serialize($key)],
         };
-    }
-
-    /**
-     * @param ActiveRecordInterface[]|array[] $primaryModels either array of AR instances or arrays.
-     *
-     * @throws Exception
-     * @throws Throwable
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     * @return array[]
-     *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     */
-    private function findJunctionRows(array $primaryModels): array
-    {
-        $this->filterByModels($primaryModels);
-
-        /** @var array[] */
-        return $this->asArray()->all();
     }
 
     public function getMultiple(): bool

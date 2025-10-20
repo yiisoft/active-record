@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use Yiisoft\ActiveRecord\ConnectionProvider;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Connection\ConnectionProvider;
 
 abstract class TestCase extends \PHPUnit\Framework\TestCase
 {

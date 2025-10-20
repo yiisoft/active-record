@@ -7,6 +7,8 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
+use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
@@ -182,11 +184,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $where = $this->getWhere();
 
             if ($this->via instanceof ActiveQueryInterface) {
-                /** via junction table */
-                /** @var self $this->via */
-                $viaModels = $this->via->findJunctionRows([$this->primaryModel]);
+                $viaModels = JunctionRowsFinder::find($this->via, [$this->primaryModel]);
 
-                $this->filterByModels($viaModels);
+                ModelRelationFilter::apply($this, $viaModels);
             } elseif (is_array($this->via)) {
                 [$viaName, $viaQuery, $viaCallableUsed] = $this->via;
 
@@ -211,9 +211,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     }
                     $viaModels = $model === null ? [] : [$model];
                 }
-                $this->filterByModels($viaModels);
+                ModelRelationFilter::apply($this, $viaModels);
             } else {
-                $this->filterByModels([$this->primaryModel]);
+                ModelRelationFilter::apply($this, [$this->primaryModel]);
             }
 
             $query = $this->createInstance();
@@ -248,7 +248,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return [];
         }
 
-        if (!empty($this->join) && $this->indexBy === null) {
+        if (!empty($this->joins) && $this->indexBy === null) {
             $rows = $this->removeDuplicatedRows($rows);
         }
 
@@ -421,9 +421,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function buildJoinWith(): void
     {
-        $join = $this->join;
+        $joins = $this->joins;
 
-        $this->join = [];
+        $this->joins = [];
 
         $model = $this->getModel();
 
@@ -453,30 +453,30 @@ class ActiveQuery extends Query implements ActiveQueryInterface
          */
         $uniqueJoins = [];
 
-        foreach ($this->join as $j) {
-            $uniqueJoins[serialize($j)] = $j;
+        foreach ($this->joins as $join) {
+            $uniqueJoins[serialize($join)] = $join;
         }
-        $this->join = array_values($uniqueJoins);
+        $this->joins = array_values($uniqueJoins);
 
         /**
          * @link https://github.com/yiisoft/yii2/issues/16092
          */
         $uniqueJoinsByTableName = [];
 
-        foreach ($this->join as $config) {
-            $tableName = serialize($config[1]);
+        foreach ($this->joins as $join) {
+            $tableName = serialize($join[1]);
             if (!array_key_exists($tableName, $uniqueJoinsByTableName)) {
-                $uniqueJoinsByTableName[$tableName] = $config;
+                $uniqueJoinsByTableName[$tableName] = $join;
             }
         }
 
-        $this->join = array_values($uniqueJoinsByTableName);
+        $this->joins = array_values($uniqueJoinsByTableName);
 
-        if (!empty($join)) {
+        if (!empty($joins)) {
             /**
              * Append explicit join to {@see joinWith()} {@link https://github.com/yiisoft/yii2/issues/2880}
              */
-            $this->join = empty($this->join) ? $join : array_merge($this->join, $join);
+            $this->joins = empty($this->joins) ? $joins : array_merge($this->joins, $joins);
         }
     }
 
@@ -689,7 +689,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         if (!empty($child->getJoins())) {
             foreach ($child->getJoins() as $join) {
-                $this->join[] = $join;
+                $this->joins[] = $join;
             }
         }
 
@@ -875,7 +875,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->distinct($this->distinct)
             ->from($this->from)
             ->groupBy($this->groupBy)
-            ->setJoins($this->join)
+            ->setJoins($this->joins)
             ->having($this->having)
             ->setUnions($this->union)
             ->params($this->params)
