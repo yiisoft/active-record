@@ -434,7 +434,7 @@ interface ActiveQueryInterface extends QueryInterface
     public function getVia(): array|self|null;
 
     /**
-     * @return array The columns of the primary and foreign tables that establish a relation.
+     * @return string[] The columns of the primary and foreign tables that establish a relation.
      *
      * The array keys must be columns of the table for this relation, and the array values must be the corresponding
      * columns from the primary table.
@@ -442,7 +442,7 @@ interface ActiveQueryInterface extends QueryInterface
      * Don't prefix or quote the column names. Yii does that automatically. This property is only used in
      * relational context.
      *
-     * @psalm-return string[]
+     * @psalm-return array<string,string>
      */
     public function getLink(): array;
 
