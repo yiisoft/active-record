@@ -265,6 +265,7 @@ trait ActiveRelationTrait
         }
 
         if (!$this->multiple && count($primaryModels) === 1) {
+            /** @psalm-var list{ActiveRecordInterface|array} $models */
             $models = [$this->one()];
             $this->populateInverseRelation($models, $primaryModels);
 

@@ -36,6 +36,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @return ActiveRecordInterface[]|array[] All rows of the query result. Each array element is an `array` or
      * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see isAsArray()} result.
      * Empty array if the query results in nothing.
+     *
+     * @psalm-return array<ActiveRecordInterface|array>
      */
     public function all(): array;
 
