@@ -332,6 +332,57 @@ interface ActiveQueryInterface extends QueryInterface
     public function populate(array $rows): array;
 
     /**
+     * Sets the name of the relation that is the inverse of this relation.
+     *
+     * For example, a customer has orders, which means the inverse of the "orders" relation is the "customer".
+     *
+     * If this property is set, the primary record(s) will be referenced through the specified relation.
+     *
+     * For example, `$customer->orders[0]->customer` and `$customer` will be the same object, and accessing the customer
+     * of an order will not trigger a new DB query.
+     *
+     * Use this method when declaring a relation in the {@see ActiveRecord} class, e.g., in the Customer model:
+     *
+     * ```php
+     * public function getOrdersQuery()
+     * {
+     *     return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer');
+     * }
+     * ```
+     *
+     * This also may be used for the Order model, but with caution:
+     *
+     * ```php
+     * public function getCustomerQuery()
+     * {
+     *     return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('orders');
+     * }
+     * ```
+     *
+     * in this case result will depend on how order(s) was loaded.
+     * Let's suppose customer has several orders. If only one order was loaded:
+     *
+     * ```php
+     * $orders = Order::query()->where(['id' => 1])->all();
+     * $customerOrders = $orders[0]->customer->orders;
+     * ```
+     *
+     * variable `$customerOrders` will contain only one order. If orders was loaded like this:
+     *
+     * ```php
+     * $orders = Order::query()->with('customer')->where(['customer_id' => 1])->all();
+     * $customerOrders = $orders[0]->customer->orders;
+     * ```
+     *
+     * variable `$customerOrders` will contain all orders of the customer.
+     *
+     * @param string $relationName The name of the relation that is the inverse of this relation.
+     *
+     * @return static The relation object itself.
+     */
+    public function inverseOf(string $relationName): static;
+
+    /**
      * Returns related record(s).
      *
      * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.
