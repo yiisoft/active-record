@@ -383,6 +383,11 @@ interface ActiveQueryInterface extends QueryInterface
     public function inverseOf(string $relationName): static;
 
     /**
+     * @return string|null The name of the relation that is the inverse of this relation.
+     */
+    public function getInverseOf(): ?string;
+
+    /**
      * Returns related record(s).
      *
      * This method is invoked when a relation of an ActiveRecord is being accessed in a lazy fashion.

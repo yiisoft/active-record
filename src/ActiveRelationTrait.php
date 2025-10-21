@@ -115,8 +115,12 @@ trait ActiveRelationTrait
     public function inverseOf(string $relationName): static
     {
         $this->inverseOf = $relationName;
-
         return $this;
+    }
+
+    public function getInverseOf(): ?string
+    {
+        return $this->inverseOf;
     }
 
     /**
