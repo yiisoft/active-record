@@ -190,7 +190,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             } elseif (is_array($this->via)) {
                 [$viaName, $viaQuery, $viaCallableUsed] = $this->via;
 
-                if ($viaQuery->getMultiple()) {
+                if ($viaQuery->isMultiple()) {
                     if ($viaCallableUsed) {
                         $viaModels = $viaQuery->all();
                     } elseif ($this->primaryModel->isRelationPopulated($viaName)) {
