@@ -491,7 +491,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         // Update lazily loaded related objects.
-        if (!$relation->getMultiple()) {
+        if (!$relation->isMultiple()) {
             $this->related[$relationName] = $linkModel;
         } elseif (isset($this->related[$relationName])) {
             /** @psalm-var ActiveRecordInterface[] $this->related[$relationName] */
@@ -881,7 +881,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             }
         }
 
-        if (!$relation->getMultiple()) {
+        if (!$relation->isMultiple()) {
             unset($this->related[$relationName]);
         } elseif (isset($this->related[$relationName]) && is_array($this->related[$relationName])) {
             /** @psalm-var array<array-key, ActiveRecordInterface> $related */

@@ -448,12 +448,11 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * This property is only used in relational context.
      *
-     * If `true`, this relation will populate all query results into active record instances using
-     * {@see all()}.
+     * If `true`, this relation will populate all query results into active record instances using {@see all()}.
      *
      * If `false`, only the first row of the results will be retrieved using {@see one()}.
      */
-    public function getMultiple(): bool;
+    public function isMultiple(): bool;
 
     /**
      * @inheritdoc

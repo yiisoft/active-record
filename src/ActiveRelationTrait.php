@@ -206,7 +206,7 @@ trait ActiveRelationTrait
 
         if ($relatedModel instanceof ActiveRecordInterface) {
             $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
-            $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
+            $primaryModel = $inverseRelation->isMultiple() ? [$this->primaryModel] : $this->primaryModel;
 
             /** @var ActiveRecordInterface $relatedModel */
             foreach ($result as $relatedModel) {
@@ -214,7 +214,7 @@ trait ActiveRelationTrait
             }
         } else {
             $inverseRelation = $this->getModel()->relationQuery($this->inverseOf);
-            $primaryModel = $inverseRelation->getMultiple() ? [$this->primaryModel] : $this->primaryModel;
+            $primaryModel = $inverseRelation->isMultiple() ? [$this->primaryModel] : $this->primaryModel;
 
             /** @var array $relatedModel */
             foreach ($result as &$relatedModel) {
@@ -334,7 +334,7 @@ trait ActiveRelationTrait
         $indexBy = $relation->getIndexBy();
         $buckets = $relation->buildBuckets($primaryModels);
 
-        if ($indexBy !== null && $relation->getMultiple()) {
+        if ($indexBy !== null && $relation->isMultiple()) {
             $buckets = $this->indexBuckets($buckets, $indexBy);
         }
 
@@ -505,7 +505,7 @@ trait ActiveRelationTrait
         };
     }
 
-    public function getMultiple(): bool
+    public function isMultiple(): bool
     {
         return $this->multiple;
     }
