@@ -188,6 +188,7 @@ trait ActiveRelationTrait
         [,$result] = $this->populateRelationInternal($name, $primaryModels);
         return $result;
     }
+
     public function populateRelationInternal(string $name, array &$primaryModels): array
     {
         if ($this->via instanceof ActiveQueryInterface) {
