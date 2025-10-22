@@ -235,7 +235,7 @@ trait ActiveRelationTrait
         $this->populateInverseRelation($models, $primaryModels);
 
         if (isset($viaModels, $viaQuery)) {
-            $buckets = $this->buildBuckets($models, [$viaModels, $viaQuery]);
+            $buckets = $this->buildBuckets($models, [$primaryModels, $viaModels, $viaQuery]);
         } else {
             $buckets = $this->buildBuckets($models);
         }
@@ -330,15 +330,15 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @psalm-param list{array, ActiveQueryInterface}|null $via
+     * @psalm-param list{non-empty-list<ActiveRecordInterface|array>, array, ActiveQueryInterface}|null $via
      */
     private function buildBuckets(array $models, ?array $via = null): array
     {
         $map = null;
         if ($via !== null) {
-            [$viaModels, $viaQuery] = $via;
+            [$primaryModels, $viaModels, $viaQuery] = $via;
             $map = $this->getMapForQuery($viaModels, $viaQuery, $this);
-            $map = $this->processNestedVia($map, $viaQuery);
+            $map = $this->processNestedVia($map, $viaQuery, $primaryModels);
         }
 
         $buckets = [];
@@ -374,18 +374,38 @@ trait ActiveRelationTrait
         return $buckets;
     }
 
-    private function processNestedVia(array $map, ActiveQueryInterface $viaQuery): array
+    /**
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
+     */
+    private function processNestedVia(array $map, ActiveQueryInterface $viaQuery, array $primaryModels): array
     {
         $viaVia = $viaQuery->getVia();
         $currentQuery = $viaQuery;
 
         while ($viaVia) {
-            /** @var ActiveQuery $viaViaQuery */
-            $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
+            if (is_array($viaVia)) {
+                [$relationName, $viaViaQuery] = $viaVia;
+                $viaModelsBuckets = array_map(
+                    static function (ActiveRecordInterface|array $model) use ($relationName): array {
+                        $relation = $model instanceof ActiveRecordInterface
+                            ? $model->relation($relationName)
+                            : $model[$relationName];
+                        if ($relation === null) {
+                            return [];
+                        }
+                        return is_array($relation) ? $relation : [$relation];
+                    },
+                    $primaryModels,
+                );
+                $viaModels = array_merge(...$viaModelsBuckets);
+            } else {
+                $viaModels = $viaVia->all();
+                $viaViaQuery = $viaVia;
+            }
 
             $map = $this->mapVia(
                 $map,
-                $this->getMapForQuery($viaViaQuery->all(), $viaViaQuery, $currentQuery),
+                $this->getMapForQuery($viaModels, $viaViaQuery, $currentQuery),
             );
 
             $currentQuery = $viaViaQuery;
