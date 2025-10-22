@@ -185,34 +185,40 @@ trait ActiveRelationTrait
      */
     public function populateRelation(string $name, array &$primaryModels): array
     {
-        [,$result] = $this->populateRelationInternal($name, $primaryModels);
+        [,$result] = self::populateRelationInternal($this, $name, $primaryModels);
         return $result;
     }
-    public function populateRelationInternal(string $name, array &$primaryModels): array
+
+    /**
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
+     */
+    private static function populateRelationInternal(ActiveQueryInterface $query, string $name, array &$primaryModels): array
     {
-        if ($this->via instanceof ActiveQueryInterface) {
-            $viaQuery = $this->via;
+        $via = $query->getVia();
+        $viaMap = [];
+        if ($via instanceof ActiveQueryInterface) {
+            $viaQuery = $via;
             $viaModels = JunctionRowsFinder::find($viaQuery, $primaryModels);
-            ModelRelationFilter::apply($this, $viaModels);
-            $viaMap = [];
-        } elseif (is_array($this->via)) {
-            [$viaName, $viaQuery] = $this->via;
+            ModelRelationFilter::apply($query, $viaModels);
+        } elseif (is_array($via)) {
+            [$viaName, $viaQuery] = $via;
 
             if ($viaQuery->isAsArray() === null) {
                 /** inherit asArray from a primary query */
-                $viaQuery->asArray($this->asArray);
+                $viaQuery->asArray($query->isAsArray());
             }
 
             $viaQuery->primaryModel(null);
-            [$viaMap, $viaModels] = $viaQuery->populateRelationInternal($viaName, $primaryModels);
-            ModelRelationFilter::apply($this, $viaModels);
+            [$viaMap, $viaModels] = self::populateRelationInternal($viaQuery, $viaName, $primaryModels);
+            ModelRelationFilter::apply($query, $viaModels);
         } else {
-            ModelRelationFilter::apply($this, $primaryModels);
+            ModelRelationFilter::apply($query, $primaryModels);
         }
 
-        if (!$this->multiple && count($primaryModels) === 1) {
-            $models = [$this->one()];
-            $this->populateInverseRelation($models, $primaryModels);
+        if (!$query->isMultiple() && count($primaryModels) === 1) {
+            $models = [$query->one()];
+            self::populateInverseRelation($query, $models, $primaryModels);
 
             $primaryModel = $primaryModels[0];
 
@@ -234,22 +240,22 @@ trait ActiveRelationTrait
          *
          * Delay indexing related models after buckets are built.
          */
-        $indexBy = $this->getIndexBy();
-        $this->indexBy(null);
-        $models = $this->all();
+        $indexBy = $query->getIndexBy();
+        $query->indexBy(null);
+        $models = $query->all();
 
-        $this->populateInverseRelation($models, $primaryModels);
+        self::populateInverseRelation($query, $models, $primaryModels);
 
         if (isset($viaModels, $viaQuery)) {
-            [$returnMap,$buckets] = $this->buildBuckets($models, $viaModels, $viaQuery, $viaMap);
+            [$returnMap,$buckets] = self::buildBuckets($query, $models, $viaModels, $viaQuery, $viaMap);
         } else {
-            [$returnMap,$buckets] = $this->buildBuckets($models);
+            [$returnMap,$buckets] = self::buildBuckets($query, $models);
         }
 
-        $this->indexBy($indexBy);
+        $query->indexBy($indexBy);
 
-        if ($indexBy !== null && $this->multiple) {
-            $buckets = $this->indexBuckets($buckets, $indexBy);
+        if ($indexBy !== null && $query->isMultiple()) {
+            $buckets = self::indexBuckets($buckets, $indexBy);
         }
 
         if (isset($viaQuery)) {
@@ -259,12 +265,12 @@ trait ActiveRelationTrait
                 $deepViaQuery = is_array($deepViaQuery->via) ? $deepViaQuery->via[1] : $deepViaQuery->via;
             }
 
-            $link = $deepViaQuery->link;
+            $link = $deepViaQuery->getLink();
         } else {
-            $link = $this->link;
+            $link = $query->getLink();
         }
 
-        $this->populateRelationFromBuckets($primaryModels, $buckets, $name, $link);
+        self::populateRelationFromBuckets($query, $primaryModels, $buckets, $name, $link);
 
         return [$returnMap, $models];
     }
@@ -274,51 +280,53 @@ trait ActiveRelationTrait
      *
      * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
      */
-    private function populateInverseRelation(
+    private static function populateInverseRelation(
+        ActiveQueryInterface $query,
         array &$models,
         array $primaryModels,
     ): void {
-        if ($this->inverseOf === null || empty($models)) {
+        $name = $query->getInverseOf();
+        if ($name === null || empty($models)) {
             return;
         }
 
-        $name = $this->inverseOf;
         $model = reset($models);
 
         /** @var ActiveQuery $relation */
         $relation = is_array($model)
-            ? $this->getModel()->relationQuery($name)
+            ? $query->getModel()->relationQuery($name)
             : $model->relationQuery($name);
 
         $link = $relation->getLink();
         $indexBy = $relation->getIndexBy();
-        [$returnMap,$buckets] = $relation->buildBuckets($primaryModels);
+        [,$buckets] = self::buildBuckets($relation, $primaryModels);
 
         if ($indexBy !== null && $relation->isMultiple()) {
-            $buckets = $this->indexBuckets($buckets, $indexBy);
+            $buckets = self::indexBuckets($buckets, $indexBy);
         }
 
-        $relation->populateRelationFromBuckets($models, $buckets, $name, $link);
+        self::populateRelationFromBuckets($relation, $models, $buckets, $name, $link);
     }
 
-    private function populateRelationFromBuckets(
+    private static function populateRelationFromBuckets(
+        ActiveQueryInterface $query,
         array &$models,
         array $buckets,
         string $name,
         array $link
     ): void {
-        $indexBy = $this->getIndexBy();
-        $default = $this->multiple ? [] : null;
+        $indexBy = $query->getIndexBy();
+        $default = $query->isMultiple() ? [] : null;
 
         foreach ($models as &$model) {
-            $keys = $this->getModelKeys($model, $link);
+            $keys = static::getModelKeys($model, $link);
 
             if (empty($keys)) {
                 $value = $default;
             } elseif (count($keys) === 1) {
                 $value = $buckets[$keys[0]] ?? $default;
             } else {
-                if ($this->multiple) {
+                if ($query->isMultiple()) {
                     $arrays = array_values(array_intersect_key($buckets, array_flip($keys)));
                     $value = $indexBy === null ? array_merge(...$arrays) : array_replace(...$arrays);
                 } else {
@@ -335,7 +343,8 @@ trait ActiveRelationTrait
         }
     }
 
-    private function buildBuckets(
+    private static function buildBuckets(
+        ActiveQueryInterface $query,
         array $models,
         array|null $viaModels = null,
         self|null $viaQuery = null,
@@ -344,14 +353,14 @@ trait ActiveRelationTrait
         $returnMap = [];
         if ($viaModels !== null) {
             $map = [];
-            $linkValues = $this->link;
-            $viaLink = $viaQuery->link ?? [];
+            $linkValues = $query->getLink();
+            $viaLink = $viaQuery?->getLink() ?? [];
             $viaLinkKeys = array_keys($viaLink);
             $viaVia = null;
 
             foreach ($viaModels as $viaModel) {
-                $key1 = $this->getModelKeys($viaModel, $viaLinkKeys);
-                $key2 = $this->getModelKeys($viaModel, $linkValues);
+                $key1 = static::getModelKeys($viaModel, $viaLinkKeys);
+                $key2 = static::getModelKeys($viaModel, $linkValues);
                 $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
             }
 
@@ -371,18 +380,18 @@ trait ActiveRelationTrait
                  * @psalm-suppress RedundantCondition
                  */
                 $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
-                $map = $this->mapVia($map, $viaMap);
+                $map = self::mapVia($map, $viaMap);
 
                 $viaVia = $viaViaQuery->getVia();
             }
         }
 
         $buckets = [];
-        $linkKeys = array_keys($this->link);
+        $linkKeys = array_keys($query->getLink());
 
         if (isset($map)) {
             foreach ($models as $model) {
-                $keys = $this->getModelKeys($model, $linkKeys);
+                $keys = static::getModelKeys($model, $linkKeys);
                 /** @var bool[][] $filtered */
                 $filtered = array_values(array_intersect_key($map, array_fill_keys($keys, null)));
 
@@ -392,7 +401,7 @@ trait ActiveRelationTrait
             }
         } else {
             foreach ($models as $model) {
-                $keys = $this->getModelKeys($model, $linkKeys);
+                $keys = static::getModelKeys($model, $linkKeys);
 
                 foreach ($keys as $key) {
                     $buckets[$key][] = $model;
@@ -400,7 +409,7 @@ trait ActiveRelationTrait
             }
         }
 
-        if (!$this->multiple) {
+        if (!$query->isMultiple()) {
             return [$returnMap, array_combine(
                 array_keys($buckets),
                 array_column($buckets, 0)
@@ -410,7 +419,7 @@ trait ActiveRelationTrait
         return [$returnMap, $buckets];
     }
 
-    private function mapVia(array $map, array $viaMap): array
+    private static function mapVia(array $map, array $viaMap): array
     {
         $resultMap = [];
 
@@ -427,7 +436,7 @@ trait ActiveRelationTrait
      * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a {@see Closure} that returns the index value based on the given models data.
      */
-    private function indexBuckets(array $buckets, Closure|string $indexBy): array
+    private static function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
         foreach ($buckets as &$models) {
             $models = ArArrayHelper::index($models, $indexBy);
@@ -436,7 +445,7 @@ trait ActiveRelationTrait
         return $buckets;
     }
 
-    private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
+    private static function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
     {
         $key = [];
 
