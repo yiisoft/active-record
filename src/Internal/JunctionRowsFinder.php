@@ -20,7 +20,7 @@ final class JunctionRowsFinder
      * @param ActiveRecordInterface[]|array[] $models Either array of AR instances or arrays.
      * @return array[]
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param array<ActiveRecordInterface|array> $models
      */
     public static function find(ActiveQueryInterface $query, array $models): array
     {

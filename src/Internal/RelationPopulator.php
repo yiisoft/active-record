@@ -24,8 +24,8 @@ final class RelationPopulator
     }
 
     /**
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
      */
     public static function populate(ActiveQueryInterface $query, string $name, array &$primaryModels): array
     {
@@ -34,8 +34,8 @@ final class RelationPopulator
     }
 
     /**
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
      */
     private static function populateInternal(ActiveQueryInterface $query, string $name, array &$primaryModels): array
     {
@@ -61,6 +61,7 @@ final class RelationPopulator
         }
 
         if (!$query->isMultiple() && count($primaryModels) === 1) {
+            /** @psalm-var list{ActiveRecordInterface|array} $models */
             $models = [$query->one()];
             self::populateInverseRelation($query, $models, $primaryModels);
 
@@ -86,6 +87,7 @@ final class RelationPopulator
          */
         $indexBy = $query->getIndexBy();
         $query->indexBy(null);
+        /** @psalm-var array<ActiveRecordInterface|array> $models */
         $models = $query->all();
 
         self::populateInverseRelation($query, $models, $primaryModels);
@@ -120,7 +122,8 @@ final class RelationPopulator
     }
 
     /**
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param array<ActiveRecordInterface|array> $models
+     * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
      */
     private static function populateInverseRelation(
         ActiveQueryInterface $query,
@@ -151,8 +154,8 @@ final class RelationPopulator
     }
 
     /**
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param non-empty-array<ActiveRecordInterface|array> $models
+     * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $models
      */
     private static function populateRelationFromBuckets(
         ActiveQueryInterface $query,

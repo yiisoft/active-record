@@ -166,8 +166,8 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
      *
      * @return ActiveRecordInterface[]|array[]
      */
