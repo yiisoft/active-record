@@ -150,6 +150,10 @@ final class RelationPopulator
         self::populateRelationFromBuckets($relation, $models, $buckets, $name, $link);
     }
 
+    /**
+     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $models
+     */
     private static function populateRelationFromBuckets(
         ActiveQueryInterface $query,
         array &$models,
