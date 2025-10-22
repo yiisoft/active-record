@@ -313,6 +313,8 @@ final class RelationPopulator
 
     /**
      * @param string[] $properties
+     *
+     * @psalm-return array<string|int>
      */
     private static function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
     {
@@ -321,6 +323,7 @@ final class RelationPopulator
         if (is_array($model)) {
             foreach ($properties as $property) {
                 if (isset($model[$property])) {
+                    /** @var array<int|string>|string */
                     $key[] = is_array($model[$property])
                         ? $model[$property]
                         : (string) $model[$property];
@@ -329,8 +332,8 @@ final class RelationPopulator
         } else {
             foreach ($properties as $property) {
                 $value = $model->get($property);
-
                 if ($value !== null) {
+                    /** @var array<int|string>|string */
                     $key[] = is_array($value)
                         ? $value
                         : (string) $value;
