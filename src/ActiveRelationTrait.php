@@ -56,7 +56,6 @@ trait ActiveRelationTrait
      * @psalm-var array{string, ActiveQueryInterface, bool}|ActiveQueryInterface|null
      */
     private array|ActiveQueryInterface|null $via = null;
-    private array $viaMap = [];
 
     /**
      * Clones internal objects.
@@ -186,10 +185,16 @@ trait ActiveRelationTrait
      */
     public function populateRelation(string $name, array &$primaryModels): array
     {
+        [,$result] = $this->populateRelationInternal($name, $primaryModels);
+        return $result;
+    }
+    public function populateRelationInternal(string $name, array &$primaryModels): array
+    {
         if ($this->via instanceof ActiveQueryInterface) {
             $viaQuery = $this->via;
             $viaModels = JunctionRowsFinder::find($viaQuery, $primaryModels);
             ModelRelationFilter::apply($this, $viaModels);
+            $viaMap = [];
         } elseif (is_array($this->via)) {
             [$viaName, $viaQuery] = $this->via;
 
@@ -199,7 +204,7 @@ trait ActiveRelationTrait
             }
 
             $viaQuery->primaryModel(null);
-            $viaModels = $viaQuery->populateRelation($viaName, $primaryModels);
+            [$viaMap, $viaModels] = $viaQuery->populateRelationInternal($viaName, $primaryModels);
             ModelRelationFilter::apply($this, $viaModels);
         } else {
             ModelRelationFilter::apply($this, $primaryModels);
@@ -221,7 +226,7 @@ trait ActiveRelationTrait
                 $primaryModels[0][$name] = $models[0];
             }
 
-            return $models;
+            return [[], $models];
         }
 
         /**
@@ -236,9 +241,9 @@ trait ActiveRelationTrait
         $this->populateInverseRelation($models, $primaryModels);
 
         if (isset($viaModels, $viaQuery)) {
-            $buckets = $this->buildBuckets($models, $viaModels, $viaQuery);
+            [$returnMap,$buckets] = $this->buildBuckets($models, $viaModels, $viaQuery, $viaMap);
         } else {
-            $buckets = $this->buildBuckets($models);
+            [$returnMap,$buckets] = $this->buildBuckets($models);
         }
 
         $this->indexBy($indexBy);
@@ -261,7 +266,7 @@ trait ActiveRelationTrait
 
         $this->populateRelationFromBuckets($primaryModels, $buckets, $name, $link);
 
-        return $models;
+        return [$returnMap, $models];
     }
 
     /**
@@ -287,7 +292,7 @@ trait ActiveRelationTrait
 
         $link = $relation->getLink();
         $indexBy = $relation->getIndexBy();
-        $buckets = $relation->buildBuckets($primaryModels);
+        [$returnMap,$buckets] = $relation->buildBuckets($primaryModels);
 
         if ($indexBy !== null && $relation->isMultiple()) {
             $buckets = $this->indexBuckets($buckets, $indexBy);
@@ -333,8 +338,10 @@ trait ActiveRelationTrait
     private function buildBuckets(
         array $models,
         array|null $viaModels = null,
-        self|null $viaQuery = null
+        self|null $viaQuery = null,
+        array $viaMap = [],
     ): array {
+        $returnMap = [];
         if ($viaModels !== null) {
             $map = [];
             $linkValues = $this->link;
@@ -353,7 +360,7 @@ trait ActiveRelationTrait
             }
 
             if ($viaQuery !== null) {
-                $viaQuery->viaMap = $map;
+                $returnMap = $map;
                 $viaVia = $viaQuery->getVia();
             }
 
@@ -364,7 +371,7 @@ trait ActiveRelationTrait
                  * @psalm-suppress RedundantCondition
                  */
                 $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
-                $map = $this->mapVia($map, $viaViaQuery->viaMap);
+                $map = $this->mapVia($map, $viaMap);
 
                 $viaVia = $viaViaQuery->getVia();
             }
@@ -394,13 +401,13 @@ trait ActiveRelationTrait
         }
 
         if (!$this->multiple) {
-            return array_combine(
+            return [$returnMap, array_combine(
                 array_keys($buckets),
                 array_column($buckets, 0)
-            );
+            )];
         }
 
-        return $buckets;
+        return [$returnMap, $buckets];
     }
 
     private function mapVia(array $map, array $viaMap): array
