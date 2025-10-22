@@ -11,11 +11,15 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 use Yiisoft\ActiveRecord\ArArrayHelper;
 
+use Yiisoft\Db\Query\QueryInterface;
+
 use function count;
 use function is_array;
 
 /**
  * @internal
+ *
+ * @psalm-import-type IndexBy from QueryInterface
  */
 final class RelationPopulator
 {
@@ -154,6 +158,8 @@ final class RelationPopulator
     }
 
     /**
+     * @param string[] $link
+     *
      * @psalm-param non-empty-array<ActiveRecordInterface|array> $models
      * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $models
      */
@@ -192,6 +198,9 @@ final class RelationPopulator
         }
     }
 
+    /**
+     * @param ActiveRecordInterface[]|array[] $models
+     */
     private static function buildBuckets(
         ActiveQueryInterface $query,
         array $models,
@@ -271,6 +280,10 @@ final class RelationPopulator
         return [$returnMap, $buckets];
     }
 
+    /**
+     * @psalm-param array<array> $map
+     * @psalm-param array<array> $viaMap
+     */
     private static function mapVia(array $map, array $viaMap): array
     {
         $resultMap = [];
@@ -287,6 +300,9 @@ final class RelationPopulator
      *
      * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a {@see Closure} that returns the index value based on the given models data.
+     *
+     * @psalm-param list<list<ActiveRecordInterface|array>> $buckets
+     * @psalm-param IndexBy|string $indexBy
      */
     private static function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
@@ -297,6 +313,9 @@ final class RelationPopulator
         return $buckets;
     }
 
+    /**
+     * @param string[] $properties
+     */
     private static function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
     {
         $key = [];
