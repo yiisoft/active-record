@@ -56,7 +56,6 @@ trait ActiveRelationTrait
      * @psalm-var array{string, ActiveQueryInterface, bool}|ActiveQueryInterface|null
      */
     private array|ActiveQueryInterface|null $via = null;
-    private array $viaMap = [];
 
     /**
      * Clones internal objects.
@@ -236,7 +235,7 @@ trait ActiveRelationTrait
         $this->populateInverseRelation($models, $primaryModels);
 
         if (isset($viaModels, $viaQuery)) {
-            $buckets = $this->buildBuckets($models, $viaModels, $viaQuery);
+            $buckets = $this->buildBuckets($models, [$viaModels, $viaQuery]);
         } else {
             $buckets = $this->buildBuckets($models);
         }
@@ -330,44 +329,16 @@ trait ActiveRelationTrait
         }
     }
 
-    private function buildBuckets(
-        array $models,
-        array|null $viaModels = null,
-        self|null $viaQuery = null
-    ): array {
-        if ($viaModels !== null) {
-            $map = [];
-            $linkValues = $this->link;
-            $viaLink = $viaQuery->link ?? [];
-            $viaLinkKeys = array_keys($viaLink);
-            $viaVia = null;
-
-            foreach ($viaModels as $viaModel) {
-                $key1 = $this->getModelKeys($viaModel, $viaLinkKeys);
-                $key2 = $this->getModelKeys($viaModel, $linkValues);
-                $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
-            }
-
-            if (!empty($map)) {
-                $map = array_replace_recursive(...$map);
-            }
-
-            if ($viaQuery !== null) {
-                $viaQuery->viaMap = $map;
-                $viaVia = $viaQuery->getVia();
-            }
-
-            while ($viaVia) {
-                /**
-                 * @var ActiveQuery $viaViaQuery
-                 *
-                 * @psalm-suppress RedundantCondition
-                 */
-                $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
-                $map = $this->mapVia($map, $viaViaQuery->viaMap);
-
-                $viaVia = $viaViaQuery->getVia();
-            }
+    /**
+     * @psalm-param list{array, ActiveQueryInterface}|null $via
+     */
+    private function buildBuckets(array $models, ?array $via = null): array
+    {
+        $map = null;
+        if ($via !== null) {
+            [$viaModels, $viaQuery] = $via;
+            $map = $this->getMapForQuery($viaModels, $viaQuery, $this);
+            $map = $this->processNestedVia($map, $viaQuery);
         }
 
         $buckets = [];
@@ -401,6 +372,49 @@ trait ActiveRelationTrait
         }
 
         return $buckets;
+    }
+
+    private function processNestedVia(array $map, ActiveQueryInterface $viaQuery): array
+    {
+        $viaVia = $viaQuery->getVia();
+        $currentQuery = $viaQuery;
+
+        while ($viaVia) {
+            /** @var ActiveQuery $viaViaQuery */
+            $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
+
+            $map = $this->mapVia(
+                $map,
+                $this->getMapForQuery($viaViaQuery->all(), $viaViaQuery, $currentQuery),
+            );
+
+            $currentQuery = $viaViaQuery;
+            $viaVia = $viaViaQuery->getVia();
+        }
+
+        return $map;
+    }
+
+    private function getMapForQuery(
+        array $viaModels,
+        ActiveQueryInterface $viaQuery,
+        ActiveQueryInterface $query,
+    ): array {
+        $map = [];
+        $linkValues = $query->getLink();
+        $viaLinkKeys = array_keys($viaQuery->getLink());
+
+        foreach ($viaModels as $model) {
+            $key1 = $this->getModelKeys($model, $viaLinkKeys);
+            $key2 = $this->getModelKeys($model, $linkValues);
+            $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
+        }
+
+        if (!empty($map)) {
+            $map = array_replace_recursive(...$map);
+        }
+
+        return $map;
     }
 
     private function mapVia(array $map, array $viaMap): array
