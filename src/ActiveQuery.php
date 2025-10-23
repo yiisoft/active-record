@@ -857,13 +857,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function batch(int $batchSize = 100): BatchQueryResultInterface
     {
-        /** @psalm-suppress InvalidArgument */
         return parent::batch($batchSize)->indexBy(null)->resultCallback($this->index(...));
     }
 
     protected function index(array $rows): array
     {
-        /** @var list<array> $rows */
         return ArArrayHelper::index($this->populate($rows), $this->indexBy);
     }
 
