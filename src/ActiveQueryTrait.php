@@ -10,7 +10,6 @@ use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 use function is_array;
 use function is_int;
@@ -104,7 +103,6 @@ trait ActiveQueryTrait
      *
      * @param array[] $rows The rows to be converted.
      *
-     * @throws InvalidConfigException
      * @return ActiveRecordInterface[]|array[] The model instances.
      *
      * @psalm-param non-empty-list<array> $rows
@@ -124,17 +122,16 @@ trait ActiveQueryTrait
                 return $rows;
             }
         }
+        /** @var non-empty-list<array<string, mixed>> $rows */
 
-        $models = [];
-
-        foreach ($rows as $row) {
-            $model = $this->getModel();
-            $model->populateRecord($row);
-
-            $models[] = $model;
-        }
-
-        return $models;
+        return array_map(
+            function (array $row): ActiveRecordInterface {
+                $model = $this->getModel();
+                $model->populateRecord($row);
+                return $model;
+            },
+            $rows,
+        );
     }
 
     /**
