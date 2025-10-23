@@ -1096,6 +1096,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * Defaults to `null`, meaning all changed property values will be returned.
      *
      * @return array The changed property values (name-value pairs).
+     *
+     * @psalm-return array<string, mixed>
      */
     protected function newPropertyValues(array|null $properties = null): array
     {

@@ -130,6 +130,8 @@ interface ActiveRecordInterface
      * @throws InvalidConfigException
      *
      * @return array Property values (name => value).
+     *
+     * @psalm-return array<string, mixed>
      */
     public function propertyValues(array|null $names = null, array $except = []): array;
 
@@ -593,6 +595,8 @@ interface ActiveRecordInterface
      * recently. If `null`, {@see propertyNames()} will be used.
      *
      * @return array The changed property values (name-value pairs).
+     *
+     * @psalm-return array<string, mixed>
      */
     public function newValues(array|null $propertyNames = null): array;
 
