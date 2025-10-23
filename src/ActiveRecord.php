@@ -182,6 +182,10 @@ class ActiveRecord extends AbstractActiveRecord
             : null;
 
         if (is_array($updateProperties)) {
+            /**
+             * @psalm-var array<string> $updateNames Values of `$updateProperties` parameter which are integer keys
+             * represent property names
+             */
             $updateNames = array_filter($updateProperties, is_int(...), ARRAY_FILTER_USE_KEY);
 
             if (!empty($updateNames)) {
@@ -190,6 +194,7 @@ class ActiveRecord extends AbstractActiveRecord
                     $this->newPropertyValues($updateNames),
                 );
             }
+            /** @psalm-var array<string, mixed> $updateProperties */
 
             if ($returnProperties !== null) {
                 $returnProperties = array_merge($returnProperties, array_keys($updateProperties));
@@ -207,6 +212,9 @@ class ActiveRecord extends AbstractActiveRecord
         $this->$name = $value;
     }
 
+    /**
+     * @psalm-param array<string, mixed>|false $rawValues
+     */
     private function populateRawValues(array|false $rawValues, array $oldValues = []): bool
     {
         if ($rawValues === false) {
@@ -224,6 +232,10 @@ class ActiveRecord extends AbstractActiveRecord
         return true;
     }
 
+    /**
+     * @psalm-param array<string, mixed> $values
+     * @return array<string, mixed>
+     */
     private function phpTypecastValues(array $values): array
     {
         $columns = $this->tableSchema()->getColumns();

@@ -348,6 +348,8 @@ interface ActiveRecordInterface
      * @throws InvalidConfigException
      *
      * @return string[] The primary keys of the associated database table.
+     *
+     * @psalm-return list<string>
      */
     public function primaryKey(): array;
 
@@ -611,6 +613,8 @@ interface ActiveRecordInterface
      *
      * @throws Exception
      * @throws InvalidConfigException
+     *
+     * @psalm-param array<string, mixed>|object $row
      */
     public function populateRecord(array|object $row): void;
 }

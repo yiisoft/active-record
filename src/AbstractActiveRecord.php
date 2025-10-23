@@ -521,14 +521,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    /**
-     * Populates an active record object using a row of data from the database/storage.
-     *
-     * This is an internal method meant to be called to create active record objects after fetching data from the
-     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
-     *
-     * @param array|object $row Property values (name => value).
-     */
     public function populateRecord(array|object $row): void
     {
         $row = ArArrayHelper::toArray($row);

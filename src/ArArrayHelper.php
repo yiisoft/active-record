@@ -175,6 +175,9 @@ final class ArArrayHelper
      * @param array|object $object The object to be converted into an array.
      *
      * @return array The array representation of the object.
+     *
+     * @psalm-param array<string, mixed>|object $object
+     * @psalm-return array<string, mixed>
      */
     public static function toArray(array|object $object): array
     {
@@ -187,6 +190,9 @@ final class ArArrayHelper
         }
 
         if ($object instanceof Traversable) {
+            /**
+             * @psalm-var array<string, mixed> We assume that the traversable object yields string keys.
+             */
             return iterator_to_array($object);
         }
 
