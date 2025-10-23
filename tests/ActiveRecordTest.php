@@ -903,7 +903,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testPrimaryKeyOldValueWithInvalidType(): void
     {
-        $model = new class() extends ActiveRecord {
+        $model = new class () extends ActiveRecord {
             public mixed $id;
 
             public function tableName(): string
