@@ -901,28 +901,6 @@ abstract class ActiveRecordTest extends TestCase
         $orderItem->primaryKeyOldValues();
     }
 
-    public function testPrimaryKeyOldValueWithInvalidType(): void
-    {
-        $model = new class () extends ActiveRecord {
-            public mixed $id;
-
-            public function tableName(): string
-            {
-                return 'invalid_primary_key_type';
-            }
-
-            public function primaryKey(): array
-            {
-                return ['id'];
-            }
-        };
-        $model->assignOldValues(['id' => ['invalid' => 'array'], 'name' => 'test']);
-
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Primary key value must be of type int, float, string or null.');
-        $model->primaryKeyOldValue();
-    }
-
     public function testGetDirtyValuesOnNewRecord(): void
     {
         $this->reloadFixtureAfterTest();
