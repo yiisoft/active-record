@@ -46,6 +46,9 @@ final class RelationPopulator
     {
         $via = $query->getVia();
         $viaMap = [];
+        $viaModels = null;
+        $viaQuery = null;
+
         if ($via instanceof ActiveQueryInterface) {
             $viaQuery = $via;
             $viaModels = JunctionRowsFinder::find($viaQuery, $primaryModels);
@@ -109,7 +112,7 @@ final class RelationPopulator
             $buckets = self::indexBuckets($buckets, $indexBy);
         }
 
-        if (isset($viaQuery)) {
+        if ($viaQuery !== null) {
             $deepViaQuery = $viaQuery;
 
             while ($deepViaQueryVia = $deepViaQuery->getVia()) {
