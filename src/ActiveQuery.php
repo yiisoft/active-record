@@ -573,27 +573,23 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * Returns the table name and the table alias.
+     *
+     * @psalm-return list{ExpressionInterface|string, string}
      */
     private function getTableNameAndAlias(): array
     {
-        if (empty($this->from)) {
-            $tableName = $this->getPrimaryTableName();
-        } else {
-            $tableName = '';
-
+        if (!empty($this->from)) {
             foreach ($this->from as $alias => $tableName) {
-                if (is_string($alias)) {
-                    return [$tableName, $alias];
-                }
-                break;
+                return is_string($alias)
+                    ? [$tableName, $alias]
+                    : ['', ''];
             }
         }
 
-        if (preg_match('/^(.*?)\s+({{\w+}}|\w+)$/', $tableName, $matches)) {
-            $alias = $matches[2];
-        } else {
-            $alias = $tableName;
-        }
+        $tableName = $this->getPrimaryTableName();
+        $alias = preg_match('/^(.*?)\s+({{\w+}}|\w+)$/', $tableName, $matches)
+            ? $matches[2]
+            : $tableName;
 
         return [$tableName, $alias];
     }
