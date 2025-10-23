@@ -270,11 +270,13 @@ interface ActiveQueryInterface extends QueryInterface
      * ```
      *
      * @param string $tableName The name of the junction table.
-     * @param array $link The link between the junction table and the table associated with {@see primaryModel}.
+     * @param string[] $link The link between the junction table and the table associated with {@see primaryModel}.
      * The keys of the array represent the columns in the junction table, and the values represent the columns in the
      * {@see primaryModel} table.
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
+     *
+     * @psalm-param array<string,string> $link
      *
      * @see via()
      */
