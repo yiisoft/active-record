@@ -119,7 +119,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array|string|null $on = null;
 
     /**
-     * @psalm-var list<list{array<string|Closure>, (array|bool), array|string}>
+     * @psalm-var list<list{array<string|Closure>, array|bool, array|string}>
      */
     private array $joinWith = [];
 
@@ -380,6 +380,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $name = $callback;
                 $callback = null;
             }
+            /** @var string $name */
 
             if (preg_match('/^(.*?)(?:\s+AS\s+|\s+)(\w+)$/i', $name, $matches)) {
                 /** The relation is defined with an alias, adjust callback to apply alias */
@@ -496,6 +497,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     *
+     * @psalm-param array<string|Closure> $with
      */
     private function joinWithRelations(ActiveRecordInterface $model, array $with, array|string $joinType): void
     {
@@ -506,6 +509,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $name = $callback;
                 $callback = null;
             }
+            /** @var string $name */
 
             $primaryModel = $model;
             $parent = $this;
