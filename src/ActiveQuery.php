@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use LogicException;
 use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
@@ -567,27 +568,28 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * Returns the table name and the table alias.
+     *
+     * @psalm-return list{ExpressionInterface|string, string}
      */
     private function getTableNameAndAlias(): array
     {
         if (empty($this->from)) {
             $tableName = $this->getPrimaryTableName();
         } else {
-            $tableName = '';
-
             foreach ($this->from as $alias => $tableName) {
                 if (is_string($alias)) {
                     return [$tableName, $alias];
+                }
+                if ($tableName instanceof ExpressionInterface) {
+                    throw new LogicException('Alias must be set for a table specified by an expression.');
                 }
                 break;
             }
         }
 
-        if (preg_match('/^(.*?)\s+({{\w+}}|\w+)$/', $tableName, $matches)) {
-            $alias = $matches[2];
-        } else {
-            $alias = $tableName;
-        }
+        $alias = preg_match('/^(.*?)\s+({{\w+}}|\w+)$/', $tableName, $matches)
+            ? $matches[2]
+            : $tableName;
 
         return [$tableName, $alias];
     }
