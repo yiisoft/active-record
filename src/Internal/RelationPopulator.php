@@ -98,7 +98,7 @@ final class RelationPopulator
         self::populateInverseRelation($query, $models, $primaryModels);
 
         if (isset($viaModels, $viaQuery)) {
-            [$buckets, $returnMap] = self::buildBuckets($query, $models, $viaModels, $viaQuery, $viaMap);
+            [$buckets, $returnMap] = self::buildBuckets($query, $models, [$viaModels, $viaQuery, $viaMap]);
         } else {
             [$buckets, $returnMap] = self::buildBuckets($query, $models);
         }
@@ -201,21 +201,22 @@ final class RelationPopulator
 
     /**
      * @param ActiveRecordInterface[]|array[] $models
+     *
+     * @psalm-param list{array<ActiveRecordInterface>|array<array>, ActiveQueryInterface, array<array>}|null $via
      */
     private static function buildBuckets(
         ActiveQueryInterface $query,
         array $models,
-        array|null $viaModels = null,
-        ActiveQueryInterface|null $viaQuery = null,
-        array $viaMap = [],
+        ?array $via = null,
     ): array {
         $returnMap = [];
-        if ($viaModels !== null) {
-            $map = [];
+        $map = [];
+
+        if ($via !== null) {
+            [$viaModels, $viaQuery, $viaMap] = $via;
             $linkValues = $query->getLink();
-            $viaLink = $viaQuery?->getLink() ?? [];
+            $viaLink = $viaQuery->getLink();
             $viaLinkKeys = array_keys($viaLink);
-            $viaVia = null;
 
             foreach ($viaModels as $viaModel) {
                 $key1 = self::getModelKeys($viaModel, $viaLinkKeys);
@@ -227,20 +228,16 @@ final class RelationPopulator
                 $map = array_replace_recursive(...$map);
             }
 
-            if ($viaQuery !== null) {
-                $returnMap = $map;
-                $viaVia = $viaQuery->getVia();
-            }
+            $returnMap = $map;
+            $viaVia = $viaQuery->getVia();
 
             while ($viaVia) {
-                /**
-                 * @var ActiveQuery $viaViaQuery
-                 *
-                 * @psalm-suppress RedundantCondition
-                 */
+                /** @var ActiveQuery $viaViaQuery */
                 $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
-                $map = self::mapVia($map, $viaMap);
-
+                $map = array_map(
+                    static fn(array $linkKeys): array => array_replace(...array_intersect_key($viaMap, $linkKeys)),
+                    $map,
+                );
                 $viaVia = $viaViaQuery->getVia();
             }
         }
@@ -248,7 +245,7 @@ final class RelationPopulator
         $buckets = [];
         $linkKeys = array_keys($query->getLink());
 
-        if (isset($map)) {
+        if ($via !== null) {
             foreach ($models as $model) {
                 $keys = self::getModelKeys($model, $linkKeys);
                 /** @var bool[][] $filtered */
@@ -279,21 +276,6 @@ final class RelationPopulator
         }
 
         return [$buckets, $returnMap];
-    }
-
-    /**
-     * @psalm-param array<array> $map
-     * @psalm-param array<array> $viaMap
-     */
-    private static function mapVia(array $map, array $viaMap): array
-    {
-        $resultMap = [];
-
-        foreach ($map as $key => $linkKeys) {
-            $resultMap[$key] = array_replace(...array_intersect_key($viaMap, $linkKeys));
-        }
-
-        return $resultMap;
     }
 
     /**
