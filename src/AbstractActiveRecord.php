@@ -35,7 +35,6 @@ use function array_values;
 use function count;
 use function in_array;
 use function is_array;
-use function is_float;
 use function is_int;
 use function is_string;
 use function ltrim;
@@ -234,7 +233,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $values = [];
         foreach ($keys as $name) {
             /**
-             * @var float|int|string|bool|null We assume primary key old values always are scalar or null.
+             * @var bool|float|int|string|null We assume primary key old values always are scalar or null.
              */
             $values[$name] = $this->oldValues[$name] ?? null;
         }
@@ -274,7 +273,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $values = [];
         foreach ($keys as $name) {
             /**
-             * @var float|int|string|bool|null We assume primary key old values always are scalar or null.
+             * @var bool|float|int|string|null We assume primary key old values always are scalar or null.
              */
             $values[$name] = $this->get($name);
         }
