@@ -165,7 +165,7 @@ trait ActiveQueryTrait
 
         foreach ($relations as $name => $relation) {
             if ($relation->isAsArray() === null) {
-                /** inherit asArray from a primary query */
+                // inherit asArray from a primary query
                 $relation->asArray($this->asArray);
             }
 
@@ -174,7 +174,7 @@ trait ActiveQueryTrait
     }
 
     /**
-     * @return ActiveQueryInterface[]
+     * @psalm-return array<string, ActiveQueryInterface>
      */
     private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
