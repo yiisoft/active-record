@@ -204,8 +204,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function primaryKeyOldValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
+
+        /**
+         * @var float|int|string|null We assume primary key old value always is float, int, string or null.
+         */
         return match (count($keys)) {
-            1 => $this->getOldPrimaryKeyValue($keys[0]),
+            1 => $this->oldValues[$keys[0]] ?? null,
             0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
@@ -229,7 +233,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         $values = [];
         foreach ($keys as $name) {
-            $values[$name] = $this->getOldPrimaryKeyValue($name);
+            /**
+             * @var float|int|string|bool|null We assume primary key old values always are scalar or null.
+             */
+            $values[$name] = $this->oldValues[$name] ?? null;
         }
         return $values;
     }
@@ -237,8 +244,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function primaryKeyValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
+
+        /**
+         * @var float|int|string|null We assume primary key value always is float, int, string or null.
+         */
         return match (count($keys)) {
-            1 => $this->getPrimaryKeyValue($keys[0]),
+            1 => $this->get($keys[0]),
             0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
@@ -262,7 +273,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         $values = [];
         foreach ($keys as $name) {
-            $values[$name] = $this->getPrimaryKeyValue($name);
+            /**
+             * @var float|int|string|bool|null We assume primary key old values always are scalar or null.
+             */
+            $values[$name] = $this->get($name);
         }
         return $values;
     }
@@ -1257,30 +1271,5 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function db(): ConnectionInterface
     {
         return ConnectionProvider::get();
-    }
-
-    private function getPrimaryKeyValue(string $key): float|int|string|null
-    {
-        $value = $this->get($key);
-        $this->assertPrimaryKeyValue($value);
-        return $value;
-    }
-
-    private function getOldPrimaryKeyValue(string $key): float|int|string|null
-    {
-        $value = $this->oldValues[$key] ?? null;
-        $this->assertPrimaryKeyValue($value);
-        return $value;
-    }
-
-    /**
-     * @psalm-assert float|int|string|null $value
-     */
-    private function assertPrimaryKeyValue(mixed $value): void
-    {
-        if (is_int($value) || is_string($value) || is_float($value) || $value === null) {
-            return;
-        }
-        throw new LogicException('Primary key value must be of type int, float, string or null.');
     }
 }

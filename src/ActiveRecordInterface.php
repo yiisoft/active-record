@@ -164,7 +164,7 @@ interface ActiveRecordInterface
      *
      * @see primaryKeyOldValues()
      *
-     * @psalm-return array<string, float|int|string|null>
+     * @psalm-return array<string, float|int|string|bool|null>
      */
     public function primaryKeyOldValues(): array;
 
@@ -182,7 +182,7 @@ interface ActiveRecordInterface
      *
      * @see primaryKeyValue()
      *
-     * @psalm-return array<string, float|int|string|null>
+     * @psalm-return array<string, float|int|string|bool|null>
      */
     public function primaryKeyValues(): array;
 
