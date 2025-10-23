@@ -159,10 +159,9 @@ final class RelationPopulator
     }
 
     /**
-     * @param string[] $link
-     *
      * @psalm-param non-empty-array<ActiveRecordInterface|array> $models
      * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $models
+     * @psalm-param array<string,string> $link
      */
     private static function populateRelationFromBuckets(
         ActiveQueryInterface $query,
@@ -203,6 +202,7 @@ final class RelationPopulator
      * @param ActiveRecordInterface[]|array[] $models
      *
      * @psalm-param list{array<ActiveRecordInterface>|array<array>, ActiveQueryInterface, array<array>}|null $via
+     * @psalm-return list{array, array<array>}
      */
     private static function buildBuckets(
         ActiveQueryInterface $query,
@@ -226,6 +226,7 @@ final class RelationPopulator
 
             if (!empty($map)) {
                 $map = array_replace_recursive(...$map);
+                /** @psalm-var array<array<true>> $map */
             }
 
             $returnMap = $map;
