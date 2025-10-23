@@ -4,28 +4,16 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use ReflectionException;
 use Throwable;
-use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
-use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
+use Yiisoft\ActiveRecord\Internal\RelationPopulator;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 
-use function array_column;
-use function array_combine;
-use function array_fill_keys;
-use function array_flip;
-use function array_intersect_key;
-use function array_keys;
-use function array_merge;
-use function array_values;
-use function count;
 use function is_array;
 use function is_object;
 use function reset;
-use function serialize;
 
 /**
  * ActiveRelationTrait implements the common methods and properties for active record relational queries.
@@ -56,7 +44,6 @@ trait ActiveRelationTrait
      * @psalm-var array{string, ActiveQueryInterface, bool}|ActiveQueryInterface|null
      */
     private array|ActiveQueryInterface|null $via = null;
-    private array $viaMap = [];
 
     /**
      * Clones internal objects.
@@ -179,285 +166,14 @@ trait ActiveRelationTrait
     }
 
     /**
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
      *
      * @return ActiveRecordInterface[]|array[]
      */
     public function populateRelation(string $name, array &$primaryModels): array
     {
-        if ($this->via instanceof ActiveQueryInterface) {
-            $viaQuery = $this->via;
-            $viaModels = JunctionRowsFinder::find($viaQuery, $primaryModels);
-            ModelRelationFilter::apply($this, $viaModels);
-        } elseif (is_array($this->via)) {
-            [$viaName, $viaQuery] = $this->via;
-
-            if ($viaQuery->isAsArray() === null) {
-                /** inherit asArray from a primary query */
-                $viaQuery->asArray($this->asArray);
-            }
-
-            $viaQuery->primaryModel(null);
-            $viaModels = $viaQuery->populateRelation($viaName, $primaryModels);
-            ModelRelationFilter::apply($this, $viaModels);
-        } else {
-            ModelRelationFilter::apply($this, $primaryModels);
-        }
-
-        if (!$this->multiple && count($primaryModels) === 1) {
-            $models = [$this->one()];
-            $this->populateInverseRelation($models, $primaryModels);
-
-            $primaryModel = $primaryModels[0];
-
-            if ($primaryModel instanceof ActiveRecordInterface) {
-                $primaryModel->populateRelation($name, $models[0]);
-            } else {
-                /**
-                 * @psalm-var non-empty-list<array> $primaryModels
-                 * @psalm-suppress UndefinedInterfaceMethod
-                 */
-                $primaryModels[0][$name] = $models[0];
-            }
-
-            return $models;
-        }
-
-        /**
-         * {@see https://github.com/yiisoft/yii2/issues/3197}
-         *
-         * Delay indexing related models after buckets are built.
-         */
-        $indexBy = $this->getIndexBy();
-        $this->indexBy(null);
-        $models = $this->all();
-
-        $this->populateInverseRelation($models, $primaryModels);
-
-        if (isset($viaModels, $viaQuery)) {
-            $buckets = $this->buildBuckets($models, $viaModels, $viaQuery);
-        } else {
-            $buckets = $this->buildBuckets($models);
-        }
-
-        $this->indexBy($indexBy);
-
-        if ($indexBy !== null && $this->multiple) {
-            $buckets = $this->indexBuckets($buckets, $indexBy);
-        }
-
-        if (isset($viaQuery)) {
-            $deepViaQuery = $viaQuery;
-
-            while ($deepViaQuery->via) {
-                $deepViaQuery = is_array($deepViaQuery->via) ? $deepViaQuery->via[1] : $deepViaQuery->via;
-            }
-
-            $link = $deepViaQuery->link;
-        } else {
-            $link = $this->link;
-        }
-
-        $this->populateRelationFromBuckets($primaryModels, $buckets, $name, $link);
-
-        return $models;
-    }
-
-    /**
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     */
-    private function populateInverseRelation(
-        array &$models,
-        array $primaryModels,
-    ): void {
-        if ($this->inverseOf === null || empty($models)) {
-            return;
-        }
-
-        $name = $this->inverseOf;
-        $model = reset($models);
-
-        /** @var ActiveQuery $relation */
-        $relation = is_array($model)
-            ? $this->getModel()->relationQuery($name)
-            : $model->relationQuery($name);
-
-        $link = $relation->getLink();
-        $indexBy = $relation->getIndexBy();
-        $buckets = $relation->buildBuckets($primaryModels);
-
-        if ($indexBy !== null && $relation->isMultiple()) {
-            $buckets = $this->indexBuckets($buckets, $indexBy);
-        }
-
-        $relation->populateRelationFromBuckets($models, $buckets, $name, $link);
-    }
-
-    private function populateRelationFromBuckets(
-        array &$models,
-        array $buckets,
-        string $name,
-        array $link
-    ): void {
-        $indexBy = $this->getIndexBy();
-        $default = $this->multiple ? [] : null;
-
-        foreach ($models as &$model) {
-            $keys = $this->getModelKeys($model, $link);
-
-            if (empty($keys)) {
-                $value = $default;
-            } elseif (count($keys) === 1) {
-                $value = $buckets[$keys[0]] ?? $default;
-            } else {
-                if ($this->multiple) {
-                    $arrays = array_values(array_intersect_key($buckets, array_flip($keys)));
-                    $value = $indexBy === null ? array_merge(...$arrays) : array_replace(...$arrays);
-                } else {
-                    $value = $default;
-                }
-            }
-
-            if ($model instanceof ActiveRecordInterface) {
-                $model->populateRelation($name, $value);
-            } else {
-                /** @var array $model */
-                $model[$name] = $value;
-            }
-        }
-    }
-
-    private function buildBuckets(
-        array $models,
-        array|null $viaModels = null,
-        self|null $viaQuery = null
-    ): array {
-        if ($viaModels !== null) {
-            $map = [];
-            $linkValues = $this->link;
-            $viaLink = $viaQuery->link ?? [];
-            $viaLinkKeys = array_keys($viaLink);
-            $viaVia = null;
-
-            foreach ($viaModels as $viaModel) {
-                $key1 = $this->getModelKeys($viaModel, $viaLinkKeys);
-                $key2 = $this->getModelKeys($viaModel, $linkValues);
-                $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
-            }
-
-            if (!empty($map)) {
-                $map = array_replace_recursive(...$map);
-            }
-
-            if ($viaQuery !== null) {
-                $viaQuery->viaMap = $map;
-                $viaVia = $viaQuery->getVia();
-            }
-
-            while ($viaVia) {
-                /**
-                 * @var ActiveQuery $viaViaQuery
-                 *
-                 * @psalm-suppress RedundantCondition
-                 */
-                $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
-                $map = $this->mapVia($map, $viaViaQuery->viaMap);
-
-                $viaVia = $viaViaQuery->getVia();
-            }
-        }
-
-        $buckets = [];
-        $linkKeys = array_keys($this->link);
-
-        if (isset($map)) {
-            foreach ($models as $model) {
-                $keys = $this->getModelKeys($model, $linkKeys);
-                /** @var bool[][] $filtered */
-                $filtered = array_values(array_intersect_key($map, array_fill_keys($keys, null)));
-
-                foreach (array_keys(array_replace(...$filtered)) as $key2) {
-                    $buckets[$key2][] = $model;
-                }
-            }
-        } else {
-            foreach ($models as $model) {
-                $keys = $this->getModelKeys($model, $linkKeys);
-
-                foreach ($keys as $key) {
-                    $buckets[$key][] = $model;
-                }
-            }
-        }
-
-        if (!$this->multiple) {
-            return array_combine(
-                array_keys($buckets),
-                array_column($buckets, 0)
-            );
-        }
-
-        return $buckets;
-    }
-
-    private function mapVia(array $map, array $viaMap): array
-    {
-        $resultMap = [];
-
-        foreach ($map as $key => $linkKeys) {
-            $resultMap[$key] = array_replace(...array_intersect_key($viaMap, $linkKeys));
-        }
-
-        return $resultMap;
-    }
-
-    /**
-     * Indexes buckets by a column name.
-     *
-     * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
-     * also be a {@see Closure} that returns the index value based on the given models data.
-     */
-    private function indexBuckets(array $buckets, Closure|string $indexBy): array
-    {
-        foreach ($buckets as &$models) {
-            $models = ArArrayHelper::index($models, $indexBy);
-        }
-
-        return $buckets;
-    }
-
-    private function getModelKeys(ActiveRecordInterface|array $model, array $properties): array
-    {
-        $key = [];
-
-        if (is_array($model)) {
-            foreach ($properties as $property) {
-                if (isset($model[$property])) {
-                    $key[] = is_array($model[$property])
-                        ? $model[$property]
-                        : (string) $model[$property];
-                }
-            }
-        } else {
-            foreach ($properties as $property) {
-                $value = $model->get($property);
-
-                if ($value !== null) {
-                    $key[] = is_array($value)
-                        ? $value
-                        : (string) $value;
-                }
-            }
-        }
-
-        return match (count($key)) {
-            0 => [],
-            1 => is_array($key[0]) ? $key[0] : [$key[0]],
-            default => [serialize($key)],
-        };
+        return RelationPopulator::populate($this, $name, $primaryModels);
     }
 
     public function isMultiple(): bool
