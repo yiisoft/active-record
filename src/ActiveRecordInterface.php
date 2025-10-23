@@ -11,10 +11,12 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 /**
  * @psalm-import-type ModelClass from ActiveQuery
+ * @psalm-import-type RawFrom from QueryInterface
  */
 interface ActiveRecordInterface
 {
@@ -513,6 +515,8 @@ interface ActiveRecordInterface
      * @throws Exception
      *
      * @return int The number of rows updated.
+     *
+     * @psalm-param RawFrom|null $from
      */
     public function updateAll(array $propertyValues, array|string $condition = [], array|ExpressionInterface|string|null $from = null, array $params = []): int;
 
