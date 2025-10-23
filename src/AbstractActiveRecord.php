@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -34,7 +35,9 @@ use function array_values;
 use function count;
 use function in_array;
 use function is_array;
+use function is_float;
 use function is_int;
+use function is_string;
 use function ltrim;
 use function preg_replace;
 use function reset;
@@ -201,17 +204,26 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function primaryKeyOldValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
+        $countKeys = count($keys);
 
-        return match (count($keys)) {
-            1 => $this->oldValues[$keys[0]] ?? null,
-            0 => throw new Exception(
+        if ($countKeys === 1) {
+            $primaryKey = $this->oldValues[$keys[0]] ?? null;
+            if (is_int($primaryKey) || is_string($primaryKey) || is_float($primaryKey) || $primaryKey === null) {
+                return $primaryKey;
+            }
+            throw new LogicException('Primary key value must be of type int, float, string or null.');
+        }
+
+        if ($countKeys === 0) {
+            throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
-            ),
-            default => throw new Exception(
-                static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.'
-            ),
-        };
+            );
+        }
+
+        throw new LogicException(
+            static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.'
+        );
     }
 
     public function primaryKeyOldValues(): array

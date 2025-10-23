@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 use DateTimeImmutable;
 use DateTimeZone;
 use DivisionByZeroError;
+use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
@@ -689,7 +690,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->primaryKeyOldValues());
 
-        $this->expectException(Exception::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage(OrderItem::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.');
 
         $orderItem->primaryKeyOldValue();
@@ -699,7 +700,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $orderItem = new OrderItemWithNullFK();
 
-        $this->expectException(Exception::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
         $orderItem->primaryKeyOldValue();
