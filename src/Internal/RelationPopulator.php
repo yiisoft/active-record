@@ -183,13 +183,11 @@ final class RelationPopulator
                 $value = $default;
             } elseif (count($keys) === 1) {
                 $value = $buckets[$keys[0]] ?? $default;
+            } elseif ($query->isMultiple()) {
+                $arrays = array_values(array_intersect_key($buckets, array_flip($keys)));
+                $value = $indexBy === null ? array_merge(...$arrays) : array_replace(...$arrays);
             } else {
-                if ($query->isMultiple()) {
-                    $arrays = array_values(array_intersect_key($buckets, array_flip($keys)));
-                    $value = $indexBy === null ? array_merge(...$arrays) : array_replace(...$arrays);
-                } else {
-                    $value = $default;
-                }
+                $value = $default;
             }
 
             if ($model instanceof ActiveRecordInterface) {
@@ -205,7 +203,10 @@ final class RelationPopulator
      * @param ActiveRecordInterface[]|array[] $models
      *
      * @psalm-param list{array<ActiveRecordInterface>|array<array>, ActiveQueryInterface, array<array>}|null $via
-     * @psalm-return list{array, array<array>}
+     * @psalm-return list{
+     *     array<array<ActiveRecordInterface>|array<array>>|array<ActiveRecordInterface>|array<array>,
+     *     array<array>
+     * }
      */
     private static function buildBuckets(
         ActiveQueryInterface $query,
@@ -288,7 +289,7 @@ final class RelationPopulator
      * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a {@see Closure} that returns the index value based on the given models data.
      *
-     * @psalm-param list<list<ActiveRecordInterface|array>> $buckets
+     * @psalm-param array<array<ActiveRecordInterface|array>> $buckets
      * @psalm-param IndexBy|string $indexBy
      */
     private static function indexBuckets(array $buckets, Closure|string $indexBy): array
