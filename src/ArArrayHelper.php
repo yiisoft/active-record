@@ -147,7 +147,7 @@ final class ArArrayHelper
      * @psalm-template TRow of Row
      * @psalm-param array<TRow> $rows
      * @psalm-param IndexBy|null $indexBy
-     * @psalm-return array<TRow>
+     * @psalm-return ($rows is non-empty-array<TRow> ? non-empty-array<TRow> : array<TRow>)
      */
     public static function index(array $rows, Closure|string|null $indexBy = null): array
     {

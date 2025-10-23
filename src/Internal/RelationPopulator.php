@@ -100,11 +100,11 @@ final class RelationPopulator
 
         self::populateInverseRelation($query, $models, $primaryModels);
 
-        if (isset($viaModels, $viaQuery)) {
-            [$buckets, $returnMap] = self::buildBuckets($query, $models, [$viaModels, $viaQuery, $viaMap]);
-        } else {
-            [$buckets, $returnMap] = self::buildBuckets($query, $models);
-        }
+        [$buckets, $returnMap] = self::buildBuckets(
+            $query->getLink(),
+            $models,
+            isset($viaModels, $viaQuery) ? [$viaModels, $viaQuery, $viaMap] : null,
+        );
 
         $query->indexBy($indexBy);
 
@@ -152,7 +152,7 @@ final class RelationPopulator
 
         $link = $relation->getLink();
         $indexBy = $relation->getIndexBy();
-        [$buckets] = self::buildBuckets($relation, $primaryModels);
+        [$buckets] = self::buildBuckets($link, $primaryModels);
 
         if ($indexBy !== null && $relation->isMultiple()) {
             $buckets = self::indexBuckets($buckets, $indexBy);
@@ -164,7 +164,8 @@ final class RelationPopulator
     /**
      * @psalm-param non-empty-array<ActiveRecordInterface|array> $models
      * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $models
-     * @psalm-param array<string,string> $link
+     * @psalm-param array<non-empty-array<ActiveRecordInterface|array>> $buckets
+     * @psalm-param array<string, string> $link
      */
     private static function populateRelationFromBuckets(
         ActiveQueryInterface $query,
@@ -182,8 +183,11 @@ final class RelationPopulator
             if (empty($keys)) {
                 $value = $default;
             } elseif (count($keys) === 1) {
-                $value = $buckets[$keys[0]] ?? $default;
+                $value = $query->isMultiple()
+                    ? $buckets[$keys[0]] ?? $default
+                    : $buckets[$keys[0]][0] ?? $default;
             } elseif ($query->isMultiple()) {
+                /** @psalm-var non-empty-list<array> $arrays */
                 $arrays = array_values(array_intersect_key($buckets, array_flip($keys)));
                 $value = $indexBy === null ? array_merge(...$arrays) : array_replace(...$arrays);
             } else {
@@ -200,16 +204,16 @@ final class RelationPopulator
     }
 
     /**
-     * @param ActiveRecordInterface[]|array[] $models
-     *
-     * @psalm-param list{array<ActiveRecordInterface>|array<array>, ActiveQueryInterface, array<array>}|null $via
+     * @psalm-param array<string, string> $link
+     * @psalm-param array<ActiveRecordInterface|array> $models
+     * @psalm-param list{array<ActiveRecordInterface|array>, ActiveQueryInterface, array<array>}|null $via
      * @psalm-return list{
-     *     array<array<ActiveRecordInterface>|array<array>>|array<ActiveRecordInterface>|array<array>,
+     *     array<non-empty-list<ActiveRecordInterface|array>>,
      *     array<array>
      * }
      */
     private static function buildBuckets(
-        ActiveQueryInterface $query,
+        array $link,
         array $models,
         ?array $via = null,
     ): array {
@@ -218,13 +222,12 @@ final class RelationPopulator
 
         if ($via !== null) {
             [$viaModels, $viaQuery, $viaMap] = $via;
-            $linkValues = $query->getLink();
             $viaLink = $viaQuery->getLink();
             $viaLinkKeys = array_keys($viaLink);
 
             foreach ($viaModels as $viaModel) {
                 $key1 = self::getModelKeys($viaModel, $viaLinkKeys);
-                $key2 = self::getModelKeys($viaModel, $linkValues);
+                $key2 = self::getModelKeys($viaModel, $link);
                 $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
             }
 
@@ -248,7 +251,7 @@ final class RelationPopulator
         }
 
         $buckets = [];
-        $linkKeys = array_keys($query->getLink());
+        $linkKeys = array_keys($link);
 
         if ($via !== null) {
             foreach ($models as $model) {
@@ -270,16 +273,6 @@ final class RelationPopulator
             }
         }
 
-        if (!$query->isMultiple()) {
-            return [
-                array_combine(
-                    array_keys($buckets),
-                    array_column($buckets, 0)
-                ),
-                $returnMap,
-            ];
-        }
-
         return [$buckets, $returnMap];
     }
 
@@ -289,16 +282,16 @@ final class RelationPopulator
      * @param Closure|string $indexBy the name of the column by which the query results should be indexed by. This can
      * also be a {@see Closure} that returns the index value based on the given models data.
      *
-     * @psalm-param array<array<ActiveRecordInterface|array>> $buckets
+     * @psalm-param array<non-empty-list<ActiveRecordInterface|array>> $buckets
      * @psalm-param IndexBy|string $indexBy
+     * @psalm-return array<non-empty-array<ActiveRecordInterface|array>>
      */
     private static function indexBuckets(array $buckets, Closure|string $indexBy): array
     {
-        foreach ($buckets as &$models) {
-            $models = ArArrayHelper::index($models, $indexBy);
-        }
-
-        return $buckets;
+        return array_map(
+            static fn(array $models) => ArArrayHelper::index($models, $indexBy),
+            $buckets,
+        );
     }
 
     /**
