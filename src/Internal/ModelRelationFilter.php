@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Internal;
 
+use LogicException;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\QueryBuilder\Condition\ArrayOverlaps;
 use Yiisoft\Db\QueryBuilder\Condition\In;
@@ -138,6 +140,9 @@ final class ModelRelationFilter
             $alias = array_key_first($from);
             if (!is_string($alias)) {
                 $alias = reset($from);
+                if ($alias instanceof ExpressionInterface) {
+                    throw new LogicException('Alias must be set for a table specified by an expression.');
+                }
             }
         }
 

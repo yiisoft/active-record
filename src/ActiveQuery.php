@@ -586,14 +586,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (empty($this->from)) {
             $tableName = $this->getPrimaryTableName();
         } else {
-            foreach ($this->from as $alias => $tableName) {
-                if (is_string($alias)) {
-                    return [$tableName, $alias];
-                }
-                if ($tableName instanceof ExpressionInterface) {
-                    throw new LogicException('Alias must be set for a table specified by an expression.');
-                }
-                break;
+            $alias = array_key_first($this->from);
+            $tableName = $this->from[$alias];
+            if (is_string($alias)) {
+                return [$tableName, $alias];
+            }
+            if ($tableName instanceof ExpressionInterface) {
+                throw new LogicException('Alias must be set for a table specified by an expression.');
             }
         }
 
