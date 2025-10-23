@@ -201,6 +201,8 @@ interface ActiveQueryInterface extends QueryInterface
      * An extra query will still be performed to bring in the related data.
      *
      * @see joinWith()
+     *
+     * @psalm-param array<string|Closure>|string $with
      */
     public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): static;
 
