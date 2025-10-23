@@ -1186,14 +1186,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $rows;
     }
 
+    /**
+     * @psalm-param array<string, string> $link
+     */
     private function bindModels(
         array $link,
         ActiveRecordInterface $foreignModel,
         ActiveRecordInterface $primaryModel
     ): void {
-        /** @psalm-var string[] $link */
         foreach ($link as $fk => $pk) {
-            /** @psalm-var mixed $value */
             $value = $primaryModel->get($pk);
 
             if ($value === null) {
@@ -1202,11 +1203,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 );
             }
 
-            /**
-             * Relation via array valued property.
-             */
+            // Relation via array valued property
             if (is_array($fkValue = $foreignModel->get($fk))) {
-                /** @psalm-var mixed */
                 $fkValue[] = $value;
                 $foreignModel->set($fk, $fkValue);
             } else {
