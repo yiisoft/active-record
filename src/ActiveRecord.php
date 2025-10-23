@@ -182,7 +182,7 @@ class ActiveRecord extends AbstractActiveRecord
             : null;
 
         if (is_array($updateProperties)) {
-            $updateNames = array_filter($updateProperties, 'is_int', ARRAY_FILTER_USE_KEY);
+            $updateNames = array_filter($updateProperties, is_int(...), ARRAY_FILTER_USE_KEY);
 
             if (!empty($updateNames)) {
                 $updateProperties = array_merge(

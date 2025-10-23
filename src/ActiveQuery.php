@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use LogicException;
 use Closure;
 use ReflectionException;
 use Throwable;
@@ -582,15 +583,20 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     private function getTableNameAndAlias(): array
     {
-        if (!empty($this->from)) {
+        if (empty($this->from)) {
+            $tableName = $this->getPrimaryTableName();
+        } else {
             foreach ($this->from as $alias => $tableName) {
-                return is_string($alias)
-                    ? [$tableName, $alias]
-                    : ['', ''];
+                if (is_string($alias)) {
+                    return [$tableName, $alias];
+                }
+                if ($tableName instanceof ExpressionInterface) {
+                    throw new LogicException('Alias must be set for a table specified by an expression.');
+                }
+                break;
             }
         }
 
-        $tableName = $this->getPrimaryTableName();
         $alias = preg_match('/^(.*?)\s+({{\w+}}|\w+)$/', $tableName, $matches)
             ? $matches[2]
             : $tableName;
