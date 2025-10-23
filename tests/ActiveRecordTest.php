@@ -10,6 +10,7 @@ use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\Event\AfterDelete;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
@@ -902,6 +903,28 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
         $orderItem->primaryKeyOldValues();
+    }
+
+    public function testPrimaryKeyOldValueWithInvalidType(): void
+    {
+        $model = new class() extends ActiveRecord {
+            public mixed $id;
+
+            public function tableName(): string
+            {
+                return 'invalid_primary_key_type';
+            }
+
+            public function primaryKey(): array
+            {
+                return ['id'];
+            }
+        };
+        $model->assignOldValues(['id' => ['invalid' => 'array'], 'name' => 'test']);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Primary key value must be of type int, float, string or null.');
+        $model->primaryKeyOldValue();
     }
 
     public function testGetDirtyValuesOnNewRecord(): void
