@@ -28,16 +28,19 @@ final class RelationPopulator
     /**
      * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
      * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
+     *
+     * @return ActiveRecordInterface[]|array[]
      */
     public static function populate(ActiveQueryInterface $query, string $name, array &$primaryModels): array
     {
-        [, $result] = self::populateInternal($query, $name, $primaryModels);
+        [$result] = self::populateInternal($query, $name, $primaryModels);
         return $result;
     }
 
     /**
      * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
      * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
+     * @psalm-return list{array<ActiveRecordInterface>|array<array>, array<array>}
      */
     private static function populateInternal(ActiveQueryInterface $query, string $name, array &$primaryModels): array
     {
@@ -56,7 +59,7 @@ final class RelationPopulator
             }
 
             $viaQuery->primaryModel(null);
-            [$viaMap, $viaModels] = self::populateInternal($viaQuery, $viaName, $primaryModels);
+            [$viaModels, $viaMap] = self::populateInternal($viaQuery, $viaName, $primaryModels);
             ModelRelationFilter::apply($query, $viaModels);
         } else {
             ModelRelationFilter::apply($query, $primaryModels);
@@ -79,7 +82,7 @@ final class RelationPopulator
                 $primaryModels[0][$name] = $models[0];
             }
 
-            return [[], $models];
+            return [$models, []];
         }
 
         /**
@@ -95,9 +98,9 @@ final class RelationPopulator
         self::populateInverseRelation($query, $models, $primaryModels);
 
         if (isset($viaModels, $viaQuery)) {
-            [$returnMap, $buckets] = self::buildBuckets($query, $models, $viaModels, $viaQuery, $viaMap);
+            [$buckets, $returnMap] = self::buildBuckets($query, $models, $viaModels, $viaQuery, $viaMap);
         } else {
-            [$returnMap, $buckets] = self::buildBuckets($query, $models);
+            [$buckets, $returnMap] = self::buildBuckets($query, $models);
         }
 
         $query->indexBy($indexBy);
@@ -120,7 +123,7 @@ final class RelationPopulator
 
         self::populateRelationFromBuckets($query, $primaryModels, $buckets, $name, $link);
 
-        return [$returnMap, $models];
+        return [$models, $returnMap];
     }
 
     /**
@@ -146,7 +149,7 @@ final class RelationPopulator
 
         $link = $relation->getLink();
         $indexBy = $relation->getIndexBy();
-        [, $buckets] = self::buildBuckets($relation, $primaryModels);
+        [$buckets] = self::buildBuckets($relation, $primaryModels);
 
         if ($indexBy !== null && $relation->isMultiple()) {
             $buckets = self::indexBuckets($buckets, $indexBy);
@@ -267,15 +270,15 @@ final class RelationPopulator
 
         if (!$query->isMultiple()) {
             return [
-                $returnMap,
                 array_combine(
                     array_keys($buckets),
                     array_column($buckets, 0)
                 ),
+                $returnMap,
             ];
         }
 
-        return [$returnMap, $buckets];
+        return [$buckets, $returnMap];
     }
 
     /**
