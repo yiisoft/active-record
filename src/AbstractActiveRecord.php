@@ -629,12 +629,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @param array $values Property values (name => value) to be assigned to the model.
      *
      * @see propertyNames()
+     *
+     * @psalm-param array<string, mixed> $values
      */
     public function populateProperties(array $values): void
     {
         $values = array_intersect_key($values, array_flip($this->propertyNames()));
-
-        /** @psalm-var mixed $value */
         foreach ($values as $name => $value) {
             $this->populateProperty($name, $value);
         }
