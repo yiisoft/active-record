@@ -204,22 +204,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function primaryKeyOldValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
-        $countKeys = count($keys);
-
-        if ($countKeys === 1) {
-            return $this->getOldPrimaryKeyValue($keys[0]);
-        }
-
-        if ($countKeys === 0) {
-            throw new LogicException(
+        return match (count($keys)) {
+            1 => $this->getOldPrimaryKeyValue($keys[0]),
+            0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
-            );
-        }
-
-        throw new LogicException(
-            static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.'
-        );
+            ),
+            default => throw new LogicException(
+                static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.'
+            ),
+        };
     }
 
     public function primaryKeyOldValues(): array
@@ -243,22 +237,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function primaryKeyValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
-        $countKeys = count($keys);
-
-        if ($countKeys === 1) {
-            return $this->getPrimaryKeyValue($keys[0]);
-        }
-
-        if ($countKeys === 0) {
-            throw new LogicException(
+        return match (count($keys)) {
+            1 => $this->getPrimaryKeyValue($keys[0]),
+            0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
-            );
-        }
-
-        throw new LogicException(
-            static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.'
-        );
+            ),
+            default => throw new LogicException(
+                static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.'
+            ),
+        };
     }
 
     public function primaryKeyValues(): array
