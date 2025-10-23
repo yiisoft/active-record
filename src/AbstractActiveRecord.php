@@ -312,6 +312,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @return ActiveQueryInterface The relational query object.
      *
      * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
      */
     public function hasMany(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
@@ -351,6 +352,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @return ActiveQueryInterface The relational query object.
      *
      * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
      */
     public function hasOne(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
@@ -1034,6 +1036,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @return ActiveQueryInterface The relational query object.
      *
      * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
      *
      * {@see hasOne()}
      * {@see hasMany()}
