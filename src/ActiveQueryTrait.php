@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -184,9 +185,13 @@ trait ActiveQueryTrait
                 $name = $callback;
                 $callback = null;
             }
+            /**
+             * @var string $name
+             * @var Closure|null $callback
+             */
 
             if (($pos = strpos($name, '.')) !== false) {
-                /** with sub-relations */
+                // with sub-relations
                 $childName = substr($name, $pos + 1);
                 $name = substr($name, 0, $pos);
             } else {
@@ -194,16 +199,15 @@ trait ActiveQueryTrait
             }
 
             if (!isset($relations[$name])) {
-                /** @var ActiveQuery $relation */
                 $relation = $model->relationQuery($name);
-                $relation->primaryModel = null;
+                $relation->primaryModel(null);
                 $relations[$name] = $relation;
             } else {
                 $relation = $relations[$name];
             }
 
             if (isset($childName)) {
-                $relation->with[$childName] = $callback;
+                $relation->with([$childName => $callback]);
             } elseif ($callback !== null) {
                 $callback($relation);
             }
