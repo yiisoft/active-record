@@ -207,11 +207,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $countKeys = count($keys);
 
         if ($countKeys === 1) {
-            $primaryKey = $this->oldValues[$keys[0]] ?? null;
-            if (is_int($primaryKey) || is_string($primaryKey) || is_float($primaryKey) || $primaryKey === null) {
-                return $primaryKey;
-            }
-            throw new LogicException('Primary key value must be of type int, float, string or null.');
+            return $this->getOldPrimaryKeyValue($keys[0]);
         }
 
         if ($countKeys === 0) {
@@ -231,35 +227,38 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $keys = $this->primaryKey();
 
         if (empty($keys)) {
-            throw new Exception(
+            throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
             );
         }
 
         $values = [];
-
         foreach ($keys as $name) {
-            $values[$name] = $this->oldValues[$name] ?? null;
+            $values[$name] = $this->getOldPrimaryKeyValue($name);
         }
-
         return $values;
     }
 
     public function primaryKeyValue(): float|int|string|null
     {
         $keys = $this->primaryKey();
+        $countKeys = count($keys);
 
-        return match (count($keys)) {
-            1 => $this->get($keys[0]),
-            0 => throw new Exception(
+        if ($countKeys === 1) {
+            return $this->getPrimaryKeyValue($keys[0]);
+        }
+
+        if ($countKeys === 0) {
+            throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
-            ),
-            default => throw new Exception(
-                static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.'
-            ),
-        };
+            );
+        }
+
+        throw new LogicException(
+            static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.'
+        );
     }
 
     public function primaryKeyValues(): array
@@ -267,18 +266,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $keys = $this->primaryKey();
 
         if (empty($keys)) {
-            throw new Exception(
+            throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
             );
         }
 
         $values = [];
-
         foreach ($keys as $name) {
-            $values[$name] = $this->get($name);
+            $values[$name] = $this->getPrimaryKeyValue($name);
         }
-
         return $values;
     }
 
@@ -1272,5 +1269,30 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     public function db(): ConnectionInterface
     {
         return ConnectionProvider::get();
+    }
+
+    private function getPrimaryKeyValue(string $key): float|int|string|null
+    {
+        $value = $this->get($key);
+        $this->assertPrimaryKeyValue($value);
+        return $value;
+    }
+
+    private function getOldPrimaryKeyValue(string $key): float|int|string|null
+    {
+        $value = $this->oldValues[$key] ?? null;
+        $this->assertPrimaryKeyValue($value);
+        return $value;
+    }
+
+    /**
+     * @psalm-assert float|int|string|null $value
+     */
+    private function assertPrimaryKeyValue(mixed $value): void
+    {
+        if (is_int($value) || is_string($value) || is_float($value) || $value === null) {
+            return;
+        }
+        throw new LogicException('Primary key value must be of type int, float, string or null.');
     }
 }

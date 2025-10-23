@@ -649,7 +649,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertSame(['order_id' => 1, 'item_id' => 2], $orderItem->primaryKeyValues());
 
-        $this->expectException(Exception::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage(OrderItem::class . ' has multiple primary keys. Use primaryKeyValues() method instead.');
 
         $orderItem->primaryKeyValue();
@@ -659,7 +659,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $orderItem = new OrderItemWithNullFK();
 
-        $this->expectException(Exception::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
         $orderItem->primaryKeyValue();
@@ -669,7 +669,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $orderItem = new OrderItemWithNullFK();
 
-        $this->expectException(Exception::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
         $orderItem->primaryKeyValues();
@@ -710,7 +710,7 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $orderItem = new OrderItemWithNullFK();
 
-        $this->expectException(Exception::class);
+        $this->expectException(LogicException::class);
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
         $orderItem->primaryKeyOldValues();

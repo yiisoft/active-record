@@ -163,6 +163,8 @@ interface ActiveRecordInterface
      * @throw Exception If no primary key or multiple primary keys.
      *
      * @see primaryKeyOldValues()
+     *
+     * @psalm-return array<string, float|int|string|null>
      */
     public function primaryKeyOldValues(): array;
 
@@ -179,6 +181,8 @@ interface ActiveRecordInterface
      * Returns the values of the primary key as an array with property names as keys and property values as values.
      *
      * @see primaryKeyValue()
+     *
+     * @psalm-return array<string, float|int|string|null>
      */
     public function primaryKeyValues(): array;
 
