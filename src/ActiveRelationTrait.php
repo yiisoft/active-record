@@ -10,6 +10,7 @@ use Yiisoft\ActiveRecord\Internal\RelationPopulator;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function is_array;
 use function is_object;
