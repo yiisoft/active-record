@@ -17,6 +17,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Query\QueryPartsInterface;
 
 use function array_diff_key;
@@ -46,6 +47,7 @@ use function strtolower;
  * See {@see ActiveRecord} for a concrete implementation.
  *
  * @psalm-import-type ModelClass from ActiveQuery
+ * @psalm-import-type RawFrom from QueryInterface
  */
 abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
@@ -722,6 +724,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @throws Throwable
      *
      * @return int The number of rows updated.
+     *
+     * @psalm-param RawFrom|null $from
      */
     public function updateAllCounters(array $counters, array|string $condition = '', array|ExpressionInterface|string|null $from = null, array $params = []): int
     {
