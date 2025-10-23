@@ -10,7 +10,6 @@ use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use Yiisoft\ActiveRecord\ActiveQuery;
-use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\Event\AfterDelete;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
