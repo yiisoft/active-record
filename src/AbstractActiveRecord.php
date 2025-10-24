@@ -5,14 +5,15 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use InvalidArgumentException;
 use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Connection\ConnectionProvider;
 use Yiisoft\Db\Exception\Exception;
-use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -21,8 +22,8 @@ use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Query\QueryPartsInterface;
 
-use function array_diff_key;
 use function array_diff;
+use function array_diff_key;
 use function array_fill_keys;
 use function array_flip;
 use function array_intersect;

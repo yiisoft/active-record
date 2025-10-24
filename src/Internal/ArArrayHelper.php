@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\ActiveRecord;
+namespace Yiisoft\ActiveRecord\Internal;
 
 use Closure;
 use RuntimeException;
 use Traversable;
+use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function array_combine;
@@ -20,6 +21,8 @@ use function strrpos;
 use function substr;
 
 /**
+ * @internal
+ *
  * Array manipulation methods for ActiveRecord.
  *
  * @psalm-type Row = ActiveRecordInterface|array
