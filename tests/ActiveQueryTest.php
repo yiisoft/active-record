@@ -2488,4 +2488,19 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertInstanceOf(Customer::class, $query->getModel());
     }
+
+    public function testGetPrimaryModelOnNonRelationQuery(): void
+    {
+        $customerQuery = Customer::query();
+
+        $this->assertNull($customerQuery->getPrimaryModel());
+    }
+
+    public function testGetPrimaryModelInRelation(): void
+    {
+        $customer = Customer::query()->findByPk(1);
+        $relation = $customer->relationQuery('profile');
+
+        $this->assertSame($customer, $relation->getPrimaryModel());
+    }
 }
