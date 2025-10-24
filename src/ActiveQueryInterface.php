@@ -11,6 +11,7 @@ use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
+use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
@@ -106,16 +107,16 @@ interface ActiveQueryInterface extends QueryInterface
     public function via(string $relationName, callable|null $callable = null): static;
 
     /**
-     * @return array|string|null the join condition to be used when this query is used in a relational context.
+     * @return array|ExpressionInterface|string|null the join condition to be used when this query is used in a relational context.
      *
      * The condition will be used in the ON part when {@see joinWith()} is called. Otherwise, the condition will be used
      * in the `WHERE` part of a query.
      *
      * Please refer to {@see Query::where()} on how to specify this parameter.
      *
-     * @see onCondition()
+     * @see on()
      */
-    public function getOn(): array|string|null;
+    public function getOn(): array|ExpressionInterface|string|null;
 
     /**
      * @return array $value A list of relations that this query should be joined with.
@@ -226,39 +227,39 @@ interface ActiveQueryInterface extends QueryInterface
      * These only fields of the related table can be used in the condition.
      * Trying to access fields of the primary record will cause an error in a non-join-query.
      *
-     * @param array|string $condition The ON condition. Please refer to {@see Query::where()} on how to specify this
-     * parameter.
+     * @param array|ExpressionInterface|string $condition The ON condition. Please refer to {@see Query::where()} on
+     * how to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      */
-    public function onCondition(array|string $condition, array $params = []): static;
+    public function on(array|ExpressionInterface|string $condition, array $params = []): static;
 
     /**
      * Adds ON condition to the existing one.
      *
      * The new condition and the existing one will be joined using the `AND` operator.
      *
-     * @param array|string $condition The new `ON` condition.
-     * Please refer to {@see where()} on how to specify this parameter.
+     * @param array|ExpressionInterface|string $condition The new `ON` condition. Please refer to {@see where()} on how
+     * to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
-     * @see onCondition()
-     * @see orOnCondition()
+     * @see on()
+     * @see orOn()
      */
-    public function andOnCondition(array|string $condition, array $params = []): static;
+    public function andOn(array|ExpressionInterface|string $condition, array $params = []): static;
 
     /**
      * Adds ON condition to the existing one.
      *
      * The new condition and the existing one will be joined using the `OR` operator.
      *
-     * @param array|string $condition The new `ON` condition.
-     * Please refer to {@see where()} on how to specify this parameter.
+     * @param array|ExpressionInterface|string $condition The new `ON` condition. Please refer to {@see where()} on how
+     * to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      *
-     * @see onCondition()
-     * @see andOnCondition()
+     * @see on()
+     * @see andOn()
      */
-    public function orOnCondition(array|string $condition, array $params = []): static;
+    public function orOn(array|ExpressionInterface|string $condition, array $params = []): static;
 
     /**
      * Specifies the junction table for a relational query.
@@ -318,8 +319,6 @@ interface ActiveQueryInterface extends QueryInterface
      * This is set by {@see ActiveRecord::findBySql()}.
      */
     public function getSql(): string|null;
-
-    public function on(array|string|null $value): static;
 
     public function sql(string|null $value): static;
 

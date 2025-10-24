@@ -175,7 +175,7 @@ class Order extends MagicActiveRecord
         return $this->hasMany(
             Item::class,
             ['id' => 'item_id']
-        )->onCondition(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
+        )->on(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
     public function getBooksExplicitQuery(): ActiveQuery
@@ -183,7 +183,7 @@ class Order extends MagicActiveRecord
         return $this->hasMany(
             Item::class,
             ['id' => 'item_id']
-        )->onCondition(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
+        )->on(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
     public function getBooksExplicitAQuery(): ActiveQuery
@@ -191,7 +191,7 @@ class Order extends MagicActiveRecord
         return $this->hasMany(
             Item::class,
             ['id' => 'item_id']
-        )->alias('bo')->onCondition(['bo.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
+        )->alias('bo')->on(['bo.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
     public function getBookItemsQuery(): ActiveQuery
@@ -199,7 +199,7 @@ class Order extends MagicActiveRecord
         return $this->hasMany(
             Item::class,
             ['id' => 'item_id']
-        )->alias('books')->onCondition(['books.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
+        )->alias('books')->on(['books.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
     public function getMovieItemsQuery(): ActiveQuery
@@ -207,12 +207,12 @@ class Order extends MagicActiveRecord
         return $this->hasMany(
             Item::class,
             ['id' => 'item_id']
-        )->alias('movies')->onCondition(['movies.category_id' => 2])->viaTable('order_item', ['order_id' => 'id']);
+        )->alias('movies')->on(['movies.category_id' => 2])->viaTable('order_item', ['order_id' => 'id']);
     }
 
     public function getLimitedItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['id' => 'item_id'])->onCondition(['item.id' => [3, 5]])->via('orderItems');
+        return $this->hasMany(Item::class, ['id' => 'item_id'])->on(['item.id' => [3, 5]])->via('orderItems');
     }
 
     public function getExpensiveItemsUsingViaWithCallableQuery(): ActiveQuery
@@ -231,7 +231,7 @@ class Order extends MagicActiveRecord
 
     public function getOrderItemsFor8Query(): ActiveQuery
     {
-        return $this->hasMany(OrderItemWithNullFK::class, ['order_id' => 'id'])->andOnCondition(['subtotal' => 8.0]);
+        return $this->hasMany(OrderItemWithNullFK::class, ['order_id' => 'id'])->andOn(['subtotal' => 8.0]);
     }
 
     public function getItemsFor8Query(): ActiveQuery

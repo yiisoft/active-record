@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -300,15 +301,15 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()
             ->joinWith(
                 [
-                    'itemsIndexed books' => static function ($q) {
-                        $q->onCondition('{{books}}.[[category_id]] = 1');
+                    'itemsIndexed books' => static function (ActiveQueryInterface $q) {
+                        $q->on('{{books}}.[[category_id]] = 1');
                     },
                 ],
                 false
             )->joinWith(
                 [
-                    'itemsIndexed movies' => static function ($q) {
-                        $q->onCondition('{{movies}}.[[category_id]] = 2');
+                    'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
+                        $q->on('{{movies}}.[[category_id]] = 2');
                     },
                 ],
                 false
@@ -326,16 +327,16 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()
             ->joinWith(
                 [
-                    'itemsIndexed books' => static function ($q) {
-                        $q->onCondition('{{books}}.[[category_id]] = 1');
+                    'itemsIndexed books' => static function (ActiveQueryInterface $q) {
+                        $q->on('{{books}}.[[category_id]] = 1');
                     },
                 ],
                 false
             )
             ->joinWith(
                 [
-                    'itemsIndexed movies' => static function ($q) {
-                        $q->onCondition('{{movies}}.[[category_id]] = 2');
+                    'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
+                        $q->on('{{movies}}.[[category_id]] = 2');
                     },
                 ],
                 true
@@ -350,16 +351,16 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $query = Order::query()
             ->joinWith(
                 [
-                    'itemsIndexed books' => static function ($q) {
-                        $q->onCondition('{{books}}.[[category_id]] = 1');
+                    'itemsIndexed books' => static function (ActiveQueryInterface $q) {
+                        $q->on('{{books}}.[[category_id]] = 1');
                     },
                 ],
                 true
             )
             ->joinWith(
                 [
-                    'itemsIndexed movies' => static function ($q) {
-                        $q->onCondition('{{movies}}.[[category_id]] = 2');
+                    'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
+                        $q->on('{{movies}}.[[category_id]] = 2');
                     },
                 ],
                 false
