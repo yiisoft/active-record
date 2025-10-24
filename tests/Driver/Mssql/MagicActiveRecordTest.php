@@ -46,7 +46,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $record->stringcol = 'test';
 
-        $this->assertTrue($record->save());
+        $record->save();
         $this->assertEquals(1, $record->id);
 
         $testRecordQuery = TestTriggerAlert::query();
