@@ -120,7 +120,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array|ExpressionInterface|string|null $on = null;
 
     /**
-     * @psalm-var list<list{array<string|Closure>, array|bool, array|string}>
+     * @psalm-var list<list{array<string|Closure>, array|bool, array<string,string>|string}>
      */
     private array $joinWith = [];
 
@@ -500,6 +500,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
      *
      * @psalm-param array<string|Closure> $with
+     * @psalm-param array<string,string>|string $joinType
      */
     private function joinWithRelations(ActiveRecordInterface $model, array $with, array|string $joinType): void
     {
@@ -523,9 +524,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 if (!isset($relations[$fullName])) {
                     $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
-                    if ($relation instanceof ActiveQueryInterface) {
-                        $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
-                    }
+                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
                 } else {
                     $relation = $relations[$fullName];
                 }
@@ -566,14 +565,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param string $name The relation name.
      *
      * @return string The real join type.
+     *
+     * @psalm-param array<string,string>|string $joinType
      */
     private function getJoinType(array|string $joinType, string $name): string
     {
-        if (is_array($joinType) && isset($joinType[$name])) {
-            return $joinType[$name];
-        }
-
-        return is_string($joinType) ? $joinType : 'INNER JOIN';
+        return is_array($joinType)
+            ? ($joinType[$name] ?? 'INNER JOIN')
+            : $joinType;
     }
 
     /**
