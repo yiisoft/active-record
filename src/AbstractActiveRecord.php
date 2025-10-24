@@ -496,15 +496,19 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if (!$relation->isMultiple()) {
             $this->related[$relationName] = $linkModel;
         } elseif (isset($this->related[$relationName])) {
-            /** @psalm-var ActiveRecordInterface[] $this->related[$relationName] */
+            /**
+             * Related records are already an array.
+             * @psalm-var array<string, ActiveRecordInterface[]|array[]> $this->related[$relationName]
+             */
             $indexBy = $relation->getIndexBy();
             if ($indexBy !== null) {
-                if ($indexBy instanceof Closure) {
-                    $index = $indexBy($linkModel);
-                } else {
-                    $index = $linkModel->get($indexBy);
-                }
-
+                /**
+                 * We assume that the index is always string, int or null.
+                 * @var string|int|null $index
+                 */
+                $index = $indexBy instanceof Closure
+                    ? $indexBy($linkModel)
+                    : $linkModel->get($indexBy);
                 if ($index !== null) {
                     $this->related[$relationName][$index] = $linkModel;
                 }
