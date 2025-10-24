@@ -100,6 +100,7 @@ class Order extends ActiveRecord
             'customerJoinedWithProfile' => $this->getCustomerJoinedWithProfileQuery(),
             'customerJoinedWithProfileIndexOrdered' => $this->getCustomerJoinedWithProfileIndexOrderedQuery(),
             'customer2' => $this->getCustomer2Query(),
+            'customerIndexedWithInverseOf' => $this->getCustomerIndexedWithInverseOfQuery(),
             'orderItems' => $this->getOrderItemsQuery(),
             'orderItems2' => $this->getOrderItems2Query(),
             'orderItems3' => $this->getOrderItems3Query(),
@@ -184,6 +185,16 @@ class Order extends ActiveRecord
     public function getCustomer2Query(): ActiveQuery
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('orders2');
+    }
+
+    public function getCustomerIndexedWithInverseOf(): Customer|null
+    {
+        return $this->relation('customerIndexedWithInverseOf');
+    }
+
+    public function getCustomerIndexedWithInverseOfQuery(): ActiveQuery
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('ordersIndexedWithInverseOf');
     }
 
     public function getOrderItems(): array

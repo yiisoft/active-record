@@ -1656,6 +1656,29 @@ abstract class ActiveQueryTest extends TestCase
         }
     }
 
+    public function testInverseRelationWithIndexBy(): void
+    {
+        $order = Order::query()->with('customerIndexedWithInverseOf')->andWhere(['id' => 1])->one();
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertTrue($order->isRelationPopulated('customerIndexedWithInverseOf'));
+
+        $customer = $order->getCustomerIndexedWithInverseOf();
+        $this->assertInstanceOf(Customer::class, $customer);
+        $this->assertTrue($customer->isRelationPopulated('ordersIndexedWithInverseOf'));
+        $this->assertSame([1 => $order], $customer->getOrdersIndexedWithInverseOf());
+
+        $customer = Customer::query()->with('ordersIndexedWithInverseOf')->one();
+        $this->assertInstanceOf(Customer::class, $customer);
+        $this->assertTrue($customer->isRelationPopulated('ordersIndexedWithInverseOf'));
+
+        $orders = $customer->getOrdersIndexedWithInverseOf();
+        $this->assertCount(1, $orders);
+
+        $order = reset($orders);
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertSame($customer, $order->getCustomerIndexedWithInverseOf());
+    }
+
     public function testExtraFields(): void
     {
         $customerQuery = Customer::query();
