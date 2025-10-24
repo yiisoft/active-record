@@ -106,6 +106,7 @@ use function substr;
  *
  * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
  * @psalm-import-type IndexBy from QueryInterface
+ * @psalm-import-type Join from QueryInterface
  *
  * @psalm-property IndexBy|null $indexBy
  * @psalm-suppress ClassMustBeFinal
@@ -454,8 +455,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
          * and a via relation at the same time.
          */
         $uniqueJoins = [];
-
-        foreach ($this->joins as $join) {
+        foreach ($this->getJoins() as $join) {
             $uniqueJoins[serialize($join)] = $join;
         }
         $this->joins = array_values($uniqueJoins);
