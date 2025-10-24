@@ -15,9 +15,8 @@ final class AfterUpsert extends AbstractEvent
 {
     /**
      * @param ActiveRecordInterface $model The model that was upserted.
-     * @param bool $isSuccessful Whether the upsert operation was successful.
      */
-    public function __construct(ActiveRecordInterface $model, public bool &$isSuccessful)
+    public function __construct(ActiveRecordInterface $model)
     {
         parent::__construct($model);
     }

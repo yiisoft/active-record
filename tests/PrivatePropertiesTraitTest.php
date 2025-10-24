@@ -46,9 +46,8 @@ abstract class PrivatePropertiesTraitTest extends TestCase
         $model = new CategoryPrivatePropertiesModel();
         $model->setName('Insert Test Category');
 
-        $result = $model->insert();
+        $model->insert();
 
-        $this->assertTrue($result);
         $this->assertNotNull($model->getId());
         $this->assertSame('Insert Test Category', $model->getName());
     }
