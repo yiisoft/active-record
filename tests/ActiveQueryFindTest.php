@@ -12,7 +12,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-
 use Yiisoft\Db\QueryBuilder\Condition\In;
 
 use function ksort;
