@@ -23,10 +23,6 @@ use function is_string;
  */
 final class ModelRelationFilter
 {
-    private function __construct()
-    {
-    }
-
     /**
      * @param ActiveRecordInterface[]|array[] $models
      */

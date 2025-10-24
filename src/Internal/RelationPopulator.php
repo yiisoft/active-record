@@ -21,10 +21,6 @@ use function is_array;
  */
 final class RelationPopulator
 {
-    private function __construct()
-    {
-    }
-
     /**
      * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
      * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
