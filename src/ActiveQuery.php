@@ -840,7 +840,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function batch(int $batchSize = 100): BatchQueryResultInterface
     {
-        return parent::batch($batchSize)->indexBy(null)->resultCallback($this->index(...));
+        /**
+         * @var Closure(non-empty-array<array>):non-empty-array<object> $callback
+         */
+        $callback = $this->index(...);
+        return parent::batch($batchSize)->indexBy(null)->resultCallback($callback);
     }
 
     protected function index(array $rows): array
