@@ -430,10 +430,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if (is_array($via)) {
                 [$viaName, $viaRelation] = $via;
-                /** @var ActiveQueryInterface $viaRelation */
                 $viaModel = $viaRelation->getModel();
                 // unset $viaName so that it can be reloaded to reflect the change.
-                /** @var string $viaName */
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $via;
@@ -779,6 +777,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         foreach ($counters as $name => $value) {
+            /**
+             * @psalm-suppress MixedOperand We assume that the counter value is always an integer.
+             */
             $value += $this->get($name) ?? 0;
             $this->populateProperty($name, $value);
             $this->oldValues[$name] = $value;
@@ -1164,7 +1165,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         $values = $this->newPropertyValues($properties);
-
         if (empty($values)) {
             return 0;
         }
@@ -1173,6 +1173,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         if ($this instanceof OptimisticLockInterface) {
             $lock = $this->optimisticLockPropertyName();
+
+            /**
+             * @var int $lockValue We assume that optimistic lock property value is always an integer.
+             */
             $lockValue = $this->get($lock);
 
             $condition[$lock] = $lockValue;
