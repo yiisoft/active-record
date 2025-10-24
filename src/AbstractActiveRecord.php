@@ -533,7 +533,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    public function populateRecord(array|object $row): void
+    public function populateRecord(array|object $row): static
     {
         $row = ArArrayHelper::toArray($row);
 
@@ -544,6 +544,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         $this->related = [];
         $this->relationsDependencies = [];
+        return $this;
     }
 
     public function populateRelation(string $name, array|ActiveRecordInterface|null $records): void

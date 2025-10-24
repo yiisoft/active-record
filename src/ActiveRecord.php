@@ -140,12 +140,12 @@ class ActiveRecord extends AbstractActiveRecord
         return $this;
     }
 
-    public function populateRecord(array|object $row): void
+    public function populateRecord(array|object $row): static
     {
         $row = ArArrayHelper::toArray($row);
         $row = $this->phpTypecastValues($row);
-
-        parent::populateRecord($row);
+        /** @var $this */
+        return parent::populateRecord($row);
     }
 
     public function primaryKey(): array

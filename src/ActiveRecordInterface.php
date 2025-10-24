@@ -617,5 +617,5 @@ interface ActiveRecordInterface
      *
      * @psalm-param array<string, mixed>|object $row
      */
-    public function populateRecord(array|object $row): void;
+    public function populateRecord(array|object $row): static;
 }

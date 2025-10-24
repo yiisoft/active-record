@@ -125,11 +125,7 @@ trait ActiveQueryTrait
         /** @var non-empty-list<array<string, mixed>> $rows */
 
         return array_map(
-            function (array $row): ActiveRecordInterface {
-                $model = $this->getModel();
-                $model->populateRecord($row);
-                return $model;
-            },
+            fn(array $row) => $this->getModel()->populateRecord($row),
             $rows,
         );
     }
