@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use RuntimeException;
 use Traversable;
 use Yiisoft\Db\Query\QueryInterface;
 
@@ -108,6 +109,11 @@ final class ArArrayHelper
 
         if (!empty($key) && ($pos = strrpos($key, '.')) !== false) {
             $array = self::getValueByPath($array, substr($key, 0, $pos), $default);
+            if (!is_array($array) && !($array instanceof ActiveRecordInterface)) {
+                throw new RuntimeException(
+                    'Trying to get property of non-array or non-ActiveRecordInterface instance.',
+                );
+            }
             $key = substr($key, $pos + 1);
 
             return self::getValueByPath($array, $key, $default);
@@ -141,7 +147,7 @@ final class ArArrayHelper
      * @psalm-template TRow of Row
      * @psalm-param array<TRow> $rows
      * @psalm-param IndexBy|null $indexBy
-     * @psalm-return array<TRow>
+     * @psalm-return ($rows is non-empty-array<TRow> ? non-empty-array<TRow> : array<TRow>)
      */
     public static function index(array $rows, Closure|string|null $indexBy = null): array
     {
@@ -169,6 +175,9 @@ final class ArArrayHelper
      * @param array|object $object The object to be converted into an array.
      *
      * @return array The array representation of the object.
+     *
+     * @psalm-param array<string, mixed>|object $object
+     * @psalm-return array<string, mixed>
      */
     public static function toArray(array|object $object): array
     {
@@ -181,6 +190,9 @@ final class ArArrayHelper
         }
 
         if ($object instanceof Traversable) {
+            /**
+             * @psalm-var array<string, mixed> We assume that the traversable object yields string keys.
+             */
             return iterator_to_array($object);
         }
 

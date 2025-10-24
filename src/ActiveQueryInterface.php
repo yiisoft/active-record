@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -22,6 +23,8 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  * represents a relation between two active record classes and will return related records only.
  *
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
+ *
+ * @psalm-type Via = array{string, ActiveQueryInterface, bool}|ActiveQueryInterface
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -35,6 +38,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @return ActiveRecordInterface[]|array[] All rows of the query result. Each array element is an `array` or
      * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see isAsArray()} result.
      * Empty array if the query results in nothing.
+     *
+     * @psalm-return array<ActiveRecordInterface|array>
      */
     public function all(): array;
 
@@ -170,9 +175,12 @@ interface ActiveQueryInterface extends QueryInterface
      * need to be eagerly loaded.
      * Note: This doesn't mean that the relations are populated from the query result. An
      * extra query will still be performed to bring in the related data. Defaults to `true`.
-     * @param array|string $joinType The join type of the relations specified in `$with`.  When this is a string, it
+     * @param array|string $joinType The join type of the relations specified in `$with`. When this is a string, it
      * applies to all relations specified in `$with`. Use an array in the format of `relationName => joinType` to
      * specify different join types for different relations.
+     *
+     * @psalm-param array<string|Closure>|string $with
+     * @psalm-param array<string,string>|string $joinType
      */
     public function joinWith(
         array|string $with,
@@ -195,6 +203,8 @@ interface ActiveQueryInterface extends QueryInterface
      * An extra query will still be performed to bring in the related data.
      *
      * @see joinWith()
+     *
+     * @psalm-param array<string|Closure>|string $with
      */
     public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): static;
 
@@ -265,11 +275,13 @@ interface ActiveQueryInterface extends QueryInterface
      * ```
      *
      * @param string $tableName The name of the junction table.
-     * @param array $link The link between the junction table and the table associated with {@see primaryModel}.
+     * @param string[] $link The link between the junction table and the table associated with {@see primaryModel}.
      * The keys of the array represent the columns in the junction table, and the values represent the columns in the
      * {@see primaryModel} table.
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
+     *
+     * @psalm-param array<string,string> $link
      *
      * @see via()
      */
@@ -452,11 +464,13 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * It's used to set the query options for the query.
      *
-     * @param array $value The columns of the primary and foreign tables that establish a relation.
+     * @param string[] $value The columns of the primary and foreign tables that establish a relation.
      * The array keys must be columns of the table for this relation, and the array values must be the corresponding
      * columns from the primary table.
      * Don't prefix or quote the column names as Yii will do this automatically.
      * This property is only used in relational context.
+     *
+     * @psalm-param array<string, string> $value
      */
     public function link(array $value): static;
 
@@ -472,16 +486,18 @@ interface ActiveQueryInterface extends QueryInterface
 
     /**
      * @return ActiveQueryInterface|array|null The query associated with the junction table.
-     * Please call {@see Actiquery::via} to set this property instead of directly setting it.
+     * Please call {@see via()} to set this property instead of directly setting it.
      *
      * This property is only used in relational context.
      *
-     * @see Actiquery::via
+     * @see via()
+     *
+     * @psalm-return Via|null
      */
     public function getVia(): array|self|null;
 
     /**
-     * @return array The columns of the primary and foreign tables that establish a relation.
+     * @return string[] The columns of the primary and foreign tables that establish a relation.
      *
      * The array keys must be columns of the table for this relation, and the array values must be the corresponding
      * columns from the primary table.
@@ -489,7 +505,7 @@ interface ActiveQueryInterface extends QueryInterface
      * Don't prefix or quote the column names. Yii does that automatically. This property is only used in
      * relational context.
      *
-     * @psalm-return string[]
+     * @psalm-return array<string,string>
      */
     public function getLink(): array;
 

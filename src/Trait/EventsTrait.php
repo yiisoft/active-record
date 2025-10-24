@@ -70,18 +70,20 @@ trait EventsTrait
         return $result;
     }
 
-    public function populateRecord(array|object $data): void
+    public function populateRecord(array|object $data): static
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforePopulate($this, $data));
 
         if ($event->isDefaultPrevented()) {
-            return;
+            return $this;
         }
 
         parent::populateRecord($data);
 
         $eventDispatcher->dispatch(new AfterPopulate($this, $data));
+
+        return $this;
     }
 
     public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface

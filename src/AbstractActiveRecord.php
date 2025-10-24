@@ -18,6 +18,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Query\QueryPartsInterface;
 
 use function array_diff_key;
@@ -48,6 +49,7 @@ use function strtolower;
  * See {@see ActiveRecord} for a concrete implementation.
  *
  * @psalm-import-type ModelClass from ActiveQuery
+ * @psalm-import-type RawFrom from QueryInterface
  */
 abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
@@ -166,16 +168,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->oldValues[$propertyName] ?? null;
     }
 
-    /**
-     * Returns the property values that have been modified since they're loaded or saved most recently.
-     *
-     * The comparison of new and old values uses `===`.
-     *
-     * @param array|null $propertyNames The names of the properties whose values may be returned if they're changed recently.
-     * If null, {@see propertyNames()} will be used.
-     *
-     * @return array The changed property values (name-value pairs).
-     */
     public function newValues(array|null $propertyNames = null): array
     {
         $values = $this->propertyValues($propertyNames);
@@ -330,6 +322,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @return ActiveQueryInterface The relational query object.
      *
      * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
      */
     public function hasMany(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
@@ -369,6 +362,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @return ActiveQueryInterface The relational query object.
      *
      * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
      */
     public function hasOne(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
@@ -436,10 +430,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if (is_array($via)) {
                 [$viaName, $viaRelation] = $via;
-                /** @var ActiveQueryInterface $viaRelation */
                 $viaModel = $viaRelation->getModel();
                 // unset $viaName so that it can be reloaded to reflect the change.
-                /** @var string $viaName */
                 unset($this->related[$viaName]);
             } else {
                 $viaRelation = $via;
@@ -504,15 +496,19 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if (!$relation->isMultiple()) {
             $this->related[$relationName] = $linkModel;
         } elseif (isset($this->related[$relationName])) {
-            /** @psalm-var ActiveRecordInterface[] $this->related[$relationName] */
+            /**
+             * Related records are already an array.
+             * @psalm-var array<string, ActiveRecordInterface[]|array[]> $this->related[$relationName]
+             */
             $indexBy = $relation->getIndexBy();
             if ($indexBy !== null) {
-                if ($indexBy instanceof Closure) {
-                    $index = $indexBy($linkModel);
-                } else {
-                    $index = $linkModel->get($indexBy);
-                }
-
+                /**
+                 * We assume that the index is always string, int or null.
+                 * @var int|string|null $index
+                 */
+                $index = $indexBy instanceof Closure
+                    ? $indexBy($linkModel)
+                    : $linkModel->get($indexBy);
                 if ($index !== null) {
                     $this->related[$relationName][$index] = $linkModel;
                 }
@@ -537,19 +533,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    /**
-     * Populates an active record object using a row of data from the database/storage.
-     *
-     * This is an internal method meant to be called to create active record objects after fetching data from the
-     * database. It is mainly used by {@see ActiveQuery} to populate the query results into active records.
-     *
-     * @param array|object $row Property values (name => value).
-     */
-    public function populateRecord(array|object $row): void
+    public function populateRecord(array|object $row): static
     {
-        if ($row instanceof ActiveRecordInterface) {
-            $row = $row->propertyValues();
-        }
+        $row = ArArrayHelper::toArray($row);
 
         foreach ($row as $name => $value) {
             $this->populateProperty($name, $value);
@@ -558,6 +544,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         $this->related = [];
         $this->relationsDependencies = [];
+        return $this;
     }
 
     public function populateRelation(string $name, array|ActiveRecordInterface|null $records): void
@@ -649,12 +636,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @param array $values Property values (name => value) to be assigned to the model.
      *
      * @see propertyNames()
+     *
+     * @psalm-param array<string, mixed> $values
      */
     public function populateProperties(array $values): void
     {
         $values = array_intersect_key($values, array_flip($this->propertyNames()));
-
-        /** @psalm-var mixed $value */
         foreach ($values as $name => $value) {
             $this->populateProperty($name, $value);
         }
@@ -744,6 +731,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @throws Throwable
      *
      * @return int The number of rows updated.
+     *
+     * @psalm-param RawFrom|null $from
      */
     public function updateAllCounters(array $counters, array|string $condition = '', array|ExpressionInterface|string|null $from = null, array $params = []): int
     {
@@ -793,6 +782,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         foreach ($counters as $name => $value) {
+            /**
+             * @psalm-suppress MixedOperand We assume that the counter value is always an integer.
+             */
             $value += $this->get($name) ?? 0;
             $this->populateProperty($name, $value);
             $this->oldValues[$name] = $value;
@@ -1052,6 +1044,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @return ActiveQueryInterface The relational query object.
      *
      * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
      *
      * {@see hasOne()}
      * {@see hasMany()}
@@ -1111,6 +1104,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * Defaults to `null`, meaning all changed property values will be returned.
      *
      * @return array The changed property values (name-value pairs).
+     *
+     * @psalm-return array<string, mixed>
      */
     protected function newPropertyValues(array|null $properties = null): array
     {
@@ -1175,7 +1170,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         $values = $this->newPropertyValues($properties);
-
         if (empty($values)) {
             return 0;
         }
@@ -1184,6 +1178,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         if ($this instanceof OptimisticLockInterface) {
             $lock = $this->optimisticLockPropertyName();
+
+            /**
+             * @var int $lockValue We assume that optimistic lock property value is always an integer.
+             */
             $lockValue = $this->get($lock);
 
             $condition[$lock] = $lockValue;
@@ -1207,14 +1205,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $rows;
     }
 
+    /**
+     * @psalm-param array<string, string> $link
+     */
     private function bindModels(
         array $link,
         ActiveRecordInterface $foreignModel,
         ActiveRecordInterface $primaryModel
     ): void {
-        /** @psalm-var string[] $link */
         foreach ($link as $fk => $pk) {
-            /** @psalm-var mixed $value */
             $value = $primaryModel->get($pk);
 
             if ($value === null) {
@@ -1223,11 +1222,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 );
             }
 
-            /**
-             * Relation via array valued property.
-             */
+            // Relation via array valued property
             if (is_array($fkValue = $foreignModel->get($fk))) {
-                /** @psalm-var mixed */
                 $fkValue[] = $value;
                 $foreignModel->set($fk, $fkValue);
             } else {

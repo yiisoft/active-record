@@ -10,20 +10,27 @@ use Yiisoft\ActiveRecord\Internal\RelationPopulator;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Query\QueryInterface;
 
 use function is_array;
 use function is_object;
 use function reset;
 
 /**
- * ActiveRelationTrait implements the common methods and properties for active record relational queries.
+ * `ActiveRelationTrait` implements the common methods and properties for active record relational queries.
+ *
+ * @psalm-require-implements ActiveQueryInterface
+ *
+ * @psalm-import-type Via from ActiveQueryInterface
+ * @psalm-import-type IndexBy from QueryInterface
  */
 trait ActiveRelationTrait
 {
     private bool $multiple = false;
     private ActiveRecordInterface|null $primaryModel = null;
-    /** @psalm-var string[] */
+    /** @psalm-var array<string, string> */
     private array $link = [];
+
     /**
      * @var string|null the name of the relation that is the inverse of this relation.
      *
@@ -40,8 +47,8 @@ trait ActiveRelationTrait
      */
     private string|null $inverseOf = null;
     /**
-     * @var ActiveQueryInterface|array|null the relation associated with the junction table.
-     * @psalm-var array{string, ActiveQueryInterface, bool}|ActiveQueryInterface|null
+     * @var ActiveQueryInterface|array|null The relation associated with the junction table.
+     * @psalm-var Via|null
      */
     private array|ActiveQueryInterface|null $via = null;
 
@@ -200,6 +207,9 @@ trait ActiveRelationTrait
         return $this->link;
     }
 
+    /**
+     * @psalm-return Via|null
+     */
     public function getVia(): array|ActiveQueryInterface|null
     {
         return $this->via;
@@ -219,10 +229,12 @@ trait ActiveRelationTrait
         return $this;
     }
 
+    /**
+     * @psalm-param array<string, string> $value
+     */
     public function link(array $value): static
     {
         $this->link = $value;
-
         return $this;
     }
 }

@@ -11,10 +11,12 @@ use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\ExpressionInterface;
+use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
 
 /**
  * @psalm-import-type ModelClass from ActiveQuery
+ * @psalm-import-type RawFrom from QueryInterface
  */
 interface ActiveRecordInterface
 {
@@ -128,6 +130,8 @@ interface ActiveRecordInterface
      * @throws InvalidConfigException
      *
      * @return array Property values (name => value).
+     *
+     * @psalm-return array<string, mixed>
      */
     public function propertyValues(array|null $names = null, array $except = []): array;
 
@@ -214,7 +218,7 @@ interface ActiveRecordInterface
      * You may specify the properties to be inserted as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see newValues() changed property values} will be inserted into a database.
+     * Only the {@see newValues()} changed property values will be inserted into a database.
      *
      * If the table's primary key is auto incremental and is `null` during insertion, it will be populated with the
      * actual value after insertion.
@@ -334,9 +338,9 @@ interface ActiveRecordInterface
     public static function query(self|string|null $modelClass = null): ActiveQueryInterface;
 
     /**
-     * Returns the primary key name(s) for this AR class.
+     * Returns the primary key names for this AR class.
      *
-     * The default implementation will return the primary key(s) as declared in the DB table that's associated with
+     * The default implementation will return the primary keys as declared in the DB table that's associated with
      * this AR class.
      *
      * If the DB table doesn't declare any primary key, you should override this method to return the property names
@@ -398,7 +402,7 @@ interface ActiveRecordInterface
      * You may specify the properties to be updated as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see newValues() changed property values} will be saved into a database.
+     * Only the {@see newValues()} changed property values will be saved into a database.
      *
      * This method will call {@see insert()} when {@see isNewRecord()} is true, or {@see update()} when
      * {@see isNewRecord()|isNewRecord} is false.
@@ -441,7 +445,7 @@ interface ActiveRecordInterface
      *
      * The method will then save the specified properties into a database.
      *
-     * Only the {@see newValues() changed property values} will be saved into a database.
+     * Only the {@see newValues()} changed property values will be saved into a database.
      *
      * For example, to update a customer record:
      *
@@ -516,6 +520,8 @@ interface ActiveRecordInterface
      * @throws Exception
      *
      * @return int The number of rows updated.
+     *
+     * @psalm-param RawFrom|null $from
      */
     public function updateAll(array $propertyValues, array|string $condition = [], array|ExpressionInterface|string|null $from = null, array $params = []): int;
 
@@ -523,7 +529,7 @@ interface ActiveRecordInterface
      * Insert a row into the associated database table if the record doesn't already exist (matching unique constraints)
      * or update the record if it exists, with populating model by the returning record values.
      *
-     * Only the {@see newValues() changed property values} will be inserted or updated.
+     * Only the {@see newValues()} changed property values will be inserted or updated.
      *
      * If the table's primary key is auto incremental and is `null` during execution, it will be populated with the
      * actual value after insertion or update.
@@ -584,6 +590,20 @@ interface ActiveRecordInterface
     public function oldValues(): array;
 
     /**
+     * Returns the property values that have been modified since they're loaded or saved most recently.
+     *
+     * The comparison of new and old values uses `===`.
+     *
+     * @param array|null $propertyNames The names of the properties whose values may be returned if they're changed
+     * recently. If `null`, {@see propertyNames()} will be used.
+     *
+     * @return array The changed property values (name-value pairs).
+     *
+     * @psalm-return array<string, mixed>
+     */
+    public function newValues(array|null $propertyNames = null): array;
+
+    /**
      * Populates an active record object using a row of data from the database/storage.
      *
      * This is an internal method meant to be called to create active record objects after fetching data from the
@@ -594,6 +614,8 @@ interface ActiveRecordInterface
      *
      * @throws Exception
      * @throws InvalidConfigException
+     *
+     * @psalm-param array<string, mixed>|object $row
      */
-    public function populateRecord(array|object $row): void;
+    public function populateRecord(array|object $row): static;
 }

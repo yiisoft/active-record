@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
-use Yiisoft\Definitions\Exception\InvalidConfigException;
 
 use function is_array;
 use function is_int;
@@ -103,7 +103,6 @@ trait ActiveQueryTrait
      *
      * @param array[] $rows The rows to be converted.
      *
-     * @throws InvalidConfigException
      * @return ActiveRecordInterface[]|array[] The model instances.
      *
      * @psalm-param non-empty-list<array> $rows
@@ -123,17 +122,12 @@ trait ActiveQueryTrait
                 return $rows;
             }
         }
+        /** @var non-empty-list<array<string, mixed>> $rows */
 
-        $models = [];
-
-        foreach ($rows as $row) {
-            $model = $this->getModel();
-            $model->populateRecord($row);
-
-            $models[] = $model;
-        }
-
-        return $models;
+        return array_map(
+            fn(array $row) => $this->getModel()->populateRecord($row),
+            $rows,
+        );
     }
 
     /**
@@ -164,7 +158,7 @@ trait ActiveQueryTrait
 
         foreach ($relations as $name => $relation) {
             if ($relation->isAsArray() === null) {
-                /** inherit asArray from a primary query */
+                // inherit asArray from a primary query
                 $relation->asArray($this->asArray);
             }
 
@@ -173,7 +167,7 @@ trait ActiveQueryTrait
     }
 
     /**
-     * @return ActiveQueryInterface[]
+     * @psalm-return array<string, ActiveQueryInterface>
      */
     private function normalizeRelations(ActiveRecordInterface $model, array $with): array
     {
@@ -184,9 +178,13 @@ trait ActiveQueryTrait
                 $name = $callback;
                 $callback = null;
             }
+            /**
+             * @var string $name
+             * @var Closure|null $callback
+             */
 
             if (($pos = strpos($name, '.')) !== false) {
-                /** with sub-relations */
+                // with sub-relations
                 $childName = substr($name, $pos + 1);
                 $name = substr($name, 0, $pos);
             } else {
@@ -194,16 +192,15 @@ trait ActiveQueryTrait
             }
 
             if (!isset($relations[$name])) {
-                /** @var ActiveQuery $relation */
                 $relation = $model->relationQuery($name);
-                $relation->primaryModel = null;
+                $relation->primaryModel(null);
                 $relations[$name] = $relation;
             } else {
                 $relation = $relations[$name];
             }
 
             if (isset($childName)) {
-                $relation->with[$childName] = $callback;
+                $relation->with([$childName => $callback]);
             } elseif ($callback !== null) {
                 $callback($relation);
             }

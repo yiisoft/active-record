@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use LogicException;
+use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
@@ -27,6 +28,7 @@ use function array_column;
 use function array_combine;
 use function array_flip;
 use function array_intersect_key;
+use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function array_values;
@@ -104,6 +106,7 @@ use function substr;
  *
  * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
  * @psalm-import-type IndexBy from QueryInterface
+ * @psalm-import-type Join from QueryInterface
  *
  * @psalm-property IndexBy|null $indexBy
  * @psalm-suppress ClassMustBeFinal
@@ -116,6 +119,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private ActiveRecordInterface $model;
     private string|null $sql = null;
     private array|ExpressionInterface|string|null $on = null;
+
+    /**
+     * @psalm-var list<list{array<string|Closure>, array|bool, array<string,string>|string}>
+     */
     private array $joinWith = [];
 
     /**
@@ -291,6 +298,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if (count($pks) === 1) {
+            /** @psalm-var non-empty-list<string|int> $hash */
             $hash = array_column($rows, reset($pks));
         } else {
             $flippedPks = array_flip($pks);
@@ -300,7 +308,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             );
         }
 
-        /** @psalm-var non-empty-list<array> */
         return array_values(array_combine($hash, $rows));
     }
 
@@ -375,6 +382,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $name = $callback;
                 $callback = null;
             }
+            /** @var string $name */
 
             if (preg_match('/^(.*?)(?:\s+AS\s+|\s+)(\w+)$/i', $name, $matches)) {
                 /** The relation is defined with an alias, adjust callback to apply alias */
@@ -447,8 +455,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
          * and a via relation at the same time.
          */
         $uniqueJoins = [];
-
-        foreach ($this->joins as $join) {
+        foreach ($this->getJoins() as $join) {
             $uniqueJoins[serialize($join)] = $join;
         }
         $this->joins = array_values($uniqueJoins);
@@ -491,6 +498,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
+     *
+     * @psalm-param array<string|Closure> $with
+     * @psalm-param array<string,string>|string $joinType
      */
     private function joinWithRelations(ActiveRecordInterface $model, array $with, array|string $joinType): void
     {
@@ -501,6 +511,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $name = $callback;
                 $callback = null;
             }
+            /** @var string $name */
 
             $primaryModel = $model;
             $parent = $this;
@@ -513,9 +524,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 if (!isset($relations[$fullName])) {
                     $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
-                    if ($relation instanceof ActiveQueryInterface) {
-                        $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
-                    }
+                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
                 } else {
                     $relation = $relations[$fullName];
                 }
@@ -556,14 +565,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param string $name The relation name.
      *
      * @return string The real join type.
+     *
+     * @psalm-param array<string,string>|string $joinType
      */
     private function getJoinType(array|string $joinType, string $name): string
     {
-        if (is_array($joinType) && isset($joinType[$name])) {
-            return $joinType[$name];
-        }
-
-        return is_string($joinType) ? $joinType : 'INNER JOIN';
+        return is_array($joinType)
+            ? ($joinType[$name] ?? 'INNER JOIN')
+            : $joinType;
     }
 
     /**
@@ -576,14 +585,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (empty($this->from)) {
             $tableName = $this->getPrimaryTableName();
         } else {
-            foreach ($this->from as $alias => $tableName) {
-                if (is_string($alias)) {
-                    return [$tableName, $alias];
-                }
-                if ($tableName instanceof ExpressionInterface) {
-                    throw new LogicException('Alias must be set for a table specified by an expression.');
-                }
-                break;
+            $alias = array_key_first($this->from);
+            $tableName = $this->from[$alias];
+            if (is_string($alias)) {
+                return [$tableName, $alias];
+            }
+            if ($tableName instanceof ExpressionInterface) {
+                throw new LogicException('Alias must be set for a table specified by an expression.');
             }
         }
 
@@ -832,13 +840,15 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     public function batch(int $batchSize = 100): BatchQueryResultInterface
     {
-        /** @psalm-suppress InvalidArgument */
-        return parent::batch($batchSize)->indexBy(null)->resultCallback($this->index(...));
+        /**
+         * @var Closure(non-empty-array<array>):non-empty-array<object> $callback
+         */
+        $callback = $this->index(...);
+        return parent::batch($batchSize)->indexBy(null)->resultCallback($callback);
     }
 
     protected function index(array $rows): array
     {
-        /** @var list<array> $rows */
         return ArArrayHelper::index($this->populate($rows), $this->indexBy);
     }
 
