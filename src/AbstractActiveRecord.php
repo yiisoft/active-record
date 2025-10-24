@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use Throwable;
@@ -35,6 +36,7 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_int;
+use function is_string;
 use function ltrim;
 use function preg_replace;
 use function reset;
@@ -202,13 +204,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $keys = $this->primaryKey();
 
+        /**
+         * @var float|int|string|null We assume primary key old value always is float, int, string or null.
+         */
         return match (count($keys)) {
             1 => $this->oldValues[$keys[0]] ?? null,
-            0 => throw new Exception(
+            0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
             ),
-            default => throw new Exception(
+            default => throw new LogicException(
                 static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.'
             ),
         };
@@ -219,18 +224,19 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $keys = $this->primaryKey();
 
         if (empty($keys)) {
-            throw new Exception(
+            throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
             );
         }
 
         $values = [];
-
         foreach ($keys as $name) {
+            /**
+             * @var bool|float|int|string|null We assume primary key old values always are scalar or null.
+             */
             $values[$name] = $this->oldValues[$name] ?? null;
         }
-
         return $values;
     }
 
@@ -238,13 +244,16 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         $keys = $this->primaryKey();
 
+        /**
+         * @var float|int|string|null We assume primary key value always is float, int, string or null.
+         */
         return match (count($keys)) {
             1 => $this->get($keys[0]),
-            0 => throw new Exception(
+            0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
             ),
-            default => throw new Exception(
+            default => throw new LogicException(
                 static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.'
             ),
         };
@@ -255,18 +264,19 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $keys = $this->primaryKey();
 
         if (empty($keys)) {
-            throw new Exception(
+            throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
                 . $this->tableName() . ' table or override the primaryKey() method.'
             );
         }
 
         $values = [];
-
         foreach ($keys as $name) {
+            /**
+             * @var bool|float|int|string|null We assume primary key old values always are scalar or null.
+             */
             $values[$name] = $this->get($name);
         }
-
         return $values;
     }
 
