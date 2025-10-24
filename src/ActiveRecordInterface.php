@@ -167,6 +167,8 @@ interface ActiveRecordInterface
      * @throw Exception If no primary key or multiple primary keys.
      *
      * @see primaryKeyOldValues()
+     *
+     * @psalm-return array<string, float|int|string|bool|null>
      */
     public function primaryKeyOldValues(): array;
 
@@ -183,6 +185,8 @@ interface ActiveRecordInterface
      * Returns the values of the primary key as an array with property names as keys and property values as values.
      *
      * @see primaryKeyValue()
+     *
+     * @psalm-return array<string, float|int|string|bool|null>
      */
     public function primaryKeyValues(): array;
 
@@ -343,9 +347,6 @@ interface ActiveRecordInterface
      * that you want to use as primary keys for this active record class.
      *
      * Note that an array should be returned even for a table with a single primary key.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
      *
      * @return string[] The primary keys of the associated database table.
      *
