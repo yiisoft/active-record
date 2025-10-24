@@ -504,7 +504,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if ($indexBy !== null) {
                 /**
                  * We assume that the index is always string, int or null.
-                 * @var string|int|null $index
+                 * @var int|string|null $index
                  */
                 $index = $indexBy instanceof Closure
                     ? $indexBy($linkModel)
