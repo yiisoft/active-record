@@ -183,7 +183,7 @@ class ActiveRecord extends AbstractActiveRecord
 
         if (is_array($updateProperties)) {
             /**
-             * @psalm-var array<string> $updateNames Values of `$updateProperties` parameter which are integer keys
+             * @var string[] $updateNames Values of `$updateProperties` parameter which are integer keys
              * represent property names
              */
             $updateNames = array_filter($updateProperties, is_int(...), ARRAY_FILTER_USE_KEY);
