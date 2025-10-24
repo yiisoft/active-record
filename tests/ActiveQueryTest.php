@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
@@ -148,7 +149,7 @@ abstract class ActiveQueryTest extends TestCase
         $params = ['a' => 'b'];
 
         $query = Customer::query();
-        $query->onCondition($on, $params);
+        $query->on($on, $params);
         $this->assertEquals($on, $query->getOn());
         $this->assertEquals($params, $query->getParams());
     }
@@ -158,7 +159,7 @@ abstract class ActiveQueryTest extends TestCase
         $on = ['active' => true];
         $params = ['a' => 'b'];
         $query = Customer::query();
-        $query->andOnCondition($on, $params);
+        $query->andOn($on, $params);
         $this->assertEquals($on, $query->getOn());
         $this->assertEquals($params, $query->getParams());
     }
@@ -171,7 +172,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = Customer::query();
 
-        $query->on($onOld)->andOnCondition($on, $params);
+        $query->on($onOld)->andOn($on, $params);
 
         $this->assertEquals(['and', $onOld, $on], $query->getOn());
         $this->assertEquals($params, $query->getParams());
@@ -184,7 +185,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = Customer::query();
 
-        $query->orOnCondition($on, $params);
+        $query->orOn($on, $params);
 
         $this->assertEquals($on, $query->getOn());
         $this->assertEquals($params, $query->getParams());
@@ -198,7 +199,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = Customer::query();
 
-        $query->on($onOld)->orOnCondition($on, $params);
+        $query->on($onOld)->orOn($on, $params);
 
         $this->assertEquals(['or', $onOld, $on], $query->getOn());
         $this->assertEquals($params, $query->getParams());
@@ -967,15 +968,15 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()
             ->joinWith(
                 [
-                    'itemsIndexed books' => static function ($q) {
-                        $q->onCondition('books.category_id = 1');
+                    'itemsIndexed books' => static function (ActiveQueryInterface $q) {
+                        $q->on('books.category_id = 1');
                     },
                 ],
                 false
             )->joinWith(
                 [
-                    'itemsIndexed movies' => static function ($q) {
-                        $q->onCondition('movies.category_id = 2');
+                    'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
+                        $q->on('movies.category_id = 2');
                     },
                 ],
                 false
@@ -993,16 +994,16 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()
             ->joinWith(
                 [
-                    'itemsIndexed books' => static function ($q) {
-                        $q->onCondition('books.category_id = 1');
+                    'itemsIndexed books' => static function (ActiveQueryInterface $q) {
+                        $q->on('books.category_id = 1');
                     },
                 ],
                 false
             )
             ->joinWith(
                 [
-                    'itemsIndexed movies' => static function ($q) {
-                        $q->onCondition('movies.category_id = 2');
+                    'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
+                        $q->on('movies.category_id = 2');
                     },
                 ],
                 true
@@ -1017,16 +1018,16 @@ abstract class ActiveQueryTest extends TestCase
         $query = Order::query()
             ->joinWith(
                 [
-                    'itemsIndexed books' => static function ($q) {
-                        $q->onCondition('books.category_id = 1');
+                    'itemsIndexed books' => static function (ActiveQueryInterface $q) {
+                        $q->on('books.category_id = 1');
                     },
                 ],
                 true
             )
             ->joinWith(
                 [
-                    'itemsIndexed movies' => static function ($q) {
-                        $q->onCondition('movies.category_id = 2');
+                    'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
+                        $q->on('movies.category_id = 2');
                     },
                 ],
                 false

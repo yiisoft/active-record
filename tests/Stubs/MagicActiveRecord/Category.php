@@ -22,7 +22,7 @@ final class Category extends MagicActiveRecord
 
     public function getLimitedItemsQuery(): ActiveQuery
     {
-        return $this->hasMany(Item::class, ['category_id' => 'id'])->onCondition(['item.id' => [1, 2, 3]]);
+        return $this->hasMany(Item::class, ['category_id' => 'id'])->on(['item.id' => [1, 2, 3]]);
     }
 
     public function getItemsQuery(): ActiveQuery

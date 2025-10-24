@@ -115,7 +115,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     private ActiveRecordInterface $model;
     private string|null $sql = null;
-    private array|string|null $on = null;
+    private array|ExpressionInterface|string|null $on = null;
     private array $joinWith = [];
 
     /**
@@ -696,38 +696,28 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
     }
 
-    public function onCondition(array|string $condition, array $params = []): static
+    public function on(array|ExpressionInterface|string $condition, array $params = []): static
     {
         $this->on = $condition;
-
         $this->addParams($params);
-
         return $this;
     }
 
-    public function andOnCondition(array|string $condition, array $params = []): static
+    public function andOn(array|ExpressionInterface|string $condition, array $params = []): static
     {
-        if ($this->on === null) {
-            $this->on = $condition;
-        } else {
-            $this->on = ['and', $this->on, $condition];
-        }
-
+        $this->on = $this->on === null
+            ? $condition
+            : ['and', $this->on, $condition];
         $this->addParams($params);
-
         return $this;
     }
 
-    public function orOnCondition(array|string $condition, array $params = []): static
+    public function orOn(array|ExpressionInterface|string $condition, array $params = []): static
     {
-        if ($this->on === null) {
-            $this->on = $condition;
-        } else {
-            $this->on = ['or', $this->on, $condition];
-        }
-
+        $this->on = $this->on === null
+            ? $condition
+            : ['or', $this->on, $condition];
         $this->addParams($params);
-
         return $this;
     }
 
@@ -783,7 +773,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->getModel()->tableName();
     }
 
-    public function getOn(): array|string|null
+    public function getOn(): array|ExpressionInterface|string|null
     {
         return $this->on;
     }
@@ -827,12 +817,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return (clone $this)->andWhere(array_combine($primaryKey, $values))->one();
-    }
-
-    public function on(array|string|null $value): static
-    {
-        $this->on = $value;
-        return $this;
     }
 
     public function sql(string|null $value): static
