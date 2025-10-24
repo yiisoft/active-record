@@ -238,7 +238,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $record = new NullValues();
 
-        $this->assertTrue($record->save());
+        $record->save();
         $this->assertEquals(1, $record->id);
     }
 
@@ -344,7 +344,11 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $customer->populateProperties($properties);
 
-        $this->assertTrue($customer->save());
+        $customer->save();
+
+        $this->assertTrue(
+            $this->db()->createQuery()->from('customer')->where(['email' => 'samdark@mail.ru'])->exists(),
+        );
     }
 
     public function testSetNoExistProperty(): void
@@ -630,13 +634,6 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals($eagerItemsCount, $lazyItemsCount);
     }
 
-    public function testSaveWithoutChanges(): void
-    {
-        $customer = Customer::findByPk(1);
-
-        $this->assertTrue($customer->save());
-    }
-
     public function testPrimaryKeyValue(): void
     {
         $customer = Customer::findByPk(1);
@@ -737,7 +734,7 @@ abstract class MagicActiveRecordTest extends TestCase
             $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
-        $this->assertTrue($customer->save());
+        $customer->save();
         $this->assertSame([], $customer->newValues());
 
         $customer->set('address', '');

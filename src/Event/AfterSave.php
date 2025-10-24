@@ -15,9 +15,8 @@ final class AfterSave extends AbstractEvent
 {
     /**
      * @param ActiveRecordInterface $model The model that was saved.
-     * @param bool $isSuccessful Whether the save operation was successful.
      */
-    public function __construct(ActiveRecordInterface $model, public bool &$isSuccessful)
+    public function __construct(ActiveRecordInterface $model)
     {
         parent::__construct($model);
     }

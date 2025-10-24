@@ -82,10 +82,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @throws InvalidArgumentException
      * @throws InvalidConfigException
      * @throws Throwable
-     *
-     * @return bool Whether the record inserted successfully.
      */
-    abstract protected function insertInternal(array|null $properties = null): bool;
+    abstract protected function insertInternal(array|null $properties = null): void;
 
     /**
      * Sets the value of the named property.
@@ -103,7 +101,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     abstract protected function upsertInternal(
         array|null $insertProperties = null,
         array|bool $updateProperties = true,
-    ): bool;
+    ): void;
 
     public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
@@ -370,9 +368,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->createRelationQuery($modelClass, $link, false);
     }
 
-    public function insert(array|null $properties = null): bool
+    public function insert(array|null $properties = null): void
     {
-        return $this->insertInternal($properties);
+        $this->insertInternal($properties);
     }
 
     public function isChanged(): bool
@@ -608,15 +606,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->related[$name] = $query->relatedRecords();
     }
 
-    public function save(array|null $properties = null): bool
+    public function save(array|null $properties = null): void
     {
         if ($this->isNewRecord()) {
-            return $this->insert($properties);
+            $this->insert($properties);
+            return;
         }
 
         $this->update($properties);
-
-        return true;
     }
 
     public function set(string $propertyName, mixed $value): void
@@ -794,9 +791,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return true;
     }
 
-    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool
+    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): void
     {
-        return $this->upsertInternal($insertProperties, $updateProperties);
+        $this->upsertInternal($insertProperties, $updateProperties);
     }
 
     public function unlink(string $relationName, ActiveRecordInterface $linkedModel, bool $delete = false): void

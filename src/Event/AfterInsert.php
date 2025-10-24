@@ -15,9 +15,8 @@ final class AfterInsert extends AbstractEvent
 {
     /**
      * @param ActiveRecordInterface $model The model that has been inserted.
-     * @param bool $isSuccessful Whether the insert operation is successful.
      */
-    public function __construct(ActiveRecordInterface $model, public bool &$isSuccessful)
+    public function __construct(ActiveRecordInterface $model)
     {
         parent::__construct($model);
     }
