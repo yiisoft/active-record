@@ -1678,7 +1678,9 @@ abstract class ActiveRecordTest extends TestCase
         $customer->markPropertyChanged('name');
         $this->assertTrue($customer->isPropertyChanged('name'));
 
+        // MySQL returns 0 affected rows if the value is the same
+        $expectedAffectedRows = $this->db()->getDriverName() === 'mysql' ? 0 : 1;
         $affectedRows = $customer->update();
-        $this->assertSame(1, $affectedRows);
+        $this->assertSame($expectedAffectedRows, $affectedRows);
     }
 }
