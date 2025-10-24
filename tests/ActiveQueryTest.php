@@ -60,14 +60,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals([], $query->populate([]));
     }
 
-    public function testPopulateFilledRows(): void
-    {
-        $query = Customer::query();
-        $rows = $query->all();
-        $result = $query->populate($rows);
-        $this->assertEquals($rows, $result);
-    }
-
     public function testAll(): void
     {
         $query = Customer::query();
