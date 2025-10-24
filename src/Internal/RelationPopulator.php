@@ -8,7 +8,6 @@ use Closure;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
-use Yiisoft\ActiveRecord\ArArrayHelper;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function count;
