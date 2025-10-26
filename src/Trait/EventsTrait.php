@@ -54,20 +54,18 @@ trait EventsTrait
         return $result;
     }
 
-    public function insert(array|null $properties = null): bool
+    public function insert(array|null $properties = null): void
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforeInsert($this, $properties));
 
         if ($event->isDefaultPrevented()) {
-            return $event->getReturnValue() ?? false;
+            return;
         }
 
-        $result = parent::insert($properties);
+        parent::insert($properties);
 
-        $eventDispatcher->dispatch(new AfterInsert($this, $result));
-
-        return $result;
+        $eventDispatcher->dispatch(new AfterInsert($this));
     }
 
     public function populateRecord(array|object $data): static
@@ -109,20 +107,18 @@ trait EventsTrait
         return $query;
     }
 
-    public function save(array|null $properties = null): bool
+    public function save(array|null $properties = null): void
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforeSave($this, $properties));
 
         if ($event->isDefaultPrevented()) {
-            return $event->getReturnValue() ?? false;
+            return;
         }
 
-        $result = parent::save($properties);
+        parent::save($properties);
 
-        $eventDispatcher->dispatch(new AfterSave($this, $result));
-
-        return $result;
+        $eventDispatcher->dispatch(new AfterSave($this));
     }
 
     public function update(array|null $properties = null): int
@@ -141,19 +137,17 @@ trait EventsTrait
         return $result;
     }
 
-    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool
+    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): void
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforeUpsert($this, $insertProperties, $updateProperties));
 
         if ($event->isDefaultPrevented()) {
-            return $event->getReturnValue() ?? false;
+            return;
         }
 
-        $result = parent::upsert($insertProperties, $updateProperties);
+        parent::upsert($insertProperties, $updateProperties);
 
-        $eventDispatcher->dispatch(new AfterUpsert($this, $result));
-
-        return $result;
+        $eventDispatcher->dispatch(new AfterUpsert($this));
     }
 }

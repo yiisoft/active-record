@@ -267,7 +267,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($customer->getId());
         $this->assertTrue($customer->isNewRecord());
 
-        $this->assertTrue($customer->save());
+        $customer->save();
         $this->assertFalse($customer->isNewRecord());
         $this->assertSame(4, $customer->getId());
 
@@ -289,7 +289,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($customer->getId());
         $this->assertTrue($customer->isNewRecord());
 
-        $this->assertTrue($customer->save(['email', 'name', 'address']));
+        $customer->save(['email', 'name', 'address']);
         $this->assertFalse($customer->isNewRecord());
         $this->assertSame(5, $customer->getId());
 
@@ -305,11 +305,11 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setAddress('address6');
         $customer->setStatus(1);
 
-        $this->assertTrue($customer->save([
+        $customer->save([
             'email' => 'user6@example.com',
             'name' => 'user6',
             'address',
-        ]));
+        ]);
         $this->assertFalse($customer->isNewRecord());
         $this->assertSame(6, $customer->getId());
 
@@ -324,7 +324,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setEmail('customer6@example.com');
         $customer->setName('customer6');
 
-        $this->assertTrue($customer->save());
+        $customer->save();
 
         $this->assertFalse($customer->isNewRecord());
         $this->assertSame(6, $customer->getId());
@@ -341,7 +341,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setName('name6');
         $customer->setStatus(1);
 
-        $this->assertTrue($customer->save(['email', 'name']));
+        $customer->save(['email', 'name']);
 
         $customer->refresh();
         $this->assertSame(6, $customer->getId());
@@ -353,11 +353,11 @@ abstract class ActiveRecordTest extends TestCase
         // update with property values
         $customer->setAddress('street6');
         $customer->setStatus(1);
-        $this->assertTrue($customer->save([
+        $customer->save([
             'email' => 'client6@example.com',
             'name' => 'client6',
             'address',
-        ]));
+        ]);
 
         $customer->refresh();
         $this->assertSame(6, $customer->getId());
@@ -373,7 +373,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $record = new NullValues();
 
-        $this->assertTrue($record->save());
+        $record->save();
         $this->assertEquals(1, $record->id);
     }
 
@@ -482,7 +482,11 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer->populateProperties($properties);
 
-        $this->assertTrue($customer->save());
+        $customer->save();
+
+        $this->assertTrue(
+            $this->db()->createQuery()->from('customer')->where(['email' => 'samdark@mail.ru'])->exists(),
+        );
     }
 
     public function testSetPropertyNoExist(): void
@@ -556,7 +560,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customer->isNewRecord());
         $this->assertNull($customer->getId());
 
-        $this->assertTrue($customer->insert());
+        $customer->insert();
         $this->assertFalse($customer->isNewRecord());
         $this->assertSame(4, $customer->getId());
 
@@ -578,7 +582,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue($customer->isNewRecord());
         $this->assertNull($customer->getId());
 
-        $this->assertTrue($customer->insert(['email', 'name', 'address']));
+        $customer->insert(['email', 'name', 'address']);
         $this->assertFalse($customer->isNewRecord());
         $this->assertSame(5, $customer->getId());
 
@@ -594,11 +598,11 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setAddress('address6');
         $customer->setStatus(1);
 
-        $this->assertTrue($customer->insert([
+        $customer->insert([
             'email' => 'user6@example.com',
             'name' => 'user6',
             'address',
-        ]));
+        ]);
         $this->assertFalse($customer->isNewRecord());
         $this->assertSame(6, $customer->getId());
 
@@ -818,13 +822,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertEquals($eagerItemsCount, $lazyItemsCount);
     }
 
-    public function testSaveWithoutChanges(): void
-    {
-        $customer = Customer::findByPk(1);
-
-        $this->assertTrue($customer->save());
-    }
-
     public function testPrimaryKeyValue(): void
     {
         $customer = Customer::findByPk(1);
@@ -943,7 +940,7 @@ abstract class ActiveRecordTest extends TestCase
             $customer->newValues(['id', 'email', 'address', 'status', 'unknown']),
         );
 
-        $this->assertTrue($customer->save());
+        $customer->save();
         $this->assertSame([], $customer->newValues());
 
         $customer->set('address', '');
@@ -1380,7 +1377,7 @@ abstract class ActiveRecordTest extends TestCase
             $customer->set($property, $value);
         }
 
-        $this->assertTrue($customer->upsert($insertProperties, $updateProperties));
+        $customer->upsert($insertProperties, $updateProperties);
 
         $this->assertFalse($customer->isNewRecord());
 

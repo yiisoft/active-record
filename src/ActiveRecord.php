@@ -159,7 +159,7 @@ class ActiveRecord extends AbstractActiveRecord
         return get_object_vars($this);
     }
 
-    protected function insertInternal(array|null $properties = null): bool
+    protected function insertInternal(array|null $properties = null): void
     {
         if (!$this->isNewRecord()) {
             throw new InvalidCallException('The record is not new and cannot be inserted.');
@@ -168,10 +168,10 @@ class ActiveRecord extends AbstractActiveRecord
         $values = $this->newPropertyValues($properties);
         $primaryKeys = $this->db()->createCommand()->insertReturningPks($this->tableName(), $values);
 
-        return $this->populateRawValues($primaryKeys, $values);
+        $this->populateRawValues($primaryKeys, $values);
     }
 
-    protected function upsertInternal(array|null $insertProperties = null, array|bool $updateProperties = true): bool
+    protected function upsertInternal(array|null $insertProperties = null, array|bool $updateProperties = true): void
     {
         if (!$this->isNewRecord()) {
             throw new InvalidCallException('The record is not new and cannot be inserted.');
@@ -205,7 +205,7 @@ class ActiveRecord extends AbstractActiveRecord
         $returnedValues = $this->db()->createCommand()
             ->upsertReturning($this->tableName(), $insertValues, $updateProperties, $returnProperties);
 
-        return $this->populateRawValues($returnedValues);
+        $this->populateRawValues($returnedValues);
     }
 
     protected function populateProperty(string $name, mixed $value): void
@@ -214,14 +214,10 @@ class ActiveRecord extends AbstractActiveRecord
     }
 
     /**
-     * @psalm-param array<string, mixed>|false $rawValues
+     * @psalm-param array<string, mixed> $rawValues
      */
-    private function populateRawValues(array|false $rawValues, array $oldValues = []): bool
+    private function populateRawValues(array $rawValues, array $oldValues = []): void
     {
-        if ($rawValues === false) {
-            return false;
-        }
-
         $values = $this->phpTypecastValues($rawValues);
 
         foreach ($values as $name => $value) {
@@ -229,8 +225,6 @@ class ActiveRecord extends AbstractActiveRecord
         }
 
         $this->assignOldValues(array_merge($oldValues, $values));
-
-        return true;
     }
 
     /**

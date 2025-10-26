@@ -244,10 +244,8 @@ interface ActiveRecordInterface
      * @throws InvalidCallException If the record {@see isNewRecord() is not new}.
      * @throws InvalidConfigException
      * @throws Throwable In case insert failed.
-     *
-     * @return bool Whether the record is inserted successfully.
      */
-    public function insert(array|null $properties = null): bool;
+    public function insert(array|null $properties = null): void;
 
     /**
      * Checks if any property returned by {@see propertyNames()} method has changed.
@@ -424,10 +422,8 @@ interface ActiveRecordInterface
      *
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
      * Defaults to `null`, meaning all changed property values will be saved.
-     *
-     * @return bool Whether the saving succeeded (that's no validation errors occurred).
      */
-    public function save(array|null $properties = null): bool;
+    public function save(array|null $properties = null): void;
 
     /**
      * Sets the named property value.
@@ -562,10 +558,8 @@ interface ActiveRecordInterface
      *
      * @throws InvalidConfigException
      * @throws Throwable In case query failed.
-     *
-     * @return bool Whether the record is inserted or updated successfully.
      */
-    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): bool;
+    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): void;
 
     /**
      * Destroys the relationship between two records.

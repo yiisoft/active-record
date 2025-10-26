@@ -164,7 +164,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $this->assertNull($arClass->bool_col);
         $this->assertTrue($arClass->default_true);
         $this->assertFalse($arClass->default_false);
-        $this->assertTrue($arClass->save());
+        $arClass->save();
     }
 
     public function testPrimaryKeyAfterSave(): void
