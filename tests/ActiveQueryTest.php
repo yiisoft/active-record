@@ -2088,12 +2088,12 @@ abstract class ActiveQueryTest extends TestCase
         ]);
 
         $this->assertNull($customer->oldValue('name'));
-        $this->assertTrue($customer->save());
+        $customer->save();
         $this->assertSame('Jack', $customer->oldValue('name'));
 
         $customer->set('name', 'Harry');
 
-        $this->assertTrue($customer->save());
+        $customer->save();
         $this->assertSame('Harry', $customer->oldValue('name'));
     }
 

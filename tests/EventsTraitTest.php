@@ -38,9 +38,8 @@ abstract class EventsTraitTest extends TestCase
         $model = new CategoryEventsModel();
         $model->name = 'Prevented Category';
 
-        $result = $model->insert();
+        $model->insert();
 
-        $this->assertFalse($result);
         $this->assertNull($model->id);
         $this->assertSame('Prevented Category', $model->name);
     }
@@ -62,9 +61,8 @@ abstract class EventsTraitTest extends TestCase
         $model = new CategoryEventsModel();
         $model->name = 'Custom Return Category';
 
-        $result = $model->insert();
+        $model->insert();
 
-        $this->assertTrue($result);
         $this->assertNull($model->id);
         $this->assertSame('Custom Return Category', $model->name);
     }
@@ -135,9 +133,8 @@ abstract class EventsTraitTest extends TestCase
         $model = new CategoryEventsModel();
         $model->name = 'Prevented Save';
 
-        $result = $model->save();
+        $model->save();
 
-        $this->assertFalse($result);
         $this->assertNull($model->id);
         $this->assertSame('Prevented Save', $model->name);
     }
@@ -159,9 +156,8 @@ abstract class EventsTraitTest extends TestCase
         $model = new CategoryEventsModel();
         $model->name = 'Custom Return Save';
 
-        $result = $model->save();
+        $model->save();
 
-        $this->assertTrue($result);
         $this->assertNull($model->id);
         $this->assertSame('Custom Return Save', $model->name);
     }
@@ -235,9 +231,8 @@ abstract class EventsTraitTest extends TestCase
         $model = new CategoryEventsModel();
         $model->name = 'Prevented Upsert';
 
-        $result = $model->upsert();
+        $model->upsert();
 
-        $this->assertFalse($result);
         $this->assertNull($model->id);
         $this->assertSame('Prevented Upsert', $model->name);
     }
@@ -259,9 +254,8 @@ abstract class EventsTraitTest extends TestCase
         $model = new CategoryEventsModel();
         $model->name = 'Custom Return Upsert';
 
-        $result = $model->upsert();
+        $model->upsert();
 
-        $this->assertTrue($result);
         $this->assertNull($model->id);
         $this->assertSame('Custom Return Upsert', $model->name);
     }
