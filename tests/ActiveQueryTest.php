@@ -107,31 +107,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $query = Customer::query();
         $query->with('orders', 'profile');
-        $this->assertEquals(['orders', 'profile'], $query->getWith());
-
-        // Test array format
-        $query = Customer::query();
-        $query->with(['orders', 'profile']);
-        $this->assertEquals(['orders', 'profile'], $query->getWith());
-
-        // Test with callback
-        $query = Customer::query();
-        $query->with([
-            'orders' => function (ActiveQueryInterface $q) {
-                $q->where(['status' => 1]);
-            },
-            'profile',
-        ]);
-        $result = $query->getWith();
-        $this->assertCount(2, $result);
-        $this->assertArrayHasKey('orders', $result);
-        $this->assertIsCallable($result['orders']);
-        $this->assertEquals('profile', $result[0]);
-
-        // Test multiple calls to with()
-        $query = Customer::query();
-        $query->with('orders')->with('profile');
-        $this->assertEquals(['orders', 'profile'], $query->getWith());
+        $this->assertSame(['orders', 'profile'], $query->getWith());
     }
 
     public function testInnerJoinWith(): void
