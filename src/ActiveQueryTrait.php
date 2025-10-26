@@ -20,6 +20,7 @@ use function substr;
 trait ActiveQueryTrait
 {
     private bool|null $asArray = null;
+    private array $with = [];
 
     /**
      * Sets the {@see asArray} property.
@@ -146,7 +147,7 @@ trait ActiveQueryTrait
      * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
      * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $models
      */
-    public function findWith(array $with, array &$models): void
+    private function findWith(array $with, array &$models): void
     {
         $primaryModel = reset($models);
 
