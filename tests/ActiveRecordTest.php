@@ -1680,4 +1680,55 @@ abstract class ActiveRecordTest extends TestCase
         $affectedRows = $customer->update();
         $this->assertSame($expectedAffectedRows, $affectedRows);
     }
+
+    public function testMarkAsNewRecord(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertNotEmpty($customer->oldValues());
+
+        $customer->setId(375);
+        $customer->setEmail('sergei@predvoditelev.ru');
+        $customer->markAsNewRecord();
+
+        $this->assertTrue($customer->isNewRecord());
+        $this->assertSame([], $customer->oldValues());
+
+        $customer->save();
+
+        $this->assertSame(
+            2,
+            self::db()->select('id')->from('customer')->where(['id' => [1, 375]])->count(),
+        );
+    }
+
+    public function testMarkAsExistingRecord(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = new Customer();
+        $customer->setId(1);
+
+        $this->assertTrue($customer->isNewRecord());
+        $this->assertSame([], $customer->oldValues());
+
+        $customer->markAsExistingRecord();
+        $customer->setEmail('test@example.com');
+        $customer->setName('Test User');
+        $customer->setAddress('Test Address');
+        $customer->setStatus(1);
+
+        $this->assertFalse($customer->isNewRecord());
+        $this->assertNotEmpty($customer->oldValues());
+
+        $customer->save();
+
+        $this->assertSame(
+            'Test User',
+            self::db()->select('name')->from('customer')->where(['id' => 1])->scalar(),
+        );
+    }
 }

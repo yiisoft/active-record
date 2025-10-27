@@ -435,6 +435,24 @@ interface ActiveRecordInterface
     public function set(string $propertyName, mixed $value): void;
 
     /**
+     * Marks this record as new. The record should be inserted when calling {@see save()}.
+     *
+     * @see isNewRecord()
+     * @see markAsExistingRecord()
+     */
+    public function markAsNewRecord(): void;
+
+    /**
+     * Marks this record as existing. The record should be updated when calling {@see save()}.
+     *
+     * Note: all current properties will be considered unchanged after calling this method.
+     *
+     * @see isNewRecord()
+     * @see markAsNewRecord()
+     */
+    public function markAsExistingRecord(): void;
+
+    /**
      * Saves the changes to this active record into the associated database table.
      * You may specify the properties to be updated as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.

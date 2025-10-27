@@ -645,16 +645,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    /**
-     * Marks this record as new.
-     *
-     * @param bool $isNewRecord Whether the record is new and should be inserted when calling {@see save()}.
-     *
-     * @see isNewRecord()
-     */
-    public function markAsNewRecord(bool $isNewRecord = true): void
+    public function markAsNewRecord(): void
     {
-        $this->oldValues = $isNewRecord ? null : $this->propertyValuesInternal();
+        $this->oldValues = null;
+    }
+
+    public function markAsExistingRecord(): void
+    {
+        $this->oldValues = $this->propertyValuesInternal();
     }
 
     /**
