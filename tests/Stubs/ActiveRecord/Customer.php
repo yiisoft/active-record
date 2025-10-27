@@ -20,7 +20,7 @@ class Customer extends ArrayableActiveRecord
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
 
-    protected ?int $id;
+    protected int $id;
     protected string $email;
     protected string|null $name = null;
     protected string|null $address = null;
@@ -100,6 +100,10 @@ class Customer extends ArrayableActiveRecord
 
     public function setId(?int $id): void
     {
+        if ($id === null) {
+            unset($this->id);
+            return;
+        }
         $this->id = $id;
     }
 
