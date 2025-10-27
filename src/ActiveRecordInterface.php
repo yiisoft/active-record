@@ -98,7 +98,7 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the given active record is the same as the current one.
      *
      * The comparison is made by comparing the table names and the primary key values of the two active records. If one
-     * of the records {@see isNewRecord|is new} they're also considered not equal.
+     * of the records {@see isNew} they're also considered not equal.
      *
      * @param self $record Record to compare to.
      *
@@ -140,7 +140,7 @@ interface ActiveRecordInterface
      *
      * @return bool Whether the record is new and should be inserted when calling {@see save()}.
      */
-    public function isNewRecord(): bool;
+    public function isNew(): bool;
 
     /**
      * Returns the old value of the primary key as a scalar.
@@ -241,7 +241,7 @@ interface ActiveRecordInterface
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
      * Defaults to `null`, meaning all changed property values will be saved.
      *
-     * @throws InvalidCallException If the record {@see isNewRecord() is not new}.
+     * @throws InvalidCallException If the record {@see isNew() is not new}.
      * @throws InvalidConfigException
      * @throws Throwable In case insert failed.
      */
@@ -402,8 +402,8 @@ interface ActiveRecordInterface
      *
      * Only the {@see newValues()} changed property values will be saved into a database.
      *
-     * This method will call {@see insert()} when {@see isNewRecord()} is true, or {@see update()} when
-     * {@see isNewRecord()|isNewRecord} is false.
+     * This method will call {@see insert()} when {@see isNew()} is true, or {@see update()} when
+     * {@see isNew()} is false.
      *
      * For example, to save a customer record:
      *
@@ -433,6 +433,24 @@ interface ActiveRecordInterface
      * @throws InvalidArgumentException If the named property doesn't exist.
      */
     public function set(string $propertyName, mixed $value): void;
+
+    /**
+     * Marks this record as new. The record should be inserted when calling {@see save()}.
+     *
+     * @see isNew()
+     * @see markAsExisting()
+     */
+    public function markAsNew(): void;
+
+    /**
+     * Marks this record as existing. The record should be updated when calling {@see save()}.
+     *
+     * Note: all current properties will be considered unchanged after calling this method.
+     *
+     * @see isNew()
+     * @see markAsNew()
+     */
+    public function markAsExisting(): void;
 
     /**
      * Saves the changes to this active record into the associated database table.
@@ -473,7 +491,7 @@ interface ActiveRecordInterface
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
      * Defaults to `null`, meaning all changed property values will be saved.
      *
-     * @throws InvalidCallException If the record {@see isNewRecord() is new}.
+     * @throws InvalidCallException If the record {@see isNew() is new}.
      * @throws OptimisticLockException If the instance implements {@see OptimisticLockInterface} and the data being
      * updated is outdated.
      * @throws Throwable In case update failed.
