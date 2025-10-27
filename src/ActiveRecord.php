@@ -161,7 +161,7 @@ class ActiveRecord extends AbstractActiveRecord
 
     protected function insertInternal(array|null $properties = null): void
     {
-        if (!$this->isNewRecord()) {
+        if (!$this->isNew()) {
             throw new InvalidCallException('The record is not new and cannot be inserted.');
         }
 
@@ -173,7 +173,7 @@ class ActiveRecord extends AbstractActiveRecord
 
     protected function upsertInternal(array|null $insertProperties = null, array|bool $updateProperties = true): void
     {
-        if (!$this->isNewRecord()) {
+        if (!$this->isNew()) {
             throw new InvalidCallException('The record is not new and cannot be inserted.');
         }
 
