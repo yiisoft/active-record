@@ -20,7 +20,7 @@ class Customer extends ArrayableActiveRecord
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
 
-    protected int $id;
+    protected ?int $id;
     protected string $email;
     protected string|null $name = null;
     protected string|null $address = null;
@@ -63,7 +63,7 @@ class Customer extends ArrayableActiveRecord
         };
     }
 
-    public function getId(): int|null
+    public function getId(): ?int
     {
         return $this->id ?? null;
     }
@@ -98,7 +98,7 @@ class Customer extends ArrayableActiveRecord
         return $this->profile_id;
     }
 
-    public function setId(int $id): void
+    public function setId(?int $id): void
     {
         $this->id = $id;
     }

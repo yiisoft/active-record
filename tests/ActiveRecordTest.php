@@ -1690,7 +1690,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($customer->isNewRecord());
         $this->assertNotEmpty($customer->oldValues());
 
-        $customer->setId(375);
+        $customer->setId(null);
         $customer->setEmail('sergei@predvoditelev.ru');
         $customer->markAsNewRecord();
 
@@ -1701,7 +1701,12 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertSame(
             2,
-            self::db()->select('id')->from('customer')->where(['id' => [1, 375]])->count(),
+            self::db()
+                ->select('id')
+                ->from('customer')
+                ->where(['id' => 1])
+                ->orWhere(['email' => 'sergei@predvoditelev.ru'])
+                ->count(),
         );
     }
 
