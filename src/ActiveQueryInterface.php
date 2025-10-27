@@ -96,6 +96,11 @@ interface ActiveQueryInterface extends QueryInterface
     public function with(array|string ...$with): static;
 
     /**
+     * @return array A list of relations that this query should be performed with.
+     */
+    public function getWith(): array;
+
+    /**
      * Specifies the relation associated with the junction table for use in a relational query.
      *
      * @param string $relationName The relation name.
