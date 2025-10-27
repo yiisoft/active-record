@@ -292,6 +292,21 @@ abstract class ActiveQueryTest extends TestCase
         );
     }
 
+    public function testJoinWithRelationNoLinkWithOn(): void
+    {
+        $query = OrderItem::query();
+
+        $sql = $query->joinWith('custom')->createCommand()->getRawSql();
+
+        $this->assertSame(
+            DbHelper::replaceQuotes(
+                'SELECT [[order_item]].* FROM [[order_item]] LEFT JOIN [[order]]',
+                self::db()->getDriverName(),
+            ),
+            $sql
+        );
+    }
+
     /**
      * {@see https://github.com/yiisoft/yii2/issues/5341}
      *
