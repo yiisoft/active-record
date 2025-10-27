@@ -96,6 +96,20 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
     }
 
+    public function testGetWith(): void
+    {
+        $query = Customer::query();
+
+        $this->assertSame([], $query->getWith());
+
+        $query->with('orders');
+        $this->assertSame(['orders'], $query->getWith());
+
+        $query = Customer::query();
+        $query->with('orders', 'profile');
+        $this->assertSame(['orders', 'profile'], $query->getWith());
+    }
+
     public function testInnerJoinWith(): void
     {
         $query = Customer::query();

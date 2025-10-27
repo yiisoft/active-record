@@ -870,7 +870,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->having($this->having)
             ->setUnions($this->union)
             ->params($this->params)
-            ->withQueries($this->withQueries);
+            ->withQueries(...$this->withQueries);
     }
 
     private function populateOne(array $row): ActiveRecordInterface|array
