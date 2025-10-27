@@ -279,6 +279,19 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([], $query->getFrom());
     }
 
+    public function testGetTablesUsedInFromWithFromSet(): void
+    {
+        $query = Customer::query();
+        $query->from(['customer' => 'customers_table']);
+
+        $result = $query->getTablesUsedInFrom();
+
+        $this->assertSame(
+            ['{{customer}}' => '{{customers_table}}'],
+            $result,
+        );
+    }
+
     /**
      * {@see https://github.com/yiisoft/yii2/issues/5341}
      *
