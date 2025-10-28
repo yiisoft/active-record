@@ -121,4 +121,15 @@ abstract class ArrayableTraitTest extends TestCase
             ]),
         );
     }
+
+    public function testPopulateRecordFromAnotherRecord(): void
+    {
+        $customer1 = Customer::query()->findByPk(1);
+        $customer2 = new Customer();
+        $customer2->populateRecord($customer1);
+
+        $this->assertSame(1, $customer2->getId());
+        $this->assertSame('user1@example.com', $customer2->getEmail());
+        $this->assertSame('user1', $customer2->getName());
+    }
 }
