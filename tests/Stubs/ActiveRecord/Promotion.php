@@ -24,8 +24,7 @@ class Promotion extends ActiveRecord
     public function relationQuery(string $name): ActiveQueryInterface
     {
         return match ($name) {
-            'itemsViaJson' => $this->hasMany(Item::class, ['id' => 'json_item_ids'])
-                ->inverseOf('promotionsViaJson'),
+            'itemsViaJson' => $this->hasMany(Item::class, ['id' => 'json_item_ids'])->inverseOf('promotionsViaJson'),
             default => parent::relationQuery($name),
         };
     }

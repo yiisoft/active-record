@@ -8,9 +8,6 @@ use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-/**
- * Class Item.
- */
 class Item extends ActiveRecord
 {
     protected int $id;

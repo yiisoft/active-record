@@ -52,6 +52,8 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Factory\Factory;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
+use function in_array;
+
 abstract class ActiveRecordTest extends TestCase
 {
     abstract protected function createFactory(): Factory;
@@ -1095,7 +1097,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationViaJson(): void
     {
-        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
+        if (in_array(self::db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
             $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
         }
 
