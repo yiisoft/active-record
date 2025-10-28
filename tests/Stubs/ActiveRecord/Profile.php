@@ -20,4 +20,9 @@ final class Profile extends ActiveRecord
     {
         return self::TABLE_NAME;
     }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
 }

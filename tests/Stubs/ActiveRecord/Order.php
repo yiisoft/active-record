@@ -199,6 +199,33 @@ class Order extends ActiveRecord
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('ordersIndexedWithInverseOf');
     }
 
+    public function getCustomerProfileViaCallable(): Profile|null
+    {
+        return $this->relation('customerProfileViaCallable');
+    }
+
+    public function getCustomerProfileViaCallableQuery(): ActiveQueryInterface
+    {
+        return $this
+            ->hasOne(Profile::class, ['id' => 'profile_id'])
+            ->via(
+                'customer',
+                static fn(ActiveQueryInterface $query) => $query,
+            );
+    }
+
+    public function getCustomerProfileViaCustomer(): Profile|null
+    {
+        return $this->relation('customerProfileViaCustomer');
+    }
+
+    public function getCustomerProfileViaCustomerQuery(): ActiveQueryInterface
+    {
+        return $this
+            ->hasOne(Profile::class, ['id' => 'profile_id'])
+            ->via('customer',);
+    }
+
     public function getOrderItems(): array
     {
         return $this->relation('orderItems');

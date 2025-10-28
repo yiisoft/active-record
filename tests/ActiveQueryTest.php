@@ -2685,4 +2685,24 @@ abstract class ActiveQueryTest extends TestCase
         $items = $order->getItemsIndexedQuery()->all();
         $this->assertCount(2, $items);
     }
+
+    public function testGetViaCallableWithHasOne(): void
+    {
+        $order = Order::query()->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCallableQuery()->one();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertSame(1, $profile->getId());
+    }
+
+    public function testGetViaWithHasOne(): void
+    {
+        $order = Order::query()->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCustomerQuery()->one();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertSame(1, $profile->getId());
+    }
 }
