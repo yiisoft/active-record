@@ -493,7 +493,7 @@ class Order extends ActiveRecord
         return $this
             ->hasMany(Item::class, ['id' => 'item_id'])
             ->via(
-                'orderItems',
+                'orderItemsWithNullFK',
                 static fn(ActiveQueryInterface $query) => $query->andOn(['>=', 'subtotal', 35]),
             );
     }

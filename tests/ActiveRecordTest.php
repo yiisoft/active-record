@@ -1780,7 +1780,25 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
-    public function testUnlinkAllViaModelWithOnConditionWithDelete(): void
+    public function testUnlinkAllViaModelWithOnCondition(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $order->unlinkAll('itemsWithOnCondition');
+
+        $this->assertCount(0, $order->getItemsWithOnCondition());
+        $this->assertSame(
+            1,
+            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => 1])->count(),
+        );
+        $this->assertSame(
+            1,
+            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => null])->count(),
+        );
+    }
+
+    public function testUnlinkAllViaModelWithOnConditionAndDelete(): void
     {
         $this->reloadFixtureAfterTest();
 
@@ -1789,10 +1807,12 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertCount(0, $order->getItemsWithOnCondition());
         $this->assertSame(
-            [
-                ['order_id' => '1', 'item_id' => '1', 'quantity' => '1', 'subtotal' => '30'],
-            ],
-            self::db()->select('*')->from('{{order_item}}')->where(['order_id' => 1])->all(),
+            1,
+            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => 1])->count(),
+        );
+        $this->assertSame(
+            0,
+            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => null])->count(),
         );
     }
 }
