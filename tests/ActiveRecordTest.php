@@ -1888,4 +1888,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectExceptionMessage('Unable to unlink models: the link does not involve any primary key.');
         $order->unlink('invalidRelation', $item);
     }
+
+    public function testUpdateCountersThrowsExceptionForNewRecord(): void
+    {
+        $orderItem = new OrderItem();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Updating counters is not possible for new records.');
+        $orderItem->updateCounters(['quantity' => 1]);
+    }
 }
