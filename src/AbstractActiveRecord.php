@@ -700,82 +700,31 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $command->execute();
     }
 
-    /**
-     * Updates the whole table using the provided counters and condition.
-     *
-     * For example, to increment all customers' age by 1:
-     *
-     * ```php
-     * $customer = new Customer();
-     * $customer->updateAllCounters(['age' => 1]);
-     * ```
-     *
-     * Note that this method will not trigger any events.
-     *
-     * @param array $counters The counters to be updated (property name => increment value).
-     * Use negative values if you want to decrement the counters.
-     * @param array|string $condition The conditions that will be put in the `WHERE` part of the `UPDATE` SQL.
-     * Please refer to {@see Query::where()} on how to specify this parameter.
-     * @param array|ExpressionInterface|string|null $from The FROM part of the `UPDATE` SQL.
-     * Please refer to {@see QueryPartsInterface::from()} on how to specify this parameter.
-     * @param array $params The parameters (name => value) to be bound to the query.
-     *
-     * Do not name the parameters as `:bp0`, `:bp1`, etc., because they are used internally by this method.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     * @throws Throwable
-     *
-     * @return int The number of rows updated.
-     *
-     * @psalm-param RawFrom|null $from
-     */
-    public function updateAllCounters(array $counters, array|string $condition = '', array|ExpressionInterface|string|null $from = null, array $params = []): int
-    {
+    public function updateAllCounters(
+        array $counters,
+        array|string $condition = '',
+        array|ExpressionInterface|string|null $from = null,
+        array $params = [],
+    ): int {
         $n = 0;
-
-        /** @psalm-var array<string, int> $counters */
         foreach ($counters as $name => $value) {
             $counters[$name] = new Expression("[[$name]]+:bp$n", [":bp$n" => $value]);
             $n++;
         }
 
-        $command = $this->db()->createCommand();
-        $command->update($this->tableName(), $counters, $condition, $from, $params);
-
-        return $command->execute();
+        return $this->db()
+            ->createCommand()
+            ->update($this->tableName(), $counters, $condition, $from, $params)
+            ->execute();
     }
 
-    /**
-     * Updates one or several counters for the current AR object.
-     *
-     * Note that this method differs from {@see updateAllCounters()} in that it only saves counters for the current AR
-     * object.
-     *
-     * An example usage is as follows:
-     *
-     * ```php
-     * $post = new Post();
-     * $post->updateCounters(['view_count' => 1]);
-     * ```
-     *
-     * @param array $counters The counters to be updated (property name => increment value), use negative values if you
-     * want to decrement the counters.
-     *
-     * @psalm-param array<string, int> $counters
-     *
-     * @throws Exception
-     * @throws NotSupportedException
-     *
-     * @return bool Whether the saving is successful.
-     *
-     * {@see updateAllCounters()}
-     */
-    public function updateCounters(array $counters): bool
+    public function updateCounters(array $counters): void
     {
-        if ($this->updateAllCounters($counters, $this->primaryKeyOldValues()) === 0) {
-            return false;
+        if ($this->isNew()) {
+            throw new LogicException('Updating counters is not possible for new records.');
         }
+
+        $this->updateAllCounters($counters, $this->primaryKeyOldValues());
 
         foreach ($counters as $name => $value) {
             /**
@@ -785,8 +734,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $this->populateProperty($name, $value);
             $this->oldValues[$name] = $value;
         }
-
-        return true;
     }
 
     public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): void
