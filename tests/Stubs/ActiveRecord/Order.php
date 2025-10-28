@@ -368,12 +368,11 @@ class Order extends ActiveRecord
         return $this->relation('booksViaTable');
     }
 
-    public function getBooksViaTableQuery(): ActiveQuery
+    public function getBooksViaTableQuery(): ActiveQueryInterface
     {
-        return $this->hasMany(
-            Item::class,
-            ['id' => 'item_id']
-        )->viaTable('order_item', ['order_id' => 'id'])->where(['category_id' => 1]);
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->viaTable('order_item', ['order_id' => 'id'])->where(['category_id' => 1]);
     }
 
     public function getBooksWithNullFKViaTable(): array

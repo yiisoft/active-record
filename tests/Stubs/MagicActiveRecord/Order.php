@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
 use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
 use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
@@ -154,12 +155,11 @@ class Order extends MagicActiveRecord
         )->via('orderItemsWithNullFK')->where(['category_id' => 1]);
     }
 
-    public function getBooksViaTableQuery(): ActiveQuery
+    public function getBooksViaTableQuery(): ActiveQueryInterface
     {
-        return $this->hasMany(
-            Item::class,
-            ['id' => 'item_id']
-        )->viaTable('order_item', ['order_id' => 'id'])->where(['category_id' => 1]);
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->viaTable('order_item', ['order_id' => 'id'])->where(['category_id' => 1]);
     }
 
     public function getBooksWithNullFKViaTableQuery(): ActiveQuery
