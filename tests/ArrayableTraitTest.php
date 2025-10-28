@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use ArrayIterator;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
@@ -131,5 +132,17 @@ abstract class ArrayableTraitTest extends TestCase
         $this->assertSame(1, $customer2->getId());
         $this->assertSame('user1@example.com', $customer2->getEmail());
         $this->assertSame('user1', $customer2->getName());
+    }
+
+    public function testPopulateRecordFromTraversable(): void
+    {
+        $customer = new Customer();
+        $customer->populateRecord(
+            new ArrayIterator(['email' => 'test@example.com', 'name' => 'Vasya'])
+        );
+
+        $this->assertNull($customer->getId());
+        $this->assertSame('test@example.com', $customer->getEmail());
+        $this->assertSame('Vasya', $customer->getName());
     }
 }
