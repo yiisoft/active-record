@@ -261,9 +261,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->findWith($this->with, $models);
         }
 
-        if ($this->inverseOf !== null) {
-            $this->addInverseRelations($models);
-        }
+        $this->addInverseRelations($models);
 
         return $models;
     }
