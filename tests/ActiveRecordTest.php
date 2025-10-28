@@ -1779,4 +1779,20 @@ abstract class ActiveRecordTest extends TestCase
             self::db()->select('*')->from('{{order_item}}')->where(['order_id' => 2])->all(),
         );
     }
+
+    public function testUnlinkAllViaModelWithOnConditionWithDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $order->unlinkAll('itemsWithOnCondition', true);
+
+        $this->assertCount(0, $order->getItemsWithOnCondition());
+        $this->assertSame(
+            [
+                ['order_id' => '1', 'item_id' => '1', 'quantity' => '1', 'subtotal' => '30'],
+            ],
+            self::db()->select('*')->from('{{order_item}}')->where(['order_id' => 1])->all(),
+        );
+    }
 }

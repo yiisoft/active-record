@@ -125,6 +125,7 @@ class Order extends ActiveRecord
             'cheapItemsUsingViaWithCallable' => $this->getCheapItemsUsingViaWithCallableQuery(),
             'orderItemsFor8' => $this->getOrderItemsFor8Query(),
             'itemsFor8' => $this->getItemsFor8Query(),
+            'itemsWithOnCondition' => $this->getItemsWithOnConditionQuery(),
             default => parent::relationQuery($name),
         };
     }
@@ -480,5 +481,20 @@ class Order extends ActiveRecord
     public function getItemsFor8Query(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItemsFor8');
+    }
+
+    public function getItemsWithOnCondition(): array
+    {
+        return $this->relation('itemsWithOnCondition');
+    }
+
+    public function getItemsWithOnConditionQuery(): ActiveQueryInterface
+    {
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->via(
+                'orderItems',
+                static fn(ActiveQueryInterface $query) => $query->andOn(['>=', 'subtotal', 35]),
+            );
     }
 }
