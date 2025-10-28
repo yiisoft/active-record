@@ -25,6 +25,7 @@ class Promotion extends ActiveRecord
     {
         return match ($name) {
             'itemsViaJson' => $this->hasMany(Item::class, ['id' => 'json_item_ids'])->inverseOf('promotionsViaJson'),
+            'singleItem' => $this->hasOne(Item::class, ['id' => 'json_item_ids']),
             default => parent::relationQuery($name),
         };
     }

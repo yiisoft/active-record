@@ -1899,4 +1899,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectExceptionMessage('Updating counters is not possible for new records.');
         $orderItem->updateCounters(['quantity' => 1]);
     }
+
+    public function testGetAllWithHasOneAndArrayValue(): void
+    {
+        $promotions = Promotion::query()->with('singleItem')->andWhere(['id' => [1, 2]])->all();
+
+        $this->assertPostConditions(2, $promotions);
+        $this->assertNull($promotions[0]->relation('singleItem'));
+        $this->assertNull($promotions[1]->relation('singleItem'));
+    }
 }
