@@ -101,17 +101,7 @@ final class ArArrayHelper
 
             if (property_exists($array, $key)) {
                 /** @psalm-suppress PossiblyNullFunctionCall */
-                return (Closure::bind(
-                    function (): mixed {
-                        /**
-                         * @var ActiveRecordInterface $this
-                         * @psalm-suppress UndefinedVariable
-                         */
-                        return $this->$key;
-                    },
-                    $array,
-                    $array
-                ))();
+                return (Closure::bind(fn(): mixed => $this->$key, $array, $array))();
             }
 
             if ($array->isRelationPopulated($key)) {
