@@ -19,6 +19,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Employee;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
@@ -2757,5 +2758,12 @@ abstract class ActiveQueryTest extends TestCase
 
         // Key value for non-existent key will be null, so all records will have the same key
         $this->assertCount(1, $indexedOrders);
+    }
+
+    public function testIndexByPrivateProperty(): void
+    {
+        $indexedEmployees = Employee::query()->andWhere(['last_name' => 'Smith'])->indexBy('fullName')->all();
+
+        $this->assertSame(['Ann Smith', 'Will Smith'], array_keys($indexedEmployees));
     }
 }
