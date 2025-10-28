@@ -36,6 +36,8 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 
+use Yiisoft\Db\QueryBuilder\Condition\Like;
+
 use function sort;
 use function ucfirst;
 
@@ -2661,5 +2663,17 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertFalse($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
+    }
+
+    public function testJoinWithBeforeExplicitJoin(): void
+    {
+        $orders = Order::query()
+            ->joinWith('customer')
+            ->innerJoin('profile', '{{customer}}.{{profile_id}} = {{profile}}.{{id}}')
+            ->all();
+
+        $this->assertCount(1, $orders);
+        $this->assertSame(1, $orders[0]->getId());
+        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
     }
 }
