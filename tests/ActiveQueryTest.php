@@ -2502,7 +2502,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Customer::class, $query->getModel());
     }
 
-    public function testArArrayHelperAccessesObjectProperty(): void
+    public function testIndexByPrivateProperty(): void
     {
         $indexedEmployees = Employee::query()->andWhere(['last_name' => 'Smith'])->indexBy('fullName')->all();
 
