@@ -28,14 +28,8 @@ class Customer extends ArrayableActiveRecord
     protected bool|int|null $bool_status = false;
     protected int|null $profile_id = null;
 
-    /**
-     * @var int|string
-     */
-    public $status2;
-    /**
-     * @var int|string|null
-     */
-    public $sumTotal;
+    public int|string $status2;
+    public int|string|null $sumTotal;
 
     public function tableName(): string
     {

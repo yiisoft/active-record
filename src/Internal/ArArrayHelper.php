@@ -100,7 +100,7 @@ final class ArArrayHelper
             }
 
             if (property_exists($array, $key)) {
-                return array_key_exists($key, get_object_vars($array)) ? $array->$key : $default;
+                return (Closure::bind(fn() => $this->$key, $array, $array))();
             }
 
             if ($array->isRelationPopulated($key)) {

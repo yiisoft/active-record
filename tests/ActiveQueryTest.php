@@ -19,6 +19,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Employee;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
@@ -2499,5 +2500,12 @@ abstract class ActiveQueryTest extends TestCase
         $query = $customer->createQuery();
 
         $this->assertInstanceOf(Customer::class, $query->getModel());
+    }
+
+    public function testArArrayHelperAccessesObjectProperty(): void
+    {
+        $indexedEmployees = Employee::query()->andWhere(['last_name' => 'Smith'])->indexBy('fullName')->all();
+
+        $this->assertSame(['Ann Smith', 'Will Smith'], array_keys($indexedEmployees));
     }
 }
