@@ -1876,4 +1876,16 @@ abstract class ActiveRecordTest extends TestCase
             self::db()->select('id, profile_id')->from('{{customer}}')->where(['id' => 1])->one(),
         );
     }
+
+    public function testUnlinkInvalidLinkThrowsException(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $item = Item::query()->findByPk(1);
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('Unable to unlink models: the link does not involve any primary key.');
+        $order->unlink('invalidRelation', $item);
+    }
 }

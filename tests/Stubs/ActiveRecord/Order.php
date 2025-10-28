@@ -126,6 +126,7 @@ class Order extends ActiveRecord
             'orderItemsFor8' => $this->getOrderItemsFor8Query(),
             'itemsFor8' => $this->getItemsFor8Query(),
             'itemsWithOnCondition' => $this->getItemsWithOnConditionQuery(),
+            'invalidRelation' => $this->getInvalidRelationQuery(),
             default => parent::relationQuery($name),
         };
     }
@@ -496,5 +497,10 @@ class Order extends ActiveRecord
                 'orderItemsWithNullFK',
                 static fn(ActiveQueryInterface $query) => $query->andOn(['>=', 'subtotal', 35]),
             );
+    }
+
+    public function getInvalidRelationQuery(): ActiveQueryInterface
+    {
+        return $this->hasMany(Item::class, ['name' => 'test']);
     }
 }
