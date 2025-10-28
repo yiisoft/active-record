@@ -29,7 +29,7 @@ class Customer extends ArrayableActiveRecord
     protected int|null $profile_id = null;
 
     public int|string $status2;
-    public int|string|null $sumTotal;
+    public int|string|null $sumTotal = null;
 
     public function tableName(): string
     {
