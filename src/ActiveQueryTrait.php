@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Internal\Typecaster;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -106,13 +107,17 @@ trait ActiveQueryTrait
      *
      * @return ActiveRecordInterface[]|array[] The model instances.
      *
-     * @psalm-param non-empty-list<array> $rows
+     * @psalm-param non-empty-list<array<string, mixed>> $rows
      * @psalm-return non-empty-list<ActiveRecordInterface|array>
      */
     protected function createModels(array $rows): array
     {
         if ($this->asArray) {
-            return $rows;
+            $model = $this->getModel();
+            return array_map(
+                static fn(array $row) => Typecaster::cast($row, $model),
+                $rows,
+            );
         }
 
         if ($this->resultCallback !== null) {

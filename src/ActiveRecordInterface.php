@@ -13,6 +13,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
+use Yiisoft\Db\Schema\TableSchemaInterface;
 
 /**
  * @psalm-import-type ModelClass from ActiveQuery
@@ -205,6 +206,15 @@ interface ActiveRecordInterface
      * }
      */
     public function tableName(): string;
+
+    /**
+     * Returns the schema information of the DB table associated with this AR class.
+     *
+     * @throws InvalidConfigException If the table for the AR class doesn't exist.
+     *
+     * @return TableSchemaInterface The schema information of the DB table associated with this AR class.
+     */
+    public function tableSchema(): TableSchemaInterface;
 
     /**
      * Returns a value indicating whether the record has a property with the specified name.
