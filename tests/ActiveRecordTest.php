@@ -1831,4 +1831,20 @@ abstract class ActiveRecordTest extends TestCase
             self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
         );
     }
+
+    public function testUnlinkWithArrayValuedProperty(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+        $items = $promotion->getItemsViaJson();
+        $promotion->unlink('itemsViaJson', $items[0]);
+
+        $this->assertSame([2], $promotion->json_item_ids);
+        $this->assertCount(1, $promotion->getItemsViaJson());
+        $this->assertSame(
+            '[2]',
+            self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
+        );
+    }
 }
