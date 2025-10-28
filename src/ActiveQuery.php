@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use InvalidArgumentException;
 use LogicException;
-use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;

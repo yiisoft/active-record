@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Internal;
 
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
-use Yiisoft\Db\Schema\TableSchemaInterface;
 
 /**
  * @internal
  */
-final  class Typecaster
+final class Typecaster
 {
     /**
      * @psalm-param array<string, mixed> $values
