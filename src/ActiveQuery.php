@@ -618,6 +618,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
     {
+        if (!empty($child->getHaving())
+            || !empty($child->getGroupBy())
+            || !empty($child->getUnions())
+        ) {
+            throw new LogicException('Joining with a relation that has GROUP BY, HAVING, or UNION is not supported.');
+        }
+
         $via = $child->getVia();
         /** @var ActiveQuery $child */
         $child->via = null;
@@ -669,23 +676,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $this->join($joinType, empty($child->getFrom()) ? $childTable : $child->getFrom(), $on ?? '');
 
         $where = $child->getWhere();
-
         if (!empty($where)) {
             $this->andWhere($where);
         }
 
-        $having = $child->getHaving();
-
-        if (!empty($having)) {
-            $this->andHaving($having);
-        }
-
         if (!empty($child->getOrderBy())) {
             $this->addOrderBy($child->getOrderBy());
-        }
-
-        if (!empty($child->getGroupBy())) {
-            $this->addGroupBy($child->getGroupBy());
         }
 
         if (!empty($child->getParams())) {
@@ -695,12 +691,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if (!empty($child->getJoins())) {
             foreach ($child->getJoins() as $join) {
                 $this->joins[] = $join;
-            }
-        }
-
-        if (!empty($child->getUnions())) {
-            foreach ($child->getUnions() as $union) {
-                $this->union[] = $union;
             }
         }
     }
