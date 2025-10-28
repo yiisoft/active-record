@@ -1958,7 +1958,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertSame(0, $document->version);
         $this->assertSame(1, $document->delete());
-        $this->assertTrue($document->isNewRecord());
+        $this->assertTrue($document->isNew());
 
         $this->expectException(OptimisticLockException::class);
         $document->delete();
@@ -2002,7 +2002,7 @@ abstract class ActiveQueryTest extends TestCase
 
         /** @see https://github.com/yiisoft/yii2/issues/12143 */
         $newOrder = new Order();
-        $this->assertTrue($newOrder->isNewRecord());
+        $this->assertTrue($newOrder->isNew());
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage('The record is new and cannot be updated.');
@@ -2352,13 +2352,13 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->findByPk(2);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->get('name'));
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertEmpty($customer->newValues());
 
         $customer->set('name', 'user2x');
         $customer->save();
         $this->assertEquals('user2x', $customer->get('name'));
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
 
         $customer2 = $customerQuery->findByPk(2);
         $this->assertEquals('user2x', $customer2->get('name'));
@@ -2483,21 +2483,21 @@ abstract class ActiveQueryTest extends TestCase
 
         $order->setTotal(100);
         $order->setCreatedAt(time());
-        $this->assertTrue($order->isNewRecord());
+        $this->assertTrue($order->isNew());
 
         /** belongs to */
         $order = new Order();
 
         $order->setTotal(100);
         $order->setCreatedAt(time());
-        $this->assertTrue($order->isNewRecord());
+        $this->assertTrue($order->isNew());
 
         $customerQuery = Customer::query();
         $customer = $customerQuery->findByPk(1);
         $this->assertNull($order->getCustomer());
 
         $order->link('customer', $customer);
-        $this->assertFalse($order->isNewRecord());
+        $this->assertFalse($order->isNew());
         $this->assertEquals(1, $order->getCustomerId());
         $this->assertEquals(1, $order->getCustomer()->primaryKeyValue());
 

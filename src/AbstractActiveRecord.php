@@ -123,7 +123,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function equals(ActiveRecordInterface $record): bool
     {
-        if ($this->isNewRecord() || $record->isNewRecord()) {
+        if ($this->isNew() || $record->isNew()) {
             return false;
         }
 
@@ -146,7 +146,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return array_intersect_key($this->propertyValuesInternal(), array_flip($names));
     }
 
-    public function isNewRecord(): bool
+    public function isNew(): bool
     {
         return $this->oldValues === null;
     }
@@ -421,7 +421,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $via = $relation->getVia();
 
         if ($via !== null) {
-            if ($this->isNewRecord() || $linkModel->isNewRecord()) {
+            if ($this->isNew() || $linkModel->isNew()) {
                 throw new InvalidCallException(
                     'Unable to link models: the models being linked cannot be newly created.'
                 );
@@ -471,11 +471,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             $p2 = $this->isPrimaryKey(array_values($link));
 
             if ($p1 && $p2) {
-                if ($this->isNewRecord() && $linkModel->isNewRecord()) {
+                if ($this->isNew() && $linkModel->isNew()) {
                     throw new InvalidCallException('Unable to link models: at most one model can be newly created.');
                 }
 
-                if ($this->isNewRecord()) {
+                if ($this->isNew()) {
                     $this->bindModels(array_flip($link), $this, $linkModel);
                 } else {
                     $this->bindModels($link, $linkModel, $this);
@@ -608,7 +608,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function save(array|null $properties = null): void
     {
-        if ($this->isNewRecord()) {
+        if ($this->isNew()) {
             $this->insert($properties);
             return;
         }
@@ -645,16 +645,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    /**
-     * Marks this record as new.
-     *
-     * @param bool $isNewRecord Whether the record is new and should be inserted when calling {@see save()}.
-     *
-     * @see isNewRecord()
-     */
-    public function markAsNewRecord(bool $isNewRecord = true): void
+    public function markAsNew(): void
     {
-        $this->oldValues = $isNewRecord ? null : $this->propertyValuesInternal();
+        $this->oldValues = null;
+    }
+
+    public function markAsExisting(): void
+    {
+        $this->oldValues = $this->propertyValuesInternal();
     }
 
     /**
@@ -681,7 +679,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * All existing old property values will be discarded.
      *
      * @param array|null $propertyValues Old property values (name => value) to be set. If set to `null` this record
-     * is {@see isNewRecord() new}.
+     * is {@see isNew()}.
      */
     public function assignOldValues(array|null $propertyValues = null): void
     {
@@ -1163,7 +1161,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      */
     protected function updateInternal(array|null $properties = null): int
     {
-        if ($this->isNewRecord()) {
+        if ($this->isNew()) {
             throw new InvalidCallException('The record is new and cannot be updated.');
         }
 

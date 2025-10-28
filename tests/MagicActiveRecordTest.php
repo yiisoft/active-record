@@ -417,12 +417,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->address = 'address4';
 
         $this->assertNull($customer->id);
-        $this->assertTrue($customer->isNewRecord());
+        $this->assertTrue($customer->isNew());
 
         $customer->save();
 
         $this->assertNotNull($customer->id);
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
     }
 
     /**

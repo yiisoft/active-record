@@ -265,10 +265,10 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setStatus(1);
 
         $this->assertNull($customer->getId());
-        $this->assertTrue($customer->isNewRecord());
+        $this->assertTrue($customer->isNew());
 
         $customer->save();
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertSame(4, $customer->getId());
 
         $customer->refresh();
@@ -287,10 +287,10 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setStatus(1);
 
         $this->assertNull($customer->getId());
-        $this->assertTrue($customer->isNewRecord());
+        $this->assertTrue($customer->isNew());
 
         $customer->save(['email', 'name', 'address']);
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertSame(5, $customer->getId());
 
         $customer->refresh();
@@ -310,7 +310,7 @@ abstract class ActiveRecordTest extends TestCase
             'name' => 'user6',
             'address',
         ]);
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertSame(6, $customer->getId());
 
         $customer->refresh();
@@ -326,7 +326,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer->save();
 
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertSame(6, $customer->getId());
 
         $customer->refresh();
@@ -557,11 +557,11 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setAddress('address4');
         $customer->setStatus(1);
 
-        $this->assertTrue($customer->isNewRecord());
+        $this->assertTrue($customer->isNew());
         $this->assertNull($customer->getId());
 
         $customer->insert();
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertSame(4, $customer->getId());
 
         $customer->refresh();
@@ -579,11 +579,11 @@ abstract class ActiveRecordTest extends TestCase
         $customer->setAddress('address5');
         $customer->setStatus(1);
 
-        $this->assertTrue($customer->isNewRecord());
+        $this->assertTrue($customer->isNew());
         $this->assertNull($customer->getId());
 
         $customer->insert(['email', 'name', 'address']);
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertSame(5, $customer->getId());
 
         $customer->refresh();
@@ -603,7 +603,7 @@ abstract class ActiveRecordTest extends TestCase
             'name' => 'user6',
             'address',
         ]);
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
         $this->assertSame(6, $customer->getId());
 
         $customer->refresh();
@@ -1379,7 +1379,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $customer->upsert($insertProperties, $updateProperties);
 
-        $this->assertFalse($customer->isNewRecord());
+        $this->assertFalse($customer->isNew());
 
         foreach ($expected as $property => $value) {
             $this->assertSame($value, $customer->get($property));
@@ -1609,7 +1609,7 @@ abstract class ActiveRecordTest extends TestCase
         $profile->link('user', $user);
 
         $this->assertEquals(1, $profile->getId());
-        $this->assertFalse($profile->isNewRecord());
+        $this->assertFalse($profile->isNew());
     }
 
     public function testLinkExistingRecordToNewWithSharedPrimaryKey(): void
@@ -1624,7 +1624,7 @@ abstract class ActiveRecordTest extends TestCase
         $user->link('profile', $profile);
 
         $this->assertEquals(1, $profile->getId());
-        $this->assertFalse($profile->isNewRecord());
+        $this->assertFalse($profile->isNew());
     }
 
     public function testLinkWithNonPrimaryKeyFields(): void
@@ -1679,5 +1679,61 @@ abstract class ActiveRecordTest extends TestCase
         $expectedAffectedRows = $this->db()->getDriverName() === 'mysql' ? 0 : 1;
         $affectedRows = $customer->update();
         $this->assertSame($expectedAffectedRows, $affectedRows);
+    }
+
+    public function testMarkAsNew(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+
+        $this->assertFalse($customer->isNew());
+        $this->assertNotEmpty($customer->oldValues());
+
+        $customer->setId(null);
+        $customer->setEmail('sergei@predvoditelev.ru');
+        $customer->markAsNew();
+
+        $this->assertTrue($customer->isNew());
+        $this->assertSame([], $customer->oldValues());
+
+        $customer->save();
+
+        $this->assertSame(
+            2,
+            self::db()
+                ->select('id')
+                ->from('customer')
+                ->where(['id' => 1])
+                ->orWhere(['email' => 'sergei@predvoditelev.ru'])
+                ->count(),
+        );
+    }
+
+    public function testMarkAsExisting(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = new Customer();
+        $customer->setId(1);
+
+        $this->assertTrue($customer->isNew());
+        $this->assertSame([], $customer->oldValues());
+
+        $customer->markAsExisting();
+        $customer->setEmail('test@example.com');
+        $customer->setName('Test User');
+        $customer->setAddress('Test Address');
+        $customer->setStatus(1);
+
+        $this->assertFalse($customer->isNew());
+        $this->assertNotEmpty($customer->oldValues());
+
+        $customer->save();
+
+        $this->assertSame(
+            'Test User',
+            self::db()->select('name')->from('customer')->where(['id' => 1])->scalar(),
+        );
     }
 }

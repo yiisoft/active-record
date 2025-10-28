@@ -64,7 +64,7 @@ class Customer extends ArrayableActiveRecord
         };
     }
 
-    public function getId(): int|null
+    public function getId(): ?int
     {
         return $this->id ?? null;
     }
@@ -99,8 +99,12 @@ class Customer extends ArrayableActiveRecord
         return $this->profile_id;
     }
 
-    public function setId(int $id): void
+    public function setId(?int $id): void
     {
+        if ($id === null) {
+            unset($this->id);
+            return;
+        }
         $this->id = $id;
     }
 
