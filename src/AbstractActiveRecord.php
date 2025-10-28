@@ -20,7 +20,6 @@ use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
-use Yiisoft\Db\Query\QueryPartsInterface;
 
 use function array_diff;
 use function array_diff_key;
