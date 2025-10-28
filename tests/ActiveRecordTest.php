@@ -1665,6 +1665,18 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(\count($existingOrders) + 1, $updatedOrders);
     }
 
+    public function testLinkWithNullPrimaryKeyOnForeignModel(): void
+    {
+        $customer = new Customer();
+        $order = new Order();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link active record: the primary key of ' . Customer::class . ' is null.'
+        );
+        $order->link('customer', $customer);
+    }
+
     public function testMarkPropertyChanged(): void
     {
         $this->reloadFixtureAfterTest();
