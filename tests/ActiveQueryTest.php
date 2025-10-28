@@ -2676,4 +2676,13 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame(1, $orders[0]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
     }
+
+    public function testGetAlreadyPopulatedViaRelation(): void
+    {
+        $order = Order::query()->with('orderItems')->findByPk(1);
+        $this->assertTrue($order->isRelationPopulated('orderItems'));
+
+        $items = $order->getItemsIndexedQuery()->all();
+        $this->assertCount(2, $items);
+    }
 }
