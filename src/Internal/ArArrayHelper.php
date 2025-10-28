@@ -165,8 +165,7 @@ final class ArArrayHelper
         $result = [];
 
         foreach ($rows as $row) {
-            /** @psalm-suppress MixedArrayOffset */
-            $result[self::getValueByPath($row, $indexBy)] = $row;
+            $result[(string) self::getValueByPath($row, $indexBy)] = $row;
         }
 
         return $result;

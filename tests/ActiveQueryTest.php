@@ -2752,4 +2752,12 @@ abstract class ActiveQueryTest extends TestCase
         $this->expectExceptionMessage('Trying to get property of non-array or non-ActiveRecordInterface instance.');
         $query->all();
     }
+
+    public function testIndexByNonExistentKey(): void
+    {
+        $indexedOrders = Order::query()->indexBy('nonexistent_key')->asArray()->all();
+
+        // Key value for non-existent key will be null, so all records will have the same key
+        $this->assertCount(1, $indexedOrders);
+    }
 }
