@@ -1862,4 +1862,18 @@ abstract class ActiveRecordTest extends TestCase
             self::db()->createQuery()->from('{{order_item}}')->where(['order_id' => 1])->count(),
         );
     }
+
+    public function testUnlinkHasOneWithoutDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+        $customer->unlink('profile', $customer->getProfile());
+
+        $this->assertNull($customer->getProfile());
+        $this->assertSame(
+            ['id' => '1', 'profile_id' => null],
+            self::db()->select('id, profile_id')->from('{{customer}}')->where(['id' => 1])->one(),
+        );
+    }
 }
