@@ -2631,4 +2631,18 @@ abstract class ActiveQueryTest extends TestCase
         );
         $query->all();
     }
+
+    public function testJoinWithSelectiveEagerLoading(): void
+    {
+        $orders = Order::query()
+            ->joinWith(
+                ['customer', 'items'],
+                ['customer'],
+            )
+            ->andWhere(['order.id' => 1])
+            ->all();
+
+        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
+        $this->assertFalse($orders[0]->isRelationPopulated('items'));
+    }
 }
