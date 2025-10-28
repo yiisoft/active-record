@@ -1904,7 +1904,7 @@ abstract class ActiveRecordTest extends TestCase
     {
         $promotions = Promotion::query()->with('singleItem')->andWhere(['id' => [1, 2]])->all();
 
-        $this->assertPostConditions(2, $promotions);
+        $this->assertCount(2, $promotions);
         $this->assertNull($promotions[0]->relation('singleItem'));
         $this->assertNull($promotions[1]->relation('singleItem'));
     }
