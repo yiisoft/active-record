@@ -1808,11 +1808,11 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(0, $order->getItemsWithOnCondition());
         $this->assertSame(
             1,
-            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => 1])->count(),
+            self::db()->createQuery()->from('{{order_item_with_null_fk}}')->where(['order_id' => 1])->count(),
         );
         $this->assertSame(
             0,
-            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => null])->count(),
+            self::db()->createQuery()->from('{{order_item_with_null_fk}}')->where(['order_id' => null])->count(),
         );
     }
 
@@ -1845,6 +1845,21 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(
             '[2]',
             self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
+        );
+    }
+
+    public function testUnlinkViaTableWithDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $books = $order->getBooksViaTable();
+        $order->unlink('booksViaTable', $books[0], true);
+
+        $this->assertCount(1, $order->getBooksViaTable());
+        $this->assertSame(
+            1,
+            self::db()->createQuery()->from('{{order_item}}')->where(['order_id' => 1])->count(),
         );
     }
 }
