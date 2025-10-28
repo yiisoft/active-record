@@ -1722,6 +1722,21 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
+    public function testLinkWithArrayValuedForeignKey(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+        $item = Item::query()->findByPk(3);
+
+        $promotion->link('itemsViaJson', $item);
+
+        $this->assertSame(
+            [1, 2, 3],
+            $promotion->json_item_ids,
+        );
+    }
+
     public function testMarkAsExisting(): void
     {
         $this->reloadFixtureAfterTest();
