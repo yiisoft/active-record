@@ -1763,4 +1763,20 @@ abstract class ActiveRecordTest extends TestCase
             self::db()->select('name')->from('customer')->where(['id' => 1])->scalar(),
         );
     }
+
+    public function testUnlinkAllWithWhereCondition(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(2);
+        $order->unlinkAll('expensiveItemsUsingViaWithCallable', true);
+
+        $this->assertCount(0, $order->getExpensiveItemsUsingViaWithCallable());
+        $this->assertSame(
+            [
+                ['order_id' => '2', 'item_id' => '3', 'quantity' => '1', 'subtotal' => '8'],
+            ],
+            self::db()->select('*')->from('{{order_item}}')->where(['order_id' => 2])->all(),
+        );
+    }
 }

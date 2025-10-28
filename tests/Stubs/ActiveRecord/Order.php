@@ -440,11 +440,14 @@ class Order extends ActiveRecord
         return $this->relation('expensiveItemsUsingViaWithCallable');
     }
 
-    public function getExpensiveItemsUsingViaWithCallableQuery(): ActiveQuery
+    public function getExpensiveItemsUsingViaWithCallableQuery(): ActiveQueryInterface
     {
-        return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems', function (ActiveQuery $q) {
-            $q->where(['>=', 'subtotal', 10]);
-        });
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->via(
+                'orderItems',
+                static fn(ActiveQueryInterface $query) => $query->where(['>=', 'subtotal', 10]),
+            );
     }
 
     public function getCheapItemsUsingViaWithCallable(): array
