@@ -32,6 +32,7 @@ use Yiisoft\Db\Command\AbstractCommand;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function sort;
@@ -2587,5 +2588,16 @@ abstract class ActiveQueryTest extends TestCase
         $relation = $customer->relationQuery('profile');
 
         $this->assertSame($customer, $relation->getPrimaryModel());
+    }
+
+    public function testGetTableNameAndAliasThrowsExceptionForExpressionWithoutAlias(): void
+    {
+        $query = Order::query()
+            ->from(new Expression('SELECT * FROM {{order}}'))
+            ->joinWith('customer');
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Alias must be set for a table specified by an expression.');
+        $query->one();
     }
 }
