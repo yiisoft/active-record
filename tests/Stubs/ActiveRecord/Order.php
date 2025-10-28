@@ -223,7 +223,7 @@ class Order extends ActiveRecord
     {
         return $this
             ->hasOne(Profile::class, ['id' => 'profile_id'])
-            ->via('customer',);
+            ->via('customer', );
     }
 
     public function getOrderItems(): array
