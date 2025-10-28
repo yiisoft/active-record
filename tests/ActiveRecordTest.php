@@ -1815,4 +1815,20 @@ abstract class ActiveRecordTest extends TestCase
             self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => null])->count(),
         );
     }
+
+    public function testUnlinkAllWithArrayValuedProperty(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+
+        $promotion->unlinkAll('itemsViaJson');
+
+        $this->assertSame([], $promotion->json_item_ids);
+        $this->assertCount(0, $promotion->getItemsViaJson());
+        $this->assertSame(
+            '[]',
+            self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
+        );
+    }
 }
