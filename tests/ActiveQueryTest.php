@@ -2705,4 +2705,14 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Profile::class, $profile);
         $this->assertSame(1, $profile->getId());
     }
+
+    public function testGetAlreadyPopulatedViaWithHasOne(): void
+    {
+        $order = Order::query()->with('customer')->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCustomerQuery()->one();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertSame(1, $profile->getId());
+    }
 }
