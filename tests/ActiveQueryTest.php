@@ -2600,4 +2600,23 @@ abstract class ActiveQueryTest extends TestCase
         $this->expectExceptionMessage('Alias must be set for a table specified by an expression.');
         $query->one();
     }
+
+    public function testGetJoinTypeWithNestedRelations(): void
+    {
+        $sql = Order::query()
+            ->joinWith(
+                ['customer.profile'],
+                joinType: ['customer.profile' => 'LEFT JOIN']
+            )
+            ->createCommand()
+            ->getRawSql();
+
+        $this->assertSame(
+            DbHelper::replaceQuotes(
+                'SELECT [[order]].* FROM [[order]] INNER JOIN [[customer]] ON [[order]].[[customer_id]] = [[customer]].[[id]] LEFT JOIN [[profile]] ON [[customer]].[[profile_id]] = [[profile]].[[id]] WHERE [[order]].[[deleted_at]] IS NULL',
+                self::db()->getDriverName(),
+            ),
+            $sql,
+        );
+    }
 }
