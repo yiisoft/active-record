@@ -18,9 +18,18 @@ final class Employee extends ActiveRecord
     protected string $first_name;
     protected string $last_name;
 
+    private string $fullName;
+
     public function tableName(): string
     {
         return 'employee';
+    }
+
+    public function populateRecord(object|array $row): static
+    {
+        $row = parent::populateRecord($row);
+        $row->fullName = $row->first_name . ' ' . $row->last_name;
+        return $row;
     }
 
     public function relationQuery(string $name): ActiveQueryInterface
@@ -34,7 +43,7 @@ final class Employee extends ActiveRecord
 
     public function getFullName(): string
     {
-        return $this->first_name . ' ' . $this->last_name;
+        return $this->fullName;
     }
 
     public function getDepartment(): Department

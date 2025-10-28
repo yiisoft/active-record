@@ -100,7 +100,8 @@ final class ArArrayHelper
             }
 
             if (property_exists($array, $key)) {
-                return array_key_exists($key, get_object_vars($array)) ? $array->$key : $default;
+                /** @psalm-suppress PossiblyNullFunctionCall */
+                return (Closure::bind(fn(): mixed => $this->$key, $array, $array))();
             }
 
             if ($array->isRelationPopulated($key)) {
