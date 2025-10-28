@@ -1736,4 +1736,13 @@ abstract class ActiveRecordTest extends TestCase
             self::db()->select('name')->from('customer')->where(['id' => 1])->scalar(),
         );
     }
+
+    public function testUpdateCountersThrowsExceptionForNewRecord(): void
+    {
+        $orderItem = new OrderItem();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Updating counters is not possible for new records.');
+        $orderItem->updateCounters(['quantity' => 1]);
+    }
 }

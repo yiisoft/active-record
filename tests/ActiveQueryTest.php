@@ -2347,8 +2347,7 @@ abstract class ActiveQueryTest extends TestCase
         $orderItem = $orderItemQuery->findByPk($pk);
         $this->assertEquals(1, $orderItem->getQuantity());
 
-        $ret = $orderItem->updateCounters(['quantity' => -1]);
-        $this->assertTrue($ret);
+        $orderItem->updateCounters(['quantity' => -1]);
         $this->assertEquals(0, $orderItem->getQuantity());
 
         $orderItem = $orderItemQuery->findByPk($pk);
@@ -2361,8 +2360,8 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orderItem->getQuantity());
 
         $orderItem = new OrderItem();
-        $ret = $orderItem->updateAllCounters(['quantity' => 3, 'subtotal' => -10], ['order_id' => 1, 'item_id' => 2]);
-        $this->assertEquals(1, $ret);
+        $result = $orderItem->updateAllCounters(['quantity' => 3, 'subtotal' => -10], ['order_id' => 1, 'item_id' => 2]);
+        $this->assertEquals(1, $result);
 
         $orderItem = $orderItemQuery->findByPk($pk);
         $this->assertEquals(5, $orderItem->getQuantity());
