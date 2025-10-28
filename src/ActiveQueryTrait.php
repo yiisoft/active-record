@@ -108,7 +108,7 @@ trait ActiveQueryTrait
      * @return ActiveRecordInterface[]|array[] The model instances.
      *
      * @psalm-param non-empty-list<array<string, mixed>> $rows
-     * @psalm-return non-empty-list<ActiveRecordInterface|array>
+     * @psalm-return non-empty-list<ActiveRecordInterface|array<string, mixed>>
      */
     protected function createModels(array $rows): array
     {
@@ -149,8 +149,8 @@ trait ActiveQueryTrait
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param non-empty-list<ActiveRecordInterface|array<string, mixed>> $models
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array<string, mixed>> $models
      */
     private function findWith(array $with, array &$models): void
     {

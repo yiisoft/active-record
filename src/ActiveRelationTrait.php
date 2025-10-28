@@ -142,8 +142,8 @@ trait ActiveRelationTrait
      *
      * @throws InvalidConfigException
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $result
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $result
+     * @psalm-param non-empty-list<ActiveRecordInterface|array<string, mixed>> $result
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array<string, mixed>> $result
      */
     private function addInverseRelations(array &$result): void
     {
