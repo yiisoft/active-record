@@ -144,6 +144,9 @@ interface ActiveQueryInterface extends QueryInterface
      * This method differs from {@see with()} in that it will build up and execute a `JOIN` SQL statement for the primary
      * table. And when `$eagerLoading` is true, it will call {@see with()} also with the specified relations.
      *
+     * Note: Relations specified in `$with` cannot have `GROUP BY`, `HAVING`, or `UNION` clauses. Using these clauses
+     * will result in a {@see \LogicException}.
+     *
      * @param array|string $with The relations to be joined. This can either be a string, representing a relation name
      * or an array with the following semantics:
      *

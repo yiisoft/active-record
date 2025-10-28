@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use Closure;
 use InvalidArgumentException;
+use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
@@ -1293,6 +1296,25 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders[0]->getItems());
         $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
+    }
+
+    public static function dataJoinWithThrowsException(): iterable
+    {
+        yield [static fn(ActiveQueryInterface $query) => $query->groupBy('item.id')];
+        yield [static fn(ActiveQueryInterface $query) => $query->groupBy('item.category_id')->having('COUNT(*) > 1')];
+        yield [static fn(ActiveQueryInterface $query) => $query->union(Item::query()->where(['category_id' => 1]))];
+    }
+
+    #[DataProvider('dataJoinWithThrowsException')]
+    public function testJoinWithThrowsException(Closure $relationClosure): void
+    {
+        $query = Order::query()->joinWith([
+            'items' => $relationClosure,
+        ]);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Joining with a relation that has GROUP BY, HAVING, or UNION is not supported.');
+        $query->all();
     }
 
     public function testAlias(): void
