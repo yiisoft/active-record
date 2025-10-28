@@ -20,6 +20,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
@@ -2618,5 +2619,16 @@ abstract class ActiveQueryTest extends TestCase
             ),
             $sql,
         );
+    }
+
+    public function testExceptionForEmptyPrimaryKey(): void
+    {
+        $query = NoPk::query()->innerJoin('customer', '{{no_pk}}.{{customer_id}} = {{customer}}.{{id}}');
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Primary key of "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk" can not be empty.'
+        );
+        $query->all();
     }
 }

@@ -483,3 +483,15 @@ INSERT INTO [dbo].[uuid_item] (id, name) VALUES ('650e8400-e29b-41d4-a716-446655
 INSERT INTO [dbo].[uuid_promotion] (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440001', '["650e8400-e29b-41d4-a716-446655440001","650e8400-e29b-41d4-a716-446655440002"]', 'UUID Promo: Both Items');
 INSERT INTO [dbo].[uuid_promotion] (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440002', '["650e8400-e29b-41d4-a716-446655440001"]', 'UUID Promo: Item 1 Only');
 INSERT INTO [dbo].[uuid_promotion] (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440003', '[]', 'UUID Promo: No Items');
+
+IF OBJECT_ID('[dbo].[no_pk]', 'U') IS NOT NULL DROP TABLE [dbo].[no_pk];
+
+CREATE TABLE [dbo].[no_pk] (
+    [id] [int] NOT NULL,
+    [customer_id] [int] NOT NULL,
+    [name] [varchar](255) NOT NULL
+);
+
+INSERT INTO [dbo].[no_pk] (id, customer_id, name) VALUES (1, 1, 'NoPk1');
+INSERT INTO [dbo].[no_pk] (id, customer_id, name) VALUES (2, 1, 'NoPk2');
+INSERT INTO [dbo].[no_pk] (id, customer_id, name) VALUES (3, 2, 'NoPk3');
