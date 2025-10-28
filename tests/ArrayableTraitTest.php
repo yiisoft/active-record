@@ -145,4 +145,20 @@ abstract class ArrayableTraitTest extends TestCase
         $this->assertSame('test@example.com', $customer->getEmail());
         $this->assertSame('Vasya', $customer->getName());
     }
+
+    public function testPopulateRecordFromCustomObject(): void
+    {
+        $customer = new Customer();
+        $customer->populateRecord(
+            new class() {
+                private int $id = 1;
+                public string $email = 'test@example.com';
+                public string $name = 'Vasya';
+            }
+        );
+
+        $this->assertNull($customer->getId());
+        $this->assertSame('test@example.com', $customer->getEmail());
+        $this->assertSame('Vasya', $customer->getName());
+    }
 }
