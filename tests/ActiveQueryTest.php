@@ -2743,4 +2743,13 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertIsArray($clonedQueryVia);
         $this->assertNotSame($queryVia[1], $clonedQueryVia[1]);
     }
+
+    public function testExceptionOnIndexWithNonExistentNestedProperty(): void
+    {
+        $query = Order::query()->indexBy('total.nonexistent')->asArray();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Trying to get property of non-array or non-ActiveRecordInterface instance.');
+        $query->all();
+    }
 }
