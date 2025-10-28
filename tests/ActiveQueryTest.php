@@ -36,8 +36,6 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 
-use Yiisoft\Db\QueryBuilder\Condition\Like;
-
 use function sort;
 use function ucfirst;
 
