@@ -2729,4 +2729,18 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(ActiveQueryInterface::class, $clonedQueryVia);
         $this->assertNotSame($queryVia, $clonedQueryVia);
     }
+
+    public function testCloneQueryWithViaRelationName(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $query = $order->getItemsIndexedQuery();
+        $queryVia = $query->getVia();
+
+        $clonedQuery = clone $query;
+        $clonedQueryVia = $clonedQuery->getVia();
+
+        $this->assertIsArray($queryVia);
+        $this->assertIsArray($clonedQueryVia);
+        $this->assertNotSame($queryVia[1], $clonedQueryVia[1]);
+    }
 }
