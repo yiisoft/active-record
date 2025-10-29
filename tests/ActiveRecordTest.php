@@ -1097,10 +1097,6 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationViaJson(): void
     {
-        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
-            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
-        }
-
         $promotionQuery = Promotion::query();
         /** @var Promotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaJson')->all();
@@ -1128,10 +1124,6 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testLazyRelationViaJson(): void
     {
-        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
-            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
-        }
-
         $itemQuery = Item::query();
         /** @var Item[] $items */
         $items = $itemQuery->all();
@@ -1189,10 +1181,6 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationViaJsonAsArray(): void
     {
-        if (in_array(self::db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
-            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
-        }
-
         $promotion = Promotion::query()->with('itemsViaJson')->where(['id' => 1])->asArray()->one();
 
         $this->assertSame(
