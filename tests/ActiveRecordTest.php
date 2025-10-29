@@ -1122,6 +1122,10 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testLazyRelationViaJson(): void
     {
+        if (in_array(self::db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
+            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON OVERLAPS.');
+        }
+
         $itemQuery = Item::query();
         /** @var Item[] $items */
         $items = $itemQuery->all();
