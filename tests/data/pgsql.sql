@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS "order_item_name" CASCADE;
 DROP TABLE IF EXISTS "item" CASCADE;
 DROP SEQUENCE IF EXISTS "item_id_seq_2" CASCADE;
 DROP TABLE IF EXISTS "promotion" CASCADE;
+DROP TABLE IF EXISTS "pgsql_promotion" CASCADE;
 DROP TABLE IF EXISTS "uuid_promotion" CASCADE;
 DROP TABLE IF EXISTS "uuid_item" CASCADE;
 DROP TABLE IF EXISTS "order_item_with_null_fk" CASCADE;
@@ -91,6 +92,12 @@ CREATE TABLE "item" (
 CREATE SEQUENCE "item_id_seq_2";
 
 CREATE TABLE "promotion" (
+  id serial primary key,
+  json_item_ids jsonb NOT NULL,
+  title varchar(126) NOT NULL
+);
+
+CREATE TABLE "pgsql_promotion" (
   id serial primary key,
   array_item_ids integer[] NOT NULL,
   json_item_ids jsonb NOT NULL,
@@ -287,10 +294,15 @@ INSERT INTO "item" (name, category_id) VALUES ('Ice Age', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Toy Story', 2);
 INSERT INTO "item" (name, category_id) VALUES ('Cars', 2);
 
-INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{1,2}', '[1,2]', 'Discounted items');
-INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{3,4,5}', '[3,4,5]', 'New arrivals');
-INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{1,3}', '[1,3]', 'Free shipping');
-INSERT INTO "promotion" (array_item_ids, json_item_ids, title) VALUES ('{}', '[]', 'Free!');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[1,2]', 'Discounted items');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[3,4,5]', 'New arrivals');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[1,3]', 'Free shipping');
+INSERT INTO "promotion" (json_item_ids, title) VALUES ('[]', 'Free!');
+
+INSERT INTO "pgsql_promotion" (array_item_ids, json_item_ids, title) VALUES ('{1,2}', '[1,2]', 'Discounted items');
+INSERT INTO "pgsql_promotion" (array_item_ids, json_item_ids, title) VALUES ('{3,4,5}', '[3,4,5]', 'New arrivals');
+INSERT INTO "pgsql_promotion" (array_item_ids, json_item_ids, title) VALUES ('{1,3}', '[1,3]', 'Free shipping');
+INSERT INTO "pgsql_promotion" (array_item_ids, json_item_ids, title) VALUES ('{}', '[]', 'Free!');
 
 INSERT INTO "uuid_item" (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440001', 'UUID Item 1');
 INSERT INTO "uuid_item" (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440002', 'UUID Item 2');

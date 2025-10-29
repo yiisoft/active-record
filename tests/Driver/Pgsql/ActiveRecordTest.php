@@ -364,7 +364,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame([2, 3], ArArrayHelper::getColumn($promotions[2]->getItemsViaArray()[1]->getPromotionsViaArray(), 'id'));
     }
 
-    public function testLazzyRelationViaArray(): void
+    public function testLazyRelationViaArray(): void
     {
         $itemQuery = Item::query();
         /** @var Item[] $items */
