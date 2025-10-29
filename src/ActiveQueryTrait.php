@@ -18,6 +18,9 @@ use function reset;
 use function strpos;
 use function substr;
 
+/**
+ * @psalm-import-type ActiveQueryResult from ActiveQueryInterface
+ */
 trait ActiveQueryTrait
 {
     private bool|null $asArray = null;
@@ -108,7 +111,7 @@ trait ActiveQueryTrait
      * @return ActiveRecordInterface[]|array[] The model instances.
      *
      * @psalm-param non-empty-list<array<string, mixed>> $rows
-     * @psalm-return non-empty-list<ActiveRecordInterface|array<string, mixed>>
+     * @psalm-return non-empty-list<ActiveQueryResult>
      */
     protected function createModels(array $rows): array
     {
@@ -149,8 +152,8 @@ trait ActiveQueryTrait
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array<string, mixed>> $models
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array<string, mixed>> $models
+     * @psalm-param non-empty-list<ActiveQueryResult> $models
+     * @psalm-param-out non-empty-list<ActiveQueryResult> $models
      */
     private function findWith(array $with, array &$models): void
     {

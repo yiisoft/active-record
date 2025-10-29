@@ -107,6 +107,7 @@ use function substr;
  * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
  * @psalm-import-type IndexBy from QueryInterface
  * @psalm-import-type Join from QueryInterface
+ * @psalm-import-type ActiveQueryResult from ActiveQueryInterface
  *
  * @psalm-property IndexBy|null $indexBy
  * @psalm-suppress ClassMustBeFinal
@@ -848,7 +849,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * @psalm-param array<string, mixed> $row
-     * @psalm-return ActiveRecordInterface|array<string, mixed>
+     * @psalm-return ActiveQueryResult
      */
     private function populateOne(array $row): ActiveRecordInterface|array
     {
