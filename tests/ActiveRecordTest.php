@@ -52,8 +52,6 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Factory\Factory;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
-use function in_array;
-
 abstract class ActiveRecordTest extends TestCase
 {
     abstract protected function createFactory(): Factory;
