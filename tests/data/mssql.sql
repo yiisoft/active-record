@@ -9,6 +9,7 @@ IF OBJECT_ID('[dbo].[order_item]', 'U') IS NOT NULL DROP TABLE [dbo].[order_item
 IF OBJECT_ID('[dbo].[order_item_name]', 'U') IS NOT NULL DROP TABLE [dbo].[order_item_name];
 IF OBJECT_ID('[dbo].[order_item_with_null_fk]', 'U') IS NOT NULL DROP TABLE [dbo].[order_item_with_null_fk];
 IF OBJECT_ID('[dbo].[item]', 'U') IS NOT NULL DROP TABLE [dbo].[item];
+IF OBJECT_ID('[dbo].[promotion]', 'U') IS NOT NULL DROP TABLE [dbo].[promotion];
 IF OBJECT_ID('[dbo].[order]', 'U') IS NOT NULL DROP TABLE [dbo].[order];
 IF OBJECT_ID('[dbo].[order_with_null_fk]', 'U') IS NOT NULL DROP TABLE [dbo].[order_with_null_fk];
 IF OBJECT_ID('[dbo].[category]', 'U') IS NOT NULL DROP TABLE [dbo].[category];
@@ -71,6 +72,16 @@ CREATE TABLE [dbo].[item] (
     CONSTRAINT [PK_item] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
+);
+
+CREATE TABLE [dbo].[promotion] (
+    [id] [int] IDENTITY NOT NULL,
+    [json_item_ids] [nvarchar](MAX) NOT NULL,
+    [title] [varchar](126) NOT NULL,
+    CONSTRAINT [PK_promotion] PRIMARY KEY CLUSTERED (
+        [id] ASC
+    ) ON [PRIMARY],
+    CONSTRAINT [CK_promotion_json_item_ids] CHECK (ISJSON([json_item_ids]) = 1)
 );
 
 CREATE TABLE [dbo].[order] (
@@ -244,6 +255,11 @@ INSERT INTO [dbo].[item] ([name], [category_id]) VALUES ('Yii3 Cookbook', 1);
 INSERT INTO [dbo].[item] ([name], [category_id]) VALUES ('Ice Age', 2);
 INSERT INTO [dbo].[item] ([name], [category_id]) VALUES ('Toy Story', 2);
 INSERT INTO [dbo].[item] ([name], [category_id]) VALUES ('Cars', 2);
+
+INSERT INTO [dbo].[promotion] ([json_item_ids], [title]) VALUES ('[1,2]', 'Discounted items');
+INSERT INTO [dbo].[promotion] ([json_item_ids], [title]) VALUES ('[3,4,5]', 'New arrivals');
+INSERT INTO [dbo].[promotion] ([json_item_ids], [title]) VALUES ('[1,3]', 'Free shipping');
+INSERT INTO [dbo].[promotion] ([json_item_ids], [title]) VALUES ('[]', 'Free!');
 
 INSERT INTO [dbo].[order] ([customer_id], [created_at], [updated_at], [total]) VALUES (1, 1325282384, 1325282384, 110.0);
 INSERT INTO [dbo].[order] ([customer_id], [created_at], [updated_at], [total]) VALUES (2, 1325334482, 1325334482, 33.0);

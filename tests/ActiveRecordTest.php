@@ -1095,10 +1095,6 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationViaJson(): void
     {
-        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
-            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
-        }
-
         $promotionQuery = Promotion::query();
         /** @var Promotion[] $promotions */
         $promotions = $promotionQuery->with('itemsViaJson')->all();
@@ -1126,8 +1122,8 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testLazyRelationViaJson(): void
     {
-        if (in_array($this->db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
-            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON columns.');
+        if (in_array(self::db()->getDriverName(), ['oci', 'sqlsrv'], true)) {
+            $this->markTestSkipped('Oracle and MSSQL drivers do not support JSON OVERLAPS.');
         }
 
         $itemQuery = Item::query();
@@ -1183,6 +1179,46 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame('UUID Item 1', $items1['650e8400-e29b-41d4-a716-446655440001']->name);
 
         $this->assertSame([], $promotions[2]->getItemsViaJsonIndexed());
+    }
+
+    public function testRelationViaJsonAsArray(): void
+    {
+        $promotion = Promotion::query()->with('itemsViaJson')->where(['id' => 1])->asArray()->one();
+
+        $this->assertSame(
+            [
+                'id' => 1,
+                'json_item_ids' => [1, 2],
+                'title' => 'Discounted items',
+                'itemsViaJson' => [
+                    [
+                        'id' => 1,
+                        'name' => 'Agile Web Application Development with Yii3',
+                        'category_id' => 1,
+                        'promotionsViaJson' => [
+                            [
+                                'id' => 1,
+                                'json_item_ids' => [1, 2],
+                                'title' => 'Discounted items',
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => 2,
+                        'name' => 'Yii3 Cookbook',
+                        'category_id' => 1,
+                        'promotionsViaJson' => [
+                            [
+                                'id' => 1,
+                                'json_item_ids' => [1, 2],
+                                'title' => 'Discounted items',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            $promotion,
+        );
     }
 
     public function testIsChanged(): void

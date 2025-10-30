@@ -22,6 +22,7 @@ use function reset;
  * @psalm-require-implements ActiveQueryInterface
  *
  * @psalm-import-type Via from ActiveQueryInterface
+ * @psalm-import-type ActiveQueryResult from ActiveQueryInterface
  * @psalm-import-type IndexBy from QueryInterface
  */
 trait ActiveRelationTrait
@@ -142,8 +143,8 @@ trait ActiveRelationTrait
      *
      * @throws InvalidConfigException
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $result
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $result
+     * @psalm-param non-empty-list<ActiveQueryResult> $result
+     * @psalm-param-out non-empty-list<ActiveQueryResult> $result
      */
     private function addInverseRelations(array &$result): void
     {

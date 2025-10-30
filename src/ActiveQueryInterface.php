@@ -25,6 +25,7 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
  *
  * @psalm-type Via = array{string, ActiveQueryInterface, bool}|ActiveQueryInterface
+ * @psalm-type ActiveQueryResult = ActiveRecordInterface|array<string, mixed>
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -341,11 +342,11 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return ActiveRecordInterface[]|array[] The converted query result.
      *
-     * @psalm-param list<array> $rows
+     * @psalm-param list<array<string, mixed>> $rows
      * @psalm-return (
-     *     $rows is non-empty-list<array>
-     *         ? non-empty-list<ActiveRecordInterface|array>
-     *         : list<ActiveRecordInterface|array>
+     *     $rows is non-empty-list<array<string, mixed>>
+     *         ? non-empty-list<ActiveQueryResult>
+     *         : list<ActiveQueryResult>
      * )
      */
     public function populate(array $rows): array;
@@ -559,8 +560,8 @@ interface ActiveQueryInterface extends QueryInterface
      * invalid.
      * @return ActiveRecordInterface[]|array[] The related models.
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $primaryModels
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $primaryModels
+     * @psalm-param non-empty-list<ActiveQueryResult> $primaryModels
+     * @psalm-param-out non-empty-list<ActiveQueryResult> $primaryModels
      */
     public function populateRelation(string $name, array &$primaryModels): array;
 }

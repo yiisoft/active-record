@@ -10,8 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 class Promotion extends ActiveRecord
 {
     public int $id;
-    /** @var int[] $array_item_ids */
-    public array $array_item_ids;
     /** @var int[] $json_item_ids */
     public array $json_item_ids;
     public string $title;
@@ -30,7 +28,9 @@ class Promotion extends ActiveRecord
         };
     }
 
-    /** @return Item[] */
+    /**
+     * @return Item[]
+     */
     public function getItemsViaJson(): array
     {
         return $this->relation('itemsViaJson');

@@ -7,6 +7,7 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use ReflectionException;
 use Throwable;
+use Yiisoft\ActiveRecord\Internal\Typecaster;
 use Yiisoft\Db\Exception\Exception;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\NotSupportedException;
@@ -17,6 +18,9 @@ use function reset;
 use function strpos;
 use function substr;
 
+/**
+ * @psalm-import-type ActiveQueryResult from ActiveQueryInterface
+ */
 trait ActiveQueryTrait
 {
     private bool|null $asArray = null;
@@ -106,13 +110,17 @@ trait ActiveQueryTrait
      *
      * @return ActiveRecordInterface[]|array[] The model instances.
      *
-     * @psalm-param non-empty-list<array> $rows
-     * @psalm-return non-empty-list<ActiveRecordInterface|array>
+     * @psalm-param non-empty-list<array<string, mixed>> $rows
+     * @psalm-return non-empty-list<ActiveQueryResult>
      */
     protected function createModels(array $rows): array
     {
         if ($this->asArray) {
-            return $rows;
+            $model = $this->getModel();
+            return array_map(
+                static fn(array $row) => Typecaster::cast($row, $model),
+                $rows,
+            );
         }
 
         if ($this->resultCallback !== null) {
@@ -144,8 +152,8 @@ trait ActiveQueryTrait
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @psalm-param non-empty-list<ActiveRecordInterface|array> $models
-     * @psalm-param-out non-empty-list<ActiveRecordInterface|array> $models
+     * @psalm-param non-empty-list<ActiveQueryResult> $models
+     * @psalm-param-out non-empty-list<ActiveQueryResult> $models
      */
     private function findWith(array $with, array &$models): void
     {
