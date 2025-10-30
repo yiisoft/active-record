@@ -1812,9 +1812,9 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(0, $order->getExpensiveItemsUsingViaWithCallable());
         $this->assertSame(
             [
-                ['order_id' => '2', 'item_id' => '3', 'quantity' => '1', 'subtotal' => '8'],
+                ['order_id' => 2, 'item_id' => 3, 'quantity' => 1, 'subtotal' => 8.0],
             ],
-            self::db()->select('*')->from('{{order_item}}')->where(['order_id' => 2])->all(),
+            self::db()->select('*')->from('{{order_item}}')->where(['order_id' => 2])->withTypecasting()->all(),
         );
     }
 
@@ -1910,8 +1910,8 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertNull($customer->getProfile());
         $this->assertSame(
-            ['id' => '1', 'profile_id' => null],
-            self::db()->select('id, profile_id')->from('{{customer}}')->where(['id' => 1])->one(),
+            ['id' => 1, 'profile_id' => null],
+            self::db()->select('id, profile_id')->from('{{customer}}')->where(['id' => 1])->withTypecasting()->one(),
         );
     }
 
