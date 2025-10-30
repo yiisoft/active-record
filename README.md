@@ -10,7 +10,7 @@
 [![Total Downloads](https://poser.pugx.org/yiisoft/active-record/downloads)](https://packagist.org/packages/yiisoft/active-record)
 [![codecov](https://codecov.io/gh/yiisoft/active-record/branch/master/graph/badge.svg?token=w4KarhYyEF)](https://codecov.io/gh/yiisoft/active-record)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Factive-record%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/active-record/master)
-[![static analysis](https://github.com/yiisoft/active-record/actions/workflows/static.yml/badge.svg?branch=dev)](https://github.com/yiisoft/active-record/actions/workflows/static.yml)
+[![Static analysis](https://github.com/yiisoft/active-record/actions/workflows/static.yml/badge.svg?branch=master)](https://github.com/yiisoft/active-record/actions/workflows/static.yml?query=branch%3Amaster)
 [![type-coverage](https://shepherd.dev/github/yiisoft/active-record/coverage.svg)](https://shepherd.dev/github/yiisoft/active-record)
 
 This package provides [ActiveRecord] library.

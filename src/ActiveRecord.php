@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
+use Yiisoft\ActiveRecord\Internal\Typecaster;
 use Yiisoft\Db\Constant\ColumnType;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -14,7 +15,6 @@ use Yiisoft\Db\Schema\TableSchemaInterface;
 
 use function array_diff_key;
 use function array_filter;
-use function array_intersect_key;
 use function array_keys;
 use function array_merge;
 use function get_object_vars;
@@ -92,14 +92,6 @@ class ActiveRecord extends AbstractActiveRecord
             ?? $this->db()->getColumnFactory()->fromType(ColumnType::STRING, ['name' => $propertyName]);
     }
 
-    /**
-     * Returns the schema information of the DB table associated with this AR class.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException If the table for the AR class doesn't exist.
-     *
-     * @return TableSchemaInterface The schema information of the DB table associated with this AR class.
-     */
     public function tableSchema(): TableSchemaInterface
     {
         $tableSchema = $this->db()->getSchema()->getTableSchema($this->tableName());
@@ -144,7 +136,7 @@ class ActiveRecord extends AbstractActiveRecord
     public function populateRecord(array|object $row): static
     {
         $row = ArArrayHelper::toArray($row);
-        $row = $this->phpTypecastValues($row);
+        $row = Typecaster::cast($row, $this);
         /** @var $this */
         return parent::populateRecord($row);
     }
@@ -218,28 +210,12 @@ class ActiveRecord extends AbstractActiveRecord
      */
     private function populateRawValues(array $rawValues, array $oldValues = []): void
     {
-        $values = $this->phpTypecastValues($rawValues);
+        $values = Typecaster::cast($rawValues, $this);
 
         foreach ($values as $name => $value) {
             $this->set($name, $value);
         }
 
         $this->assignOldValues(array_merge($oldValues, $values));
-    }
-
-    /**
-     * @psalm-param array<string, mixed> $values
-     * @return array<string, mixed>
-     */
-    private function phpTypecastValues(array $values): array
-    {
-        $columns = $this->tableSchema()->getColumns();
-        $columnValues = array_intersect_key($values, $columns);
-
-        foreach ($columnValues as $name => $value) {
-            $values[$name] = $columns[$name]->phpTypecast($value);
-        }
-
-        return $values;
     }
 }

@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord;
 use Closure;
 use InvalidArgumentException;
 use LogicException;
-use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
@@ -108,6 +107,7 @@ use function substr;
  * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
  * @psalm-import-type IndexBy from QueryInterface
  * @psalm-import-type Join from QueryInterface
+ * @psalm-import-type ActiveQueryResult from ActiveQueryInterface
  *
  * @psalm-property IndexBy|null $indexBy
  * @psalm-suppress ClassMustBeFinal
@@ -229,21 +229,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $query;
     }
 
-    /**
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws ReflectionException
-     * @throws Throwable
-     *
-     * @psalm-param list<array> $rows
-     * @psalm-return (
-     *     $rows is non-empty-list<array>
-     *         ? non-empty-list<ActiveRecordInterface|array>
-     *         : list<ActiveRecordInterface|array>
-     * )
-     */
     public function populate(array $rows): array
     {
         if (empty($rows)) {
@@ -277,8 +262,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return array[] The distinctive rows.
      *
-     * @psalm-param non-empty-list<array> $rows
-     * @psalm-return non-empty-list<array>
+     * @psalm-param non-empty-list<array<string, mixed>> $rows
+     * @psalm-return non-empty-list<array<string, mixed>>
      */
     private function removeDuplicatedRows(array $rows): array
     {
@@ -316,7 +301,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         $row = $this->createCommand()->queryOne();
-
         if ($row === null) {
             return null;
         }
@@ -860,6 +844,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             ->withQueries(...$this->withQueries);
     }
 
+    /**
+     * @psalm-param array<string, mixed> $row
+     * @psalm-return ActiveQueryResult
+     */
     private function populateOne(array $row): ActiveRecordInterface|array
     {
         return $this->populate([$row])[0];
