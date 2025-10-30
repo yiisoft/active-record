@@ -2603,6 +2603,20 @@ abstract class ActiveQueryTest extends TestCase
         $query->one();
     }
 
+    public function testRelationFromExpressionWithoutAlias(): void
+    {
+        $query = Order::query()
+            ->with([
+                'customer' => static fn(ActiveQueryInterface $query) => $query
+                    ->from(new Expression('(SELECT * FROM {{customer}})'))
+                    ->joinWith('profile'),
+            ]);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Alias must be set for a table specified by an expression.');
+        $query->one();
+    }
+
     public function testGetJoinTypeWithNestedRelations(): void
     {
         $sql = Order::query()
