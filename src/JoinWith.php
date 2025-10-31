@@ -6,7 +6,9 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 
+use function in_array;
 use function is_array;
+use function is_int;
 
 final class JoinWith
 {
@@ -16,9 +18,28 @@ final class JoinWith
      */
     public function __construct(
         public readonly array $relations,
-        public readonly array|bool $eagerLoading,
+        private readonly array|bool $eagerLoading,
         private readonly array|string $joinType,
     ) {
+    }
+
+    public function getWith(): array
+    {
+        if (is_array($this->eagerLoading)) {
+            $with = $this->relations;
+            foreach ($with as $name => $callback) {
+                if (is_int($name)) {
+                    if (!in_array($callback, $this->eagerLoading, true)) {
+                        unset($with[$name]);
+                    }
+                } elseif (!in_array($name, $this->eagerLoading, true)) {
+                    unset($with[$name]);
+                }
+            }
+            return $with;
+        }
+
+        return $this->eagerLoading ? $this->relations : [];
     }
 
     /**

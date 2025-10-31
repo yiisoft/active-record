@@ -414,23 +414,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         foreach ($this->joinWith as $joinWith) {
             $this->joinWithRelations($model, $joinWith);
-
-            $with = $joinWith->relations;
-            if (is_array($joinWith->eagerLoading)) {
-                foreach ($with as $name => $callback) {
-                    if (is_int($name)) {
-                        if (!in_array($callback, $joinWith->eagerLoading, true)) {
-                            unset($with[$name]);
-                        }
-                    } elseif (!in_array($name, $joinWith->eagerLoading, true)) {
-                        unset($with[$name]);
-                    }
-                }
-            } elseif (!$joinWith->eagerLoading) {
-                $with = [];
-            }
-
-            $this->with($with);
+            $this->with($joinWith->getWith());
         }
 
         /**
