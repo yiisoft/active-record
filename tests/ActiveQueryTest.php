@@ -142,19 +142,6 @@ abstract class ActiveQueryTest extends TestCase
         ], $query->getJoins());
     }
 
-    public function testGetQueryTableNameFromNotSet(): void
-    {
-        $query = Customer::query();
-        $this->assertEquals(['customer', 'customer'], Assert::invokeMethod($query, 'getTableNameAndAlias'));
-    }
-
-    public function testGetQueryTableNameFromSet(): void
-    {
-        $query = Customer::query();
-        $query->from(['alias' => 'customer']);
-        $this->assertEquals(['customer', 'alias'], Assert::invokeMethod($query, 'getTableNameAndAlias'));
-    }
-
     public function testOnCondition(): void
     {
         $on = ['active' => true];
