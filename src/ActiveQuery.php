@@ -503,7 +503,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 if (!isset($relations[$fullName])) {
                     $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
-                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinWith->joinType, $fullName));
+                    $this->joinWithRelation($parent, $relation, $joinWith->getJoinType($fullName));
                 } else {
                     $relation = $relations[$fullName];
                 }
@@ -531,7 +531,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 }
 
                 if ($relation instanceof ActiveQueryInterface) {
-                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinWith->joinType, $fullName));
+                    $this->joinWithRelation($parent, $relation, $joinWith->getJoinType($fullName));
                 }
             }
         }

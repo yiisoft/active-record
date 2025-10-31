@@ -58,7 +58,7 @@ abstract class ActiveQueryTest extends TestCase
         $joinWith = $joinsWith[0];
         $this->assertSame(['profile'], $joinWith->relations);
         $this->assertTrue($joinWith->eagerLoading);
-        $this->assertSame('LEFT JOIN', $joinWith->joinType);
+        $this->assertSame('LEFT JOIN', $joinWith->getJoinType('profile'));
 
         $customerQuery->resetJoinWith();
         $this->assertSame([], $query->getJoinWith());
@@ -114,7 +114,7 @@ abstract class ActiveQueryTest extends TestCase
         $joinWith = $joinsWith[0];
         $this->assertSame(['profile'], $joinWith->relations);
         $this->assertTrue($joinWith->eagerLoading);
-        $this->assertSame('LEFT JOIN', $joinWith->joinType);
+        $this->assertSame('LEFT JOIN', $joinWith->getJoinType('profile'));
     }
 
     public function testGetWith(): void
@@ -140,7 +140,7 @@ abstract class ActiveQueryTest extends TestCase
         $joinWith = $joinsWith[0];
         $this->assertSame(['profile'], $joinWith->relations);
         $this->assertTrue($joinWith->eagerLoading);
-        $this->assertSame('INNER JOIN', $joinWith->joinType);
+        $this->assertSame('INNER JOIN', $joinWith->getJoinType('profile'));
     }
 
     public function testBuildJoinWithRemoveDuplicateJoinByTableName(): void
