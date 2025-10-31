@@ -122,7 +122,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array|ExpressionInterface|string|null $on = null;
 
     /**
-     * @psalm-var list<list{array<string|Closure>, array|bool, array<string,string>|string}>
+     * @psalm-var list<JoinWith>
      */
     private array $joinWith = [];
 
@@ -388,7 +388,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         }
 
-        $this->joinWith[] = [$relations, $eagerLoading, $joinType];
+        $this->joinWith[] = new JoinWith($relations, $eagerLoading, $joinType);
 
         return $this;
     }
@@ -412,20 +412,21 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $model = $this->getModel();
 
-        foreach ($this->joinWith as [$with, $eagerLoading, $joinType]) {
-            $this->joinWithRelations($model, $with, $joinType);
+        foreach ($this->joinWith as $joinWith) {
+            $this->joinWithRelations($model, $joinWith);
 
-            if (is_array($eagerLoading)) {
+            $with = $joinWith->relations;
+            if (is_array($joinWith->eagerLoading)) {
                 foreach ($with as $name => $callback) {
                     if (is_int($name)) {
-                        if (!in_array($callback, $eagerLoading, true)) {
+                        if (!in_array($callback, $joinWith->eagerLoading, true)) {
                             unset($with[$name]);
                         }
-                    } elseif (!in_array($name, $eagerLoading, true)) {
+                    } elseif (!in_array($name, $joinWith->eagerLoading, true)) {
                         unset($with[$name]);
                     }
                 }
-            } elseif (!$eagerLoading) {
+            } elseif (!$joinWith->eagerLoading) {
                 $with = [];
             }
 
@@ -473,22 +474,18 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * Modifies the current query by adding join fragments based on the given relations.
      *
      * @param ActiveRecordInterface $model The primary model.
-     * @param array $with The relations to be joined.
-     * @param array|string $joinType The join type.
+     * @param JoinWith $joinWith
      *
      * @throws CircularReferenceException
      * @throws InvalidConfigException
      * @throws NotInstantiableException
      * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     *
-     * @psalm-param array<string|Closure> $with
-     * @psalm-param array<string,string>|string $joinType
      */
-    private function joinWithRelations(ActiveRecordInterface $model, array $with, array|string $joinType): void
+    private function joinWithRelations(ActiveRecordInterface $model, JoinWith $joinWith): void
     {
         $relations = [];
 
-        foreach ($with as $name => $callback) {
+        foreach ($joinWith->relations as $name => $callback) {
             if (is_int($name)) {
                 $name = $callback;
                 $callback = null;
@@ -506,7 +503,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
                 if (!isset($relations[$fullName])) {
                     $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
-                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
+                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinWith->joinType, $fullName));
                 } else {
                     $relation = $relations[$fullName];
                 }
@@ -534,7 +531,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 }
 
                 if ($relation instanceof ActiveQueryInterface) {
-                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinType, $fullName));
+                    $this->joinWithRelation($parent, $relation, $this->getJoinType($joinWith->joinType, $fullName));
                 }
             }
         }
@@ -758,9 +755,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->on;
     }
 
-    /**
-     * @return array $value A list of relations that this query should be joined with.
-     */
     public function getJoinWith(): array
     {
         return $this->joinWith;

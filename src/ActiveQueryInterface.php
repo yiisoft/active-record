@@ -125,7 +125,8 @@ interface ActiveQueryInterface extends QueryInterface
     public function getOn(): array|ExpressionInterface|string|null;
 
     /**
-     * @return array $value A list of relations that this query should be joined with.
+     * @return array A list of relations that this query should be joined with.
+     * @psalm-return list<JoinWith>
      */
     public function getJoinWith(): array;
 

@@ -12,6 +12,7 @@ use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
+use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -47,11 +48,20 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = Customer::query();
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
+
         $this->assertInstanceOf(Customer::class, $query->getModel());
-        $this->assertEquals(['a' => 'b'], $query->getOn());
-        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
+        $this->assertSame(['a' => 'b'], $query->getOn());
+
+        $joinsWith = $query->getJoinWith();
+        $this->assertCount(1, $joinsWith);
+
+        $joinWith = $joinsWith[0];
+        $this->assertSame(['profile'], $joinWith->relations);
+        $this->assertTrue($joinWith->eagerLoading);
+        $this->assertSame('LEFT JOIN', $joinWith->joinType);
+
         $customerQuery->resetJoinWith();
-        $this->assertEquals([], $query->getJoinWith());
+        $this->assertSame([], $query->getJoinWith());
     }
 
     public function testPrepare(): void
@@ -97,9 +107,14 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetJoinWith(): void
     {
-        $query = Customer::query();
-        $query->joinWith('profile');
-        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
+        $joinsWith = Customer::query()->joinWith('profile')->getJoinWith();
+
+        $this->assertCount(1, $joinsWith);
+
+        $joinWith = $joinsWith[0];
+        $this->assertSame(['profile'], $joinWith->relations);
+        $this->assertTrue($joinWith->eagerLoading);
+        $this->assertSame('LEFT JOIN', $joinWith->joinType);
     }
 
     public function testGetWith(): void
@@ -118,9 +133,14 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testInnerJoinWith(): void
     {
-        $query = Customer::query();
-        $query->innerJoinWith('profile');
-        $this->assertEquals([[['profile'], true, 'INNER JOIN']], $query->getJoinWith());
+        $joinsWith = Customer::query()->innerJoinWith('profile')->getJoinWith();
+
+        $this->assertCount(1, $joinsWith);
+
+        $joinWith = $joinsWith[0];
+        $this->assertSame(['profile'], $joinWith->relations);
+        $this->assertTrue($joinWith->eagerLoading);
+        $this->assertSame('INNER JOIN', $joinWith->joinType);
     }
 
     public function testBuildJoinWithRemoveDuplicateJoinByTableName(): void
