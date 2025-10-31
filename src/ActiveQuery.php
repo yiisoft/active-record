@@ -34,7 +34,6 @@ use function array_merge;
 use function array_values;
 use function count;
 use function implode;
-use function in_array;
 use function is_array;
 use function is_int;
 use function is_string;
