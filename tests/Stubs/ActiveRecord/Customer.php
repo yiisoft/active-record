@@ -48,6 +48,7 @@ class Customer extends ArrayableActiveRecord
             'expensiveOrdersWithNullFK' => $this->getExpensiveOrdersWithNullFKQuery(),
             'ordersWithNullFK' => $this->getOrdersWithNullFKQuery(),
             'orders2' => $this->getOrders2Query(),
+            'ordersIndexedWithInverseOf' => $this->getOrdersIndexedWithInverseOfQuery(),
             'orderItems' => $this->getOrderItemsQuery(),
             'orderItems2' => $this->getOrderItems2Query(),
             'orderItemsIndexedByClosure' => $this->getOrderItemsIndexedByClosureQuery(),
@@ -226,6 +227,18 @@ class Customer extends ArrayableActiveRecord
     public function getOrders2Query(): ActiveQuery
     {
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->inverseOf('customer2')->orderBy('id');
+    }
+
+    public function getOrdersIndexedWithInverseOf(): array
+    {
+        return $this->relation('ordersIndexedWithInverseOf');
+    }
+
+    public function getOrdersIndexedWithInverseOfQuery(): ActiveQuery
+    {
+        return $this->hasMany(Order::class, ['customer_id' => 'id'])
+            ->inverseOf('customerIndexedWithInverseOf')
+            ->indexBy('id');
     }
 
     public function getOrderItems(): array

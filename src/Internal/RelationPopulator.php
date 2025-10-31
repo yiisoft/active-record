@@ -20,10 +20,6 @@ use function is_array;
  */
 final class RelationPopulator
 {
-    private function __construct()
-    {
-    }
-
     /**
      * @psalm-param non-empty-array<ActiveRecordInterface|array> $primaryModels
      * @psalm-param-out non-empty-array<ActiveRecordInterface|array> $primaryModels
@@ -306,9 +302,7 @@ final class RelationPopulator
             foreach ($properties as $property) {
                 if (isset($model[$property])) {
                     /** @var array<int|string>|string */
-                    $key[] = is_array($model[$property])
-                        ? $model[$property]
-                        : (string) $model[$property];
+                    $key[] = is_array($model[$property]) ? $model[$property] : (string) $model[$property];
                 }
             }
         } else {
@@ -316,9 +310,7 @@ final class RelationPopulator
                 $value = $model->get($property);
                 if ($value !== null) {
                     /** @var array<int|string>|string */
-                    $key[] = is_array($value)
-                        ? $value
-                        : (string) $value;
+                    $key[] = is_array($value) ? $value : (string) $value;
                 }
             }
         }

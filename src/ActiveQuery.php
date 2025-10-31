@@ -188,7 +188,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
             if ($this->via instanceof ActiveQueryInterface) {
                 $viaModels = JunctionRowsFinder::find($this->via, [$this->primaryModel]);
-
                 ModelRelationFilter::apply($this, $viaModels);
             } elseif (is_array($this->via)) {
                 [$viaName, $viaQuery, $viaCallableUsed] = $this->via;
@@ -246,9 +245,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->findWith($this->with, $models);
         }
 
-        if ($this->inverseOf !== null) {
-            $this->addInverseRelations($models);
-        }
+        $this->addInverseRelations($models);
 
         return $models;
     }

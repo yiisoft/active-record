@@ -12,10 +12,6 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  */
 final class JunctionRowsFinder
 {
-    private function __construct()
-    {
-    }
-
     /**
      * @param ActiveRecordInterface[]|array[] $models Either array of AR instances or arrays.
      * @return array[]

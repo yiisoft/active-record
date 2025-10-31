@@ -12,6 +12,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\QueryBuilder\Condition\In;
 
 use function ksort;
 
@@ -642,5 +643,45 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $this->assertInstanceOf(Order::class, $order);
         $this->assertEquals(1, $order->getId());
+    }
+
+    public function testFindCompositeRelationAsArray(): void
+    {
+        $orderItems = OrderItem::query()
+            ->with('orderItemCompositeNoJoin')
+            ->andWhere(['order_id' => 1])
+            ->asArray()
+            ->all();
+
+        $isOracle = self::db()->getDriverName() === 'oci';
+        $this->assertSame(
+            [
+                [
+                    'order_id' => 1,
+                    'item_id' => 1,
+                    'quantity' => 1,
+                    'subtotal' => $isOracle ? 30 : 30.0,
+                    'orderItemCompositeNoJoin' => [
+                        'order_id' => 1,
+                        'item_id' => 1,
+                        'quantity' => 1,
+                        'subtotal' => $isOracle ? 30 : 30.0,
+                    ],
+                ],
+                [
+                    'order_id' => 1,
+                    'item_id' => 2,
+                    'quantity' => 2,
+                    'subtotal' => $isOracle ? 40 : 40.0,
+                    'orderItemCompositeNoJoin' => [
+                        'order_id' => 1,
+                        'item_id' => 2,
+                        'quantity' => 2,
+                        'subtotal' => $isOracle ? 40 : 40.0,
+                    ],
+                ],
+            ],
+            $orderItems,
+        );
     }
 }

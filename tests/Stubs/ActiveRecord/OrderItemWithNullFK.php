@@ -6,9 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveRecord;
 
-/**
- * Class OrderItem.
- */
 final class OrderItemWithNullFK extends ActiveRecord
 {
     protected int|null $order_id = null;

@@ -21,6 +21,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Document;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Employee;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
@@ -33,6 +34,7 @@ use Yiisoft\Db\Command\AbstractCommand;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
+use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
 
 use function sort;
@@ -281,6 +283,56 @@ abstract class ActiveQueryTest extends TestCase
         $query->getTablesUsedInFrom();
 
         $this->assertSame([], $query->getFrom());
+    }
+
+    public function testGetTablesUsedInFromWithFromSet(): void
+    {
+        $query = Customer::query();
+        $query->from(['customer' => 'customers_table']);
+
+        $result = $query->getTablesUsedInFrom();
+
+        $this->assertSame(
+            ['{{customer}}' => '{{customers_table}}'],
+            $result,
+        );
+    }
+
+    public function testJoinWithRelationNoLinkWithOn(): void
+    {
+        $query = OrderItem::query();
+
+        $sql = $query->joinWith('custom')->createCommand()->getRawSql();
+
+        $this->assertSame(
+            DbHelper::replaceQuotes(
+                'SELECT [[order_item]].* FROM [[order_item]] LEFT JOIN [[order]]',
+                self::db()->getDriverName(),
+            ),
+            $sql
+        );
+    }
+
+    public function testJoinWithRelationChildParams(): void
+    {
+        $query = Order::query()->joinWith(
+            [
+                'customer' => static function (ActiveQueryInterface $q) {
+                    $q->where('{{customer}}.{{id}} = :customer_id', [':customer_id' => 1]);
+                },
+            ],
+            false
+        );
+
+        $sql = $query->createCommand()->getRawSql();
+
+        $this->assertSame(
+            DbHelper::replaceQuotes(
+                'SELECT [[order]].* FROM [[order]] LEFT JOIN [[customer]] ON [[order]].[[customer_id]] = [[customer]].[[id]] WHERE ([[order]].[[deleted_at]] IS NULL) AND ([[customer]].[[id]] = 1)',
+                self::db()->getDriverName(),
+            ),
+            $sql
+        );
     }
 
     /**
@@ -1693,6 +1745,29 @@ abstract class ActiveQueryTest extends TestCase
         }
     }
 
+    public function testInverseRelationWithIndexBy(): void
+    {
+        $order = Order::query()->with('customerIndexedWithInverseOf')->andWhere(['id' => 1])->one();
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertTrue($order->isRelationPopulated('customerIndexedWithInverseOf'));
+
+        $customer = $order->getCustomerIndexedWithInverseOf();
+        $this->assertInstanceOf(Customer::class, $customer);
+        $this->assertTrue($customer->isRelationPopulated('ordersIndexedWithInverseOf'));
+        $this->assertSame([1 => $order], $customer->getOrdersIndexedWithInverseOf());
+
+        $customer = Customer::query()->with('ordersIndexedWithInverseOf')->one();
+        $this->assertInstanceOf(Customer::class, $customer);
+        $this->assertTrue($customer->isRelationPopulated('ordersIndexedWithInverseOf'));
+
+        $orders = $customer->getOrdersIndexedWithInverseOf();
+        $this->assertCount(1, $orders);
+
+        $order = reset($orders);
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertSame($customer, $order->getCustomerIndexedWithInverseOf());
+    }
+
     public function testExtraFields(): void
     {
         $customerQuery = Customer::query();
@@ -2500,6 +2575,203 @@ abstract class ActiveQueryTest extends TestCase
         $query = $customer->createQuery();
 
         $this->assertInstanceOf(Customer::class, $query->getModel());
+    }
+
+    public function testGetPrimaryModelOnNonRelationQuery(): void
+    {
+        $customerQuery = Customer::query();
+
+        $this->assertNull($customerQuery->getPrimaryModel());
+    }
+
+    public function testGetPrimaryModelInRelation(): void
+    {
+        $customer = Customer::query()->findByPk(1);
+        $relation = $customer->relationQuery('profile');
+
+        $this->assertSame($customer, $relation->getPrimaryModel());
+    }
+
+    public function testGetTableNameAndAliasThrowsExceptionForExpressionWithoutAlias(): void
+    {
+        $query = Order::query()
+            ->from(new Expression('SELECT * FROM {{order}}'))
+            ->joinWith('customer');
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Alias must be set for a table specified by an expression.');
+        $query->one();
+    }
+
+    public function testRelationFromExpressionWithoutAlias(): void
+    {
+        $query = Order::query()
+            ->with([
+                'customer' => static fn(ActiveQueryInterface $query) => $query
+                    ->from(new Expression('(SELECT * FROM {{customer}})'))
+                    ->joinWith('profile'),
+            ]);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Alias must be set for a table specified by an expression.');
+        $query->one();
+    }
+
+    public function testGetJoinTypeWithNestedRelations(): void
+    {
+        $sql = Order::query()
+            ->joinWith(
+                ['customer.profile'],
+                joinType: ['customer.profile' => 'LEFT JOIN']
+            )
+            ->createCommand()
+            ->getRawSql();
+
+        $this->assertSame(
+            DbHelper::replaceQuotes(
+                'SELECT [[order]].* FROM [[order]] INNER JOIN [[customer]] ON [[order]].[[customer_id]] = [[customer]].[[id]] LEFT JOIN [[profile]] ON [[customer]].[[profile_id]] = [[profile]].[[id]] WHERE [[order]].[[deleted_at]] IS NULL',
+                self::db()->getDriverName(),
+            ),
+            $sql,
+        );
+    }
+
+    public function testExceptionForEmptyPrimaryKey(): void
+    {
+        $query = NoPk::query()->innerJoin('customer', '{{no_pk}}.{{customer_id}} = {{customer}}.{{id}}');
+
+        $this->expectException(InvalidConfigException::class);
+        $this->expectExceptionMessage(
+            'Primary key of "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk" can not be empty.'
+        );
+        $query->all();
+    }
+
+    public function testJoinWithSelectiveEagerLoading(): void
+    {
+        $orders = Order::query()
+            ->joinWith(
+                ['customer', 'items'],
+                ['customer'],
+            )
+            ->andWhere(['order.id' => 1])
+            ->all();
+
+        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
+        $this->assertFalse($orders[0]->isRelationPopulated('items'));
+    }
+
+    public function testJoinWithSelectiveEagerLoadingWithCallbacks(): void
+    {
+        $orders = Order::query()
+            ->joinWith(
+                [
+                    'customer' => static fn(ActiveQueryInterface $q) => $q->orderBy('customer.name ASC'),
+                    'items',
+                ],
+                ['items'],
+            )
+            ->andWhere(['order.id' => 1])
+            ->all();
+
+        $this->assertFalse($orders[0]->isRelationPopulated('customer'));
+        $this->assertTrue($orders[0]->isRelationPopulated('items'));
+    }
+
+    public function testJoinWithBeforeExplicitJoin(): void
+    {
+        $orders = Order::query()
+            ->joinWith('customer')
+            ->innerJoin('profile', '{{customer}}.{{profile_id}} = {{profile}}.{{id}}')
+            ->all();
+
+        $this->assertCount(1, $orders);
+        $this->assertSame(1, $orders[0]->getId());
+        $this->assertTrue($orders[0]->isRelationPopulated('customer'));
+    }
+
+    public function testGetAlreadyPopulatedViaRelation(): void
+    {
+        $order = Order::query()->with('orderItems')->findByPk(1);
+        $this->assertTrue($order->isRelationPopulated('orderItems'));
+
+        $items = $order->getItemsIndexedQuery()->all();
+        $this->assertCount(2, $items);
+    }
+
+    public function testGetViaCallableWithHasOne(): void
+    {
+        $order = Order::query()->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCallableQuery()->one();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertSame(1, $profile->getId());
+    }
+
+    public function testGetViaWithHasOne(): void
+    {
+        $order = Order::query()->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCustomerQuery()->one();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertSame(1, $profile->getId());
+    }
+
+    public function testGetAlreadyPopulatedViaWithHasOne(): void
+    {
+        $order = Order::query()->with('customer')->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCustomerQuery()->one();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertSame(1, $profile->getId());
+    }
+
+    public function testCloneQueryWithViaTable(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $query = $order->getBooksViaTableQuery();
+        $queryVia = $query->getVia();
+
+        $clonedQuery = clone $query;
+        $clonedQueryVia = $clonedQuery->getVia();
+
+        $this->assertInstanceOf(ActiveQueryInterface::class, $queryVia);
+        $this->assertInstanceOf(ActiveQueryInterface::class, $clonedQueryVia);
+        $this->assertNotSame($queryVia, $clonedQueryVia);
+    }
+
+    public function testCloneQueryWithViaRelationName(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $query = $order->getItemsIndexedQuery();
+        $queryVia = $query->getVia();
+
+        $clonedQuery = clone $query;
+        $clonedQueryVia = $clonedQuery->getVia();
+
+        $this->assertIsArray($queryVia);
+        $this->assertIsArray($clonedQueryVia);
+        $this->assertNotSame($queryVia[1], $clonedQueryVia[1]);
+    }
+
+    public function testExceptionOnIndexWithNonExistentNestedProperty(): void
+    {
+        $query = Order::query()->indexBy('total.nonexistent')->asArray();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Trying to get property of non-array or non-ActiveRecordInterface instance.');
+        $query->all();
+    }
+
+    public function testIndexByNonExistentKey(): void
+    {
+        $indexedOrders = Order::query()->indexBy('nonexistent_key')->asArray()->all();
+
+        // Key value for non-existent key will be null, so all records will have the same key
+        $this->assertCount(1, $indexedOrders);
     }
 
     public function testIndexByPrivateProperty(): void

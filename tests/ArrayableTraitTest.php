@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use ArrayIterator;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerClosureField;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerForArrayable;
@@ -120,5 +121,44 @@ abstract class ArrayableTraitTest extends TestCase
                 'items.0.email',
             ]),
         );
+    }
+
+    public function testPopulateRecordFromAnotherRecord(): void
+    {
+        $customer1 = Customer::query()->findByPk(1);
+        $customer2 = new Customer();
+        $customer2->populateRecord($customer1);
+
+        $this->assertSame(1, $customer2->getId());
+        $this->assertSame('user1@example.com', $customer2->getEmail());
+        $this->assertSame('user1', $customer2->getName());
+    }
+
+    public function testPopulateRecordFromTraversable(): void
+    {
+        $customer = new Customer();
+        $customer->populateRecord(
+            new ArrayIterator(['email' => 'test@example.com', 'name' => 'Vasya'])
+        );
+
+        $this->assertNull($customer->getId());
+        $this->assertSame('test@example.com', $customer->getEmail());
+        $this->assertSame('Vasya', $customer->getName());
+    }
+
+    public function testPopulateRecordFromCustomObject(): void
+    {
+        $customer = new Customer();
+        $customer->populateRecord(
+            new class () {
+                private int $id = 1;
+                public string $email = 'test@example.com';
+                public string $name = 'Vasya';
+            }
+        );
+
+        $this->assertNull($customer->getId());
+        $this->assertSame('test@example.com', $customer->getEmail());
+        $this->assertSame('Vasya', $customer->getName());
     }
 }

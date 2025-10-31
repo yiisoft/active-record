@@ -100,6 +100,7 @@ class Order extends ActiveRecord
             'customerJoinedWithProfile' => $this->getCustomerJoinedWithProfileQuery(),
             'customerJoinedWithProfileIndexOrdered' => $this->getCustomerJoinedWithProfileIndexOrderedQuery(),
             'customer2' => $this->getCustomer2Query(),
+            'customerIndexedWithInverseOf' => $this->getCustomerIndexedWithInverseOfQuery(),
             'orderItems' => $this->getOrderItemsQuery(),
             'orderItems2' => $this->getOrderItems2Query(),
             'orderItems3' => $this->getOrderItems3Query(),
@@ -124,6 +125,8 @@ class Order extends ActiveRecord
             'cheapItemsUsingViaWithCallable' => $this->getCheapItemsUsingViaWithCallableQuery(),
             'orderItemsFor8' => $this->getOrderItemsFor8Query(),
             'itemsFor8' => $this->getItemsFor8Query(),
+            'itemsWithOnCondition' => $this->getItemsWithOnConditionQuery(),
+            'invalidRelation' => $this->getInvalidRelationQuery(),
             default => parent::relationQuery($name),
         };
     }
@@ -184,6 +187,43 @@ class Order extends ActiveRecord
     public function getCustomer2Query(): ActiveQuery
     {
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('orders2');
+    }
+
+    public function getCustomerIndexedWithInverseOf(): Customer|null
+    {
+        return $this->relation('customerIndexedWithInverseOf');
+    }
+
+    public function getCustomerIndexedWithInverseOfQuery(): ActiveQuery
+    {
+        return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('ordersIndexedWithInverseOf');
+    }
+
+    public function getCustomerProfileViaCallable(): Profile|null
+    {
+        return $this->relation('customerProfileViaCallable');
+    }
+
+    public function getCustomerProfileViaCallableQuery(): ActiveQueryInterface
+    {
+        return $this
+            ->hasOne(Profile::class, ['id' => 'profile_id'])
+            ->via(
+                'customer',
+                static fn(ActiveQueryInterface $query) => $query,
+            );
+    }
+
+    public function getCustomerProfileViaCustomer(): Profile|null
+    {
+        return $this->relation('customerProfileViaCustomer');
+    }
+
+    public function getCustomerProfileViaCustomerQuery(): ActiveQueryInterface
+    {
+        return $this
+            ->hasOne(Profile::class, ['id' => 'profile_id'])
+            ->via('customer', );
     }
 
     public function getOrderItems(): array
@@ -328,12 +368,11 @@ class Order extends ActiveRecord
         return $this->relation('booksViaTable');
     }
 
-    public function getBooksViaTableQuery(): ActiveQuery
+    public function getBooksViaTableQuery(): ActiveQueryInterface
     {
-        return $this->hasMany(
-            Item::class,
-            ['id' => 'item_id']
-        )->viaTable('order_item', ['order_id' => 'id'])->where(['category_id' => 1]);
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->viaTable('order_item', ['order_id' => 'id'])->where(['category_id' => 1]);
     }
 
     public function getBooksWithNullFKViaTable(): array
@@ -429,11 +468,14 @@ class Order extends ActiveRecord
         return $this->relation('expensiveItemsUsingViaWithCallable');
     }
 
-    public function getExpensiveItemsUsingViaWithCallableQuery(): ActiveQuery
+    public function getExpensiveItemsUsingViaWithCallableQuery(): ActiveQueryInterface
     {
-        return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems', function (ActiveQuery $q) {
-            $q->where(['>=', 'subtotal', 10]);
-        });
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->via(
+                'orderItems',
+                static fn(ActiveQueryInterface $query) => $query->where(['>=', 'subtotal', 10]),
+            );
     }
 
     public function getCheapItemsUsingViaWithCallable(): array
@@ -466,5 +508,25 @@ class Order extends ActiveRecord
     public function getItemsFor8Query(): ActiveQuery
     {
         return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItemsFor8');
+    }
+
+    public function getItemsWithOnCondition(): array
+    {
+        return $this->relation('itemsWithOnCondition');
+    }
+
+    public function getItemsWithOnConditionQuery(): ActiveQueryInterface
+    {
+        return $this
+            ->hasMany(Item::class, ['id' => 'item_id'])
+            ->via(
+                'orderItemsWithNullFK',
+                static fn(ActiveQueryInterface $query) => $query->andOn(['>=', 'subtotal', 35]),
+            );
+    }
+
+    public function getInvalidRelationQuery(): ActiveQueryInterface
+    {
+        return $this->hasMany(Item::class, ['name' => 'test']);
     }
 }

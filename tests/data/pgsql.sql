@@ -534,3 +534,15 @@ CREATE TABLE "article_comment" (
 INSERT INTO "article" (id, title, slug) VALUES (1, 'First Article', 'first-article');
 INSERT INTO "article" (id, title, slug) VALUES (2, 'Second Article', 'second-article');
 
+DROP TABLE IF EXISTS "no_pk" CASCADE;
+
+CREATE TABLE "no_pk" (
+  id INTEGER NOT NULL,
+  customer_id INTEGER NOT NULL,
+  name VARCHAR(255) NOT NULL
+);
+
+INSERT INTO "no_pk" (id, customer_id, name) VALUES (1, 1, 'NoPk1');
+INSERT INTO "no_pk" (id, customer_id, name) VALUES (2, 1, 'NoPk2');
+INSERT INTO "no_pk" (id, customer_id, name) VALUES (3, 2, 'NoPk3');
+

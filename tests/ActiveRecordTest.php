@@ -52,6 +52,8 @@ use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Factory\Factory;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
+use function in_array;
+
 abstract class ActiveRecordTest extends TestCase
 {
     abstract protected function createFactory(): Factory;
@@ -1701,6 +1703,18 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(\count($existingOrders) + 1, $updatedOrders);
     }
 
+    public function testLinkWithNullPrimaryKeyOnForeignModel(): void
+    {
+        $customer = new Customer();
+        $order = new Order();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link active record: the primary key of ' . Customer::class . ' is null.'
+        );
+        $order->link('customer', $customer);
+    }
+
     public function testMarkPropertyChanged(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1746,6 +1760,21 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
+    public function testLinkWithArrayValuedForeignKey(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+        $item = Item::query()->findByPk(3);
+
+        $promotion->link('itemsViaJson', $item);
+
+        $this->assertSame(
+            [1, 2, 3],
+            $promotion->json_item_ids,
+        );
+    }
+
     public function testMarkAsExisting(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1773,6 +1802,127 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
+    public function testUnlinkAllWithWhereCondition(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(2);
+        $order->unlinkAll('expensiveItemsUsingViaWithCallable', true);
+
+        $this->assertCount(0, $order->getExpensiveItemsUsingViaWithCallable());
+        $this->assertTrue(
+            self::db()->createQuery()->from('{{order_item}}')->where(['order_id' => 2])->exists(),
+        );
+    }
+
+    public function testUnlinkAllViaModelWithOnCondition(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $order->unlinkAll('itemsWithOnCondition');
+
+        $this->assertCount(0, $order->getItemsWithOnCondition());
+        $this->assertSame(
+            1,
+            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => 1])->count(),
+        );
+        $this->assertSame(
+            1,
+            self::db()->select('*')->from('{{order_item_with_null_fk}}')->where(['order_id' => null])->count(),
+        );
+    }
+
+    public function testUnlinkAllViaModelWithOnConditionAndDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $order->unlinkAll('itemsWithOnCondition', true);
+
+        $this->assertCount(0, $order->getItemsWithOnCondition());
+        $this->assertSame(
+            1,
+            self::db()->createQuery()->from('{{order_item_with_null_fk}}')->where(['order_id' => 1])->count(),
+        );
+        $this->assertSame(
+            0,
+            self::db()->createQuery()->from('{{order_item_with_null_fk}}')->where(['order_id' => null])->count(),
+        );
+    }
+
+    public function testUnlinkAllWithArrayValuedProperty(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+
+        $promotion->unlinkAll('itemsViaJson');
+
+        $this->assertSame([], $promotion->json_item_ids);
+        $this->assertCount(0, $promotion->getItemsViaJson());
+        $this->assertSame(
+            '[]',
+            self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
+        );
+    }
+
+    public function testUnlinkWithArrayValuedProperty(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+        $items = $promotion->getItemsViaJson();
+        $promotion->unlink('itemsViaJson', $items[0]);
+
+        $this->assertSame([2], $promotion->json_item_ids);
+        $this->assertCount(1, $promotion->getItemsViaJson());
+        $this->assertSame(
+            '[2]',
+            self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
+        );
+    }
+
+    public function testUnlinkViaTableWithDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $books = $order->getBooksViaTable();
+        $order->unlink('booksViaTable', $books[0], true);
+
+        $this->assertCount(1, $order->getBooksViaTable());
+        $this->assertSame(
+            1,
+            self::db()->createQuery()->from('{{order_item}}')->where(['order_id' => 1])->count(),
+        );
+    }
+
+    public function testUnlinkHasOneWithoutDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+        $customer->unlink('profile', $customer->getProfile());
+
+        $this->assertNull($customer->getProfile());
+        $this->assertTrue(
+            self::db()->createQuery()->from('{{customer}}')->where(['id' => 1, 'profile_id' => null])->exists(),
+        );
+    }
+
+    public function testUnlinkInvalidLinkThrowsException(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $item = Item::query()->findByPk(1);
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage('Unable to unlink models: the link does not involve any primary key.');
+        $order->unlink('invalidRelation', $item);
+    }
+
     public function testUpdateCountersThrowsExceptionForNewRecord(): void
     {
         $orderItem = new OrderItem();
@@ -1780,5 +1930,14 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Updating counters is not possible for new records.');
         $orderItem->updateCounters(['quantity' => 1]);
+    }
+
+    public function testGetAllWithHasOneAndArrayValue(): void
+    {
+        $promotions = Promotion::query()->with('singleItem')->andWhere(['id' => [1, 2]])->all();
+
+        $this->assertCount(2, $promotions);
+        $this->assertNull($promotions[0]->relation('singleItem'));
+        $this->assertNull($promotions[1]->relation('singleItem'));
     }
 }

@@ -59,6 +59,7 @@ BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "department_SEQ"'; EXCEPTION WHEN OTHERS 
 BEGIN EXECUTE IMMEDIATE 'DROP SEQUENCE "employee_SEQ"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -2289 THEN RAISE; END IF; END;--
 
 BEGIN EXECUTE IMMEDIATE 'DROP TABLE "tbl_user"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
+BEGIN EXECUTE IMMEDIATE 'DROP TABLE "no_pk"'; EXCEPTION WHEN OTHERS THEN IF SQLCODE != -942 THEN RAISE; END IF; END;--
 
 /* STATEMENTS */
 
@@ -559,3 +560,13 @@ INSERT INTO "uuid_item" ("id", "name") VALUES ('650e8400-e29b-41d4-a716-44665544
 INSERT INTO "uuid_promotion" ("id", "json_item_ids", "title") VALUES ('850e8400-e29b-41d4-a716-446655440001', '["650e8400-e29b-41d4-a716-446655440001","650e8400-e29b-41d4-a716-446655440002"]', 'UUID Promo: Both Items');
 INSERT INTO "uuid_promotion" ("id", "json_item_ids", "title") VALUES ('850e8400-e29b-41d4-a716-446655440002', '["650e8400-e29b-41d4-a716-446655440001"]', 'UUID Promo: Item 1 Only');
 INSERT INTO "uuid_promotion" ("id", "json_item_ids", "title") VALUES ('850e8400-e29b-41d4-a716-446655440003', '[]', 'UUID Promo: No Items');
+
+CREATE TABLE "no_pk" (
+  "id" INTEGER NOT NULL,
+  "customer_id" INTEGER NOT NULL,
+  "name" VARCHAR2(255) NOT NULL
+);
+
+INSERT INTO "no_pk" ("id", "customer_id", "name") VALUES (1, 1, 'NoPk1');
+INSERT INTO "no_pk" ("id", "customer_id", "name") VALUES (2, 1, 'NoPk2');
+INSERT INTO "no_pk" ("id", "customer_id", "name") VALUES (3, 2, 'NoPk3');

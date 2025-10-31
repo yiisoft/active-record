@@ -460,3 +460,15 @@ INSERT INTO "uuid_item" (id, name) VALUES ('650e8400-e29b-41d4-a716-446655440002
 INSERT INTO "uuid_promotion" (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440001', '["650e8400-e29b-41d4-a716-446655440001","650e8400-e29b-41d4-a716-446655440002"]', 'UUID Promo: Both Items');
 INSERT INTO "uuid_promotion" (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440002', '["650e8400-e29b-41d4-a716-446655440001"]', 'UUID Promo: Item 1 Only');
 INSERT INTO "uuid_promotion" (id, json_item_ids, title) VALUES ('850e8400-e29b-41d4-a716-446655440003', '[]', 'UUID Promo: No Items');
+
+DROP TABLE IF EXISTS "no_pk";
+
+CREATE TABLE "no_pk" (
+  id INTEGER NOT NULL,
+  customer_id INTEGER NOT NULL,
+  name VARCHAR(255) NOT NULL
+);
+
+INSERT INTO "no_pk" (id, customer_id, name) VALUES (1, 1, 'NoPk1');
+INSERT INTO "no_pk" (id, customer_id, name) VALUES (2, 1, 'NoPk2');
+INSERT INTO "no_pk" (id, customer_id, name) VALUES (3, 2, 'NoPk3');
