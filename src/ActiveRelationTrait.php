@@ -107,6 +107,12 @@ trait ActiveRelationTrait
         return $this;
     }
 
+    public function resetVia(): static
+    {
+        $this->via = null;
+        return $this;
+    }
+
     public function inverseOf(string $relationName): static
     {
         $this->inverseOf = $relationName;
