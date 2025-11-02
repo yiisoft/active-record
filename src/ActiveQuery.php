@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use LogicException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
+use Yiisoft\ActiveRecord\Internal\JoinsWithBuilder;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
 use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
@@ -163,7 +164,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
          * statements many times.
          */
         if (!empty($this->joinsWith)) {
-            $this->buildJoinWith();
+            JoinsWithBuilder::build($this);
             /**
              * Clean it up to avoid issue @link https://github.com/yiisoft/yii2/issues/2687
              */
@@ -397,217 +398,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $this->joinsWith = [];
     }
 
-    /**
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
-    public function buildJoinWith(): void
-    {
-        $joins = $this->joins;
-
-        $this->joins = [];
-
-        $model = $this->getModel();
-
-        foreach ($this->joinsWith as $joinWith) {
-            $this->joinWithRelations($model, $joinWith);
-            $this->with($joinWith->getWith());
-        }
-
-        /**
-         * Remove duplicated joins added by joinWithRelations that may be added, for example, when joining a relation
-         * and a via relation at the same time.
-         */
-        $uniqueJoins = [];
-        foreach ($this->getJoins() as $join) {
-            $uniqueJoins[serialize($join)] = $join;
-        }
-        $this->joins = array_values($uniqueJoins);
-
-        /**
-         * @link https://github.com/yiisoft/yii2/issues/16092
-         */
-        $uniqueJoinsByTableName = [];
-
-        foreach ($this->joins as $join) {
-            $tableName = serialize($join[1]);
-            if (!array_key_exists($tableName, $uniqueJoinsByTableName)) {
-                $uniqueJoinsByTableName[$tableName] = $join;
-            }
-        }
-
-        $this->joins = array_values($uniqueJoinsByTableName);
-
-        if (!empty($joins)) {
-            /**
-             * Append explicit join to {@see joinWith()} {@link https://github.com/yiisoft/yii2/issues/2880}
-             */
-            $this->joins = empty($this->joins) ? $joins : array_merge($this->joins, $joins);
-        }
-    }
-
     public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): static
     {
         return $this->joinWith($with, $eagerLoading, 'INNER JOIN');
-    }
-
-    /**
-     * Modifies the current query by adding join fragments based on the given relations.
-     *
-     * @param ActiveRecordInterface $model The primary model.
-     * @param JoinWith $joinWith
-     *
-     * @throws CircularReferenceException
-     * @throws InvalidConfigException
-     * @throws NotInstantiableException
-     * @throws \Yiisoft\Definitions\Exception\InvalidConfigException
-     */
-    private function joinWithRelations(ActiveRecordInterface $model, JoinWith $joinWith): void
-    {
-        $relations = [];
-
-        foreach ($joinWith->relations as $name => $callback) {
-            if (is_int($name)) {
-                $name = $callback;
-                $callback = null;
-            }
-            /** @var string $name */
-
-            $primaryModel = $model;
-            $parent = $this;
-            $prefix = '';
-
-            while (($pos = strpos($name, '.')) !== false) {
-                $childName = substr($name, $pos + 1);
-                $name = substr($name, 0, $pos);
-                $fullName = $prefix === '' ? $name : "$prefix.$name";
-
-                if (!isset($relations[$fullName])) {
-                    $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
-                    $this->joinWithRelation($parent, $relation, $joinWith->getJoinType($fullName));
-                } else {
-                    $relation = $relations[$fullName];
-                }
-
-                if ($relation instanceof ActiveQueryInterface) {
-                    $primaryModel = $relation->getModel();
-                    $parent = $relation;
-                }
-
-                $prefix = $fullName;
-                $name = $childName;
-            }
-
-            $fullName = $prefix === '' ? $name : "$prefix.$name";
-
-            if (!isset($relations[$fullName])) {
-                $relations[$fullName] = $relation = $primaryModel->relationQuery($name);
-
-                if ($callback !== null) {
-                    $callback($relation);
-                }
-
-                if ($relation instanceof ActiveQueryInterface && !empty($relation->getJoinsWith())) {
-                    $relation->buildJoinWith();
-                }
-
-                if ($relation instanceof ActiveQueryInterface) {
-                    $this->joinWithRelation($parent, $relation, $joinWith->getJoinType($fullName));
-                }
-            }
-        }
-    }
-
-    /**
-     * Joins a parent query with a child query.
-     *
-     * The current query object will be modified so.
-     *
-     * @param ActiveQueryInterface $parent The parent query.
-     * @param ActiveQueryInterface $child The child query.
-     * @param string $joinType The join type.
-     *
-     * @throws CircularReferenceException
-     * @throws NotInstantiableException
-     * @throws InvalidConfigException
-     */
-    private function joinWithRelation(ActiveQueryInterface $parent, ActiveQueryInterface $child, string $joinType): void
-    {
-        if (!empty($child->getHaving())
-            || !empty($child->getGroupBy())
-            || !empty($child->getUnions())
-        ) {
-            throw new LogicException('Joining with a relation that has GROUP BY, HAVING, or UNION is not supported.');
-        }
-
-        $via = $child->getVia();
-        $child->resetVia();
-
-        if ($via instanceof ActiveQueryInterface) {
-            // via table
-            $this->joinWithRelation($parent, $via, $joinType);
-            $this->joinWithRelation($via, $child, $joinType);
-
-            return;
-        }
-
-        if (is_array($via)) {
-            // via relation
-            $this->joinWithRelation($parent, $via[1], $joinType);
-            $this->joinWithRelation($via[1], $child, $joinType);
-
-            return;
-        }
-
-        [, $parentAlias] = TableNameAndAliasResolver::resolve($parent);
-        [$childTable, $childAlias] = TableNameAndAliasResolver::resolve($child);
-
-        if (!empty($child->getLink())) {
-            if (!str_contains($parentAlias, '{{')) {
-                $parentAlias = '{{' . $parentAlias . '}}';
-            }
-
-            if (!str_contains($childAlias, '{{')) {
-                $childAlias = '{{' . $childAlias . '}}';
-            }
-
-            $on = [];
-
-            foreach ($child->getLink() as $childColumn => $parentColumn) {
-                $on[] = "$parentAlias.[[$parentColumn]] = $childAlias.[[$childColumn]]";
-            }
-
-            $on = implode(' AND ', $on);
-
-            if (!empty($child->getOn())) {
-                $on = ['and', $on, $child->getOn()];
-            }
-        } else {
-            $on = $child->getOn();
-        }
-
-        $this->join($joinType, empty($child->getFrom()) ? $childTable : $child->getFrom(), $on ?? '');
-
-        $where = $child->getWhere();
-        if (!empty($where)) {
-            $this->andWhere($where);
-        }
-
-        if (!empty($child->getOrderBy())) {
-            $this->addOrderBy($child->getOrderBy());
-        }
-
-        if (!empty($child->getParams())) {
-            $this->addParams($child->getParams());
-        }
-
-        if (!empty($child->getJoins())) {
-            foreach ($child->getJoins() as $join) {
-                $this->joins[] = $join;
-            }
-        }
     }
 
     public function on(array|ExpressionInterface|string $condition, array $params = []): static

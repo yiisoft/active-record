@@ -132,8 +132,6 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function getJoinsWith(): array;
 
-    public function buildJoinWith(): void;
-
     /**
      * Joins with the specified relations.
      *

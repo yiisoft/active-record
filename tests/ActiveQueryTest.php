@@ -145,21 +145,27 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testBuildJoinWithRemoveDuplicateJoinByTableName(): void
     {
-        $query = Customer::query();
-        $query->innerJoinWith('orders')->joinWith('orders.orderItems');
-        Assert::invokeMethod($query, 'buildJoinWith');
-        $this->assertEquals([
+        $query = Customer::query()
+            ->innerJoinWith('orders')
+            ->joinWith('orders.orderItems');
+
+        $query->prepare(self::db()->getQueryBuilder());
+
+        $this->assertSame(
             [
-                'INNER JOIN',
-                'order',
-                '{{customer}}.[[id]] = {{order}}.[[customer_id]]',
+                [
+                    'INNER JOIN',
+                    'order',
+                    '{{customer}}.[[id]] = {{order}}.[[customer_id]]',
+                ],
+                [
+                    'LEFT JOIN',
+                    'order_item',
+                    '{{order}}.[[id]] = {{order_item}}.[[order_id]]',
+                ],
             ],
-            [
-                'LEFT JOIN',
-                'order_item',
-                '{{order}}.[[id]] = {{order_item}}.[[order_id]]',
-            ],
-        ], $query->getJoins());
+            $query->getJoins(),
+        );
     }
 
     public function testOnCondition(): void
