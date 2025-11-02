@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 use InvalidArgumentException;
-use LogicException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\JoinsWithBuilder;
@@ -30,19 +29,14 @@ use function array_column;
 use function array_combine;
 use function array_flip;
 use function array_intersect_key;
-use function array_key_exists;
 use function array_map;
-use function array_merge;
 use function array_values;
 use function count;
-use function implode;
 use function is_array;
 use function is_int;
 use function preg_match;
 use function reset;
 use function serialize;
-use function strpos;
-use function substr;
 
 /**
  * Represents a db query associated with an Active Record class.
