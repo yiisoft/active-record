@@ -52,7 +52,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(Customer::class, $query->getModel());
         $this->assertSame(['a' => 'b'], $query->getOn());
 
-        $joinsWith = $query->getJoinWith();
+        $joinsWith = $query->getJoinsWith();
         $this->assertCount(1, $joinsWith);
 
         $joinWith = $joinsWith[0];
@@ -61,7 +61,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame('LEFT JOIN', $joinWith->getJoinType('profile'));
 
         $customerQuery->resetJoinWith();
-        $this->assertSame([], $query->getJoinWith());
+        $this->assertSame([], $query->getJoinsWith());
     }
 
     public function testPrepare(): void
@@ -105,9 +105,9 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals('user1', Assert::invokeMethod($query, 'queryScalar', ['name']));
     }
 
-    public function testGetJoinWith(): void
+    public function testGetJoinsWith(): void
     {
-        $joinsWith = Customer::query()->joinWith('profile')->getJoinWith();
+        $joinsWith = Customer::query()->joinWith('profile')->getJoinsWith();
 
         $this->assertCount(1, $joinsWith);
 
@@ -133,7 +133,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testInnerJoinWith(): void
     {
-        $joinsWith = Customer::query()->innerJoinWith('profile')->getJoinWith();
+        $joinsWith = Customer::query()->innerJoinWith('profile')->getJoinsWith();
 
         $this->assertCount(1, $joinsWith);
 

@@ -123,7 +123,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @psalm-var list<JoinWith>
      */
-    private array $joinWith = [];
+    private array $joinsWith = [];
 
     /**
      * @psalm-param ModelClass $modelClass
@@ -162,12 +162,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
          * other for row data query, it is important to make sure the same ActiveQuery can be used to build SQL
          * statements many times.
          */
-        if (!empty($this->joinWith)) {
+        if (!empty($this->joinsWith)) {
             $this->buildJoinWith();
             /**
              * Clean it up to avoid issue @link https://github.com/yiisoft/yii2/issues/2687
              */
-            $this->joinWith = [];
+            $this->joinsWith = [];
         }
 
         if (empty($this->getFrom())) {
@@ -387,14 +387,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         }
 
-        $this->joinWith[] = new JoinWith($relations, $eagerLoading, $joinType);
+        $this->joinsWith[] = new JoinWith($relations, $eagerLoading, $joinType);
 
         return $this;
     }
 
     public function resetJoinWith(): void
     {
-        $this->joinWith = [];
+        $this->joinsWith = [];
     }
 
     /**
@@ -411,7 +411,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $model = $this->getModel();
 
-        foreach ($this->joinWith as $joinWith) {
+        foreach ($this->joinsWith as $joinWith) {
             $this->joinWithRelations($model, $joinWith);
             $this->with($joinWith->getWith());
         }
@@ -509,7 +509,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     $callback($relation);
                 }
 
-                if ($relation instanceof ActiveQueryInterface && !empty($relation->getJoinWith())) {
+                if ($relation instanceof ActiveQueryInterface && !empty($relation->getJoinsWith())) {
                     $relation->buildJoinWith();
                 }
 
@@ -692,9 +692,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->on;
     }
 
-    public function getJoinWith(): array
+    public function getJoinsWith(): array
     {
-        return $this->joinWith;
+        return $this->joinsWith;
     }
 
     public function getSql(): string|null
@@ -719,7 +719,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             );
         }
 
-        if (!empty($this->getJoins()) || !empty($this->getJoinWith())) {
+        if (!empty($this->getJoins()) || !empty($this->getJoinsWith())) {
             $tableName = $model->tableName();
 
             foreach ($primaryKey as &$pk) {
