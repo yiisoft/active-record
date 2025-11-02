@@ -521,23 +521,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * Returns the join type based on the given join type parameter and the relation name.
-     *
-     * @param array|string $joinType The given join type(s).
-     * @param string $name The relation name.
-     *
-     * @return string The real join type.
-     *
-     * @psalm-param array<string,string>|string $joinType
-     */
-    private function getJoinType(array|string $joinType, string $name): string
-    {
-        return is_array($joinType)
-            ? ($joinType[$name] ?? 'INNER JOIN')
-            : $joinType;
-    }
-
-    /**
      * Joins a parent query with a child query.
      *
      * The current query object will be modified so.
