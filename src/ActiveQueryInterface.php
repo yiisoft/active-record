@@ -112,6 +112,8 @@ interface ActiveQueryInterface extends QueryInterface
      */
     public function via(string $relationName, callable|null $callable = null): static;
 
+    public function resetVia(): static;
+
     /**
      * @return array|ExpressionInterface|string|null the join condition to be used when this query is used in a relational context.
      *

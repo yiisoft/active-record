@@ -11,6 +11,7 @@ use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
 use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
+use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -36,7 +37,6 @@ use function count;
 use function implode;
 use function is_array;
 use function is_int;
-use function is_string;
 use function preg_match;
 use function reset;
 use function serialize;
@@ -175,7 +175,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         if (empty($this->getSelect()) && !empty($this->getJoins())) {
-            [, $alias] = $this->getTableNameAndAlias();
+            [, $alias] = TableNameAndAliasResolver::resolve($this);
 
             $this->select(["$alias.*"]);
         }
@@ -538,33 +538,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * Returns the table name and the table alias.
-     *
-     * @psalm-return list{ExpressionInterface|string, string}
-     */
-    private function getTableNameAndAlias(): array
-    {
-        if (empty($this->from)) {
-            $tableName = $this->getPrimaryTableName();
-        } else {
-            $alias = array_key_first($this->from);
-            $tableName = $this->from[$alias];
-            if (is_string($alias)) {
-                return [$tableName, $alias];
-            }
-            if ($tableName instanceof ExpressionInterface) {
-                throw new LogicException('Alias must be set for a table specified by an expression.');
-            }
-        }
-
-        $alias = preg_match('/^(.*?)\s+({{\w+}}|\w+)$/', $tableName, $matches)
-            ? $matches[2]
-            : $tableName;
-
-        return [$tableName, $alias];
-    }
-
-    /**
      * Joins a parent query with a child query.
      *
      * The current query object will be modified so.
@@ -587,8 +560,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         $via = $child->getVia();
-        /** @var ActiveQuery $child */
-        $child->via = null;
+        $child->resetVia();
 
         if ($via instanceof ActiveQueryInterface) {
             // via table
@@ -606,9 +578,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             return;
         }
 
-        /** @var ActiveQuery $parent */
-        [$parentTable, $parentAlias] = $parent->getTableNameAndAlias();
-        [$childTable, $childAlias] = $child->getTableNameAndAlias();
+        [, $parentAlias] = TableNameAndAliasResolver::resolve($parent);
+        [$childTable, $childAlias] = TableNameAndAliasResolver::resolve($child);
 
         if (!empty($child->getLink())) {
             if (!str_contains($parentAlias, '{{')) {
@@ -703,7 +674,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function alias(string $alias): static
     {
         if (count($this->from) < 2) {
-            [$tableName] = $this->getTableNameAndAlias();
+            [$tableName] = TableNameAndAliasResolver::resolve($this);
             $this->from = [$alias => $tableName];
         } else {
             $tableName = $this->getPrimaryTableName();
