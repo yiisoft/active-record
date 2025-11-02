@@ -198,7 +198,7 @@ interface ActiveQueryInterface extends QueryInterface
         array|string $joinType = 'LEFT JOIN'
     ): static;
 
-    public function resetJoinWith(): void;
+    public function resetJoinsWith(): void;
 
     /**
      * Inner joins with the specified relations.

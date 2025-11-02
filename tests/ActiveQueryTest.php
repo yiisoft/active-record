@@ -60,7 +60,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame(['profile'], $joinWith->getWith());
         $this->assertSame('LEFT JOIN', $joinWith->getJoinType('profile'));
 
-        $customerQuery->resetJoinWith();
+        $customerQuery->resetJoinsWith();
         $this->assertSame([], $query->getJoinsWith());
     }
 

@@ -387,7 +387,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function resetJoinWith(): void
+    public function resetJoinsWith(): void
     {
         $this->joinsWith = [];
     }
