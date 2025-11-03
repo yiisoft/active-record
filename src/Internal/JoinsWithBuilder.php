@@ -18,7 +18,7 @@ use function is_int;
 
 /**
  * Builds {@see ActiveQuery} joins added with `*join*` methods.
- * 
+ *
  * @internal
  */
 final class JoinsWithBuilder
