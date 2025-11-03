@@ -67,7 +67,7 @@ final class JoinsWithBuilder
 
         if (!empty($joins)) {
             /**
-             * Append explicit join to {@see joinWith()} {@link https://github.com/yiisoft/yii2/issues/2880}
+             * Append explicit join to {@see ActiveQuery::joinWith()} {@link https://github.com/yiisoft/yii2/issues/2880}
              */
             $queryJoins = $query->getJoins();
             $query->setJoins(
