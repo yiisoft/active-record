@@ -23,6 +23,15 @@ final class JoinWith
     ) {
     }
 
+    /**
+     * Returns the list of relations to be loaded, filtered according to the `eagerLoading` configuration.
+     *
+     * If `eagerLoading` is an array, only relations whose names are present in the array will be included.
+     * If `eagerLoading` is `true`, all relations will be included.
+     * If `eagerLoading` is `false`, no relations will be included.
+     *
+     * @return array The filtered list of relations to be loaded.
+     */
     public function getWith(): array
     {
         if (is_array($this->eagerLoading)) {
