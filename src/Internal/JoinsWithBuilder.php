@@ -17,7 +17,7 @@ use function is_array;
 use function is_int;
 
 /**
- * Builds {@see ActiveQuery} joins added with `*join*` methods.
+ * Builds {@see ActiveQueryInterface} instance joins added with `*join*` methods.
  *
  * @internal
  */
@@ -67,7 +67,7 @@ final class JoinsWithBuilder
 
         if (!empty($joins)) {
             /**
-             * Append explicit join to {@see ActiveQuery::joinWith()} {@link https://github.com/yiisoft/yii2/issues/2880}
+             * Append explicit join to {@see ActiveQueryInterface::joinWith()} {@link https://github.com/yiisoft/yii2/issues/2880}
              */
             $queryJoins = $query->getJoins();
             $query->setJoins(
