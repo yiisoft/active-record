@@ -18,7 +18,7 @@ final class JoinWith
      */
     public function __construct(
         public readonly array $relations,
-        private readonly array|bool $eagerLoading,
+        private array|bool $eagerLoading,
         private readonly array|string $joinType,
     ) {
     }
@@ -63,5 +63,17 @@ final class JoinWith
         return is_array($this->joinType)
             ? ($this->joinType[$name] ?? 'INNER JOIN')
             : $this->joinType;
+    }
+
+    /**
+     * Creates a new instance without eager loading.
+     *
+     * @return self A new instance without eager loading.
+     */
+    public function withoutEagerLoading(): self
+    {
+        $new = clone $this;
+        $new->eagerLoading = false;
+        return $new;
     }
 }

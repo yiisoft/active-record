@@ -392,6 +392,16 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         $this->joinsWith = [];
     }
 
+    public function resetWith(): static
+    {
+        $this->with = [];
+        $this->joinsWith = array_map(
+            static fn (JoinWith $joinWith) => $joinWith->withoutEagerLoading(),
+            $this->joinsWith,
+        );
+        return $this;
+    }
+
     public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): static
     {
         return $this->joinWith($with, $eagerLoading, 'INNER JOIN');
