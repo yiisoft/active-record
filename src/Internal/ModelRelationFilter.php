@@ -125,7 +125,7 @@ final class ModelRelationFilter
      */
     private static function qualifyColumnNames(ActiveQueryInterface $query, array $columnNames): array
     {
-        if (empty($query->getJoins()) && empty($query->getJoinWith())) {
+        if (empty($query->getJoins()) && empty($query->getJoinsWith())) {
             return $columnNames;
         }
 

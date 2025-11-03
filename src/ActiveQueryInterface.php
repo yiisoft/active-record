@@ -127,11 +127,10 @@ interface ActiveQueryInterface extends QueryInterface
     public function getOn(): array|ExpressionInterface|string|null;
 
     /**
-     * @return array $value A list of relations that this query should be joined with.
+     * @return array A list of relations that this query should be joined with.
+     * @psalm-return list<JoinWith>
      */
-    public function getJoinWith(): array;
-
-    public function buildJoinWith(): void;
+    public function getJoinsWith(): array;
 
     /**
      * Joins with the specified relations.
@@ -199,7 +198,7 @@ interface ActiveQueryInterface extends QueryInterface
         array|string $joinType = 'LEFT JOIN'
     ): static;
 
-    public function resetJoinWith(): void;
+    public function resetJoinsWith(): void;
 
     /**
      * Inner joins with the specified relations.

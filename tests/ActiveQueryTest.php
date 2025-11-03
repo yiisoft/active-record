@@ -12,6 +12,7 @@ use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
+use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -47,11 +48,20 @@ abstract class ActiveQueryTest extends TestCase
         $customerQuery = Customer::query();
 
         $query = $customerQuery->on(['a' => 'b'])->joinWith('profile');
+
         $this->assertInstanceOf(Customer::class, $query->getModel());
-        $this->assertEquals(['a' => 'b'], $query->getOn());
-        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
-        $customerQuery->resetJoinWith();
-        $this->assertEquals([], $query->getJoinWith());
+        $this->assertSame(['a' => 'b'], $query->getOn());
+
+        $joinsWith = $query->getJoinsWith();
+        $this->assertCount(1, $joinsWith);
+
+        $joinWith = $joinsWith[0];
+        $this->assertSame(['profile'], $joinWith->relations);
+        $this->assertSame(['profile'], $joinWith->getWith());
+        $this->assertSame('LEFT JOIN', $joinWith->getJoinType('profile'));
+
+        $customerQuery->resetJoinsWith();
+        $this->assertSame([], $query->getJoinsWith());
     }
 
     public function testPrepare(): void
@@ -95,11 +105,16 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals('user1', Assert::invokeMethod($query, 'queryScalar', ['name']));
     }
 
-    public function testGetJoinWith(): void
+    public function testGetJoinsWith(): void
     {
-        $query = Customer::query();
-        $query->joinWith('profile');
-        $this->assertEquals([[['profile'], true, 'LEFT JOIN']], $query->getJoinWith());
+        $joinsWith = Customer::query()->joinWith('profile')->getJoinsWith();
+
+        $this->assertCount(1, $joinsWith);
+
+        $joinWith = $joinsWith[0];
+        $this->assertSame(['profile'], $joinWith->relations);
+        $this->assertSame(['profile'], $joinWith->getWith());
+        $this->assertSame('LEFT JOIN', $joinWith->getJoinType('profile'));
     }
 
     public function testGetWith(): void
@@ -118,28 +133,39 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testInnerJoinWith(): void
     {
-        $query = Customer::query();
-        $query->innerJoinWith('profile');
-        $this->assertEquals([[['profile'], true, 'INNER JOIN']], $query->getJoinWith());
+        $joinsWith = Customer::query()->innerJoinWith('profile')->getJoinsWith();
+
+        $this->assertCount(1, $joinsWith);
+
+        $joinWith = $joinsWith[0];
+        $this->assertSame(['profile'], $joinWith->relations);
+        $this->assertSame(['profile'], $joinWith->getWith());
+        $this->assertSame('INNER JOIN', $joinWith->getJoinType('profile'));
     }
 
     public function testBuildJoinWithRemoveDuplicateJoinByTableName(): void
     {
-        $query = Customer::query();
-        $query->innerJoinWith('orders')->joinWith('orders.orderItems');
-        Assert::invokeMethod($query, 'buildJoinWith');
-        $this->assertEquals([
+        $query = Customer::query()
+            ->innerJoinWith('orders')
+            ->joinWith('orders.orderItems');
+
+        $query->prepare(self::db()->getQueryBuilder());
+
+        $this->assertSame(
             [
-                'INNER JOIN',
-                'order',
-                '{{customer}}.[[id]] = {{order}}.[[customer_id]]',
+                [
+                    'INNER JOIN',
+                    'order',
+                    '{{customer}}.[[id]] = {{order}}.[[customer_id]]',
+                ],
+                [
+                    'LEFT JOIN',
+                    'order_item',
+                    '{{order}}.[[id]] = {{order_item}}.[[order_id]]',
+                ],
             ],
-            [
-                'LEFT JOIN',
-                'order_item',
-                '{{order}}.[[id]] = {{order_item}}.[[order_id]]',
-            ],
-        ], $query->getJoins());
+            $query->getJoins(),
+        );
     }
 
     public function testOnCondition(): void
