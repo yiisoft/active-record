@@ -629,7 +629,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::batch($batchSize)->indexBy(null)->resultCallback($callback);
     }
 
-
     public function via(string $relationName, callable|null $callable = null): static
     {
         if ($this->primaryModel === null) {
@@ -718,6 +717,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         return ArArrayHelper::index($this->populate($rows), $this->indexBy);
     }
+
     /**
      * Converts found rows into model instances.
      *
@@ -782,7 +782,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         return $this->populate([$row])[0];
     }
-
 
     /**
      * Finds records corresponding to one or multiple relations and populates them into the primary models.
