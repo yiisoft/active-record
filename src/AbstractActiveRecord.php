@@ -805,7 +805,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             } elseif ($linkedModel->isPrimaryKey(array_keys($relation->getLink()))) {
                 foreach ($relation->getLink() as $a => $b) {
                     $values = $this->get($b);
-                    /// relation via array valued property
+                    // relation via array valued property
                     if (is_array($values)) {
                         if (($key = array_search($linkedModel->get($a), $values)) !== false) {
                             unset($values[$key]);
