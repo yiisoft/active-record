@@ -783,16 +783,11 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * @depends testJoinWith
-     *
      * Tests the alias syntax for joinWith: 'alias' => 'relation'.
      *
-     * @dataProvider aliasMethodProvider
-     *
      * @param string $aliasMethod whether alias is specified explicitly or using the query syntax {{@tablename}}
-     *
-     * @throws Exception|InvalidConfigException|Throwable
      */
+    #[DataProvider('aliasMethodProvider')]
     public function testJoinWithAlias(string $aliasMethod): void
     {
         $orders = [];
@@ -1827,11 +1822,8 @@ abstract class ActiveQueryTest extends TestCase
      * Test whether conditions are quoted correctly in conditions where joinWith is used.
      *
      * {@see https://github.com/yiisoft/yii2/issues/11088}
-     *
-     * @dataProvider tableNameProvider
-     *
-     * @throws Exception|InvalidConfigException
      */
+    #[DataProvider('tableNameProvider')]
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
     {
         $driverName = $this->db()->getDriverName();

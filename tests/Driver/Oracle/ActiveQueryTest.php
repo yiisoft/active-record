@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
@@ -20,17 +21,12 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         return (new OracleHelper())->createConnection();
     }
 
-    /**
-     * @depends testJoinWith
-     *
+    /**Z
      * Tests the alias syntax for joinWith: 'alias' => 'relation'.
      *
-     * @dataProvider aliasMethodProvider
-     *
      * @param string $aliasMethod whether alias is specified explicitly or using the query syntax {{@tablename}}
-     *
-     * @throws Exception|InvalidConfigException|Throwable
      */
+    #[DataProvider('aliasMethodProvider')]
     public function testJoinWithAlias(string $aliasMethod): void
     {
         $orders = [];
