@@ -17,5 +17,6 @@ return (new Config())
         '@PER-CS3.0' => true,
         'no_unused_imports' => true,
         'ordered_class_elements' => true,
+        'class_attributes_separation' => ['elements' => ['method' => 'one']],
     ])
     ->setFinder($finder);
