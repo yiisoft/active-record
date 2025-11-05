@@ -195,11 +195,6 @@ trait ActiveRelationTrait
         return $this->multiple;
     }
 
-    /**
-     * @return ActiveRecordInterface|null the primary model of a relational query.
-     *
-     * This is used only in lazy loading with dynamic query options.
-     */
     public function getPrimaryModel(): ActiveRecordInterface|null
     {
         return $this->primaryModel;

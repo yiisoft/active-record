@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\Typecaster;
 use Yiisoft\Db\Constant\ColumnType;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Schema\Column\ColumnInterface;
@@ -103,25 +102,6 @@ class ActiveRecord extends AbstractActiveRecord
         return $tableSchema;
     }
 
-    /**
-     * Loads default values from database table schema.
-     *
-     * You may call this method to load default values after creating a new instance:
-     *
-     * ```php
-     * // class Customer extends ActiveRecord
-     * $customer = new Customer();
-     * $customer->loadDefaultValues();
-     * ```
-     *
-     * @param bool $skipIfSet Whether existing value should be preserved. This will only set defaults for properties
-     * that are `null`.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     *
-     * @return static The active record instance itself.
-     */
     public function loadDefaultValues(bool $skipIfSet = true): static
     {
         foreach ($this->tableSchema()->getColumns() as $name => $column) {

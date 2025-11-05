@@ -535,6 +535,13 @@ interface ActiveQueryInterface extends QueryInterface
     public function getModel(): ActiveRecordInterface;
 
     /**
+     * @return ActiveRecordInterface|null The primary model of a relational query.
+     *
+     * This is used only in lazy loading with dynamic query options.
+     */
+    public function getPrimaryModel(): ActiveRecordInterface|null;
+
+    /**
      * @return bool Whether this query represents a relation to more than one record.
      *
      * This property is only used in relational context.

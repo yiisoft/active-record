@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use LogicException;
 use ReflectionClass;
-use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
@@ -150,17 +149,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->oldValues === null;
     }
 
-    /**
-     * Returns the old value of the named property.
-     *
-     * If this record is the result of a query and the property is not loaded, `null` will be returned.
-     *
-     * @param string $propertyName The property name.
-     *
-     * @return mixed The old property value. `null` if the property is not loaded before or doesn't exist.
-     *
-     * @see hasProperty()
-     */
     public function oldValue(string $propertyName): mixed
     {
         return $this->oldValues[$propertyName] ?? null;
@@ -270,13 +258,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $values;
     }
 
-    /**
-     * Returns all populated related records.
-     *
-     * @return array An array of related records indexed by relation names.
-     *
-     * {@see relationQuery()}
-     */
     public function relatedRecords(): array
     {
         return $this->related;
@@ -287,81 +268,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return in_array($name, $this->propertyNames(), true);
     }
 
-    /**
-     * Declares a `has-many` relation.
-     *
-     * The declaration is returned in terms of a relational {@see ActiveQuery} instance through which the related
-     * record can be queried and retrieved back.
-     *
-     * A `has-many` relation means that there are multiple related records matching the criteria set by this relation,
-     * e.g., a customer has many orders.
-     *
-     * For example, to declare the `orders` relation for `Customer` class, you can write the following code in the
-     * `Customer` class:
-     *
-     * ```php
-     * public function getOrdersQuery()
-     * {
-     *     return $this->hasMany(Order::className(), ['customer_id' => 'id']);
-     * }
-     * ```
-     *
-     * Note that the `customer_id` key in the `$link` parameter refers to a property name in the related
-     * class `Order`, while the 'id' value refers to a property name in the current active record class.
-     *
-     * Call methods declared in {@see ActiveQuery} to further customize the relation.
-     *
-     * @param ActiveRecordInterface|string $modelClass The class name of the related record, or an instance of
-     * the related record.
-     * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
-     * the record associated with the `$class` model, while the values of the array refer to the corresponding property
-     * names in **this** active record class.
-     *
-     * @return ActiveQueryInterface The relational query object.
-     *
-     * @psalm-param ModelClass $modelClass
-     * @psalm-param array<string, string> $link
-     */
     public function hasMany(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($modelClass, $link, true);
     }
 
-    /**
-     * Declares a `has-one` relation.
-     *
-     * The declaration is returned in terms of a relational {@see ActiveQuery} instance through which the related record
-     * can be queried and retrieved back.
-     *
-     * A `has-one` relation means that there is at most one related record matching the criteria set by this relation,
-     * e.g., a customer has one country.
-     *
-     * For example, to declare the `country` relation for `Customer` class, you can write the following code in the
-     * `Customer` class:
-     *
-     * ```php
-     * public function getCountryQuery()
-     * {
-     *     return $this->hasOne(Country::className(), ['id' => 'country_id']);
-     * }
-     * ```
-     *
-     * Note that the `id` key in the `$link` parameter refers to a property name in the related class
-     * `Country`, while the `country_id` value refers to a property name in the current active record class.
-     *
-     * Call methods declared in {@see ActiveQuery} to further customize the relation.
-     *
-     * @param ActiveRecordInterface|string $modelClass The class name of the related record, or an instance of
-     * the related record.
-     * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
-     * the record associated with the `$class` model, while the values of the array refer to the corresponding property
-     * names in **this** active record class.
-     *
-     * @return ActiveQueryInterface The relational query object.
-     *
-     * @psalm-param ModelClass $modelClass
-     * @psalm-param array<string, string> $link
-     */
     public function hasOne(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface
     {
         return $this->createRelationQuery($modelClass, $link, false);
@@ -516,14 +427,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    /**
-     * Marks a property as changed.
-     *
-     * This method may be called to force updating a record when calling {@see update()}, even if there is no change
-     * being made to the record.
-     *
-     * @param string $name The property name.
-     */
     public function markPropertyChanged(string $name): void
     {
         if ($this->oldValues !== null && $name !== '') {
@@ -627,15 +530,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $this->populateProperty($propertyName, $value);
     }
 
-    /**
-     * Sets the property values in a massive way.
-     *
-     * @param array $values Property values (name => value) to be assigned to the model.
-     *
-     * @see propertyNames()
-     *
-     * @psalm-param array<string, mixed> $values
-     */
     public function populateProperties(array $values): void
     {
         $values = array_intersect_key($values, array_flip($this->propertyNames()));
@@ -654,15 +548,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $this->oldValues = $this->propertyValuesInternal();
     }
 
-    /**
-     * Sets the old value of the named property.
-     *
-     * @param string $propertyName The property name.
-     *
-     * @throws InvalidArgumentException If the named property doesn't exist.
-     *
-     * @see hasProperty()
-     */
     public function assignOldValue(string $propertyName, mixed $value): void
     {
         if (isset($this->oldValues[$propertyName]) || $this->hasProperty($propertyName)) {
@@ -672,14 +557,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    /**
-     * Sets the old property values.
-     *
-     * All existing old property values will be discarded.
-     *
-     * @param array|null $propertyValues Old property values (name => value) to be set. If set to `null` this record
-     * is {@see isNew()}.
-     */
     public function assignOldValues(array|null $propertyValues = null): void
     {
         $this->oldValues = $propertyValues;
@@ -834,21 +711,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    /**
-     * Destroys the relationship in the current model.
-     *
-     * The active record with the foreign key of the relationship will be deleted if `$delete` is `true`. Otherwise, the
-     * foreign key will be set `null` and the model will be saved without validation.
-     *
-     * To destroy the relationship without removing records, make sure your keys can be set to `null`.
-     *
-     * @param string $relationName The case-sensitive name of the relationship.
-     * @param bool $delete Whether to delete the model that contains the foreign key.
-     *
-     * @throws Exception
-     * @throws ReflectionException
-     * @throws Throwable
-     */
     public function unlinkAll(string $relationName, bool $delete = false): void
     {
         $viaModel = null;
