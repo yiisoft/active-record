@@ -9,6 +9,4 @@ use Yiisoft\Db\Exception\Exception;
 /**
  * Represents an exception caused by optimistic locking failure.
  */
-final class OptimisticLockException extends Exception
-{
-}
+final class OptimisticLockException extends Exception {}
