@@ -1,3 +1,5 @@
+name: Rector + PHP CS Fixer
+
 on:
   pull_request:
     paths:
@@ -8,7 +10,8 @@ on:
       - 'rector.php'
       - '.php-cs-fixer.dist.php'
 
-name: Rector + PHP CS Fixer
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

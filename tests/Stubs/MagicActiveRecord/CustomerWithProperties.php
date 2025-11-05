@@ -22,6 +22,7 @@ class CustomerWithProperties extends MagicActiveRecord
         return 'customer';
     }
 
+
     public function getId(): int
     {
         return $this->id;
