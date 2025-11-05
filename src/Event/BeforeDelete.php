@@ -9,4 +9,6 @@ namespace Yiisoft\ActiveRecord\Event;
  *
  * @see ActiveRecordInterface::delete()
  */
-final class BeforeDelete extends AbstractEvent {}
+final class BeforeDelete extends AbstractEvent
+{
+}

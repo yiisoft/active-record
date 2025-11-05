@@ -24,7 +24,8 @@ abstract class AbstractEvent implements StoppableEventInterface
      */
     public function __construct(
         public readonly ActiveRecordInterface $model,
-    ) {}
+    ) {
+    }
 
     /**
      * Returns the value that will be returned by the method that triggered this event

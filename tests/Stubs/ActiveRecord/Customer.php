@@ -182,7 +182,9 @@ class Customer extends ArrayableActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
-    public function getItem(): void {}
+    public function getItem(): void
+    {
+    }
 
     public function getOrdersWithItems(): array
     {

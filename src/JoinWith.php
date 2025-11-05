@@ -20,7 +20,8 @@ final class JoinWith
         public readonly array $relations,
         private array|bool $eagerLoading,
         private readonly array|string $joinType,
-    ) {}
+    ) {
+    }
 
     /**
      * Returns the list of relations to be loaded, filtered according to the `eagerLoading` configuration.
