@@ -35,13 +35,11 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/15482}
+     * @see https://github.com/yiisoft/yii2/issues/15482
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
-        $betaQuery = Beta::query();
-
-        $betas = $betaQuery->with('alpha')->all();
+        $betas = Beta::query()->with('alpha')->all();
 
         $this->assertNotEmpty($betas);
 

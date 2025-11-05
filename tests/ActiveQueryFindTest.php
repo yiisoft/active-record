@@ -102,8 +102,8 @@ abstract class ActiveQueryFindTest extends TestCase
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/10201}
-     * {@see https://github.com/yiisoft/yii2/issues/9047}
+     * @see https://github.com/yiisoft/yii2/issues/10201
+     * @see https://github.com/yiisoft/yii2/issues/9047
      */
     public function testFindCompositeRelationWithJoin(): void
     {
@@ -464,12 +464,11 @@ abstract class ActiveQueryFindTest extends TestCase
     /**
      * Ensure ActiveRelationTrait does preserve order of items on find via().
      *
-     * {@see https://github.com/yiisoft/yii2/issues/1310.}
+     * @see https://github.com/yiisoft/yii2/issues/1310
      */
     public function testFindEagerViaRelationPreserveOrder(): void
     {
-        $orderQuery = Order::query();
-        $orders = $orderQuery->with('itemsInOrder1')->orderBy('created_at')->all();
+        $orders = Order::query()->with('itemsInOrder1')->orderBy('created_at')->all();
         $this->assertCount(3, $orders);
 
         $order = $orders[0];

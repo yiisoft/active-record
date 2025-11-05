@@ -42,7 +42,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/15482}
+     * @see https://github.com/yiisoft/yii2/issues/15482
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
@@ -111,7 +111,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/4672}
+     * @see https://github.com/yiisoft/yii2/issues/4672
      */
     public function testBooleanValues2(): void
     {
