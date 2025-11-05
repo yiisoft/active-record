@@ -25,3 +25,5 @@ jobs:
     with:
       repository: ${{ github.event.pull_request.head.repo.full_name }}
       php: '8.4'
+      required-packages: >-
+        ['db']
