@@ -761,10 +761,9 @@ abstract class ActiveRecordTest extends TestCase
     }
 
     /**
-     * @dataProvider providerForUnlinkDelete
-     *
      * @see https://github.com/yiisoft/yii2/issues/17174
      */
+    #[DataProvider('providerForUnlinkDelete')]
     public function testUnlinkWithViaOnCondition($delete, $count): void
     {
         $this->reloadFixtureAfterTest();

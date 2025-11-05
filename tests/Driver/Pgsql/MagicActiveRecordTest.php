@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\ArrayAndJsonTypes;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Beta;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\BoolAR;
@@ -250,9 +251,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         ];
     }
 
-    /**
-     * @dataProvider arrayValuesProvider
-     */
+    #[DataProvider('arrayValuesProvider')]
     public function testArrayValues($properties): void
     {
         $this->reloadFixtureAfterTest();

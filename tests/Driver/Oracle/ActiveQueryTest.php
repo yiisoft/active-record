@@ -18,7 +18,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         return (new OracleHelper())->createConnection();
     }
 
-    /**Z
+    /**
      * Tests the alias syntax for joinWith: 'alias' => 'relation'.
      *
      * @param string $aliasMethod whether alias is specified explicitly or using the query syntax {{@tablename}}
