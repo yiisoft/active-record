@@ -96,7 +96,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertTrue($record->refresh());
 
-        /** {@see https://github.com/yiisoft/yii2/commit/34945b0b69011bc7cab684c7f7095d837892a0d4#commitcomment-4458225} */
+        /** @see https://github.com/yiisoft/yii2/commit/34945b0b69011bc7cab684c7f7095d837892a0d4#commitcomment-4458225 */
         $this->assertSame($record->var1, $record->var2);
         $this->assertSame($record->var2, $record->var3);
     }
@@ -474,7 +474,7 @@ abstract class MagicActiveRecordTest extends TestCase
         unset($arClass->name);
         $this->assertNull($arClass->name);
 
-        /** {@see https://github.com/yiisoft/yii2-gii/issues/190} */
+        /** @see https://github.com/yiisoft/yii2-gii/issues/190 */
         $baseModel = new Customer();
         $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
 
@@ -571,10 +571,9 @@ abstract class MagicActiveRecordTest extends TestCase
     }
 
     /**
-     * @dataProvider providerForUnlinkDelete
-     *
      * @see https://github.com/yiisoft/yii2/issues/17174
      */
+    #[DataProvider('providerForUnlinkDelete')]
     public function testUnlinkWithViaOnCondition($delete, $count): void
     {
         $this->reloadFixtureAfterTest();

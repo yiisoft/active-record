@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Support;
 
 use Yiisoft\Db\Driver\Pdo\PdoConnectionInterface;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidConfigException;
 
+use function dirname;
 use function explode;
 use function file_get_contents;
 use function preg_replace;
@@ -18,9 +17,6 @@ final class DbHelper
 {
     /**
      * Loads the fixture into the database.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
      */
     public static function loadFixture(PdoConnectionInterface $db): void
     {
@@ -65,8 +61,6 @@ final class DbHelper
      *
      * @param string $sql string SQL statement to adjust.
      * @param string $driverName string DBMS name.
-     *
-     * @return mixed
      */
     public static function replaceQuotes(string $sql, string $driverName): string
     {
