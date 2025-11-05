@@ -12,6 +12,4 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  * @property int $id
  * @property int $val
  */
-final class BitValues extends MagicActiveRecord
-{
-}
+final class BitValues extends MagicActiveRecord {}

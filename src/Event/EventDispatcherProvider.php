@@ -88,7 +88,7 @@ final class EventDispatcherProvider
         $properties = $reflection->getProperties(
             ReflectionProperty::IS_PRIVATE
             | ReflectionProperty::IS_PROTECTED
-            | ReflectionProperty::IS_PUBLIC
+            | ReflectionProperty::IS_PUBLIC,
         );
 
         foreach ($properties as $property) {

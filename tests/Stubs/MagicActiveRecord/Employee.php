@@ -47,7 +47,7 @@ final class Employee extends MagicActiveRecord
             [
                 'department_id' => 'department_id',
                 'employee_id' => 'id',
-            ]
+            ],
         )->inverseOf('employee');
     }
 }

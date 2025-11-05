@@ -499,7 +499,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"'
+            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"',
         );
 
         $cat->set('noExist', 1);
@@ -524,7 +524,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no property named "noExist"'
+            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no property named "noExist"',
         );
         $customer->assignOldValue('noExist', 'samdark');
     }
@@ -912,7 +912,7 @@ abstract class ActiveRecordTest extends TestCase
                 'bool_status' => false,
                 'profile_id' => null,
             ],
-            $customer->newValues()
+            $customer->newValues(),
         );
 
         $customer->set('name', 'Adam');
@@ -930,7 +930,7 @@ abstract class ActiveRecordTest extends TestCase
                 'bool_status' => false,
                 'profile_id' => null,
             ],
-            $customer->newValues()
+            $customer->newValues(),
         );
         $this->assertSame(
             [
@@ -1082,7 +1082,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertEquals(
             "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":3:{s:52:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues\";N;s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}}",
-            serialize($profile)
+            serialize($profile),
         );
 
         $profileQuery = Profile::query();
@@ -1090,7 +1090,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertEquals(
             "O:53:\"Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile\":5:{s:52:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues\";a:2:{s:2:\"id\";i:1;s:11:\"description\";s:18:\"profile customer 1\";}s:50:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related\";a:0:{}s:64:\"\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies\";a:0:{}s:5:\"\0*\0id\";i:1;s:14:\"\0*\0description\";s:18:\"profile customer 1\";}",
-            serialize($profile)
+            serialize($profile),
         );
     }
 
@@ -1152,11 +1152,11 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertSame(
             ['650e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440002'],
-            ArArrayHelper::getColumn($promotions[0]->getItemsViaJson(), 'id')
+            ArArrayHelper::getColumn($promotions[0]->getItemsViaJson(), 'id'),
         );
         $this->assertSame(
             ['650e8400-e29b-41d4-a716-446655440001'],
-            ArArrayHelper::getColumn($promotions[1]->getItemsViaJson(), 'id')
+            ArArrayHelper::getColumn($promotions[1]->getItemsViaJson(), 'id'),
         );
         $this->assertCount(0, $promotions[2]->getItemsViaJson());
     }
@@ -1401,10 +1401,10 @@ abstract class ActiveRecordTest extends TestCase
     #[DataProvider('dataUpsert')]
     public function testUpsert(
         array $values,
-        array|null $insertProperties,
+        ?array $insertProperties,
         array|bool $updateProperties,
         array $expected,
-        array|null $expectedAfterRefresh = null,
+        ?array $expectedAfterRefresh = null,
     ): void {
         $this->reloadFixtureAfterTest();
 
@@ -1573,12 +1573,12 @@ abstract class ActiveRecordTest extends TestCase
         EventDispatcherProvider::set(
             CategoryAfterDelete::class,
             new SimpleEventDispatcher(
-                static function(object $event) {
+                static function (object $event) {
                     if ($event instanceof AfterDelete) {
                         $event->model->isDeleted = true;
                     }
-                }
-            )
+                },
+            ),
         );
         $category = CategoryAfterDelete::query()->findByPk(1);
         $category->delete();
@@ -1593,7 +1593,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage(
-            'Unable to link models: the models being linked cannot be newly created.'
+            'Unable to link models: the models being linked cannot be newly created.',
         );
         $customer->link('items2', $item);
     }
@@ -1628,7 +1628,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage(
-            'Unable to link models: at most one model can be newly created.'
+            'Unable to link models: at most one model can be newly created.',
         );
 
         $user->link('profile', $profile);
@@ -1676,7 +1676,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage(
-            'Unable to link models: the link defining the relation does not involve any primary key.'
+            'Unable to link models: the link defining the relation does not involve any primary key.',
         );
         $article->link('comments', $comment);
     }
@@ -1709,7 +1709,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage(
-            'Unable to link active record: the primary key of ' . Customer::class . ' is null.'
+            'Unable to link active record: the primary key of ' . Customer::class . ' is null.',
         );
         $order->link('customer', $customer);
     }

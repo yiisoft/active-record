@@ -17,11 +17,11 @@ class CustomerForArrayable extends ArrayableActiveRecord
 
     protected int $id;
     protected string $email;
-    protected string|null $name = null;
-    protected string|null $address = null;
-    protected int|null $status = 0;
+    protected ?string $name = null;
+    protected ?string $address = null;
+    protected ?int $status = 0;
     protected bool|string|null $bool_status = false;
-    protected int|null $profile_id = null;
+    protected ?int $profile_id = null;
 
     public function tableName(): string
     {

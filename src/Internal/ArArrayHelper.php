@@ -54,8 +54,8 @@ final class ArArrayHelper
     public static function getColumn(array $array, string $name): array
     {
         return array_map(
-            static fn (ActiveRecordInterface|array $element): mixed => self::getValueByPath($element, $name),
-            $array
+            static fn(ActiveRecordInterface|array $element): mixed => self::getValueByPath($element, $name),
+            $array,
         );
     }
 

@@ -86,10 +86,10 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     #[TestWith([[], [], [], []])]
     public function testUpsert(
         array $values,
-        array|null $insertProperties,
+        ?array $insertProperties,
         array|bool $updateProperties,
         array $expected,
-        array|null $expectedAfterRefresh = null,
+        ?array $expectedAfterRefresh = null,
     ): void {
         $customer = new Customer();
 

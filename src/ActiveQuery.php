@@ -114,12 +114,12 @@ use function serialize;
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
     private ActiveRecordInterface $model;
-    private string|null $sql = null;
+    private ?string $sql = null;
     private array|ExpressionInterface|string|null $on = null;
-    private bool|null $asArray = null;
+    private ?bool $asArray = null;
     private array $with = [];
     private bool $multiple = false;
-    private ActiveRecordInterface|null $primaryModel = null;
+    private ?ActiveRecordInterface $primaryModel = null;
     /** @psalm-var array<string, string> */
     private array $link = [];
 
@@ -142,7 +142,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @see inverseOf()
      */
-    private string|null $inverseOf = null;
+    private ?string $inverseOf = null;
 
     /**
      * @var ActiveQueryInterface|array|null The relation associated with the junction table.
@@ -154,7 +154,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @psalm-param ModelClass $modelClass
      */
     final public function __construct(
-        ActiveRecordInterface|string $modelClass
+        ActiveRecordInterface|string $modelClass,
     ) {
         $this->model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
@@ -176,13 +176,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
     }
 
-    public function asArray(bool|null $value = true): static
+    public function asArray(?bool $value = true): static
     {
         $this->asArray = $value;
         return $this;
     }
 
-    public function isAsArray(): bool|null
+    public function isAsArray(): ?bool
     {
         return $this->asArray;
     }
@@ -362,8 +362,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         } else {
             $flippedPks = array_flip($pks);
             $hash = array_map(
-                static fn (array $row): string => serialize(array_intersect_key($row, $flippedPks)),
-                $rows
+                static fn(array $row): string => serialize(array_intersect_key($row, $flippedPks)),
+                $rows,
             );
         }
 
@@ -414,7 +414,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws NotSupportedException
      * @throws Throwable
      */
-    protected function queryScalar(string|ExpressionInterface $selectExpression): bool|string|null|int|float
+    protected function queryScalar(string|ExpressionInterface $selectExpression): bool|string|int|float|null
     {
         if ($this->sql === null) {
             return parent::queryScalar($selectExpression);
@@ -431,7 +431,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function joinWith(
         array|string $with,
         array|bool $eagerLoading = true,
-        array|string $joinType = 'LEFT JOIN'
+        array|string $joinType = 'LEFT JOIN',
     ): static {
         $relations = [];
 
@@ -478,7 +478,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $this->with = [];
         $this->joinsWith = array_map(
-            static fn (JoinWith $joinWith) => $joinWith->withoutEagerLoading(),
+            static fn(JoinWith $joinWith) => $joinWith->withoutEagerLoading(),
             $this->joinsWith,
         );
         return $this;
@@ -514,7 +514,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function viaTable(string $tableName, array $link, callable|null $callable = null): static
+    public function viaTable(string $tableName, array $link, ?callable $callable = null): static
     {
         $model = $this->primaryModel ?? $this->model;
 
@@ -576,7 +576,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->joinsWith;
     }
 
-    public function getSql(): string|null
+    public function getSql(): ?string
     {
         return $this->sql;
     }
@@ -594,7 +594,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         if (count($primaryKey) !== count($values)) {
             throw new InvalidArgumentException(
-                'The primary key has ' . count($primaryKey) . ' columns, but ' . count($values) . ' values are passed.'
+                'The primary key has ' . count($primaryKey) . ' columns, but ' . count($values) . ' values are passed.',
             );
         }
 
@@ -609,7 +609,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return (clone $this)->andWhere(array_combine($primaryKey, $values))->one();
     }
 
-    public function sql(string|null $value): static
+    public function sql(?string $value): static
     {
         $this->sql = $value;
         return $this;
@@ -629,7 +629,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::batch($batchSize)->indexBy(null)->resultCallback($callback);
     }
 
-    public function via(string $relationName, callable|null $callable = null): static
+    public function via(string $relationName, ?callable $callable = null): static
     {
         if ($this->primaryModel === null) {
             throw new InvalidConfigException('Setting via is only supported for relational queries.');
@@ -678,7 +678,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->multiple;
     }
 
-    public function getPrimaryModel(): ActiveRecordInterface|null
+    public function getPrimaryModel(): ?ActiveRecordInterface
     {
         return $this->primaryModel;
     }
@@ -700,7 +700,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function primaryModel(ActiveRecordInterface|null $value): static
+    public function primaryModel(?ActiveRecordInterface $value): static
     {
         $this->primaryModel = $value;
 

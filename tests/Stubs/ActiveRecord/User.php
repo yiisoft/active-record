@@ -46,7 +46,7 @@ final class User extends ActiveRecord
         };
     }
 
-    public function getProfile(): UserProfile|null
+    public function getProfile(): ?UserProfile
     {
         return $this->relation('profile');
     }

@@ -131,7 +131,7 @@ class ActiveRecord extends AbstractActiveRecord
         return get_object_vars($this);
     }
 
-    protected function insertInternal(array|null $properties = null): void
+    protected function insertInternal(?array $properties = null): void
     {
         if (!$this->isNew()) {
             throw new InvalidCallException('The record is not new and cannot be inserted.');
@@ -143,7 +143,7 @@ class ActiveRecord extends AbstractActiveRecord
         $this->populateRawValues($primaryKeys, $values);
     }
 
-    protected function upsertInternal(array|null $insertProperties = null, array|bool $updateProperties = true): void
+    protected function upsertInternal(?array $insertProperties = null, array|bool $updateProperties = true): void
     {
         if (!$this->isNew()) {
             throw new InvalidCallException('The record is not new and cannot be inserted.');

@@ -13,7 +13,7 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class Category extends ActiveRecord
 {
-    protected int|null $id;
+    protected ?int $id;
     protected string $name;
 
     public function tableName(): string
@@ -32,7 +32,7 @@ final class Category extends ActiveRecord
         };
     }
 
-    public function getId(): int|null
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -42,7 +42,7 @@ final class Category extends ActiveRecord
         return $this->name;
     }
 
-    public function setId(int|null $id): void
+    public function setId(?int $id): void
     {
         $this->set('id', $id);
     }

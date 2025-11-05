@@ -18,7 +18,7 @@ final class BeforeSave extends AbstractEvent
      * @param ActiveRecordInterface $model The model that is being saved.
      * @param array|null &$properties The properties that will be used for the save operation.
      */
-    public function __construct(ActiveRecordInterface $model, public array|null &$properties)
+    public function __construct(ActiveRecordInterface $model, public ?array &$properties)
     {
         parent::__construct($model);
     }

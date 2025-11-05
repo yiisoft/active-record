@@ -31,8 +31,8 @@ abstract class EventsTraitTest extends TestCase
                     if ($event instanceof BeforeInsert) {
                         $event->preventDefault();
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = new CategoryEventsModel();
@@ -54,8 +54,8 @@ abstract class EventsTraitTest extends TestCase
                         $event->preventDefault();
                         $event->returnValue(true);
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = new CategoryEventsModel();
@@ -76,8 +76,8 @@ abstract class EventsTraitTest extends TestCase
                     if ($event instanceof BeforePopulate) {
                         $event->preventDefault();
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = new CategoryEventsModel();
@@ -101,8 +101,8 @@ abstract class EventsTraitTest extends TestCase
                         $event->preventDefault();
                         $event->returnValue($customQuery);
                     }
-                }
-            )
+                },
+            ),
         );
 
         $query = CategoryEventsModel::query();
@@ -126,8 +126,8 @@ abstract class EventsTraitTest extends TestCase
                     if ($event instanceof BeforeSave) {
                         $event->preventDefault();
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = new CategoryEventsModel();
@@ -149,8 +149,8 @@ abstract class EventsTraitTest extends TestCase
                         $event->preventDefault();
                         $event->returnValue(true);
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = new CategoryEventsModel();
@@ -171,8 +171,8 @@ abstract class EventsTraitTest extends TestCase
                     if ($event instanceof BeforeUpdate) {
                         $event->preventDefault();
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = CategoryEventsModel::query()->findByPk(1);
@@ -198,8 +198,8 @@ abstract class EventsTraitTest extends TestCase
                         $event->preventDefault();
                         $event->returnValue(1);
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = CategoryEventsModel::query()->findByPk(1);
@@ -224,8 +224,8 @@ abstract class EventsTraitTest extends TestCase
                     if ($event instanceof BeforeUpsert) {
                         $event->preventDefault();
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = new CategoryEventsModel();
@@ -247,8 +247,8 @@ abstract class EventsTraitTest extends TestCase
                         $event->preventDefault();
                         $event->returnValue(true);
                     }
-                }
-            )
+                },
+            ),
         );
 
         $model = new CategoryEventsModel();

@@ -27,7 +27,7 @@ final class Department extends MagicActiveRecord
             Employee::class,
             [
                 'department_id' => 'id',
-            ]
+            ],
         )->inverseOf('department');
     }
 }

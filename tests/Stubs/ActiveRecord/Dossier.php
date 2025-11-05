@@ -71,7 +71,7 @@ final class Dossier extends ActiveRecord
         };
     }
 
-    public function getEmployee(): Employee|null
+    public function getEmployee(): ?Employee
     {
         return $this->relation('employee');
     }
@@ -83,7 +83,7 @@ final class Dossier extends ActiveRecord
             [
                 'department_id' => 'department_id',
                 'id' => 'employee_id',
-            ]
+            ],
         )->inverseOf('dossier');
     }
 }

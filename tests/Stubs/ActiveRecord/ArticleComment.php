@@ -57,7 +57,7 @@ final class ArticleComment extends ActiveRecord
         };
     }
 
-    public function getArticle(): Article|null
+    public function getArticle(): ?Article
     {
         return $this->relation('article');
     }

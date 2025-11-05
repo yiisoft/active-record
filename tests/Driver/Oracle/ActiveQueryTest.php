@@ -36,7 +36,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders = $query->orderBy('{{@customer}}.id DESC, {{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->orderBy(
-                $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id')
+                $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id'),
             )->all();
         }
 
@@ -57,7 +57,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->andWhere(
-                [$query->applyAlias('customer', 'id') => 2]
+                [$query->applyAlias('customer', 'id') => 2],
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 
@@ -76,7 +76,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
             $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->andWhere(
-                [$query->applyAlias('customer', 'id') => 2]
+                [$query->applyAlias('customer', 'id') => 2],
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 
@@ -91,15 +91,15 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->andWhere(
-                ['b.name' => 'Yii3 Cookbook']
+                ['b.name' => 'Yii3 Cookbook'],
             )->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
             $orders = $query->andWhere(
-                ['{{@item}}.name' => 'Yii3 Cookbook']
+                ['{{@item}}.name' => 'Yii3 Cookbook'],
             )->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->andWhere(
-                [$query->applyAlias('book', 'name') => 'Yii3 Cookbook']
+                [$query->applyAlias('book', 'name') => 'Yii3 Cookbook'],
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 
@@ -134,7 +134,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                         $q->where([$q->applyAlias('category', 'id') => 2]);
                     }
                 },
-            ]
+            ],
         );
 
         if ($aliasMethod === 'explicit') {
@@ -236,7 +236,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                         $q->where([$q->applyAlias('category', 'id') => 2]);
                     }
                 },
-            ]
+            ],
         )->orderBy('order.id')->all();
 
         $this->assertCount(1, $orders);
@@ -264,7 +264,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query->createCommand()->getRawSql() . print_r($orders, true),
         );
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('bookItems'));
@@ -279,7 +279,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query->createCommand()->getRawSql() . print_r($orders, true),
         );
         $this->assertCount(0, $orders[0]->getBookItems());
         $this->assertCount(3, $orders[0]->getMovieItems());
@@ -298,20 +298,20 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                         $q->on('{{books}}.[[category_id]] = 1');
                     },
                 ],
-                false
+                false,
             )->joinWith(
                 [
                     'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
                         $q->on('{{movies}}.[[category_id]] = 2');
                     },
                 ],
-                false
+                false,
             )->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query->createCommand()->getRawSql() . print_r($orders, true),
         );
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
@@ -324,7 +324,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                         $q->on('{{books}}.[[category_id]] = 1');
                     },
                 ],
-                false
+                false,
             )
             ->joinWith(
                 [
@@ -332,7 +332,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                         $q->on('{{movies}}.[[category_id]] = 2');
                     },
                 ],
-                true
+                true,
             )->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
@@ -348,7 +348,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                         $q->on('{{books}}.[[category_id]] = 1');
                     },
                 ],
-                true
+                true,
             )
             ->joinWith(
                 [
@@ -356,7 +356,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
                         $q->on('{{movies}}.[[category_id]] = 2');
                     },
                 ],
-                false
+                false,
             )
             ->andWhere(['{{movies}}.[[name]]' => 'Toy Story']);
         $orders = $query->all();

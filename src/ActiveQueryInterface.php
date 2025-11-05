@@ -49,7 +49,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return static The query object itself.
      */
-    public function asArray(bool|null $value = true): static;
+    public function asArray(?bool $value = true): static;
 
     /**
      * Specifies the relations with which this query should be performed.
@@ -133,7 +133,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return static the relation object itself.
      */
-    public function via(string $relationName, callable|null $callable = null): static;
+    public function via(string $relationName, ?callable $callable = null): static;
 
     public function resetVia(): static;
 
@@ -218,7 +218,7 @@ interface ActiveQueryInterface extends QueryInterface
     public function joinWith(
         array|string $with,
         array|bool $eagerLoading = true,
-        array|string $joinType = 'LEFT JOIN'
+        array|string $joinType = 'LEFT JOIN',
     ): static;
 
     public function resetJoinsWith(): void;
@@ -318,7 +318,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @see via()
      */
-    public function viaTable(string $tableName, array $link, callable|null $callable = null): static;
+    public function viaTable(string $tableName, array $link, ?callable $callable = null): static;
 
     /**
      * Define an alias for the table defined in {@see ActiveRecordInterface}.
@@ -352,9 +352,9 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * This is set by {@see ActiveRecord::findBySql()}.
      */
-    public function getSql(): string|null;
+    public function getSql(): ?string;
 
-    public function sql(string|null $value): static;
+    public function sql(?string $value): static;
 
     /**
      * Converts the raw query results into the format as specified by this query.
@@ -487,12 +487,12 @@ interface ActiveQueryInterface extends QueryInterface
      * Returns a value indicating whether the query result rows should be returned as arrays instead of Active Record
      * models.
      */
-    public function isAsArray(): bool|null;
+    public function isAsArray(): ?bool;
 
     /**
      * It's used to set the query options for the query.
      */
-    public function primaryModel(ActiveRecordInterface|null $value): static;
+    public function primaryModel(?ActiveRecordInterface $value): static;
 
     /**
      * It's used to set the query options for the query.
@@ -552,7 +552,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * This is used only in lazy loading with dynamic query options.
      */
-    public function getPrimaryModel(): ActiveRecordInterface|null;
+    public function getPrimaryModel(): ?ActiveRecordInterface;
 
     /**
      * @return bool Whether this query represents a relation to more than one record.

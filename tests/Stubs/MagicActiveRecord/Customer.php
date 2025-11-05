@@ -64,9 +64,7 @@ class Customer extends MagicActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
-    public function getItemQuery(): void
-    {
-    }
+    public function getItemQuery(): void {}
 
     public function getOrdersWithItemsQuery(): ActiveQuery
     {
@@ -77,7 +75,7 @@ class Customer extends MagicActiveRecord
     {
         return $this->hasMany(
             OrderWithNullFK::class,
-            ['customer_id' => 'id']
+            ['customer_id' => 'id'],
         )->andWhere('[[total]] > 50')->orderBy('id');
     }
 
@@ -102,9 +100,7 @@ class Customer extends MagicActiveRecord
         })->orderBy('id');
     }
 
-    public function setOrdersReadOnly(): void
-    {
-    }
+    public function setOrdersReadOnly(): void {}
 
     public function getOrderItems2Query(): ActiveQuery
     {

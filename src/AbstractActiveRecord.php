@@ -52,7 +52,7 @@ use function strtolower;
  */
 abstract class AbstractActiveRecord implements ActiveRecordInterface
 {
-    private array|null $oldValues = null;
+    private ?array $oldValues = null;
     /**
      * @var ActiveRecordInterface[]|ActiveRecordInterface[][]|array[]|array[][]
      * @psalm-var array<string, ActiveRecordInterface|ActiveRecordInterface[]|array|array[]|null>
@@ -81,7 +81,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @throws InvalidConfigException
      * @throws Throwable
      */
-    abstract protected function insertInternal(array|null $properties = null): void;
+    abstract protected function insertInternal(?array $properties = null): void;
 
     /**
      * Sets the value of the named property.
@@ -97,7 +97,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @see upsert()
      */
     abstract protected function upsertInternal(
-        array|null $insertProperties = null,
+        ?array $insertProperties = null,
         array|bool $updateProperties = true,
     ): void;
 
@@ -133,7 +133,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->propertyValuesInternal()[$propertyName] ?? null;
     }
 
-    public function propertyValues(array|null $names = null, array $except = []): array
+    public function propertyValues(?array $names = null, array $except = []): array
     {
         $names ??= $this->propertyNames();
 
@@ -154,7 +154,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->oldValues[$propertyName] ?? null;
     }
 
-    public function newValues(array|null $propertyNames = null): array
+    public function newValues(?array $propertyNames = null): array
     {
         $values = $this->propertyValues($propertyNames);
 
@@ -189,10 +189,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             1 => $this->oldValues[$keys[0]] ?? null,
             0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->tableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.',
             ),
             default => throw new LogicException(
-                static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.'
+                static::class . ' has multiple primary keys. Use primaryKeyOldValues() method instead.',
             ),
         };
     }
@@ -204,7 +204,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if (empty($keys)) {
             throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->tableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.',
             );
         }
 
@@ -229,10 +229,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             1 => $this->get($keys[0]),
             0 => throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->tableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.',
             ),
             default => throw new LogicException(
-                static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.'
+                static::class . ' has multiple primary keys. Use primaryKeyValues() method instead.',
             ),
         };
     }
@@ -244,7 +244,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if (empty($keys)) {
             throw new LogicException(
                 static::class . ' does not have a primary key. You should either define a primary key for '
-                . $this->tableName() . ' table or override the primaryKey() method.'
+                . $this->tableName() . ' table or override the primaryKey() method.',
             );
         }
 
@@ -278,7 +278,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->createRelationQuery($modelClass, $link, false);
     }
 
-    public function insert(array|null $properties = null): void
+    public function insert(?array $properties = null): void
     {
         $this->insertInternal($properties);
     }
@@ -333,7 +333,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if ($via !== null) {
             if ($this->isNew() || $linkModel->isNew()) {
                 throw new InvalidCallException(
-                    'Unable to link models: the models being linked cannot be newly created.'
+                    'Unable to link models: the models being linked cannot be newly created.',
                 );
             }
 
@@ -396,7 +396,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 $this->bindModels($link, $linkModel, $this);
             } else {
                 throw new InvalidCallException(
-                    'Unable to link models: the link defining the relation does not involve any primary key.'
+                    'Unable to link models: the link defining the relation does not involve any primary key.',
                 );
             }
         }
@@ -508,7 +508,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->related[$name] = $query->relatedRecords();
     }
 
-    public function save(array|null $properties = null): void
+    public function save(?array $properties = null): void
     {
         if ($this->isNew()) {
             $this->insert($properties);
@@ -557,12 +557,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    public function assignOldValues(array|null $propertyValues = null): void
+    public function assignOldValues(?array $propertyValues = null): void
     {
         $this->oldValues = $propertyValues;
     }
 
-    public function update(array|null $properties = null): int
+    public function update(?array $properties = null): int
     {
         return $this->updateInternal($properties);
     }
@@ -612,7 +612,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
     }
 
-    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): void
+    public function upsert(?array $insertProperties = null, array|bool $updateProperties = true): void
     {
         $this->upsertInternal($insertProperties, $updateProperties);
     }
@@ -806,7 +806,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     private function setRelationDependencies(
         string $name,
         ActiveQueryInterface $relation,
-        string|null $viaRelationName = null
+        ?string $viaRelationName = null,
     ): void {
         $via = $relation->getVia();
 
@@ -872,7 +872,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if ($result === 0) {
                 throw new OptimisticLockException(
-                    'The object being deleted is outdated.'
+                    'The object being deleted is outdated.',
                 );
             }
         } else {
@@ -898,7 +898,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @psalm-return array<string, mixed>
      */
-    protected function newPropertyValues(array|null $properties = null): array
+    protected function newPropertyValues(?array $properties = null): array
     {
         if (empty($properties) || array_is_list($properties)) {
             return $this->newValues($properties);
@@ -954,7 +954,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return int The number of rows affected.
      */
-    protected function updateInternal(array|null $properties = null): int
+    protected function updateInternal(?array $properties = null): int
     {
         if ($this->isNew()) {
             throw new InvalidCallException('The record is new and cannot be updated.');
@@ -982,7 +982,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if ($rows === 0) {
                 throw new OptimisticLockException(
-                    'The object being updated is outdated.'
+                    'The object being updated is outdated.',
                 );
             }
 
@@ -1002,14 +1002,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     private function bindModels(
         array $link,
         ActiveRecordInterface $foreignModel,
-        ActiveRecordInterface $primaryModel
+        ActiveRecordInterface $primaryModel,
     ): void {
         foreach ($link as $fk => $pk) {
             $value = $primaryModel->get($pk);
 
             if ($value === null) {
                 throw new InvalidCallException(
-                    'Unable to link active record: the primary key of ' . $primaryModel::class . ' is null.'
+                    'Unable to link active record: the primary key of ' . $primaryModel::class . ' is null.',
                 );
             }
 

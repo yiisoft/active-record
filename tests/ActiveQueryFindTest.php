@@ -45,12 +45,12 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $this->assertEquals(
             ['user1', 'user2', 'user3'],
-            $customerQuery->select('[[name]]')->column()
+            $customerQuery->select('[[name]]')->column(),
         );
 
         $this->assertSame(
             ['user3', 'user2', 'user1'],
-            $customerQuery->orderBy(['[[name]]' => SORT_DESC])->select('[[name]]')->column()
+            $customerQuery->orderBy(['[[name]]' => SORT_DESC])->select('[[name]]')->column(),
         );
     }
 
@@ -216,7 +216,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer = Customer::query();
 
         $customers = $customer
-            ->indexBy(fn (Customer $customer) => $customer->getId() . '-' . $customer->getName())
+            ->indexBy(fn(Customer $customer) => $customer->getId() . '-' . $customer->getName())
             ->orderBy('id')
             ->all();
 
@@ -249,7 +249,7 @@ abstract class ActiveQueryFindTest extends TestCase
 
         /** indexBy callable + asArray */
         $customerQuery = Customer::query();
-        $customers = $customerQuery->indexBy(fn ($customer) => $customer['id'] . '-' . $customer['name'])->asArray()->all();
+        $customers = $customerQuery->indexBy(fn($customer) => $customer['id'] . '-' . $customer['name'])->asArray()->all();
         $this->assertCount(3, $customers);
         $this->assertArrayHasKey('id', $customers['1-user1']);
         $this->assertArrayHasKey('name', $customers['1-user1']);
@@ -339,32 +339,32 @@ abstract class ActiveQueryFindTest extends TestCase
 
         $this->assertEquals(
             2,
-            $customerQuery->where(['OR', ['name' => 'user1'], ['name' => 'user2']])->count()
+            $customerQuery->where(['OR', ['name' => 'user1'], ['name' => 'user2']])->count(),
         );
 
         $this->assertCount(
             2,
-            $customerQuery->setWhere(['OR', ['name' => 'user1'], ['name' => 'user2']])->all()
+            $customerQuery->setWhere(['OR', ['name' => 'user1'], ['name' => 'user2']])->all(),
         );
 
         $this->assertEquals(
             2,
-            $customerQuery->setWhere(['name' => ['user1', 'user2']])->count()
+            $customerQuery->setWhere(['name' => ['user1', 'user2']])->count(),
         );
 
         $this->assertCount(
             2,
-            $customerQuery->setWhere(['name' => ['user1', 'user2']])->all()
+            $customerQuery->setWhere(['name' => ['user1', 'user2']])->all(),
         );
 
         $this->assertEquals(
             1,
-            $customerQuery->setWhere(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->count()
+            $customerQuery->setWhere(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->count(),
         );
 
         $this->assertCount(
             1,
-            $customerQuery->setWhere(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->all()
+            $customerQuery->setWhere(['AND', ['name' => ['user2', 'user3']], ['BETWEEN', 'status', 2, 4]])->all(),
         );
     }
 

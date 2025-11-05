@@ -181,7 +181,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->db()->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
-            SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
+            SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE',
         )->execute();
 
         $user = new UserAR();

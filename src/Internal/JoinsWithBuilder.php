@@ -71,7 +71,7 @@ final class JoinsWithBuilder
              */
             $queryJoins = $query->getJoins();
             $query->setJoins(
-                empty($queryJoins) ? $joins : array_merge($queryJoins, $joins)
+                empty($queryJoins) ? $joins : array_merge($queryJoins, $joins),
             );
         }
     }
@@ -163,7 +163,7 @@ final class JoinsWithBuilder
         ActiveQueryInterface $query,
         ActiveQueryInterface $parent,
         ActiveQueryInterface $child,
-        string $joinType
+        string $joinType,
     ): void {
         if (!empty($child->getHaving())
             || !empty($child->getGroupBy())

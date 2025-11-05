@@ -22,7 +22,7 @@ final class BeforeUpsert extends AbstractEvent
      */
     public function __construct(
         ActiveRecordInterface $model,
-        public array|null &$insertProperties,
+        public ?array &$insertProperties,
         public array|bool &$updateProperties,
     ) {
         parent::__construct($model);
