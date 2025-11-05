@@ -90,7 +90,6 @@ final class RelationPopulator
          */
         $indexBy = $query->getIndexBy();
         $query->indexBy(null);
-        /** @psalm-var array<ActiveRecordInterface|array> $models */
         $models = $query->all();
 
         self::populateInverseRelation($query, $models, $primaryModels);
@@ -192,7 +191,6 @@ final class RelationPopulator
             if ($model instanceof ActiveRecordInterface) {
                 $model->populateRelation($name, $value);
             } else {
-                /** @var array $model */
                 $model[$name] = $value;
             }
         }
