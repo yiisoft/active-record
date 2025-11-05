@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
+use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Db\Exception\Exception;
@@ -144,6 +145,19 @@ interface ActiveRecordInterface
     public function isNew(): bool;
 
     /**
+     * Returns the old value of the named property.
+     *
+     * If this record is the result of a query and the property is not loaded, `null` will be returned.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @return mixed The old property value. `null` if the property is not loaded before or doesn't exist.
+     *
+     * @see hasProperty()
+     */
+    public function oldValue(string $propertyName): mixed;
+
+    /**
      * Returns the old value of the primary key as a scalar.
      *
      * This refers to the primary key value that is populated into the record after data is retrieved from the database
@@ -217,11 +231,115 @@ interface ActiveRecordInterface
     public function tableSchema(): TableSchemaInterface;
 
     /**
+     * Loads default values from database table schema.
+     *
+     * You may call this method to load default values after creating a new instance:
+     *
+     * ```php
+     * // class Customer extends ActiveRecord
+     * $customer = new Customer();
+     * $customer->loadDefaultValues();
+     * ```
+     *
+     * @param bool $skipIfSet Whether existing value should be preserved. This will only set defaults for properties
+     * that are `null`.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     *
+     * @return static The active record instance itself.
+     */
+    public function loadDefaultValues(bool $skipIfSet = true): static;
+
+    /**
+     * Returns all populated related records.
+     *
+     * @return array An array of related records indexed by relation names.
+     *
+     * @see relationQuery()
+     */
+    public function relatedRecords(): array;
+
+    /**
      * Returns a value indicating whether the record has a property with the specified name.
      *
      * @param string $name The name of the property.
      */
     public function hasProperty(string $name): bool;
+
+    /**
+     * Declares a `has-many` relation.
+     *
+     * The declaration is returned in terms of a relational {@see ActiveQuery} instance through which the related
+     * record can be queried and retrieved back.
+     *
+     * A `has-many` relation means that there are multiple related records matching the criteria set by this relation,
+     * e.g., a customer has many orders.
+     *
+     * For example, to declare the `orders` relation for `Customer` class, you can write the following code in the
+     * `Customer` class:
+     *
+     * ```php
+     * public function getOrdersQuery()
+     * {
+     *     return $this->hasMany(Order::className(), ['customer_id' => 'id']);
+     * }
+     * ```
+     *
+     * Note that the `customer_id` key in the `$link` parameter refers to a property name in the related
+     * class `Order`, while the 'id' value refers to a property name in the current active record class.
+     *
+     * Call methods declared in {@see ActiveQuery} to further customize the relation.
+     *
+     * @param ActiveRecordInterface|string $modelClass The class name of the related record, or an instance of
+     * the related record.
+     * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
+     * the record associated with the `$class` model, while the values of the array refer to the corresponding property
+     * names in **this** active record class.
+     *
+     * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
+     */
+    public function hasMany(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface;
+
+    /**
+     * Declares a `has-one` relation.
+     *
+     * The declaration is returned in terms of a relational {@see ActiveQuery} instance through which the related record
+     * can be queried and retrieved back.
+     *
+     * A `has-one` relation means that there is at most one related record matching the criteria set by this relation,
+     * e.g., a customer has one country.
+     *
+     * For example, to declare the `country` relation for `Customer` class, you can write the following code in the
+     * `Customer` class:
+     *
+     * ```php
+     * public function getCountryQuery()
+     * {
+     *     return $this->hasOne(Country::className(), ['id' => 'country_id']);
+     * }
+     * ```
+     *
+     * Note that the `id` key in the `$link` parameter refers to a property name in the related class
+     * `Country`, while the `country_id` value refers to a property name in the current active record class.
+     *
+     * Call methods declared in {@see ActiveQuery} to further customize the relation.
+     *
+     * @param ActiveRecordInterface|string $modelClass The class name of the related record, or an instance of
+     * the related record.
+     * @param array $link The primary-foreign key constraint. The keys of the array refer to the property names of
+     * the record associated with the `$class` model, while the values of the array refer to the corresponding property
+     * names in **this** active record class.
+     *
+     * @return ActiveQueryInterface The relational query object.
+     *
+     * @psalm-param ModelClass $modelClass
+     * @psalm-param array<string, string> $link
+     */
+    public function hasOne(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface;
 
     /**
      * Inserts a row into the associated database table using the property values of this record.
@@ -605,6 +723,23 @@ interface ActiveRecordInterface
     public function unlink(string $relationName, self $linkedModel, bool $delete = false): void;
 
     /**
+     * Destroys the relationship in the current model.
+     *
+     * The active record with the foreign key of the relationship will be deleted if `$delete` is `true`. Otherwise, the
+     * foreign key will be set `null` and the model will be saved without validation.
+     *
+     * To destroy the relationship without removing records, make sure your keys can be set to `null`.
+     *
+     * @param string $relationName The case-sensitive name of the relationship.
+     * @param bool $delete Whether to delete the model that contains the foreign key.
+     *
+     * @throws Exception
+     * @throws ReflectionException
+     * @throws Throwable
+     */
+    public function unlinkAll(string $relationName, bool $delete = false): void;
+
+    /**
      * Updates one or several counters for the current AR object.
      *
      * Note that this method differs from {@see updateAllCounters()} in that it only saves counters for the current AR
@@ -682,6 +817,16 @@ interface ActiveRecordInterface
     public function newValues(array|null $propertyNames = null): array;
 
     /**
+     * Marks a property as changed.
+     *
+     * This method may be called to force updating a record when calling {@see update()}, even if there is no change
+     * being made to the record.
+     *
+     * @param string $name The property name.
+     */
+    public function markPropertyChanged(string $name): void;
+
+    /**
      * Populates an active record object using a row of data from the database/storage.
      *
      * This is an internal method meant to be called to create active record objects after fetching data from the
@@ -696,4 +841,36 @@ interface ActiveRecordInterface
      * @psalm-param array<string, mixed>|object $row
      */
     public function populateRecord(array|object $row): static;
+
+    /**
+     * Sets the property values in a massive way.
+     *
+     * @param array $values Property values (name => value) to be assigned to the model.
+     *
+     * @see propertyNames()
+     *
+     * @psalm-param array<string, mixed> $values
+     */
+    public function populateProperties(array $values): void;
+
+    /**
+     * Sets the old value of the named property.
+     *
+     * @param string $propertyName The property name.
+     *
+     * @throws InvalidArgumentException If the named property doesn't exist.
+     *
+     * @see hasProperty()
+     */
+    public function assignOldValue(string $propertyName, mixed $value): void;
+
+    /**
+     * Sets the old property values.
+     *
+     * All existing old property values will be discarded.
+     *
+     * @param array|null $propertyValues Old property values (name => value) to be set. If set to `null` this record
+     * is {@see isNew()}.
+     */
+    public function assignOldValues(array|null $propertyValues = null): void;
 }
