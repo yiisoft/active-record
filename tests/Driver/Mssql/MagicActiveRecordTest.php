@@ -48,6 +48,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
 
         $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
     }
+
     protected static function createConnection(): ConnectionInterface
     {
         return (new MssqlHelper())->createConnection();

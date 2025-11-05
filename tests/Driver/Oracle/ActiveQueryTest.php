@@ -360,6 +360,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('itemsIndexed'));
     }
+
     protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();

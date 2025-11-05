@@ -20,6 +20,7 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $trueBit = $bitValueQuery->findByPk(2);
         $this->assertSame(1, $trueBit->val);
     }
+
     protected static function createConnection(): ConnectionInterface
     {
         return (new PgsqlHelper())->createConnection();

@@ -58,6 +58,7 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
         $customer = $customerQuery->offset(3)->one();
         $this->assertNull($customer);
     }
+
     protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();

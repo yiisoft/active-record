@@ -1937,5 +1937,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($promotions[0]->relation('singleItem'));
         $this->assertNull($promotions[1]->relation('singleItem'));
     }
+
     abstract protected function createFactory(): Factory;
 }

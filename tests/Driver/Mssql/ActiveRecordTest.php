@@ -49,6 +49,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
 
         $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
     }
+
     protected static function createConnection(): ConnectionInterface
     {
         return (new MssqlHelper())->createConnection();

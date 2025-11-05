@@ -69,6 +69,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customers = $customerQuery->where(['bool_status' => '0'])->all();
         $this->assertCount(2, $customers);
     }
+
     protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();

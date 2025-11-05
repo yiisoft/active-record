@@ -99,6 +99,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     {
         $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
     }
+
     protected static function createConnection(): ConnectionInterface
     {
         return (new OracleHelper())->createConnection();
