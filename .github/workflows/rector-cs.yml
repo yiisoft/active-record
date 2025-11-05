@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   rector:
-    uses: yiisoft/actions/.github/workflows/rector-cs.yml@rector-cs
+    uses: yiisoft/actions/.github/workflows/rector-cs.yml@dev-rector-cs-fixer
     secrets:
       token: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
     with:
