@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidConfigException;
 
 final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
