@@ -6,12 +6,15 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 use InvalidArgumentException;
+use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\JoinsWithBuilder;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
 use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
+use Yiisoft\ActiveRecord\Internal\RelationPopulator;
 use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
+use Yiisoft\ActiveRecord\Internal\Typecaster;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -34,6 +37,7 @@ use function array_values;
 use function count;
 use function is_array;
 use function is_int;
+use function is_object;
 use function preg_match;
 use function reset;
 use function serialize;
@@ -102,23 +106,49 @@ use function serialize;
  * @psalm-import-type IndexBy from QueryInterface
  * @psalm-import-type Join from QueryInterface
  * @psalm-import-type ActiveQueryResult from ActiveQueryInterface
+ * @psalm-import-type Via from ActiveQueryInterface
  *
  * @psalm-property IndexBy|null $indexBy
  * @psalm-suppress ClassMustBeFinal
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
-    use ActiveQueryTrait;
-    use ActiveRelationTrait;
-
     private ActiveRecordInterface $model;
     private string|null $sql = null;
     private array|ExpressionInterface|string|null $on = null;
+    private bool|null $asArray = null;
+    private array $with = [];
+    private bool $multiple = false;
+    private ActiveRecordInterface|null $primaryModel = null;
+    /** @psalm-var array<string, string> */
+    private array $link = [];
 
     /**
      * @psalm-var list<JoinWith>
      */
     private array $joinsWith = [];
+
+    /**
+     * @var string|null the name of the relation that is the inverse of this relation.
+     *
+     * For example, an order has a customer, which means the inverse of the "customer" relation is the "orders", and the
+     * inverse of the "orders" relation is the "customer". If this property is set, the primary record(s) will be
+     * referenced through the specified relation.
+     *
+     * For example, `$customer->orders[0]->customer` and `$customer` will be the same object, and accessing the customer
+     * of an order will not trigger a new DB query.
+     *
+     * This property is only used in relational context.
+     *
+     * @see inverseOf()
+     */
+    private string|null $inverseOf = null;
+
+    /**
+     * @var ActiveQueryInterface|array|null The relation associated with the junction table.
+     * @psalm-var Via|null
+     */
+    private array|ActiveQueryInterface|null $via = null;
 
     /**
      * @psalm-param ModelClass $modelClass
@@ -131,6 +161,58 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             : new $modelClass();
 
         parent::__construct($this->model->db());
+    }
+
+    /**
+     * Clones internal objects
+     */
+    public function __clone()
+    {
+        /// Make a clone of "via" object so that the same query object can be reused multiple times.
+        if (is_object($this->via)) {
+            $this->via = clone $this->via;
+        } elseif (is_array($this->via)) {
+            $this->via = [$this->via[0], clone $this->via[1], $this->via[2]];
+        }
+    }
+
+    public function asArray(bool|null $value = true): static
+    {
+        $this->asArray = $value;
+        return $this;
+    }
+
+    public function isAsArray(): bool|null
+    {
+        return $this->asArray;
+    }
+
+    public function with(array|string ...$with): static
+    {
+        if (isset($with[0]) && is_array($with[0])) {
+            /// the parameter is given as an array
+            $with = $with[0];
+        }
+
+        if (empty($this->with)) {
+            $this->with = $with;
+        } elseif (!empty($with)) {
+            foreach ($with as $name => $value) {
+                if (is_int($name)) {
+                    // repeating relation is fine as `normalizeRelations()` handle it well
+                    $this->with[] = $value;
+                } else {
+                    $this->with[$name] = $value;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    public function getWith(): array
+    {
+        return $this->with;
     }
 
     public function each(): DataReaderInterface
@@ -547,9 +629,129 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::batch($batchSize)->indexBy(null)->resultCallback($callback);
     }
 
+    public function via(string $relationName, callable|null $callable = null): static
+    {
+        if ($this->primaryModel === null) {
+            throw new InvalidConfigException('Setting via is only supported for relational queries.');
+        }
+
+        $relation = $this->primaryModel->relationQuery($relationName);
+        $callableUsed = $callable !== null;
+        $this->via = [$relationName, $relation, $callableUsed];
+
+        if ($callableUsed) {
+            $callable($relation);
+        }
+
+        return $this;
+    }
+
+    public function resetVia(): static
+    {
+        $this->via = null;
+        return $this;
+    }
+
+    public function inverseOf(string $relationName): static
+    {
+        $this->inverseOf = $relationName;
+        return $this;
+    }
+
+    public function getInverseOf(): ?string
+    {
+        return $this->inverseOf;
+    }
+
+    public function relatedRecords(): ActiveRecordInterface|array|null
+    {
+        return $this->multiple ? $this->all() : $this->one();
+    }
+
+    public function populateRelation(string $name, array &$primaryModels): array
+    {
+        return RelationPopulator::populate($this, $name, $primaryModels);
+    }
+
+    public function isMultiple(): bool
+    {
+        return $this->multiple;
+    }
+
+    public function getPrimaryModel(): ActiveRecordInterface|null
+    {
+        return $this->primaryModel;
+    }
+
+    public function getLink(): array
+    {
+        return $this->link;
+    }
+
+    public function getVia(): array|ActiveQueryInterface|null
+    {
+        return $this->via;
+    }
+
+    public function multiple(bool $value): static
+    {
+        $this->multiple = $value;
+
+        return $this;
+    }
+
+    public function primaryModel(ActiveRecordInterface|null $value): static
+    {
+        $this->primaryModel = $value;
+
+        return $this;
+    }
+
+    public function link(array $value): static
+    {
+        $this->link = $value;
+        return $this;
+    }
+
     protected function index(array $rows): array
     {
         return ArArrayHelper::index($this->populate($rows), $this->indexBy);
+    }
+
+    /**
+     * Converts found rows into model instances.
+     *
+     * @param array[] $rows The rows to be converted.
+     *
+     * @return ActiveRecordInterface[]|array[] The model instances.
+     *
+     * @psalm-param non-empty-list<array<string, mixed>> $rows
+     * @psalm-return non-empty-list<ActiveQueryResult>
+     */
+    protected function createModels(array $rows): array
+    {
+        if ($this->asArray) {
+            $model = $this->getModel();
+            return array_map(
+                static fn(array $row) => Typecaster::cast($row, $model),
+                $rows,
+            );
+        }
+
+        if ($this->resultCallback !== null) {
+            $rows = ($this->resultCallback)($rows);
+
+            if ($rows[0] instanceof ActiveRecordInterface) {
+                /** @psalm-var non-empty-list<ActiveRecordInterface> */
+                return $rows;
+            }
+        }
+        /** @var non-empty-list<array<string, mixed>> $rows */
+
+        return array_map(
+            fn(array $row) => $this->getModel()->populateRecord($row),
+            $rows,
+        );
     }
 
     private function createInstance(): static
@@ -579,5 +781,121 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private function populateOne(array $row): ActiveRecordInterface|array
     {
         return $this->populate([$row])[0];
+    }
+
+    /**
+     * Finds records corresponding to one or multiple relations and populates them into the primary models.
+     *
+     * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
+     * for details about specifying this parameter.
+     * @param ActiveRecordInterface[]|array[] $models the primary models (can be either AR instances or arrays)
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws ReflectionException
+     * @throws Throwable
+     *
+     * @psalm-param non-empty-list<ActiveQueryResult> $models
+     * @psalm-param-out non-empty-list<ActiveQueryResult> $models
+     */
+    private function findWith(array $with, array &$models): void
+    {
+        $primaryModel = reset($models);
+
+        if (!$primaryModel instanceof ActiveRecordInterface) {
+            $primaryModel = $this->getModel();
+        }
+
+        $relations = $this->normalizeRelations($primaryModel, $with);
+
+        foreach ($relations as $name => $relation) {
+            if ($relation->isAsArray() === null) {
+                // inherit asArray from a primary query
+                $relation->asArray($this->asArray);
+            }
+
+            $relation->populateRelation($name, $models);
+        }
+    }
+
+    /**
+     * @psalm-return array<string, ActiveQueryInterface>
+     */
+    private function normalizeRelations(ActiveRecordInterface $model, array $with): array
+    {
+        $relations = [];
+
+        foreach ($with as $name => $callback) {
+            if (is_int($name)) {
+                $name = $callback;
+                $callback = null;
+            }
+            /**
+             * @var string $name
+             * @var Closure|null $callback
+             */
+
+            if (($pos = strpos($name, '.')) !== false) {
+                // with sub-relations
+                $childName = substr($name, $pos + 1);
+                $name = substr($name, 0, $pos);
+            } else {
+                $childName = null;
+            }
+
+            if (!isset($relations[$name])) {
+                $relation = $model->relationQuery($name);
+                $relation->primaryModel(null);
+                $relations[$name] = $relation;
+            } else {
+                $relation = $relations[$name];
+            }
+
+            if (isset($childName)) {
+                $relation->with([$childName => $callback]);
+            } elseif ($callback !== null) {
+                $callback($relation);
+            }
+        }
+
+        return $relations;
+    }
+
+    /**
+     * If applicable, populate the query's primary model into the related records' inverse relationship.
+     *
+     * @param ActiveRecordInterface[]|array[] $result the array of related records as generated by {@see populate()}
+     *
+     * @throws InvalidConfigException
+     *
+     * @psalm-param non-empty-list<ActiveQueryResult> $result
+     * @psalm-param-out non-empty-list<ActiveQueryResult> $result
+     */
+    private function addInverseRelations(array &$result): void
+    {
+        if ($this->inverseOf === null) {
+            return;
+        }
+
+        $relatedModel = reset($result);
+
+        if ($relatedModel instanceof ActiveRecordInterface) {
+            $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
+            $primaryModel = $inverseRelation->isMultiple() ? [$this->primaryModel] : $this->primaryModel;
+
+            /** @var ActiveRecordInterface $relatedModel */
+            foreach ($result as $relatedModel) {
+                $relatedModel->populateRelation($this->inverseOf, $primaryModel);
+            }
+        } else {
+            $inverseRelation = $this->getModel()->relationQuery($this->inverseOf);
+            $primaryModel = $inverseRelation->isMultiple() ? [$this->primaryModel] : $this->primaryModel;
+
+            /** @var array $relatedModel */
+            foreach ($result as &$relatedModel) {
+                $relatedModel[$this->inverseOf] = $primaryModel;
+            }
+        }
     }
 }

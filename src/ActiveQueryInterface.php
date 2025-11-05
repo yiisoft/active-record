@@ -22,8 +22,6 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  * That are methods for all normal queries that return active records but also relational queries in which the query
  * represents a relation between two active record classes and will return related records only.
  *
- * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
- *
  * @psalm-type Via = array{string, ActiveQueryInterface, bool}|ActiveQueryInterface
  * @psalm-type ActiveQueryResult = ActiveRecordInterface|array<string, mixed>
  */
@@ -48,6 +46,8 @@ interface ActiveQueryInterface extends QueryInterface
      * Sets the {@see asArray} property.
      *
      * @param bool|null $value Whether to return the query results in terms of arrays instead of Active Records.
+     *
+     * @return static The query object itself.
      */
     public function asArray(bool|null $value = true): static;
 
@@ -66,14 +66,12 @@ interface ActiveQueryInterface extends QueryInterface
      * The following are some usage examples:
      *
      * ```php
-     * // Create active query
-     * CustomerQuery = Customer::query();
      * // find customers together with their orders and country
-     * CustomerQuery->with('orders', 'country')->all();
+     * Customer::query()->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
-     * CustomerQuery->with('orders.address')->all();
+     * Customer::query()->with('orders.address')->all();
      * // find customers together with their country and orders of status 1
-     * CustomerQuery->with([
+     * Customer::query()->with([
      *     'orders' => function (ActiveQuery $query) {
      *         $query->andWhere('status = 1');
      *     },
@@ -86,13 +84,13 @@ interface ActiveQueryInterface extends QueryInterface
      * For example, the following two statements are equivalent:
      *
      * ```php
-     * CustomerQuery->with('orders', 'country')->all();
-     * CustomerQuery->with('orders')->with('country')->all();
+     * Customer::query()->with('orders', 'country')->all();
+     * Customer::query()->with('orders')->with('country')->all();
      * ```
      *
-     * @param array|string ...$with a list of relation names or relation definitions.
+     * @param array|string ...$with A list of relation names or relation definitions.
      *
-     * @return static the query object itself.
+     * @return static The query object itself.
      */
     public function with(array|string ...$with): static;
 
@@ -112,13 +110,28 @@ interface ActiveQueryInterface extends QueryInterface
     public function resetWith(): static;
 
     /**
-     * Specifies the relation associated with the junction table for use in a relational query.
+     * Specifies the relation associated with the junction table.
      *
-     * @param string $relationName The relation name.
-     * This refers to a relation declared in the
-     * {@see ActiveRelationTrait::primaryModel} of the relation.
+     * Use this method to specify a pivot record/table when declaring a relation in the {@see ActiveRecord} class:
+     *
+     * ```php
+     * class Order extends ActiveRecord
+     * {
+     *    public function getOrderItems() {
+     *        return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
+     *    }
+     *
+     *    public function getItems() {
+     *        return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems');
+     *    }
+     * }
+     * ```
+     *
+     * @param string $relationName The relation name. This refers to a relation declared in {@see primaryModel}.
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
+     *
+     * @return static the relation object itself.
      */
     public function via(string $relationName, callable|null $callable = null): static;
 
