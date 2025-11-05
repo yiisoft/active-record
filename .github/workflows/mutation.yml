@@ -31,7 +31,6 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-
         php:
           - 8.4
 
@@ -72,6 +71,6 @@ jobs:
 
       - name: Run infection.
         run: |
-          vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --only-covered --test-framework-options="--testsuite=Pgsql"
+          vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --min-covered-msi=100 --only-covered --test-framework-options="--testsuite=Pgsql"
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

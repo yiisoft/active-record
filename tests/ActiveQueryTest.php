@@ -2814,4 +2814,13 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertSame(['Ann Smith', 'Will Smith'], array_keys($indexedEmployees));
     }
+
+    public function testBatchDefaultSizeIs100(): void
+    {
+        $query = Customer::query();
+
+        $batch = $query->batch();
+
+        $this->assertSame(100, $batch->getBatchSize());
+    }
 }
