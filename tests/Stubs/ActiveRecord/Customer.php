@@ -20,6 +20,9 @@ class Customer extends ArrayableActiveRecord
     public const STATUS_ACTIVE = 1;
     public const STATUS_INACTIVE = 2;
 
+    public int|string $status2;
+    public int|string|null $sumTotal;
+
     protected int $id;
     protected string $email;
     protected ?string $name = null;
@@ -27,9 +30,6 @@ class Customer extends ArrayableActiveRecord
     protected ?int $status = 0;
     protected bool|int|null $bool_status = false;
     protected ?int $profile_id = null;
-
-    public int|string $status2;
-    public int|string|null $sumTotal;
 
     public function tableName(): string
     {

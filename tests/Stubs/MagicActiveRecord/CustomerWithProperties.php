@@ -12,10 +12,10 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 class CustomerWithProperties extends MagicActiveRecord
 {
+    public ?string $address = null;
     protected int $id;
     protected string $email;
     protected ?string $name = null;
-    public ?string $address = null;
 
     public function tableName(): string
     {

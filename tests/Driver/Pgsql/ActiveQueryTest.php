@@ -10,11 +10,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new PgsqlHelper())->createConnection();
-    }
-
     public function testBit(): void
     {
         $bitValueQuery = BitValues::query();
@@ -24,5 +19,9 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $bitValueQuery = BitValues::query();
         $trueBit = $bitValueQuery->findByPk(2);
         $this->assertSame(1, $trueBit->val);
+    }
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new PgsqlHelper())->createConnection();
     }
 }

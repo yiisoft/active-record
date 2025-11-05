@@ -326,50 +326,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $models;
     }
 
-    /**
-     * Removes duplicated rows by checking their primary key values.
-     *
-     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
-     *
-     * @param array[] $rows The rows to be checked.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     *
-     * @return array[] The distinctive rows.
-     *
-     * @psalm-param non-empty-list<array<string, mixed>> $rows
-     * @psalm-return non-empty-list<array<string, mixed>>
-     */
-    private function removeDuplicatedRows(array $rows): array
-    {
-        $model = $this->getModel();
-        $pks = $model->primaryKey();
-
-        if (empty($pks)) {
-            throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
-        }
-
-        foreach ($pks as $pk) {
-            if (!isset($rows[0][$pk])) {
-                return $rows;
-            }
-        }
-
-        if (count($pks) === 1) {
-            /** @psalm-var non-empty-list<string|int> $hash */
-            $hash = array_column($rows, reset($pks));
-        } else {
-            $flippedPks = array_flip($pks);
-            $hash = array_map(
-                static fn(array $row): string => serialize(array_intersect_key($row, $flippedPks)),
-                $rows,
-            );
-        }
-
-        return array_values(array_combine($hash, $rows));
-    }
-
     public function one(): array|ActiveRecordInterface|null
     {
         if ($this->shouldEmulateExecution()) {
@@ -399,33 +355,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return $this->db->createCommand($sql, $params);
-    }
-
-    /**
-     * Queries a scalar value by setting {@see select()} first.
-     *
-     * Restores the value of select to make this query reusable.
-     *
-     * @param ExpressionInterface|string $selectExpression The expression to be selected.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
-    protected function queryScalar(string|ExpressionInterface $selectExpression): bool|string|int|float|null
-    {
-        if ($this->sql === null) {
-            return parent::queryScalar($selectExpression);
-        }
-
-        $command = (new Query($this->db))->select([$selectExpression])
-            ->from(['c' => "($this->sql)"])
-            ->params($this->params)
-            ->createCommand();
-
-        return $command->queryScalar();
     }
 
     public function joinWith(
@@ -559,11 +488,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return parent::getTablesUsedInFrom();
-    }
-
-    protected function getPrimaryTableName(): string
-    {
-        return $this->getModel()->tableName();
     }
 
     public function getOn(): array|ExpressionInterface|string|null
@@ -713,6 +637,38 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
+    /**
+     * Queries a scalar value by setting {@see select()} first.
+     *
+     * Restores the value of select to make this query reusable.
+     *
+     * @param ExpressionInterface|string $selectExpression The expression to be selected.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    protected function queryScalar(string|ExpressionInterface $selectExpression): bool|string|int|float|null
+    {
+        if ($this->sql === null) {
+            return parent::queryScalar($selectExpression);
+        }
+
+        $command = (new Query($this->db))->select([$selectExpression])
+            ->from(['c' => "($this->sql)"])
+            ->params($this->params)
+            ->createCommand();
+
+        return $command->queryScalar();
+    }
+
+    protected function getPrimaryTableName(): string
+    {
+        return $this->getModel()->tableName();
+    }
+
     protected function index(array $rows): array
     {
         return ArArrayHelper::index($this->populate($rows), $this->indexBy);
@@ -752,6 +708,50 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             fn(array $row) => $this->getModel()->populateRecord($row),
             $rows,
         );
+    }
+
+    /**
+     * Removes duplicated rows by checking their primary key values.
+     *
+     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
+     *
+     * @param array[] $rows The rows to be checked.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     *
+     * @return array[] The distinctive rows.
+     *
+     * @psalm-param non-empty-list<array<string, mixed>> $rows
+     * @psalm-return non-empty-list<array<string, mixed>>
+     */
+    private function removeDuplicatedRows(array $rows): array
+    {
+        $model = $this->getModel();
+        $pks = $model->primaryKey();
+
+        if (empty($pks)) {
+            throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
+        }
+
+        foreach ($pks as $pk) {
+            if (!isset($rows[0][$pk])) {
+                return $rows;
+            }
+        }
+
+        if (count($pks) === 1) {
+            /** @psalm-var non-empty-list<string|int> $hash */
+            $hash = array_column($rows, reset($pks));
+        } else {
+            $flippedPks = array_flip($pks);
+            $hash = array_map(
+                static fn(array $row): string => serialize(array_intersect_key($row, $flippedPks)),
+                $rows,
+            );
+        }
+
+        return array_values(array_combine($hash, $rows));
     }
 
     private function createInstance(): static

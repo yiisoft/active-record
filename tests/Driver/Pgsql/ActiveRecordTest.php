@@ -25,16 +25,6 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new PgsqlHelper())->createConnection();
-    }
-
-    protected function createFactory(): Factory
-    {
-        return (new PgsqlHelper())->createFactory($this->db());
-    }
-
     public function testDefaultValues(): void
     {
         $arClass = new Type();
@@ -380,5 +370,14 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame([2, 3], ArArrayHelper::getColumn($items[2]->getPromotionsViaArray(), 'id'));
         $this->assertSame([2], ArArrayHelper::getColumn($items[3]->getPromotionsViaArray(), 'id'));
         $this->assertSame([2], ArArrayHelper::getColumn($items[4]->getPromotionsViaArray(), 'id'));
+    }
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new PgsqlHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new PgsqlHelper())->createFactory($this->db());
     }
 }

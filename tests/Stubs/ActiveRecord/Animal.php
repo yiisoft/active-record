@@ -11,19 +11,18 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 class Animal extends ActiveRecord
 {
-    private string $does;
-
     protected int $id;
     protected string $type;
-
-    public function tableName(): string
-    {
-        return 'animal';
-    }
+    private string $does;
 
     public function __construct()
     {
         $this->type = static::class;
+    }
+
+    public function tableName(): string
+    {
+        return 'animal';
     }
 
     public function getDoes()

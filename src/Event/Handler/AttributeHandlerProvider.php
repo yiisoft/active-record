@@ -17,13 +17,6 @@ abstract class AttributeHandlerProvider
     private array $propertyNames;
 
     /**
-     * Returns array with event class names as keys and their handlers as values `[event_class => handler_closure, ...]`
-     *
-     * @psalm-return array<class-string, Closure>
-     */
-    abstract public function getEventHandlers(): array;
-
-    /**
      * @param string ...$propertyNames Names of properties the handler should be applied to.
      */
     public function __construct(
@@ -31,6 +24,13 @@ abstract class AttributeHandlerProvider
     ) {
         $this->propertyNames = $propertyNames;
     }
+
+    /**
+     * Returns array with event class names as keys and their handlers as values `[event_class => handler_closure, ...]`
+     *
+     * @psalm-return array<class-string, Closure>
+     */
+    abstract public function getEventHandlers(): array;
 
     /**
      * Returns the list of property names the handler should be applied to.
