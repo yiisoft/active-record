@@ -22,8 +22,6 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
  * That are methods for all normal queries that return active records but also relational queries in which the query
  * represents a relation between two active record classes and will return related records only.
  *
- * A class implementing this interface should also use {@see ActiveQueryTrait} and {@see ActiveRelationTrait}.
- *
  * @psalm-type Via = array{string, ActiveQueryInterface, bool}|ActiveQueryInterface
  * @psalm-type ActiveQueryResult = ActiveRecordInterface|array<string, mixed>
  */
@@ -48,6 +46,8 @@ interface ActiveQueryInterface extends QueryInterface
      * Sets the {@see asArray} property.
      *
      * @param bool|null $value Whether to return the query results in terms of arrays instead of Active Records.
+     *
+     * @return static The query object itself.
      */
     public function asArray(bool|null $value = true): static;
 
@@ -66,14 +66,12 @@ interface ActiveQueryInterface extends QueryInterface
      * The following are some usage examples:
      *
      * ```php
-     * // Create active query
-     * CustomerQuery = Customer::query();
      * // find customers together with their orders and country
-     * CustomerQuery->with('orders', 'country')->all();
+     * Customer::query()->with('orders', 'country')->all();
      * // find customers together with their orders and the orders' shipping address
-     * CustomerQuery->with('orders.address')->all();
+     * Customer::query()->with('orders.address')->all();
      * // find customers together with their country and orders of status 1
-     * CustomerQuery->with([
+     * Customer::query()->with([
      *     'orders' => function (ActiveQuery $query) {
      *         $query->andWhere('status = 1');
      *     },
@@ -86,13 +84,13 @@ interface ActiveQueryInterface extends QueryInterface
      * For example, the following two statements are equivalent:
      *
      * ```php
-     * CustomerQuery->with('orders', 'country')->all();
-     * CustomerQuery->with('orders')->with('country')->all();
+     * Customer::query()->with('orders', 'country')->all();
+     * Customer::query()->with('orders')->with('country')->all();
      * ```
      *
-     * @param array|string ...$with a list of relation names or relation definitions.
+     * @param array|string ...$with A list of relation names or relation definitions.
      *
-     * @return static the query object itself.
+     * @return static The query object itself.
      */
     public function with(array|string ...$with): static;
 

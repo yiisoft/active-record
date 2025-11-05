@@ -6,12 +6,14 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 use InvalidArgumentException;
+use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\JoinsWithBuilder;
 use Yiisoft\ActiveRecord\Internal\JunctionRowsFinder;
 use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
+use Yiisoft\ActiveRecord\Internal\Typecaster;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
@@ -108,12 +110,13 @@ use function serialize;
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
-    use ActiveQueryTrait;
     use ActiveRelationTrait;
 
     private ActiveRecordInterface $model;
     private string|null $sql = null;
     private array|ExpressionInterface|string|null $on = null;
+    private bool|null $asArray = null;
+    private array $with = [];
 
     /**
      * @psalm-var list<JoinWith>
@@ -131,6 +134,45 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             : new $modelClass();
 
         parent::__construct($this->model->db());
+    }
+
+    public function asArray(bool|null $value = true): static
+    {
+        $this->asArray = $value;
+        return $this;
+    }
+
+    public function isAsArray(): bool|null
+    {
+        return $this->asArray;
+    }
+
+    public function with(array|string ...$with): static
+    {
+        if (isset($with[0]) && is_array($with[0])) {
+            /// the parameter is given as an array
+            $with = $with[0];
+        }
+
+        if (empty($this->with)) {
+            $this->with = $with;
+        } elseif (!empty($with)) {
+            foreach ($with as $name => $value) {
+                if (is_int($name)) {
+                    // repeating relation is fine as `normalizeRelations()` handle it well
+                    $this->with[] = $value;
+                } else {
+                    $this->with[$name] = $value;
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    public function getWith(): array
+    {
+        return $this->with;
     }
 
     public function each(): DataReaderInterface
@@ -551,6 +593,41 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         return ArArrayHelper::index($this->populate($rows), $this->indexBy);
     }
+    /**
+     * Converts found rows into model instances.
+     *
+     * @param array[] $rows The rows to be converted.
+     *
+     * @return ActiveRecordInterface[]|array[] The model instances.
+     *
+     * @psalm-param non-empty-list<array<string, mixed>> $rows
+     * @psalm-return non-empty-list<ActiveQueryResult>
+     */
+    protected function createModels(array $rows): array
+    {
+        if ($this->asArray) {
+            $model = $this->getModel();
+            return array_map(
+                static fn(array $row) => Typecaster::cast($row, $model),
+                $rows,
+            );
+        }
+
+        if ($this->resultCallback !== null) {
+            $rows = ($this->resultCallback)($rows);
+
+            if ($rows[0] instanceof ActiveRecordInterface) {
+                /** @psalm-var non-empty-list<ActiveRecordInterface> */
+                return $rows;
+            }
+        }
+        /** @var non-empty-list<array<string, mixed>> $rows */
+
+        return array_map(
+            fn(array $row) => $this->getModel()->populateRecord($row),
+            $rows,
+        );
+    }
 
     private function createInstance(): static
     {
@@ -579,5 +656,85 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private function populateOne(array $row): ActiveRecordInterface|array
     {
         return $this->populate([$row])[0];
+    }
+
+
+    /**
+     * Finds records corresponding to one or multiple relations and populates them into the primary models.
+     *
+     * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
+     * for details about specifying this parameter.
+     * @param ActiveRecordInterface[]|array[] $models the primary models (can be either AR instances or arrays)
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws NotSupportedException
+     * @throws ReflectionException
+     * @throws Throwable
+     *
+     * @psalm-param non-empty-list<ActiveQueryResult> $models
+     * @psalm-param-out non-empty-list<ActiveQueryResult> $models
+     */
+    private function findWith(array $with, array &$models): void
+    {
+        $primaryModel = reset($models);
+
+        if (!$primaryModel instanceof ActiveRecordInterface) {
+            $primaryModel = $this->getModel();
+        }
+
+        $relations = $this->normalizeRelations($primaryModel, $with);
+
+        foreach ($relations as $name => $relation) {
+            if ($relation->isAsArray() === null) {
+                // inherit asArray from a primary query
+                $relation->asArray($this->asArray);
+            }
+
+            $relation->populateRelation($name, $models);
+        }
+    }
+
+    /**
+     * @psalm-return array<string, ActiveQueryInterface>
+     */
+    private function normalizeRelations(ActiveRecordInterface $model, array $with): array
+    {
+        $relations = [];
+
+        foreach ($with as $name => $callback) {
+            if (is_int($name)) {
+                $name = $callback;
+                $callback = null;
+            }
+            /**
+             * @var string $name
+             * @var Closure|null $callback
+             */
+
+            if (($pos = strpos($name, '.')) !== false) {
+                // with sub-relations
+                $childName = substr($name, $pos + 1);
+                $name = substr($name, 0, $pos);
+            } else {
+                $childName = null;
+            }
+
+            if (!isset($relations[$name])) {
+                $relation = $model->relationQuery($name);
+                $relation->primaryModel(null);
+                $relations[$name] = $relation;
+            } else {
+                $relation = $relations[$name];
+            }
+
+            if (isset($childName)) {
+                $relation->with([$childName => $callback]);
+            } elseif ($callback !== null) {
+                $callback($relation);
+            }
+        }
+
+        return $relations;
     }
 }
