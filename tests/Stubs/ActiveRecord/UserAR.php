@@ -16,7 +16,7 @@ final class UserAR extends ActiveRecord
     public string $username;
     public string $auth_key;
     public string $password_hash;
-    public string|null $password_reset_token = null;
+    public ?string $password_reset_token = null;
     public string $email;
     public int $role = 10;
     public int $status = 10;

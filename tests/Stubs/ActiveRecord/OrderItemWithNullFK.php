@@ -8,8 +8,8 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 final class OrderItemWithNullFK extends ActiveRecord
 {
-    protected int|null $order_id = null;
-    protected int|null $item_id = null;
+    protected ?int $order_id = null;
+    protected ?int $item_id = null;
     protected int $quantity;
     protected float $subtotal;
 

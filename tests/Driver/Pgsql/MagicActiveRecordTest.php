@@ -134,7 +134,7 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $this->db()->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
-            SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE'
+            SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE',
         )->execute();
 
         $user = new UserAR();

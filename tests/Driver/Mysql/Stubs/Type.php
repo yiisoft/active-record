@@ -9,5 +9,5 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Mysql\Stubs;
  */
 final class Type extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type
 {
-    public string|null $enum_col = null;
+    public ?string $enum_col = null;
 }

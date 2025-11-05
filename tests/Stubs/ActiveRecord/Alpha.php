@@ -39,7 +39,7 @@ final class Alpha extends ActiveRecord
         };
     }
 
-    public function getBetas(): array|null
+    public function getBetas(): ?array
     {
         return $this->relation('betas');
     }

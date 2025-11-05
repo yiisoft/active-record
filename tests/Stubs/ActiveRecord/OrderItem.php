@@ -78,7 +78,7 @@ final class OrderItem extends ActiveRecord
         };
     }
 
-    public function getOrder(): Order|null
+    public function getOrder(): ?Order
     {
         return $this->relation('order');
     }
@@ -88,7 +88,7 @@ final class OrderItem extends ActiveRecord
         return $this->hasOne(Order::class, ['id' => 'order_id']);
     }
 
-    public function getItem(): Item|null
+    public function getItem(): ?Item
     {
         return $this->relation('item');
     }
@@ -98,7 +98,7 @@ final class OrderItem extends ActiveRecord
         return $this->hasOne(Item::class, ['id' => 'item_id']);
     }
 
-    public function getOrderItemCompositeWithJoin(): self|null
+    public function getOrderItemCompositeWithJoin(): ?self
     {
         return $this->relation('orderItemCompositeWithJoin');
     }
@@ -109,7 +109,7 @@ final class OrderItem extends ActiveRecord
         return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
     }
 
-    public function getOrderItemCompositeNoJoin(): self|null
+    public function getOrderItemCompositeNoJoin(): ?self
     {
         return $this->relation('orderItemCompositeNoJoin');
     }
@@ -119,7 +119,7 @@ final class OrderItem extends ActiveRecord
         return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ]);
     }
 
-    public function getCustom(): Order|null
+    public function getCustom(): ?Order
     {
         return $this->relation('custom');
     }

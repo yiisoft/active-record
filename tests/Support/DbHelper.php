@@ -43,7 +43,7 @@ final class DbHelper
                 explode('--', $drops),
                 explode(';', $statements),
                 explode('/', $triggers),
-                explode(';', $data)
+                explode(';', $data),
             );
         } else {
             $lines = explode(';', file_get_contents($fixture));

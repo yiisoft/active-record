@@ -30,7 +30,5 @@ final class Cat extends Animal
         return 5 / 0;
     }
 
-    public function setNonExistingProperty(string $value): void
-    {
-    }
+    public function setNonExistingProperty(string $value): void {}
 }

@@ -80,7 +80,7 @@ final class Assert extends \PHPUnit\Framework\TestCase
     public static function setInaccessibleProperty(
         object $object,
         string $propertyName,
-        mixed $value
+        mixed $value,
     ): void {
         $class = new ReflectionClass($object);
 

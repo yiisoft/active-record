@@ -9,6 +9,4 @@ use Yiisoft\Db\Exception\Exception;
 /**
  * Represents an exception thrown when a record is not found.
  */
-final class NotFoundException extends Exception
-{
-}
+final class NotFoundException extends Exception {}

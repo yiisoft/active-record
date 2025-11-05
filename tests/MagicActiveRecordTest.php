@@ -357,7 +357,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"'
+            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"',
         );
 
         $cat->set('noExist', 1);
@@ -382,7 +382,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer has no property named "noExist"'
+            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer has no property named "noExist"',
         );
         $customer->assignOldValue('noExist', 'samdark');
     }
@@ -726,7 +726,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->assertEquals(
             ['name' => 'Adam', 'email' => 'adam@example.com', 'address' => null],
-            $customer->newValues()
+            $customer->newValues(),
         );
         $this->assertEquals(
             ['email' => 'adam@example.com', 'address' => null],
@@ -855,7 +855,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage(
-            'Getting write-only property: ' . Customer::class . '::ordersReadOnly'
+            'Getting write-only property: ' . Customer::class . '::ordersReadOnly',
         );
         $customer->ordersReadOnly;
     }
@@ -897,7 +897,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->expectException(UnknownPropertyException::class);
         $this->expectExceptionMessage(
-            'Setting unknown property: ' . Customer::class . '::nonExistentProperty'
+            'Setting unknown property: ' . Customer::class . '::nonExistentProperty',
         );
         $customer->nonExistentProperty = 'value';
     }
@@ -950,7 +950,7 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            Customer::class . ' has no relation named "nonExistentRelation".'
+            Customer::class . ' has no relation named "nonExistentRelation".',
         );
         $customer->relationQuery('nonExistentRelation');
     }
@@ -965,7 +965,7 @@ abstract class MagicActiveRecordTest extends TestCase
             . Customer::class
             . '::getItemQuery()" should return type "'
             . ActiveQueryInterface::class
-            . '", but  returns "void" type.'
+            . '", but  returns "void" type.',
         );
         $customer->relationQuery('item');
     }
@@ -978,7 +978,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->expectExceptionMessage(
             'Relation names are case sensitive. '
             . Customer::class
-            . ' has a relation named "profile" instead of "Profile".'
+            . ' has a relation named "profile" instead of "Profile".',
         );
         $customer->relationQuery('Profile');
     }

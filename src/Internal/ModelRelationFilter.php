@@ -144,7 +144,7 @@ final class ModelRelationFilter
 
         return array_map(
             static fn($name) => "$alias.$name",
-            $columnNames
+            $columnNames,
         );
     }
 }

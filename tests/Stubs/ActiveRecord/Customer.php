@@ -22,11 +22,11 @@ class Customer extends ArrayableActiveRecord
 
     protected int $id;
     protected string $email;
-    protected string|null $name = null;
-    protected string|null $address = null;
-    protected int|null $status = 0;
+    protected ?string $name = null;
+    protected ?string $address = null;
+    protected ?int $status = 0;
     protected bool|int|null $bool_status = false;
-    protected int|null $profile_id = null;
+    protected ?int $profile_id = null;
 
     public int|string $status2;
     public int|string|null $sumTotal;
@@ -68,27 +68,27 @@ class Customer extends ArrayableActiveRecord
         return $this->email;
     }
 
-    public function getName(): string|null
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function getAddress(): string|null
+    public function getAddress(): ?string
     {
         return $this->address;
     }
 
-    public function getStatus(): int|null
+    public function getStatus(): ?int
     {
         return $this->status;
     }
 
-    public function getBoolStatus(): bool|null
+    public function getBoolStatus(): ?bool
     {
         return $this->bool_status;
     }
 
-    public function getProfileId(): int|null
+    public function getProfileId(): ?int
     {
         return $this->profile_id;
     }
@@ -107,32 +107,32 @@ class Customer extends ArrayableActiveRecord
         $this->email = $email;
     }
 
-    public function setName(string|null $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    public function setAddress(string|null $address): void
+    public function setAddress(?string $address): void
     {
         $this->address = $address;
     }
 
-    public function setStatus(int|null $status): void
+    public function setStatus(?int $status): void
     {
         $this->status = $status;
     }
 
-    public function setBoolStatus(bool|null $bool_status): void
+    public function setBoolStatus(?bool $bool_status): void
     {
         $this->bool_status = $bool_status;
     }
 
-    public function setProfileId(int|null $profile_id): void
+    public function setProfileId(?int $profile_id): void
     {
         $this->set('profile_id', $profile_id);
     }
 
-    public function getProfile(): Profile|null
+    public function getProfile(): ?Profile
     {
         return $this->relation('profile');
     }
@@ -182,9 +182,7 @@ class Customer extends ArrayableActiveRecord
         return $this->hasMany(Order::class, ['customer_id' => 'id'])->andWhere('[[total]] > 50')->orderBy('id');
     }
 
-    public function getItem(): void
-    {
-    }
+    public function getItem(): void {}
 
     public function getOrdersWithItems(): array
     {
@@ -205,7 +203,7 @@ class Customer extends ArrayableActiveRecord
     {
         return $this->hasMany(
             OrderWithNullFK::class,
-            ['customer_id' => 'id']
+            ['customer_id' => 'id'],
         )->andWhere('[[total]] > 50')->orderBy('id');
     }
 
@@ -277,7 +275,7 @@ class Customer extends ArrayableActiveRecord
     {
         return $this
             ->hasMany(Order::class, ['customer_id' => 'id'])
-            ->indexBy(fn (Order $order) => 'order_' . $order->getId());
+            ->indexBy(fn(Order $order) => 'order_' . $order->getId());
     }
 
     public function getItems2(): array
