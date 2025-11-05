@@ -102,6 +102,16 @@ interface ActiveQueryInterface extends QueryInterface
     public function getWith(): array;
 
     /**
+     * Resets the relations that this query should be performed with.
+     *
+     * This method clears all relations set via {@see with()} and disables eager loading for relations
+     * set via {@see joinWith()}, while keeping the JOIN clauses intact.
+     *
+     * @return static The query object itself.
+     */
+    public function resetWith(): static;
+
+    /**
      * Specifies the relation associated with the junction table for use in a relational query.
      *
      * @param string $relationName The relation name.

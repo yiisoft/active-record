@@ -131,6 +131,27 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame(['orders', 'profile'], $query->getWith());
     }
 
+    public function testResetWith(): void
+    {
+        $query = Customer::query()->with('orders', 'profile');
+
+        $query->resetWith();
+
+        $this->assertSame([], $query->getWith());
+    }
+
+    public function testResetWithForJoinWith(): void
+    {
+        $query = Customer::query()->with('orders')->joinWith('profile');
+
+        $query->resetWith();
+        $this->assertSame([], $query->getWith());
+
+        $joinsWith = $query->getJoinsWith();
+        $this->assertCount(1, $joinsWith);
+        $this->assertSame([], $joinsWith[0]->getWith());
+    }
+
     public function testInnerJoinWith(): void
     {
         $joinsWith = Customer::query()->innerJoinWith('profile')->getJoinsWith();
