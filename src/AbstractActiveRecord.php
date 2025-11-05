@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use LogicException;
 use ReflectionClass;
-use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;

@@ -302,7 +302,7 @@ interface ActiveRecordInterface
      * @psalm-param ModelClass $modelClass
      * @psalm-param array<string, string> $link
      */
-    public function hasMany(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface;
+    public function hasMany(self|string $modelClass, array $link): ActiveQueryInterface;
 
     /**
      * Declares a `has-one` relation.
@@ -339,7 +339,7 @@ interface ActiveRecordInterface
      * @psalm-param ModelClass $modelClass
      * @psalm-param array<string, string> $link
      */
-    public function hasOne(ActiveRecordInterface|string $modelClass, array $link): ActiveQueryInterface;
+    public function hasOne(self|string $modelClass, array $link): ActiveQueryInterface;
 
     /**
      * Inserts a row into the associated database table using the property values of this record.
