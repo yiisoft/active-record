@@ -766,8 +766,8 @@ abstract class MagicActiveRecordTest extends TestCase
     {
         $customer = new CustomerWithProperties();
         $this->assertSame([
-            'name' => null,
             'address' => null,
+            'name' => null,
         ], $customer->newValues());
 
         $customerQuery = CustomerWithProperties::query();
