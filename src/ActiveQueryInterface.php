@@ -110,13 +110,28 @@ interface ActiveQueryInterface extends QueryInterface
     public function resetWith(): static;
 
     /**
-     * Specifies the relation associated with the junction table for use in a relational query.
+     * Specifies the relation associated with the junction table.
      *
-     * @param string $relationName The relation name.
-     * This refers to a relation declared in the
-     * {@see ActiveRelationTrait::primaryModel} of the relation.
+     * Use this method to specify a pivot record/table when declaring a relation in the {@see ActiveRecord} class:
+     *
+     * ```php
+     * class Order extends ActiveRecord
+     * {
+     *    public function getOrderItems() {
+     *        return $this->hasMany(OrderItem::class, ['order_id' => 'id']);
+     *    }
+     *
+     *    public function getItems() {
+     *        return $this->hasMany(Item::class, ['id' => 'item_id'])->via('orderItems');
+     *    }
+     * }
+     * ```
+     *
+     * @param string $relationName The relation name. This refers to a relation declared in {@see primaryModel}.
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
+     *
+     * @return static the relation object itself.
      */
     public function via(string $relationName, callable|null $callable = null): static;
 
