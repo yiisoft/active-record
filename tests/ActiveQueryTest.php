@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
-use Throwable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
@@ -370,7 +369,7 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/5341}
+     * @see https://github.com/yiisoft/yii2/issues/5341
      *
      * Issue: Plan 1 -- * Account * -- * User
      * Our Tests: Category 1 -- * Item * -- * Order
@@ -460,7 +459,7 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/5341}
+     * @see https://github.com/yiisoft/yii2/issues/5341
      *
      * Issue: Plan 1 -- * Account * -- * User
      * Our Tests: Category 1 -- * Item * -- * Order
@@ -674,7 +673,7 @@ abstract class ActiveQueryTest extends TestCase
         $orders = $query->all();
         $this->assertCount(3, $orders);
 
-        /** {@see https://github.com/yiisoft/yii2/issues/2880} */
+        /** @see https://github.com/yiisoft/yii2/issues/2880 */
         $query = Order::query()->findByPk(1);
         $customer = $query->getCustomerQuery()->joinWith(
             [
@@ -751,11 +750,9 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * @depends testJoinWith
-     *
      * This query will do the same join twice, ensure duplicated JOIN gets removed.
      *
-     * {@see https://github.com/yiisoft/yii2/pull/2650}
+     * @see https://github.com/yiisoft/yii2/pull/2650
      */
     public function testJoinWithVia(): void
     {
@@ -783,16 +780,11 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * @depends testJoinWith
-     *
      * Tests the alias syntax for joinWith: 'alias' => 'relation'.
      *
-     * @dataProvider aliasMethodProvider
-     *
      * @param string $aliasMethod whether alias is specified explicitly or using the query syntax {{@tablename}}
-     *
-     * @throws Exception|InvalidConfigException|Throwable
      */
+    #[DataProvider('aliasMethodProvider')]
     public function testJoinWithAlias(string $aliasMethod): void
     {
         $orders = [];
@@ -1480,7 +1472,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        /** {@see https://github.com/yiisoft/yii2/issues/4938} */
+        /** @see https://github.com/yiisoft/yii2/issues/4938 */
         $categoryQuery = Category::query();
         $category = $categoryQuery->findByPk(2);
         $this->assertInstanceOf(Category::class, $category);
@@ -1488,7 +1480,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(1, $category->getLimitedItemsQuery()->count());
         $this->assertEquals(1, $category->getLimitedItemsQuery()->distinct(true)->count());
 
-        /** {@see https://github.com/yiisoft/yii2/issues/3197} */
+        /** @see https://github.com/yiisoft/yii2/issues/3197 */
         $orderQuery = Order::query();
         $orders = $orderQuery->with('orderItems')->orderBy('id')->all();
         $this->assertCount(3, $orders);
@@ -1509,7 +1501,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(3, $orders[1]->getOrderItems());
         $this->assertCount(1, $orders[2]->getOrderItems());
 
-        /** {@see https://github.com/yiisoft/yii2/issues/8149} */
+        /** @see https://github.com/yiisoft/yii2/issues/8149 */
         $arClass = new Customer();
 
         $arClass->setName('test');
@@ -1698,7 +1690,7 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/12213}
+     * @see https://github.com/yiisoft/yii2/issues/12213
      */
     public function testUnlinkAllOnCondition(): void
     {
@@ -1730,7 +1722,7 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/12213}
+     * @see https://github.com/yiisoft/yii2/issues/12213
      */
     public function testUnlinkAllOnConditionViaTable(): void
     {
@@ -1760,7 +1752,7 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/pull/13891}
+     * @see https://github.com/yiisoft/yii2/pull/13891
      */
     public function testIndexByAfterLoadingRelations(): void
     {
@@ -1826,12 +1818,9 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * Test whether conditions are quoted correctly in conditions where joinWith is used.
      *
-     * {@see https://github.com/yiisoft/yii2/issues/11088}
-     *
-     * @dataProvider tableNameProvider
-     *
-     * @throws Exception|InvalidConfigException
+     * @see https://github.com/yiisoft/yii2/issues/11088
      */
+    #[DataProvider('tableNameProvider')]
     public function testRelationWhereParams(string $orderTableName, string $orderItemTableName): void
     {
         $driverName = $this->db()->getDriverName();
@@ -2072,7 +2061,7 @@ abstract class ActiveQueryTest extends TestCase
     /**
      * Ensure no ambiguous column error occurs if ActiveQuery adds a JOIN.
      *
-     * {@see https://github.com/yiisoft/yii2/issues/13757}
+     * @see https://github.com/yiisoft/yii2/issues/13757
      */
     public function testAmbiguousColumnFindOne(): void
     {
@@ -2510,7 +2499,7 @@ abstract class ActiveQueryTest extends TestCase
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/17089}
+     * @see https://github.com/yiisoft/yii2/issues/17089
      */
     public function testViaWithCallable(): void
     {

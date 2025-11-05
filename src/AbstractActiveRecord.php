@@ -750,9 +750,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if ($viaRelation !== null) {
             if (is_array($viaRelation)) {
                 [$viaName, $viaRelation] = $viaRelation;
-                /** @psalm-var ActiveQueryInterface $viaRelation */
                 $viaModel = $viaRelation->getModel();
-                /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             }
 
@@ -761,7 +759,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
             if ($viaRelation instanceof ActiveQueryInterface) {
                 $from = $viaRelation->getFrom();
-                /** @psalm-var mixed $viaTable */
                 $viaTable = reset($from);
 
                 foreach ($viaRelation->getLink() as $a => $b) {
@@ -807,9 +804,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
                 }
             } elseif ($linkedModel->isPrimaryKey(array_keys($relation->getLink()))) {
                 foreach ($relation->getLink() as $a => $b) {
-                    /** @psalm-var mixed $values */
                     $values = $this->get($b);
-                    /** relation via array valued property */
+                    // relation via array valued property
                     if (is_array($values)) {
                         if (($key = array_search($linkedModel->get($a), $values)) !== false) {
                             unset($values[$key]);
@@ -863,13 +859,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         if ($viaRelation !== null) {
             if (is_array($viaRelation)) {
                 [$viaName, $viaRelation] = $viaRelation;
-                /** @psalm-var ActiveQueryInterface $viaRelation */
                 $viaModel = $viaRelation->getModel();
-                /** @psalm-var string $viaName */
                 unset($this->related[$viaName]);
             } else {
                 $from = $viaRelation->getFrom();
-                /** @psalm-var mixed $viaTable */
                 $viaTable = reset($from);
             }
 
@@ -879,7 +872,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
             if ($viaRelation instanceof ActiveQueryInterface) {
                 foreach ($viaRelation->getLink() as $a => $b) {
                     $nulls[$a] = null;
-                    /** @psalm-var mixed */
                     $condition[$a] = $this->get($b);
                 }
 
@@ -920,7 +912,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
                 foreach ($relation->getLink() as $a => $b) {
                     $nulls[$a] = null;
-                    /** @psalm-var mixed */
                     $condition[$a] = $this->get($b);
                 }
 
@@ -967,10 +958,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         } elseif ($via instanceof ActiveQueryInterface) {
             $this->setRelationDependencies($name, $via);
         } else {
-            /**
-             * @psalm-var string|null $viaRelationName
-             * @psalm-var ActiveQueryInterface $viaQuery
-             */
             [$viaRelationName, $viaQuery] = $via;
             $this->setRelationDependencies($name, $viaQuery, $viaRelationName);
         }

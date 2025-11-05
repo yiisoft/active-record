@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle;
 
-use Throwable;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs\Order;
 use Yiisoft\ActiveRecord\Tests\Support\OracleHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
-use Yiisoft\Db\Exception\Exception;
-use Yiisoft\Db\Exception\InvalidConfigException;
 
 final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
 {
@@ -21,16 +19,11 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
     }
 
     /**
-     * @depends testJoinWith
-     *
      * Tests the alias syntax for joinWith: 'alias' => 'relation'.
      *
-     * @dataProvider aliasMethodProvider
-     *
      * @param string $aliasMethod whether alias is specified explicitly or using the query syntax {{@tablename}}
-     *
-     * @throws Exception|InvalidConfigException|Throwable
      */
+    #[DataProvider('aliasMethodProvider')]
     public function testJoinWithAlias(string $aliasMethod): void
     {
         $orders = [];

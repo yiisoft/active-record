@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Item;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Promotion;
@@ -115,7 +116,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/15482}
+     * @see https://github.com/yiisoft/yii2/issues/15482
      */
     public function testEagerLoadingUsingStringIdentifiers(): void
     {
@@ -157,7 +158,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     }
 
     /**
-     * {@see https://github.com/yiisoft/yii2/issues/4672}
+     * @see https://github.com/yiisoft/yii2/issues/4672
      */
     public function testBooleanValues2(): void
     {
@@ -299,9 +300,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         ];
     }
 
-    /**
-     * @dataProvider arrayValuesProvider
-     */
+    #[DataProvider('arrayValuesProvider')]
     public function testArrayValues($properties): void
     {
         $this->reloadFixtureAfterTest();
