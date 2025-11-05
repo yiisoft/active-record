@@ -16,5 +16,6 @@ return (new Config())
     ->setRules([
         '@PER-CS3.0' => true,
         'no_unused_imports' => true,
+        'ordered_class_elements' => true,
     ])
     ->setFinder($finder);

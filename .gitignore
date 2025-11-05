@@ -29,9 +29,10 @@ composer.phar
 # Mac DS_Store Files
 .DS_Store
 
-# phpunit itself is not needed
-phpunit.phar
-# local phpunit config
+# PHPUnit
+/phpunit.phar
 /phpunit.xml
+/.phpunit.result.cache
 
-.phpunit.result.cache
+# PHP CS Fixer
+/.php-cs-fixer.cache
