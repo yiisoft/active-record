@@ -56,8 +56,6 @@ use function in_array;
 
 abstract class ActiveRecordTest extends TestCase
 {
-    abstract protected function createFactory(): Factory;
-
     public function testStoreNull(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1939,4 +1937,5 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($promotions[0]->relation('singleItem'));
         $this->assertNull($promotions[1]->relation('singleItem'));
     }
+    abstract protected function createFactory(): Factory;
 }

@@ -10,11 +10,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryResultTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new OracleHelper())->createConnection();
-    }
-
     public function testBatchWithIndexBy(): void
     {
         $customerQuery = Customer::query();
@@ -27,5 +22,9 @@ final class BatchQueryResultTest extends \Yiisoft\ActiveRecord\Tests\BatchQueryR
         $this->assertEquals('user1', $customers[0]->getName());
         $this->assertEquals('user2', $customers[1]->getName());
         $this->assertEquals('user3', $customers[2]->getName());
+    }
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new OracleHelper())->createConnection();
     }
 }

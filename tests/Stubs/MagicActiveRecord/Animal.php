@@ -16,14 +16,14 @@ class Animal extends MagicActiveRecord
 {
     private string $does;
 
-    public function tableName(): string
-    {
-        return 'animal';
-    }
-
     public function __construct()
     {
         $this->type = static::class;
+    }
+
+    public function tableName(): string
+    {
+        return 'animal';
     }
 
     public function getDoes()

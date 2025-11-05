@@ -61,46 +61,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /** @var string[][] */
     private array $relationsDependencies = [];
 
-    /**
-     * Returns the available property values of an Active Record object.
-     *
-     * @return array
-     *
-     * @psalm-return array<string, mixed>
-     */
-    abstract protected function propertyValuesInternal(): array;
-
-    /**
-     * Inserts Active Record values into DB without considering transaction.
-     *
-     * @param array|null $properties List of property names or name-values pairs that need to be saved.
-     * Defaults to `null`, meaning all changed property values will be saved.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws Throwable
-     */
-    abstract protected function insertInternal(?array $properties = null): void;
-
-    /**
-     * Sets the value of the named property.
-     *
-     * @param string $name The property name.
-     * @param mixed $value The property value.
-     */
-    abstract protected function populateProperty(string $name, mixed $value): void;
-
-    /**
-     * Internal method to insert or update a record in the database.
-     *
-     * @see upsert()
-     */
-    abstract protected function upsertInternal(
-        ?array $insertProperties = null,
-        array|bool $updateProperties = true,
-    ): void;
-
     public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
         return static::query($modelClass ?? $this);
@@ -498,16 +458,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         unset($this->related[$name]);
     }
 
-    protected function retrieveRelation(string $name): ActiveRecordInterface|array|null
-    {
-        /** @var ActiveQueryInterface $query */
-        $query = $this->relationQuery($name);
-
-        $this->setRelationDependencies($name, $query);
-
-        return $this->related[$name] = $query->relatedRecords();
-    }
-
     public function save(?array $properties = null): void
     {
         if ($this->isNew()) {
@@ -796,33 +746,69 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         unset($this->related[$relationName]);
     }
 
-    /**
-     * Sets relation dependencies for a property.
-     *
-     * @param string $name Property name.
-     * @param ActiveQueryInterface $relation Relation instance.
-     * @param string|null $viaRelationName Intermediate relation.
-     */
-    private function setRelationDependencies(
-        string $name,
-        ActiveQueryInterface $relation,
-        ?string $viaRelationName = null,
-    ): void {
-        $via = $relation->getVia();
+    public function tableName(): string
+    {
+        $name = (new ReflectionClass($this))->getShortName();
+        /** @var string $name */
+        $name = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $name);
+        $name = strtolower(ltrim($name, '_'));
 
-        if (empty($via)) {
-            foreach ($relation->getLink() as $propertyName) {
-                $this->relationsDependencies[$propertyName][$name] = $name;
-                if ($viaRelationName !== null) {
-                    $this->relationsDependencies[$propertyName][] = $viaRelationName;
-                }
-            }
-        } elseif ($via instanceof ActiveQueryInterface) {
-            $this->setRelationDependencies($name, $via);
-        } else {
-            [$viaRelationName, $viaQuery] = $via;
-            $this->setRelationDependencies($name, $viaQuery, $viaRelationName);
-        }
+        return '{{%' . $name . '}}';
+    }
+
+    public function db(): ConnectionInterface
+    {
+        return ConnectionProvider::get();
+    }
+
+    /**
+     * Returns the available property values of an Active Record object.
+     *
+     * @return array
+     *
+     * @psalm-return array<string, mixed>
+     */
+    abstract protected function propertyValuesInternal(): array;
+
+    /**
+     * Inserts Active Record values into DB without considering transaction.
+     *
+     * @param array|null $properties List of property names or name-values pairs that need to be saved.
+     * Defaults to `null`, meaning all changed property values will be saved.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws Throwable
+     */
+    abstract protected function insertInternal(?array $properties = null): void;
+
+    /**
+     * Sets the value of the named property.
+     *
+     * @param string $name The property name.
+     * @param mixed $value The property value.
+     */
+    abstract protected function populateProperty(string $name, mixed $value): void;
+
+    /**
+     * Internal method to insert or update a record in the database.
+     *
+     * @see upsert()
+     */
+    abstract protected function upsertInternal(
+        ?array $insertProperties = null,
+        array|bool $updateProperties = true,
+    ): void;
+
+    protected function retrieveRelation(string $name): ActiveRecordInterface|array|null
+    {
+        /** @var ActiveQueryInterface $query */
+        $query = $this->relationQuery($name);
+
+        $this->setRelationDependencies($name, $query);
+
+        return $this->related[$name] = $query->relatedRecords();
     }
 
     /**
@@ -996,6 +982,54 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $rows;
     }
 
+    protected function hasDependentRelations(string $propertyName): bool
+    {
+        return isset($this->relationsDependencies[$propertyName]);
+    }
+
+    /**
+     * Resets dependent related models checking if their links contain specific property.
+     *
+     * @param string $propertyName The changed property name.
+     */
+    protected function resetDependentRelations(string $propertyName): void
+    {
+        foreach ($this->relationsDependencies[$propertyName] as $relation) {
+            unset($this->related[$relation]);
+        }
+
+        unset($this->relationsDependencies[$propertyName]);
+    }
+
+    /**
+     * Sets relation dependencies for a property.
+     *
+     * @param string $name Property name.
+     * @param ActiveQueryInterface $relation Relation instance.
+     * @param string|null $viaRelationName Intermediate relation.
+     */
+    private function setRelationDependencies(
+        string $name,
+        ActiveQueryInterface $relation,
+        ?string $viaRelationName = null,
+    ): void {
+        $via = $relation->getVia();
+
+        if (empty($via)) {
+            foreach ($relation->getLink() as $propertyName) {
+                $this->relationsDependencies[$propertyName][$name] = $name;
+                if ($viaRelationName !== null) {
+                    $this->relationsDependencies[$propertyName][] = $viaRelationName;
+                }
+            }
+        } elseif ($via instanceof ActiveQueryInterface) {
+            $this->setRelationDependencies($name, $via);
+        } else {
+            [$viaRelationName, $viaQuery] = $via;
+            $this->setRelationDependencies($name, $viaQuery, $viaRelationName);
+        }
+    }
+
     /**
      * @psalm-param array<string, string> $link
      */
@@ -1023,39 +1057,5 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         }
 
         $foreignModel->save();
-    }
-
-    protected function hasDependentRelations(string $propertyName): bool
-    {
-        return isset($this->relationsDependencies[$propertyName]);
-    }
-
-    /**
-     * Resets dependent related models checking if their links contain specific property.
-     *
-     * @param string $propertyName The changed property name.
-     */
-    protected function resetDependentRelations(string $propertyName): void
-    {
-        foreach ($this->relationsDependencies[$propertyName] as $relation) {
-            unset($this->related[$relation]);
-        }
-
-        unset($this->relationsDependencies[$propertyName]);
-    }
-
-    public function tableName(): string
-    {
-        $name = (new ReflectionClass($this))->getShortName();
-        /** @var string $name */
-        $name = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $name);
-        $name = strtolower(ltrim($name, '_'));
-
-        return '{{%' . $name . '}}';
-    }
-
-    public function db(): ConnectionInterface
-    {
-        return ConnectionProvider::get();
     }
 }

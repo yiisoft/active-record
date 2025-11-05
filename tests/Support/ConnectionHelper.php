@@ -13,14 +13,13 @@ use Yiisoft\Factory\Factory;
 
 abstract class ConnectionHelper
 {
-    protected function createSchemaCache(): SchemaCache
-    {
-        return new SchemaCache(new ArrayCache());
-    }
-
     public function createFactory(ConnectionInterface $db): Factory
     {
         $container = new Container(ContainerConfig::create()->withDefinitions([ConnectionInterface::class => $db]));
         return new Factory($container, [ConnectionInterface::class => $db]);
+    }
+    protected function createSchemaCache(): SchemaCache
+    {
+        return new SchemaCache(new ArrayCache());
     }
 }

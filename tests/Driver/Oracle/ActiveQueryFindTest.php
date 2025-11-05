@@ -10,11 +10,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryFindTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new OracleHelper())->createConnection();
-    }
-
     public function testFindLimit(): void
     {
         /** one */
@@ -62,5 +57,9 @@ final class ActiveQueryFindTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryF
 
         $customer = $customerQuery->offset(3)->one();
         $this->assertNull($customer);
+    }
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new OracleHelper())->createConnection();
     }
 }

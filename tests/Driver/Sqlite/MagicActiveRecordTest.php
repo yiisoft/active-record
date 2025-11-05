@@ -11,11 +11,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new SqliteHelper())->createConnection();
-    }
-
     public function testExplicitPkOnAutoIncrement(): void
     {
         $this->reloadFixtureAfterTest();
@@ -53,5 +48,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         }
 
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
+    }
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new SqliteHelper())->createConnection();
     }
 }

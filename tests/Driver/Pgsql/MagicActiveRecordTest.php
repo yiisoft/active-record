@@ -20,11 +20,6 @@ use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new PgsqlHelper())->createConnection();
-    }
-
     public function testExplicitPkOnAutoIncrement(): void
     {
         $this->reloadFixtureAfterTest();
@@ -285,5 +280,9 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         }
 
         $this->assertSame(1, $type->update(), 'The record got updated');
+    }
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new PgsqlHelper())->createConnection();
     }
 }
