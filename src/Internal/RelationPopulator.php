@@ -236,16 +236,18 @@ final class RelationPopulator
             $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
         }
 
-        if (!empty($map)) {
-            $map = array_replace_recursive(...$map);
-            /** @psalm-var array<array<true>> $map */
+        if (empty($map)) {
+            return [[], []];
+        }
 
-            if (!empty($viaMap)) {
-                $map = array_map(
-                    static fn(array $linkKeys): array => array_replace(...array_intersect_key($viaMap, $linkKeys)),
-                    $map,
-                );
-            }
+        $map = array_replace_recursive(...$map);
+        /** @psalm-var array<array<true>> $map */
+
+        if (!empty($viaMap)) {
+            $map = array_map(
+                static fn(array $linkKeys): array => array_replace(...array_intersect_key($viaMap, $linkKeys)),
+                $map,
+            );
         }
 
         foreach ($models as $model) {
