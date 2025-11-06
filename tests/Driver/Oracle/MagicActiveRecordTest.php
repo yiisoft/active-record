@@ -11,11 +11,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new OracleHelper())->createConnection();
-    }
-
     public function testDefaultValues(): void
     {
         $arClass = new Type();
@@ -73,5 +68,10 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => '0'])->all();
         $this->assertCount(2, $customers);
+    }
+
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new OracleHelper())->createConnection();
     }
 }

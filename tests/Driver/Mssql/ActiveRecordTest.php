@@ -12,16 +12,6 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new MssqlHelper())->createConnection();
-    }
-
-    protected function createFactory(): Factory
-    {
-        return (new MssqlHelper())->createFactory($this->db());
-    }
-
     public function testSaveWithTrigger(): void
     {
         $this->reloadFixtureAfterTest();
@@ -58,5 +48,15 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $testRecordQuery = TestTriggerAlert::query();
 
         $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
+    }
+
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new MssqlHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new MssqlHelper())->createFactory($this->db());
     }
 }

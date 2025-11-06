@@ -16,9 +16,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ProfileWithConstructor extends MagicActiveRecord
 {
-    public function __construct(ConnectionInterface $db, private Aliases $aliases)
-    {
-    }
+    public function __construct(ConnectionInterface $db, private Aliases $aliases) {}
 
     public function tableName(): string
     {

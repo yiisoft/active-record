@@ -73,7 +73,7 @@ final class Employee extends ActiveRecord
             [
                 'department_id' => 'department_id',
                 'employee_id' => 'id',
-            ]
+            ],
         )->inverseOf('employee');
     }
 }

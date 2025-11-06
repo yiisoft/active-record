@@ -11,6 +11,4 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
  *
  * @see ActiveRecordInterface::query()
  */
-final class BeforeCreateQuery extends AbstractEvent
-{
-}
+final class BeforeCreateQuery extends AbstractEvent {}

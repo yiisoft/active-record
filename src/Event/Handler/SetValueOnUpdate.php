@@ -57,7 +57,7 @@ class SetValueOnUpdate extends AttributeHandlerProvider
                 $updateProperties ??= match ($event->updateProperties) {
                     true => array_diff_key(
                         $event->insertProperties ?? $model->newValues(),
-                        array_fill_keys($model->primaryKey(), null)
+                        array_fill_keys($model->primaryKey(), null),
                     ),
                     false => [],
                     default => $event->updateProperties,

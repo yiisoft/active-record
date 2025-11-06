@@ -114,12 +114,12 @@ use function serialize;
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
     private ActiveRecordInterface $model;
-    private string|null $sql = null;
+    private ?string $sql = null;
     private array|ExpressionInterface|string|null $on = null;
-    private bool|null $asArray = null;
+    private ?bool $asArray = null;
     private array $with = [];
     private bool $multiple = false;
-    private ActiveRecordInterface|null $primaryModel = null;
+    private ?ActiveRecordInterface $primaryModel = null;
     /** @psalm-var array<string, string> */
     private array $link = [];
 
@@ -142,7 +142,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @see inverseOf()
      */
-    private string|null $inverseOf = null;
+    private ?string $inverseOf = null;
 
     /**
      * @var ActiveQueryInterface|array|null The relation associated with the junction table.
@@ -154,7 +154,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @psalm-param ModelClass $modelClass
      */
     final public function __construct(
-        ActiveRecordInterface|string $modelClass
+        ActiveRecordInterface|string $modelClass,
     ) {
         $this->model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
@@ -176,13 +176,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
     }
 
-    public function asArray(bool|null $value = true): static
+    public function asArray(?bool $value = true): static
     {
         $this->asArray = $value;
         return $this;
     }
 
-    public function isAsArray(): bool|null
+    public function isAsArray(): ?bool
     {
         return $this->asArray;
     }
@@ -326,50 +326,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $models;
     }
 
-    /**
-     * Removes duplicated rows by checking their primary key values.
-     *
-     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
-     *
-     * @param array[] $rows The rows to be checked.
-     *
-     * @throws Exception
-     * @throws InvalidConfigException
-     *
-     * @return array[] The distinctive rows.
-     *
-     * @psalm-param non-empty-list<array<string, mixed>> $rows
-     * @psalm-return non-empty-list<array<string, mixed>>
-     */
-    private function removeDuplicatedRows(array $rows): array
-    {
-        $model = $this->getModel();
-        $pks = $model->primaryKey();
-
-        if (empty($pks)) {
-            throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
-        }
-
-        foreach ($pks as $pk) {
-            if (!isset($rows[0][$pk])) {
-                return $rows;
-            }
-        }
-
-        if (count($pks) === 1) {
-            /** @psalm-var non-empty-list<string|int> $hash */
-            $hash = array_column($rows, reset($pks));
-        } else {
-            $flippedPks = array_flip($pks);
-            $hash = array_map(
-                static fn (array $row): string => serialize(array_intersect_key($row, $flippedPks)),
-                $rows
-            );
-        }
-
-        return array_values(array_combine($hash, $rows));
-    }
-
     public function one(): array|ActiveRecordInterface|null
     {
         if ($this->shouldEmulateExecution()) {
@@ -401,37 +357,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->db->createCommand($sql, $params);
     }
 
-    /**
-     * Queries a scalar value by setting {@see select()} first.
-     *
-     * Restores the value of select to make this query reusable.
-     *
-     * @param ExpressionInterface|string $selectExpression The expression to be selected.
-     *
-     * @throws Exception
-     * @throws InvalidArgumentException
-     * @throws InvalidConfigException
-     * @throws NotSupportedException
-     * @throws Throwable
-     */
-    protected function queryScalar(string|ExpressionInterface $selectExpression): bool|string|null|int|float
-    {
-        if ($this->sql === null) {
-            return parent::queryScalar($selectExpression);
-        }
-
-        $command = (new Query($this->db))->select([$selectExpression])
-            ->from(['c' => "($this->sql)"])
-            ->params($this->params)
-            ->createCommand();
-
-        return $command->queryScalar();
-    }
-
     public function joinWith(
         array|string $with,
         array|bool $eagerLoading = true,
-        array|string $joinType = 'LEFT JOIN'
+        array|string $joinType = 'LEFT JOIN',
     ): static {
         $relations = [];
 
@@ -478,7 +407,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $this->with = [];
         $this->joinsWith = array_map(
-            static fn (JoinWith $joinWith) => $joinWith->withoutEagerLoading(),
+            static fn(JoinWith $joinWith) => $joinWith->withoutEagerLoading(),
             $this->joinsWith,
         );
         return $this;
@@ -514,7 +443,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function viaTable(string $tableName, array $link, callable|null $callable = null): static
+    public function viaTable(string $tableName, array $link, ?callable $callable = null): static
     {
         $model = $this->primaryModel ?? $this->model;
 
@@ -561,11 +490,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::getTablesUsedInFrom();
     }
 
-    protected function getPrimaryTableName(): string
-    {
-        return $this->getModel()->tableName();
-    }
-
     public function getOn(): array|ExpressionInterface|string|null
     {
         return $this->on;
@@ -576,7 +500,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->joinsWith;
     }
 
-    public function getSql(): string|null
+    public function getSql(): ?string
     {
         return $this->sql;
     }
@@ -594,7 +518,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         if (count($primaryKey) !== count($values)) {
             throw new InvalidArgumentException(
-                'The primary key has ' . count($primaryKey) . ' columns, but ' . count($values) . ' values are passed.'
+                'The primary key has ' . count($primaryKey) . ' columns, but ' . count($values) . ' values are passed.',
             );
         }
 
@@ -609,7 +533,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return (clone $this)->andWhere(array_combine($primaryKey, $values))->one();
     }
 
-    public function sql(string|null $value): static
+    public function sql(?string $value): static
     {
         $this->sql = $value;
         return $this;
@@ -629,7 +553,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return parent::batch($batchSize)->indexBy(null)->resultCallback($callback);
     }
 
-    public function via(string $relationName, callable|null $callable = null): static
+    public function via(string $relationName, ?callable $callable = null): static
     {
         if ($this->primaryModel === null) {
             throw new InvalidConfigException('Setting via is only supported for relational queries.');
@@ -678,7 +602,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->multiple;
     }
 
-    public function getPrimaryModel(): ActiveRecordInterface|null
+    public function getPrimaryModel(): ?ActiveRecordInterface
     {
         return $this->primaryModel;
     }
@@ -700,7 +624,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
-    public function primaryModel(ActiveRecordInterface|null $value): static
+    public function primaryModel(?ActiveRecordInterface $value): static
     {
         $this->primaryModel = $value;
 
@@ -711,6 +635,38 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $this->link = $value;
         return $this;
+    }
+
+    /**
+     * Queries a scalar value by setting {@see select()} first.
+     *
+     * Restores the value of select to make this query reusable.
+     *
+     * @param ExpressionInterface|string $selectExpression The expression to be selected.
+     *
+     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws InvalidConfigException
+     * @throws NotSupportedException
+     * @throws Throwable
+     */
+    protected function queryScalar(string|ExpressionInterface $selectExpression): bool|string|int|float|null
+    {
+        if ($this->sql === null) {
+            return parent::queryScalar($selectExpression);
+        }
+
+        $command = (new Query($this->db))->select([$selectExpression])
+            ->from(['c' => "($this->sql)"])
+            ->params($this->params)
+            ->createCommand();
+
+        return $command->queryScalar();
+    }
+
+    protected function getPrimaryTableName(): string
+    {
+        return $this->getModel()->tableName();
     }
 
     protected function index(array $rows): array
@@ -752,6 +708,50 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             fn(array $row) => $this->getModel()->populateRecord($row),
             $rows,
         );
+    }
+
+    /**
+     * Removes duplicated rows by checking their primary key values.
+     *
+     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
+     *
+     * @param array[] $rows The rows to be checked.
+     *
+     * @throws Exception
+     * @throws InvalidConfigException
+     *
+     * @return array[] The distinctive rows.
+     *
+     * @psalm-param non-empty-list<array<string, mixed>> $rows
+     * @psalm-return non-empty-list<array<string, mixed>>
+     */
+    private function removeDuplicatedRows(array $rows): array
+    {
+        $model = $this->getModel();
+        $pks = $model->primaryKey();
+
+        if (empty($pks)) {
+            throw new InvalidConfigException('Primary key of "' . $model::class . '" can not be empty.');
+        }
+
+        foreach ($pks as $pk) {
+            if (!isset($rows[0][$pk])) {
+                return $rows;
+            }
+        }
+
+        if (count($pks) === 1) {
+            /** @psalm-var non-empty-list<string|int> $hash */
+            $hash = array_column($rows, reset($pks));
+        } else {
+            $flippedPks = array_flip($pks);
+            $hash = array_map(
+                static fn(array $row): string => serialize(array_intersect_key($row, $flippedPks)),
+                $rows,
+            );
+        }
+
+        return array_values(array_combine($hash, $rows));
     }
 
     private function createInstance(): static

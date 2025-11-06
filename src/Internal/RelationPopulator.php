@@ -166,7 +166,7 @@ final class RelationPopulator
         array &$models,
         array $buckets,
         string $name,
-        array $link
+        array $link,
     ): void {
         $indexBy = $query->getIndexBy();
         $default = $query->isMultiple() ? [] : null;

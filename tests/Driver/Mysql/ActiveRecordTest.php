@@ -13,16 +13,6 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new MysqlHelper())->createConnection();
-    }
-
-    protected function createFactory(): Factory
-    {
-        return (new MysqlHelper())->createFactory($this->db());
-    }
-
     public function testCastValues(): void
     {
         $this->reloadFixtureAfterTest();
@@ -102,5 +92,15 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         }
 
         $this->assertEquals(['1', '01', '001', '001', '2', '2b', '2b', '02'], $alphaIdentifiers);
+    }
+
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new MysqlHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new MysqlHelper())->createFactory($this->db());
     }
 }

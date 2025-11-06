@@ -135,7 +135,7 @@ interface ActiveRecordInterface
      *
      * @psalm-return array<string, mixed>
      */
-    public function propertyValues(array|null $names = null, array $except = []): array;
+    public function propertyValues(?array $names = null, array $except = []): array;
 
     /**
      * Returns a value indicating whether the current record is new (not saved in the database).
@@ -373,7 +373,7 @@ interface ActiveRecordInterface
      * @throws InvalidConfigException
      * @throws Throwable In case insert failed.
      */
-    public function insert(array|null $properties = null): void;
+    public function insert(?array $properties = null): void;
 
     /**
      * Checks if any property returned by {@see propertyNames()} method has changed.
@@ -551,7 +551,7 @@ interface ActiveRecordInterface
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
      * Defaults to `null`, meaning all changed property values will be saved.
      */
-    public function save(array|null $properties = null): void;
+    public function save(?array $properties = null): void;
 
     /**
      * Sets the named property value.
@@ -626,7 +626,7 @@ interface ActiveRecordInterface
      *
      * @return int The number of rows affected.
      */
-    public function update(array|null $properties = null): int;
+    public function update(?array $properties = null): int;
 
     /**
      * Updates the whole table using the provided property values and conditions.
@@ -705,7 +705,7 @@ interface ActiveRecordInterface
      * @throws InvalidConfigException
      * @throws Throwable In case query failed.
      */
-    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): void;
+    public function upsert(?array $insertProperties = null, array|bool $updateProperties = true): void;
 
     /**
      * Destroys the relationship between two records.
@@ -814,7 +814,7 @@ interface ActiveRecordInterface
      *
      * @psalm-return array<string, mixed>
      */
-    public function newValues(array|null $propertyNames = null): array;
+    public function newValues(?array $propertyNames = null): array;
 
     /**
      * Marks a property as changed.
@@ -872,5 +872,5 @@ interface ActiveRecordInterface
      * @param array|null $propertyValues Old property values (name => value) to be set. If set to `null` this record
      * is {@see isNew()}.
      */
-    public function assignOldValues(array|null $propertyValues = null): void;
+    public function assignOldValues(?array $propertyValues = null): void;
 }

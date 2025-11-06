@@ -41,7 +41,7 @@ final class Department extends ActiveRecord
             Employee::class,
             [
                 'department_id' => 'id',
-            ]
+            ],
         )->inverseOf('department');
     }
 }

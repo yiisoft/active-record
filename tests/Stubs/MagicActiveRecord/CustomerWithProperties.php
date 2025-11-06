@@ -12,10 +12,10 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
  */
 class CustomerWithProperties extends MagicActiveRecord
 {
+    public ?string $address = null;
     protected int $id;
     protected string $email;
-    protected string|null $name = null;
-    public string|null $address = null;
+    protected ?string $name = null;
 
     public function tableName(): string
     {
@@ -32,17 +32,17 @@ class CustomerWithProperties extends MagicActiveRecord
         return $this->email;
     }
 
-    public function getName(): string|null
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    public function getAddress(): string|null
+    public function getAddress(): ?string
     {
         return $this->address;
     }
 
-    public function getStatus(): int|null
+    public function getStatus(): ?int
     {
         return $this->get('status');
     }
@@ -62,17 +62,17 @@ class CustomerWithProperties extends MagicActiveRecord
         $this->email = $email;
     }
 
-    public function setName(string|null $name): void
+    public function setName(?string $name): void
     {
         $this->name = $name;
     }
 
-    public function setAddress(string|null $address): void
+    public function setAddress(?string $address): void
     {
         $this->address = $address;
     }
 
-    public function setStatus(int|null $status): void
+    public function setStatus(?int $status): void
     {
         $this->set('status', $status);
     }

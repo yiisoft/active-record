@@ -63,7 +63,7 @@ trait MagicRelationsTrait
 
             throw new InvalidArgumentException(
                 'Relation query method "' . static::class . '::' . $getter . '()" should return type "'
-                . ActiveQueryInterface::class . '", but  returns "' . $typeName . '" type.'
+                . ActiveQueryInterface::class . '", but  returns "' . $typeName . '" type.',
             );
         }
 
@@ -73,7 +73,7 @@ trait MagicRelationsTrait
         if ($realName !== $name) {
             throw new InvalidArgumentException(
                 'Relation names are case sensitive. ' . static::class
-                . " has a relation named \"$realName\" instead of \"$name\"."
+                . " has a relation named \"$realName\" instead of \"$name\".",
             );
         }
 

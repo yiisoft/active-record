@@ -9,6 +9,4 @@ use Yiisoft\Db\Exception\Exception;
 /**
  * Represents an exception caused by accessing unknown object properties.
  */
-final class UnknownPropertyException extends Exception
-{
-}
+final class UnknownPropertyException extends Exception {}

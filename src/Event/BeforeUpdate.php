@@ -18,7 +18,7 @@ final class BeforeUpdate extends AbstractEvent
      * @param ActiveRecordInterface $model The model being updated.
      * @param array|null &$properties The properties that will be used for the update operation.
      */
-    public function __construct(ActiveRecordInterface $model, public array|null &$properties)
+    public function __construct(ActiveRecordInterface $model, public ?array &$properties)
     {
         parent::__construct($model);
     }

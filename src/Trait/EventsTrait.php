@@ -54,7 +54,7 @@ trait EventsTrait
         return $result;
     }
 
-    public function insert(array|null $properties = null): void
+    public function insert(?array $properties = null): void
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforeInsert($this, $properties));
@@ -84,7 +84,7 @@ trait EventsTrait
         return $this;
     }
 
-    public static function query(ActiveRecordInterface|Closure|null|string $modelClass = null): ActiveQueryInterface
+    public static function query(ActiveRecordInterface|Closure|string|null $modelClass = null): ActiveQueryInterface
     {
         $model = match (true) {
             $modelClass === null => new static(),
@@ -107,7 +107,7 @@ trait EventsTrait
         return $query;
     }
 
-    public function save(array|null $properties = null): void
+    public function save(?array $properties = null): void
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforeSave($this, $properties));
@@ -121,7 +121,7 @@ trait EventsTrait
         $eventDispatcher->dispatch(new AfterSave($this));
     }
 
-    public function update(array|null $properties = null): int
+    public function update(?array $properties = null): int
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforeUpdate($this, $properties));
@@ -137,7 +137,7 @@ trait EventsTrait
         return $result;
     }
 
-    public function upsert(array|null $insertProperties = null, array|bool $updateProperties = true): void
+    public function upsert(?array $insertProperties = null, array|bool $updateProperties = true): void
     {
         $eventDispatcher = EventDispatcherProvider::get(static::class);
         $eventDispatcher->dispatch($event = new BeforeUpsert($this, $insertProperties, $updateProperties));

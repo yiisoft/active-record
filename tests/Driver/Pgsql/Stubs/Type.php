@@ -9,9 +9,9 @@ namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs;
  */
 final class Type extends \Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type
 {
-    public int|null $bigint_col = null;
-    public array|null $intarray_col = null;
-    public array|null $textarray2_col = null;
-    public array|null $jsonb_col = null;
-    public array|null $jsonarray_col = null;
+    public ?int $bigint_col = null;
+    public ?array $intarray_col = null;
+    public ?array $textarray2_col = null;
+    public ?array $jsonb_col = null;
+    public ?array $jsonarray_col = null;
 }

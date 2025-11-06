@@ -18,7 +18,7 @@ final class BeforeInsert extends AbstractEvent
      * @param ActiveRecordInterface $model The model that is being inserted.
      * @param array|null &$properties The properties that will be used for the insert operation.
      */
-    public function __construct(ActiveRecordInterface $model, public array|null &$properties)
+    public function __construct(ActiveRecordInterface $model, public ?array &$properties)
     {
         parent::__construct($model);
     }

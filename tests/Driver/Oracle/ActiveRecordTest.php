@@ -14,16 +14,6 @@ use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new OracleHelper())->createConnection();
-    }
-
-    protected function createFactory(): Factory
-    {
-        return (new OracleHelper())->createFactory($this->db());
-    }
-
     public function testDefaultValues(): void
     {
         $arClass = new Type();
@@ -86,10 +76,10 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     #[TestWith([[], [], [], []])]
     public function testUpsert(
         array $values,
-        array|null $insertProperties,
+        ?array $insertProperties,
         array|bool $updateProperties,
         array $expected,
-        array|null $expectedAfterRefresh = null,
+        ?array $expectedAfterRefresh = null,
     ): void {
         $customer = new Customer();
 
@@ -108,5 +98,15 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
     public function testSetValueOnUpdateUpsert(): void
     {
         $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
+    }
+
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new OracleHelper())->createConnection();
+    }
+
+    protected function createFactory(): Factory
+    {
+        return (new OracleHelper())->createFactory($this->db());
     }
 }

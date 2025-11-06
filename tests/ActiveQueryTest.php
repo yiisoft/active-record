@@ -303,7 +303,7 @@ abstract class ActiveQueryTest extends TestCase
             [
                 '{{' . $tableName . '}}' => '{{' . $tableName . '}}',
             ],
-            $query->getTablesUsedInFrom()
+            $query->getTablesUsedInFrom(),
         );
     }
 
@@ -342,7 +342,7 @@ abstract class ActiveQueryTest extends TestCase
                 'SELECT [[order_item]].* FROM [[order_item]] LEFT JOIN [[order]]',
                 self::db()->getDriverName(),
             ),
-            $sql
+            $sql,
         );
     }
 
@@ -354,7 +354,7 @@ abstract class ActiveQueryTest extends TestCase
                     $q->where('{{customer}}.{{id}} = :customer_id', [':customer_id' => 1]);
                 },
             ],
-            false
+            false,
         );
 
         $sql = $query->createCommand()->getRawSql();
@@ -364,7 +364,7 @@ abstract class ActiveQueryTest extends TestCase
                 'SELECT [[order]].* FROM [[order]] LEFT JOIN [[customer]] ON [[order]].[[customer_id]] = [[customer]].[[id]] WHERE ([[order]].[[deleted_at]] IS NULL) AND ([[customer]].[[id]] = 1)',
                 self::db()->getDriverName(),
             ),
-            $sql
+            $sql,
         );
     }
 
@@ -509,7 +509,7 @@ abstract class ActiveQueryTest extends TestCase
                 'customer' => function ($query) {
                     $query->where('{{customer}}.[[id]]=2');
                 },
-            ]
+            ],
         )->orderBy('order.id')->all();
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->getId());
@@ -523,7 +523,7 @@ abstract class ActiveQueryTest extends TestCase
                 'customer' => function ($query) {
                     $query->where(['customer.id' => 2]);
                 },
-            ]
+            ],
         )->andWhere(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
@@ -536,7 +536,7 @@ abstract class ActiveQueryTest extends TestCase
                     $query->where('{{customer}}.[[id]]=2');
                 },
             ],
-            false
+            false,
         )->orderBy('order.id')->all();
         $this->assertCount(2, $orders);
         $this->assertEquals(2, $orders[0]->getId());
@@ -551,7 +551,7 @@ abstract class ActiveQueryTest extends TestCase
                     $query->where(['customer.id' => 2]);
                 },
             ],
-            false
+            false,
         )->andWhere(['order.id' => [1, 2]])->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertEquals(2, $orders[0]->getId());
@@ -576,7 +576,7 @@ abstract class ActiveQueryTest extends TestCase
                 'items.category' => function ($q) {
                     $q->where('{{category}}.[[id]] = 2');
                 },
-            ]
+            ],
         )->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->getItems());
@@ -591,7 +591,7 @@ abstract class ActiveQueryTest extends TestCase
                 'customer' => function ($q) {
                     $q->from('customer c');
                 },
-            ]
+            ],
         )->orderBy('c.id DESC, order.id')->all();
         $this->assertCount(3, $orders);
         $this->assertEquals(2, $orders[0]->getId());
@@ -620,7 +620,7 @@ abstract class ActiveQueryTest extends TestCase
                 'items.category as c' => function ($q) {
                     $q->where('{{c}}.[[id]] = 2');
                 },
-            ]
+            ],
         )->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->getItems());
@@ -680,7 +680,7 @@ abstract class ActiveQueryTest extends TestCase
                 'orders' => static function ($q) {
                     $q->orderBy([]);
                 },
-            ]
+            ],
         )->one();
         $this->assertEquals(1, $customer->getId());
 
@@ -689,7 +689,7 @@ abstract class ActiveQueryTest extends TestCase
                 'items' => static function ($q) {
                     $q->from(['items' => 'item'])->orderBy('items.id');
                 },
-            ]
+            ],
         )->orderBy('order.id')->one();
 
         /** join with sub-relation called inside Closure */
@@ -703,7 +703,7 @@ abstract class ActiveQueryTest extends TestCase
                         },
                     ]);
                 },
-            ]
+            ],
         )->orderBy('order.id')->all();
         $this->assertCount(1, $orders);
         $this->assertCount(3, $orders[0]->getItems());
@@ -740,7 +740,7 @@ abstract class ActiveQueryTest extends TestCase
                 'orders' => static function ($q) {
                     $q->orderBy('order.id');
                 },
-            ]
+            ],
         )->orderBy('customer.id DESC, order.id')->all();
         $this->assertCount(2, $customers);
         $this->assertEquals(2, $customers[0]->getId());
@@ -767,7 +767,7 @@ abstract class ActiveQueryTest extends TestCase
                 'items' => static function ($q) {
                     $q->orderBy('item.id');
                 },
-            ]
+            ],
         )->all();
         $this->assertNotEmpty($rows);
     }
@@ -798,7 +798,7 @@ abstract class ActiveQueryTest extends TestCase
             $orders = $query->orderBy('{{@customer}}.id DESC, {{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->orderBy(
-                $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id')
+                $query->applyAlias('customer', 'id') . ' DESC,' . $query->applyAlias('order', 'id'),
             )->all();
         }
 
@@ -819,7 +819,7 @@ abstract class ActiveQueryTest extends TestCase
             $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->andWhere(
-                [$query->applyAlias('customer', 'id') => 2]
+                [$query->applyAlias('customer', 'id') => 2],
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 
@@ -838,7 +838,7 @@ abstract class ActiveQueryTest extends TestCase
             $orders = $query->andWhere('{{@customer}}.[[id]]=2')->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->andWhere(
-                [$query->applyAlias('customer', 'id') => 2]
+                [$query->applyAlias('customer', 'id') => 2],
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 
@@ -853,15 +853,15 @@ abstract class ActiveQueryTest extends TestCase
 
         if ($aliasMethod === 'explicit') {
             $orders = $query->andWhere(
-                ['b.name' => 'Yii3 Cookbook']
+                ['b.name' => 'Yii3 Cookbook'],
             )->orderBy('order.id')->all();
         } elseif ($aliasMethod === 'querysyntax') {
             $orders = $query->andWhere(
-                ['{{@item}}.name' => 'Yii3 Cookbook']
+                ['{{@item}}.name' => 'Yii3 Cookbook'],
             )->orderBy('{{@order}}.id')->all();
         } elseif ($aliasMethod === 'applyAlias') {
             $orders = $query->andWhere(
-                [$query->applyAlias('book', 'name') => 'Yii3 Cookbook']
+                [$query->applyAlias('book', 'name') => 'Yii3 Cookbook'],
             )->orderBy($query->applyAlias('order', 'id'))->all();
         }
 
@@ -896,7 +896,7 @@ abstract class ActiveQueryTest extends TestCase
                         $q->where([$q->applyAlias('category', 'id') => 2]);
                     }
                 },
-            ]
+            ],
         );
 
         if ($aliasMethod === 'explicit') {
@@ -998,7 +998,7 @@ abstract class ActiveQueryTest extends TestCase
                         $q->where([$q->applyAlias('category', 'id') => 2]);
                     }
                 },
-            ]
+            ],
         )->orderBy('order.id')->all();
 
         $this->assertCount(1, $orders);
@@ -1026,7 +1026,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query->createCommand()->getRawSql() . print_r($orders, true),
         );
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('bookItems'));
@@ -1041,7 +1041,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query->createCommand()->getRawSql() . print_r($orders, true),
         );
         $this->assertCount(0, $orders[0]->getBookItems());
         $this->assertCount(3, $orders[0]->getMovieItems());
@@ -1060,20 +1060,20 @@ abstract class ActiveQueryTest extends TestCase
                         $q->on('books.category_id = 1');
                     },
                 ],
-                false
+                false,
             )->joinWith(
                 [
                     'itemsIndexed movies' => static function (ActiveQueryInterface $q) {
                         $q->on('movies.category_id = 2');
                     },
                 ],
-                false
+                false,
             )->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(
             1,
             $orders,
-            $query->createCommand()->getRawSql() . print_r($orders, true)
+            $query->createCommand()->getRawSql() . print_r($orders, true),
         );
         $this->assertEquals(2, $orders[0]->getId());
         $this->assertFalse($orders[0]->isRelationPopulated('itemsIndexed'));
@@ -1086,7 +1086,7 @@ abstract class ActiveQueryTest extends TestCase
                         $q->on('books.category_id = 1');
                     },
                 ],
-                false
+                false,
             )
             ->joinWith(
                 [
@@ -1094,7 +1094,7 @@ abstract class ActiveQueryTest extends TestCase
                         $q->on('movies.category_id = 2');
                     },
                 ],
-                true
+                true,
             )->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
         $this->assertCount(1, $orders, $query->createCommand()->getRawSql() . print_r($orders, true));
@@ -1110,7 +1110,7 @@ abstract class ActiveQueryTest extends TestCase
                         $q->on('books.category_id = 1');
                     },
                 ],
-                true
+                true,
             )
             ->joinWith(
                 [
@@ -1118,7 +1118,7 @@ abstract class ActiveQueryTest extends TestCase
                         $q->on('movies.category_id = 2');
                     },
                 ],
-                false
+                false,
             )
             ->andWhere(['movies.name' => 'Toy Story']);
         $orders = $query->all();
@@ -1388,11 +1388,11 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame($orders[1]->getCustomer2(), $customer);
         $this->assertTrue(
             $orders[0]->isRelationPopulated('customer2'),
-            'inverse relation did not populate the relation'
+            'inverse relation did not populate the relation',
         );
         $this->assertTrue(
             $orders[1]->isRelationPopulated('customer2'),
-            'inverse relation did not populate the relation'
+            'inverse relation did not populate the relation',
         );
 
         /** the other way around */
@@ -1460,7 +1460,7 @@ abstract class ActiveQueryTest extends TestCase
         $order->unlinkAll('booksWithNullFKViaTable', false);
         $this->assertCount(0, $order->getBooksWithNullFKViaTable());
         $this->assertEquals(2, $orderItemsWithNullFKQuery->where(
-            ['AND', ['item_id' => [1, 2]], ['order_id' => null]]
+            ['AND', ['item_id' => [1, 2]], ['order_id' => null]],
         )->count());
 
         $orderItemsWithNullFKQuery = OrderItemWithNullFK::query();
@@ -1494,7 +1494,7 @@ abstract class ActiveQueryTest extends TestCase
                 'orderItems' => static function ($q) {
                     $q->indexBy('item_id');
                 },
-            ]
+            ],
         )->orderBy('id')->all();
         $this->assertCount(3, $orders);
         $this->assertCount(2, $orders[0]->getOrderItems());
@@ -2121,7 +2121,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertEquals(
             ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1'],
-            $values
+            $values,
         );
     }
 
@@ -2232,7 +2232,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->expectException(InvalidCallException::class);
         $this->expectExceptionMessage(
-            'Getting write-only property: Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::ordersReadOnly'
+            'Getting write-only property: Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::ordersReadOnly',
         );
         $query->ordersReadOnly;
     }
@@ -2246,7 +2246,7 @@ abstract class ActiveQueryTest extends TestCase
         /** Throwing exception */
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "items".'
+            'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "items".',
         );
         $query->relationQuery('items');
     }
@@ -2262,7 +2262,7 @@ abstract class ActiveQueryTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             'Relation query method "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::getItemQuery()" should'
-            . ' return type "Yiisoft\ActiveRecord\ActiveQueryInterface", but  returns "void" type.'
+            . ' return type "Yiisoft\ActiveRecord\ActiveQueryInterface", but  returns "void" type.',
         );
         $query->relationQuery('item');
     }
@@ -2277,8 +2277,8 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Relation names are case sensitive. Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer ' .
-            'has a relation named "expensiveOrders" instead of "expensiveorders"'
+            'Relation names are case sensitive. Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer '
+            . 'has a relation named "expensiveOrders" instead of "expensiveorders"',
         );
         $query->relationQuery('expensiveorders');
     }
@@ -2645,7 +2645,7 @@ abstract class ActiveQueryTest extends TestCase
         $sql = Order::query()
             ->joinWith(
                 ['customer.profile'],
-                joinType: ['customer.profile' => 'LEFT JOIN']
+                joinType: ['customer.profile' => 'LEFT JOIN'],
             )
             ->createCommand()
             ->getRawSql();
@@ -2665,7 +2665,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->expectException(InvalidConfigException::class);
         $this->expectExceptionMessage(
-            'Primary key of "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk" can not be empty.'
+            'Primary key of "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk" can not be empty.',
         );
         $query->all();
     }

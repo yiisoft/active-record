@@ -11,11 +11,6 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new MssqlHelper())->createConnection();
-    }
-
     public function testSaveWithTrigger(): void
     {
         $this->reloadFixtureAfterTest();
@@ -52,5 +47,10 @@ final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiv
         $testRecordQuery = TestTriggerAlert::query();
 
         $this->assertEquals('test', $testRecordQuery->findByPk(1)->stringcol);
+    }
+
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new MssqlHelper())->createConnection();
     }
 }

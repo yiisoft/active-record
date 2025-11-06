@@ -24,7 +24,7 @@ class Order extends ActiveRecord
 
     public const TABLE_NAME = 'order';
 
-    protected int|null $id;
+    protected ?int $id;
     protected int $customer_id;
     #[DefaultDateTimeOnInsert]
     protected int|DateTimeInterface $created_at;
@@ -42,7 +42,7 @@ class Order extends ActiveRecord
         return $this->tableName ??= self::TABLE_NAME;
     }
 
-    public function getId(): int|null
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -67,7 +67,7 @@ class Order extends ActiveRecord
         return $this->updated_at;
     }
 
-    public function setId(int|null $id): void
+    public function setId(?int $id): void
     {
         $this->set('id', $id);
     }
@@ -136,7 +136,7 @@ class Order extends ActiveRecord
         $this->virtualCustomerId = $virtualCustomerId;
     }
 
-    public function getVirtualCustomer(): Customer|null
+    public function getVirtualCustomer(): ?Customer
     {
         return $this->relation('virtualCustomer');
     }
@@ -146,7 +146,7 @@ class Order extends ActiveRecord
         return $this->hasOne(Customer::class, ['id' => 'virtualCustomerId']);
     }
 
-    public function getCustomer(): Customer|null
+    public function getCustomer(): ?Customer
     {
         return $this->relation('customer');
     }
@@ -156,7 +156,7 @@ class Order extends ActiveRecord
         return $this->hasOne(Customer::class, ['id' => 'customer_id']);
     }
 
-    public function getCustomerJoinedWithProfile(): Customer|null
+    public function getCustomerJoinedWithProfile(): ?Customer
     {
         return $this->relation('customerJoinedWithProfile');
     }
@@ -175,11 +175,11 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Customer::class,
-            ['id' => 'customer_id']
+            ['id' => 'customer_id'],
         )->joinWith('profile')->orderBy(['profile.description' => SORT_ASC])->indexBy('name');
     }
 
-    public function getCustomer2(): Customer|null
+    public function getCustomer2(): ?Customer
     {
         return $this->relation('customer2');
     }
@@ -189,7 +189,7 @@ class Order extends ActiveRecord
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('orders2');
     }
 
-    public function getCustomerIndexedWithInverseOf(): Customer|null
+    public function getCustomerIndexedWithInverseOf(): ?Customer
     {
         return $this->relation('customerIndexedWithInverseOf');
     }
@@ -199,7 +199,7 @@ class Order extends ActiveRecord
         return $this->hasOne(Customer::class, ['id' => 'customer_id'])->inverseOf('ordersIndexedWithInverseOf');
     }
 
-    public function getCustomerProfileViaCallable(): Profile|null
+    public function getCustomerProfileViaCallable(): ?Profile
     {
         return $this->relation('customerProfileViaCallable');
     }
@@ -214,7 +214,7 @@ class Order extends ActiveRecord
             );
     }
 
-    public function getCustomerProfileViaCustomer(): Profile|null
+    public function getCustomerProfileViaCustomer(): ?Profile
     {
         return $this->relation('customerProfileViaCustomer');
     }
@@ -255,8 +255,8 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             OrderItem::class,
-            ['order_id' => 'id']
-        )->indexBy(fn ($row) => $row['order_id'] . '_' . $row['item_id']);
+            ['order_id' => 'id'],
+        )->indexBy(fn($row) => $row['order_id'] . '_' . $row['item_id']);
     }
 
     public function getOrderItemsByName(): array
@@ -312,7 +312,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->viaTable('order_item_with_null_fk', ['order_id' => 'id']);
     }
 
@@ -359,7 +359,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->via('orderItemsWithNullFK')->where(['category_id' => 1]);
     }
 
@@ -384,7 +384,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->viaTable('order_item_with_null_fk', ['order_id' => 'id'])->where(['category_id' => 1]);
     }
 
@@ -397,7 +397,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->on(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -410,7 +410,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->on(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -423,7 +423,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->alias('bo')->on(['bo.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -436,7 +436,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->alias('books')->on(['books.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -449,7 +449,7 @@ class Order extends ActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->alias('movies')->on(['movies.category_id' => 2])->viaTable('order_item', ['order_id' => 'id']);
     }
 

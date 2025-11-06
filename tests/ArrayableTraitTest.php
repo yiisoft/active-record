@@ -138,7 +138,7 @@ abstract class ArrayableTraitTest extends TestCase
     {
         $customer = new Customer();
         $customer->populateRecord(
-            new ArrayIterator(['email' => 'test@example.com', 'name' => 'Vasya'])
+            new ArrayIterator(['email' => 'test@example.com', 'name' => 'Vasya']),
         );
 
         $this->assertNull($customer->getId());
@@ -150,11 +150,11 @@ abstract class ArrayableTraitTest extends TestCase
     {
         $customer = new Customer();
         $customer->populateRecord(
-            new class () {
+            new class {
                 private int $id = 1;
                 public string $email = 'test@example.com';
                 public string $name = 'Vasya';
-            }
+            },
         );
 
         $this->assertNull($customer->getId());

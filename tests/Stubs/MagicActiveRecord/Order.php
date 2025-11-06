@@ -76,7 +76,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Customer::class,
-            ['id' => 'customer_id']
+            ['id' => 'customer_id'],
         )->joinWith('profile')->orderBy(['profile.description' => SORT_ASC])->indexBy('name');
     }
 
@@ -99,8 +99,8 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             OrderItem::class,
-            ['order_id' => 'id']
-        )->indexBy(fn ($row) => $row['order_id'] . '_' . $row['item_id']);
+            ['order_id' => 'id'],
+        )->indexBy(fn($row) => $row['order_id'] . '_' . $row['item_id']);
     }
 
     public function getOrderItemsWithNullFKQuery(): ActiveQuery
@@ -124,7 +124,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->viaTable('order_item_with_null_fk', ['order_id' => 'id']);
     }
 
@@ -151,7 +151,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->via('orderItemsWithNullFK')->where(['category_id' => 1]);
     }
 
@@ -166,7 +166,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->viaTable('order_item_with_null_fk', ['order_id' => 'id'])->where(['category_id' => 1]);
     }
 
@@ -174,7 +174,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->on(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -182,7 +182,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->on(['category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -190,7 +190,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->alias('bo')->on(['bo.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -198,7 +198,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->alias('books')->on(['books.category_id' => 1])->viaTable('order_item', ['order_id' => 'id']);
     }
 
@@ -206,7 +206,7 @@ class Order extends MagicActiveRecord
     {
         return $this->hasMany(
             Item::class,
-            ['id' => 'item_id']
+            ['id' => 'item_id'],
         )->alias('movies')->on(['movies.category_id' => 2])->viaTable('order_item', ['order_id' => 'id']);
     }
 

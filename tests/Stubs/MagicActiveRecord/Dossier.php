@@ -30,7 +30,7 @@ final class Dossier extends MagicActiveRecord
             [
                 'department_id' => 'department_id',
                 'id' => 'employee_id',
-            ]
+            ],
         )->inverseOf('dossier');
     }
 }

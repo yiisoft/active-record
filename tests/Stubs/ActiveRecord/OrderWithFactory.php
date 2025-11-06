@@ -17,18 +17,18 @@ final class OrderWithFactory extends Order
             'customerWithFactory' => $this->hasOne(CustomerWithFactory::class, ['id' => 'customer_id']),
             'customerWithFactoryInstance' => $this->hasOne(
                 $this->factory->create(CustomerWithFactory::class),
-                ['id' => 'customer_id']
+                ['id' => 'customer_id'],
             ),
             default => parent::relationQuery($name),
         };
     }
 
-    public function getCustomerWithFactory(): CustomerWithFactory|null
+    public function getCustomerWithFactory(): ?CustomerWithFactory
     {
         return $this->relation('customerWithFactory');
     }
 
-    public function getCustomerWithFactoryInstance(): CustomerWithFactory|null
+    public function getCustomerWithFactoryInstance(): ?CustomerWithFactory
     {
         return $this->relation('customerWithFactoryInstance');
     }
