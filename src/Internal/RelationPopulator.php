@@ -210,53 +210,10 @@ final class RelationPopulator
         array $models,
         ?array $via = null,
     ): array {
-        $returnMap = [];
-        $map = [];
-
-        if ($via !== null) {
-            [$viaModels, $viaQuery, $viaMap] = $via;
-            $viaLink = $viaQuery->getLink();
-            $viaLinkKeys = array_keys($viaLink);
-
-            foreach ($viaModels as $viaModel) {
-                $key1 = self::getModelKeys($viaModel, $viaLinkKeys);
-                $key2 = self::getModelKeys($viaModel, $link);
-                $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
-            }
-
-            if (!empty($map)) {
-                $map = array_replace_recursive(...$map);
-                /** @psalm-var array<array<true>> $map */
-            }
-
-            $returnMap = $map;
-            $viaVia = $viaQuery->getVia();
-
-            while ($viaVia) {
-                /** @var ActiveQuery $viaViaQuery */
-                $viaViaQuery = is_array($viaVia) ? $viaVia[1] : $viaVia;
-                $map = array_map(
-                    static fn(array $linkKeys): array => array_replace(...array_intersect_key($viaMap, $linkKeys)),
-                    $map,
-                );
-                $viaVia = $viaViaQuery->getVia();
-            }
-        }
-
         $buckets = [];
         $linkKeys = array_keys($link);
 
-        if ($via !== null) {
-            foreach ($models as $model) {
-                $keys = self::getModelKeys($model, $linkKeys);
-                /** @var bool[][] $filtered */
-                $filtered = array_values(array_intersect_key($map, array_fill_keys($keys, null)));
-
-                foreach (array_keys(array_replace(...$filtered)) as $key2) {
-                    $buckets[$key2][] = $model;
-                }
-            }
-        } else {
+        if ($via === null) {
             foreach ($models as $model) {
                 $keys = self::getModelKeys($model, $linkKeys);
 
@@ -264,9 +221,44 @@ final class RelationPopulator
                     $buckets[$key][] = $model;
                 }
             }
+
+            return [$buckets, []];
         }
 
-        return [$buckets, $returnMap];
+        $map = [];
+        [$viaModels, $viaQuery, $viaMap] = $via;
+        $viaLink = $viaQuery->getLink();
+        $viaLinkKeys = array_keys($viaLink);
+
+        foreach ($viaModels as $viaModel) {
+            $key1 = self::getModelKeys($viaModel, $viaLinkKeys);
+            $key2 = self::getModelKeys($viaModel, $link);
+            $map[] = array_fill_keys($key2, array_fill_keys($key1, true));
+        }
+
+        if (!empty($map)) {
+            $map = array_replace_recursive(...$map);
+            /** @psalm-var array<array<true>> $map */
+
+            if (!empty($viaMap)) {
+                $map = array_map(
+                    static fn(array $linkKeys): array => array_replace(...array_intersect_key($viaMap, $linkKeys)),
+                    $map,
+                );
+            }
+        }
+
+        foreach ($models as $model) {
+            $keys = self::getModelKeys($model, $linkKeys);
+            /** @var bool[][] $filtered */
+            $filtered = array_values(array_intersect_key($map, array_fill_keys($keys, null)));
+
+            foreach (array_keys(array_replace(...$filtered)) as $key2) {
+                $buckets[$key2][] = $model;
+            }
+        }
+
+        return [$buckets, $map];
     }
 
     /**
