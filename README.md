@@ -81,8 +81,7 @@ $user->set('email', 'pushkin@example.com');
 $user->save();
 
 // Retrieving a record
-$user = User::findOne(['id' => 1]);
-$user = User::query()->where(['id' => 1])->one();
+$user = User::query()->findByPk(1);
 
 // Read properties
 $username = $user->get('username');
