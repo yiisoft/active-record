@@ -17,10 +17,11 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserAR;
 use Yiisoft\ActiveRecord\Tests\Support\PgsqlHelper;
 use Yiisoft\Db\Connection\ConnectionInterface;
+use Yiisoft\Db\Constant\ColumnType;
+use Yiisoft\Db\Constant\PseudoType;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\Expression\Value\JsonValue;
-use Yiisoft\Db\Pgsql\Schema as SchemaPgsql;
 use Yiisoft\Factory\Factory;
 
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
@@ -157,21 +158,21 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         //$this->db()->setCharset('utf8');
         $this->db()->createCommand('DROP TABLE IF EXISTS bool_user;')->execute();
         $this->db()->createCommand()->createTable('bool_user', [
-            'id' => SchemaPgsql::TYPE_PK,
-            'username' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
-            'auth_key' => SchemaPgsql::TYPE_STRING . '(32) NOT NULL',
-            'password_hash' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
-            'password_reset_token' => SchemaPgsql::TYPE_STRING,
-            'email' => SchemaPgsql::TYPE_STRING . ' NOT NULL',
-            'role' => SchemaPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'status' => SchemaPgsql::TYPE_SMALLINT . ' NOT NULL DEFAULT 10',
-            'created_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
-            'updated_at' => SchemaPgsql::TYPE_INTEGER . ' NOT NULL',
+            'id' => PseudoType::PK,
+            'username' => ColumnType::STRING . ' NOT NULL',
+            'auth_key' => ColumnType::STRING . '(32) NOT NULL',
+            'password_hash' => ColumnType::STRING . ' NOT NULL',
+            'password_reset_token' => ColumnType::STRING,
+            'email' => ColumnType::STRING . ' NOT NULL',
+            'role' => ColumnType::SMALLINT . ' NOT NULL DEFAULT 10',
+            'status' => ColumnType::SMALLINT . ' NOT NULL DEFAULT 10',
+            'created_at' => ColumnType::INTEGER . ' NOT NULL',
+            'updated_at' => ColumnType::INTEGER . ' NOT NULL',
         ])->execute();
         $this->db()->createCommand()->addColumn(
             'bool_user',
             'is_deleted',
-            SchemaPgsql::TYPE_BOOLEAN . ' NOT NULL DEFAULT FALSE',
+            ColumnType::BOOLEAN . ' NOT NULL DEFAULT FALSE',
         )->execute();
 
         $user = new UserAR();
