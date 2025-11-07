@@ -1,7 +1,7 @@
 {
     "name": "yiisoft/active-record",
     "type": "library",
-    "description": "Yii ActiveRecord Library",
+    "description": "Active record pattern implementation",
     "keywords": [
         "yii",
         "active record"
