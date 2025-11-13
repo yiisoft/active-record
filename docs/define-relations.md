@@ -346,7 +346,7 @@ final class Group extends ActiveRecord
 Use this method when you don't need to store additional information in the junction table and the database supports
 `array` or `JSON` types.
 
-## Deep Linking
+## Deep relations
 
 You can define relations that link through other relations using the `ActiveQueryInterface::via()` method.
 This allows to access related records that are connected through intermediate relations.
