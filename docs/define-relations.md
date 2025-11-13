@@ -356,9 +356,9 @@ For example, consider the following diagram:
 ```mermaid
 erDiagram
     direction LR
-    PROFILE ||--o{ USER : has
+    PROFILE ||--|| USER : has
     USER ||--o{ USER-GROUP : belongs
-    USER-GROUP ||--|| GROUP : belongs
+    USER-GROUP }o--|| GROUP : belongs
     PROFILE {
         int id
     }
