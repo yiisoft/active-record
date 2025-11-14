@@ -346,6 +346,63 @@ final class Group extends ActiveRecord
 Use this method when you don't need to store additional information in the junction table and the database supports
 `array` or `JSON` types.
 
+## Deep relations
+
+You can define relations that link through other relations using the `ActiveQueryInterface::via()` method.
+This allows to access related records that are connected through intermediate relations.
+
+For example, consider the following diagram:
+
+```mermaid
+erDiagram
+    direction LR
+    PROFILE ||--|| USER : has
+    USER ||--o{ USER-GROUP : belongs
+    USER-GROUP }o--|| GROUP : belongs
+    PROFILE {
+        int id
+    }
+    USER {
+        int id
+        int profile_id
+    }
+    GROUP {
+        int id
+    }
+    USER-GROUP {
+        int user_id
+        int group_id
+    }
+```
+
+To define a relation from `Profile` to `Group` through `User` and `UserGroup`, you can use the `via()` method as follows:
+
+```php
+use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\ActiveRecord;
+
+final class Profile extends ActiveRecord
+{
+    public function relationQuery(string $name): ActiveQueryInterface
+    {
+        return match ($name) {
+            'user' => $this->hasOne(User::class, ['profile_id' => 'id']),
+            'userGroups' => $this->hasMany(UserGroup::class, ['user_id' => 'id'])->via('user'),
+            'groups' => $this->hasMany(Group::class, ['id' => 'group_id'])->via('userGroups'),
+            default => parent::relationQuery($name),
+        };
+    }
+}
+```
+
+Now you can access the `groups` relation from the `Profile` model as follows:
+
+```php
+$profile = Profile::query()->findByPk(1);
+/** @var Group[] $groups */
+$groups = $profile->relation('groups');
+```
+
 ## Inverse Relations
 
 An inverse relation is a relation defined in the related record to link back to the current record.
