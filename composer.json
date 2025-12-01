@@ -43,7 +43,6 @@
         "vimeo/psalm": "^5.26.1 || ^6.8.8",
         "yiisoft/aliases": "^2.0",
         "yiisoft/arrays": "^3.2",
-        "yiisoft/cache": "^3.1",
         "yiisoft/db-mssql": "dev-master",
         "yiisoft/db-mysql": "dev-master",
         "yiisoft/db-oracle": "dev-master",
