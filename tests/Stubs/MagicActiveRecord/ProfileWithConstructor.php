@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
 
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord;
-use Yiisoft\Aliases\Aliases;
 use Yiisoft\Db\Connection\ConnectionInterface;
 
 /**
@@ -16,7 +15,7 @@ use Yiisoft\Db\Connection\ConnectionInterface;
  */
 final class ProfileWithConstructor extends MagicActiveRecord
 {
-    public function __construct(ConnectionInterface $db, private Aliases $aliases) {}
+    public function __construct(ConnectionInterface $db) {}
 
     public function tableName(): string
     {
