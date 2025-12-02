@@ -32,7 +32,7 @@ jobs:
         os:
           - ubuntu-latest
         php:
-          - 8.4
+          - 8.5
 
     services:
       postgres:
@@ -57,8 +57,8 @@ jobs:
           ini-values: memory_limit=-1
           coverage: pcov
 
-      - name: Update composer.
-        run: composer self-update
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
 
       - name: Remove unused dependencies of DB drivers
         run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-mssql yiisoft/db-oracle
@@ -71,6 +71,6 @@ jobs:
 
       - name: Run infection.
         run: |
-          vendor/bin/roave-infection-static-analysis-plugin --threads=2 --ignore-msi-with-no-mutations --min-covered-msi=100 --test-framework-options="--testsuite=Pgsql"
+          vendor/bin/infection --threads=2 --ignore-msi-with-no-mutations --min-covered-msi=100 --test-framework-options="--testsuite=Pgsql"
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}

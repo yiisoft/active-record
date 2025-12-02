@@ -29,18 +29,18 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "8.1 - 8.4",
+        "php": "8.1 - 8.5",
         "yiisoft/db": "dev-master"
     },
     "require-dev": {
         "ext-pdo": "*",
+        "bamarni/composer-bin-plugin": "^1.8.3",
         "friendsofphp/php-cs-fixer": "^3.89.1",
         "maglnet/composer-require-checker": "^4.7.1",
         "phpunit/phpunit": "^10.5.58",
         "rector/rector": "^2.2.3",
-        "roave/infection-static-analysis-plugin": "^1.35",
         "spatie/phpunit-watcher": "^1.24",
-        "vimeo/psalm": "^5.26.1 || ^6.8.8",
+        "yiisoft/aliases": "^2.0",
         "yiisoft/arrays": "^3.2",
         "yiisoft/db-mssql": "dev-master",
         "yiisoft/db-mysql": "dev-master",
@@ -73,10 +73,17 @@
             "Yiisoft\\ActiveRecord\\Tests\\": "tests"
         }
     },
+    "extra": {
+        "bamarni-bin": {
+            "bin-links": true,
+            "target-directory": "tools",
+            "forward-command": true
+        }
+    },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "infection/extension-installer": true,
+            "bamarni/composer-bin-plugin": true,
             "composer/package-versions-deprecated": true
         }
     },
