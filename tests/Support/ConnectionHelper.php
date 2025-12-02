@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Support;
 
-use Yiisoft\Cache\ArrayCache;
 use Yiisoft\Db\Cache\SchemaCache;
 use Yiisoft\Db\Connection\ConnectionInterface;
 use Yiisoft\Di\Container;
 use Yiisoft\Di\ContainerConfig;
 use Yiisoft\Factory\Factory;
+use Yiisoft\Test\Support\SimpleCache\MemorySimpleCache;
 
 abstract class ConnectionHelper
 {
@@ -21,6 +21,8 @@ abstract class ConnectionHelper
 
     protected function createSchemaCache(): SchemaCache
     {
-        return new SchemaCache(new ArrayCache());
+        return new SchemaCache(
+            new MemorySimpleCache(),
+        );
     }
 }

@@ -6,14 +6,13 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Trait\FactoryTrait;
-use Yiisoft\Aliases\Aliases;
 use Yiisoft\Factory\Factory;
 
 final class CustomerWithFactory extends Customer
 {
     use FactoryTrait;
 
-    public function __construct(Factory $factory, private Aliases $aliases)
+    public function __construct(Factory $factory)
     {
         $this->factory = $factory;
     }

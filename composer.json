@@ -42,7 +42,6 @@
         "spatie/phpunit-watcher": "^1.24",
         "yiisoft/aliases": "^2.0",
         "yiisoft/arrays": "^3.2",
-        "yiisoft/cache": "^3.1",
         "yiisoft/db-mssql": "dev-master",
         "yiisoft/db-mysql": "dev-master",
         "yiisoft/db-oracle": "dev-master",
@@ -51,6 +50,7 @@
         "yiisoft/di": "^1.4",
         "yiisoft/event-dispatcher": "^1.1",
         "yiisoft/factory": "^1.3",
+        "yiisoft/psr-dummy-provider": "^1.0",
         "yiisoft/test-support": "^3.0.2"
     },
     "suggest": {
