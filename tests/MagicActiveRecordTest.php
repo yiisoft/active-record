@@ -152,7 +152,7 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertEquals(1, $arClass->int_col2);
         $this->assertEquals('something', $arClass->char_col2);
         $this->assertEquals(1.23, $arClass->float_col2);
-        $this->assertEquals(33.22, $arClass->numeric_col);
+        $this->assertEquals('33.22', $arClass->numeric_col);
         $this->assertTrue($arClass->bool_col2);
 
         if ($this->db()->getDriverName() === 'mysql') {

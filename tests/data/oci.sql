@@ -120,7 +120,7 @@ CREATE TABLE "order" (
   "created_at" integer NOT NULL,
   "updated_at" integer NOT NULL,
   "deleted_at" integer,
-  "total" decimal(10,0) NOT NULL,
+  "total" float NOT NULL,
   CONSTRAINT "order_PK" PRIMARY KEY ("id") ENABLE
 );
 CREATE SEQUENCE "order_SEQ";
@@ -129,7 +129,7 @@ CREATE TABLE "order_with_null_fk" (
   "id" integer not null,
   "customer_id" integer,
   "created_at" integer NOT NULL,
-  "total" decimal(10,0) NOT NULL,
+  "total" float NOT NULL,
   CONSTRAINT "order_with_null_fk_PK" PRIMARY KEY ("id") ENABLE
 );
 CREATE SEQUENCE "order_with_null_fk_SEQ";
@@ -138,7 +138,7 @@ CREATE TABLE "order_item" (
   "order_id" integer NOT NULL references "order"("id") on DELETE CASCADE,
   "item_id" integer NOT NULL references "item"("id") on DELETE CASCADE,
   "quantity" integer NOT NULL,
-  "subtotal" decimal(10,0) NOT NULL,
+  "subtotal" float NOT NULL,
   CONSTRAINT "order_item_PK" PRIMARY KEY ("order_id", "item_id") ENABLE
 );
 
@@ -146,7 +146,7 @@ CREATE TABLE "order_item_name" (
   "order_id" integer NOT NULL,
   "item_name" varchar2(128) NOT NULL,
   "quantity" integer NOT NULL,
-  "subtotal" decimal(10,0) NOT NULL,
+  "subtotal" float NOT NULL,
   CONSTRAINT "order_item_name_PK" PRIMARY KEY ("order_id", "item_name") ENABLE
 );
 
@@ -154,7 +154,7 @@ CREATE TABLE "order_item_with_null_fk" (
   "order_id" integer,
   "item_id" integer,
   "quantity" integer NOT NULL,
-  "subtotal" decimal(10,0) NOT NULL
+  "subtotal" float NOT NULL
 );
 
 CREATE TABLE "composite_fk" (

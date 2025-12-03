@@ -23,7 +23,7 @@ class Type extends ActiveRecord
     public float $float_col;
     public ?float $float_col2 = 1.23;
     public mixed $blob_col;
-    public ?float $numeric_col = 33.22;
+    public ?string $numeric_col = '33.22';
     public string|DateTimeInterface|Expression $time = '2002-01-01 00:00:00';
     public bool|int|string $bool_col;
     public bool|int|string|null $bool_col2 = true;

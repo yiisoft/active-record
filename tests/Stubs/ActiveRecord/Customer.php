@@ -21,7 +21,7 @@ class Customer extends ArrayableActiveRecord
     public const STATUS_INACTIVE = 2;
 
     public int|string $status2;
-    public int|string|null $sumTotal;
+    public float|string|null $sumTotal;
 
     protected int $id;
     protected string $email;

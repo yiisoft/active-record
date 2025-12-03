@@ -35,7 +35,7 @@ final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTes
         $this->assertSame(1, $arClass->int_col2);
         $this->assertSame('something', $arClass->char_col2);
         $this->assertSame(1.23, $arClass->float_col2);
-        $this->assertSame(33.22, $arClass->numeric_col);
+        $this->assertSame('33.22', $arClass->numeric_col);
         $this->assertTrue($arClass->bool_col2);
         $this->assertSame('2002-01-01 00:00:00', $arClass->time);
         $this->assertSame(['a' => 1], $arClass->json_col);

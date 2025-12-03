@@ -90,7 +90,7 @@ CREATE TABLE [dbo].[order] (
     [created_at] [int] NOT NULL,
     [updated_at] [int] NOT NULL,
     [deleted_at] [int],
-    [total] [decimal](10,0) NOT NULL,
+    [total] [float] NOT NULL,
     CONSTRAINT [PK_order] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
@@ -100,7 +100,7 @@ CREATE TABLE [dbo].[order_with_null_fk] (
     [id] [int] IDENTITY NOT NULL,
     [customer_id] [int] ,
     [created_at] [int] NOT NULL,
-    [total] [decimal](10,0) NOT NULL,
+    [total] [float] NOT NULL,
     CONSTRAINT [PK_order_with_null_fk] PRIMARY KEY CLUSTERED (
         [id] ASC
     ) ON [PRIMARY]
@@ -110,7 +110,7 @@ CREATE TABLE [dbo].[order_item] (
     [order_id] [int] NOT NULL,
     [item_id] [int] NOT NULL,
     [quantity] [int] NOT NULL,
-    [subtotal] [decimal](10,0) NOT NULL,
+    [subtotal] [float] NOT NULL,
     CONSTRAINT [PK_order_item] PRIMARY KEY CLUSTERED (
         [order_id] ASC,
         [item_id] ASC
@@ -121,7 +121,7 @@ CREATE TABLE "order_item_name" (
     [order_id] [int] NOT NULL,
     [item_name] [varchar](128) NOT NULL,
     [quantity] [int] NOT NULL,
-    [subtotal] [decimal](10,0) NOT NULL,
+    [subtotal] [float] NOT NULL,
     PRIMARY KEY ([order_id], [item_name])
 );
 
@@ -141,7 +141,7 @@ CREATE TABLE [dbo].[order_item_with_null_fk] (
     [order_id] [int],
     [item_id] [int],
     [quantity] [int] NOT NULL,
-    [subtotal] [decimal](10,0) NOT NULL
+    [subtotal] [float] NOT NULL
 );
 
 CREATE TABLE [dbo].[null_values] (
@@ -170,7 +170,7 @@ CREATE TABLE [dbo].[type] (
     [char_col] [char](100) NOT NULL,
     [char_col2] [varchar](100) DEFAULT 'something',
     [char_col3] [text],
-    [float_col] [decimal](4,3) NOT NULL,
+    [float_col] [float] NOT NULL,
     [float_col2] [float] DEFAULT '1.23',
     [blob_col] [varbinary](MAX),
     [numeric_col] [decimal](5,2) DEFAULT '33.22',

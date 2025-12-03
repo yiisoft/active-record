@@ -80,7 +80,7 @@ CREATE TABLE "order" (
   created_at INTEGER NOT NULL,
   updated_at INTEGER NOT NULL,
   deleted_at INTEGER,
-  total decimal(10,0) NOT NULL,
+  total float NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -88,7 +88,7 @@ CREATE TABLE "order_with_null_fk" (
   id INTEGER NOT NULL,
   customer_id INTEGER,
   created_at INTEGER NOT NULL,
-  total decimal(10,0) NOT NULL,
+  total float NOT NULL,
   PRIMARY KEY (id)
 );
 
@@ -96,7 +96,7 @@ CREATE TABLE "order_item" (
   order_id INTEGER NOT NULL,
   item_id INTEGER NOT NULL,
   quantity INTEGER NOT NULL,
-  subtotal decimal(10,0) NOT NULL,
+  subtotal float NOT NULL,
   PRIMARY KEY (order_id, item_id)
 );
 
@@ -104,7 +104,7 @@ CREATE TABLE "order_item_name" (
   order_id INTEGER NOT NULL,
   item_name VARCHAR(128) NOT NULL,
   quantity INTEGER NOT NULL,
-  subtotal decimal(10,0) NOT NULL,
+  subtotal float NOT NULL,
 PRIMARY KEY (order_id, item_name)
 );
 
@@ -112,7 +112,7 @@ CREATE TABLE "order_item_with_null_fk" (
   order_id INTEGER,
   item_id INTEGER,
   quantity INTEGER NOT NULL,
-  subtotal decimal(10,0) NOT NULL
+  subtotal float NOT NULL
 );
 
 CREATE TABLE "composite_fk" (

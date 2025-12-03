@@ -652,31 +652,30 @@ abstract class ActiveQueryFindTest extends TestCase
             ->asArray()
             ->all();
 
-        $isOracle = self::db()->getDriverName() === 'oci';
         $this->assertSame(
             [
                 [
                     'order_id' => 1,
                     'item_id' => 1,
                     'quantity' => 1,
-                    'subtotal' => $isOracle ? 30 : 30.0,
+                    'subtotal' => 30.0,
                     'orderItemCompositeNoJoin' => [
                         'order_id' => 1,
                         'item_id' => 1,
                         'quantity' => 1,
-                        'subtotal' => $isOracle ? 30 : 30.0,
+                        'subtotal' => 30.0,
                     ],
                 ],
                 [
                     'order_id' => 1,
                     'item_id' => 2,
                     'quantity' => 2,
-                    'subtotal' => $isOracle ? 40 : 40.0,
+                    'subtotal' => 40.0,
                     'orderItemCompositeNoJoin' => [
                         'order_id' => 1,
                         'item_id' => 2,
                         'quantity' => 2,
-                        'subtotal' => $isOracle ? 40 : 40.0,
+                        'subtotal' => 40.0,
                     ],
                 ],
             ],
