@@ -107,7 +107,7 @@ CREATE TABLE `order` (
   `created_at` int(11) NOT NULL,
   `updated_at` int(11) NOT NULL,
   `deleted_at` int(11),
-  `total` decimal(10,0) NOT NULL,
+  `total` float NOT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_order_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -116,7 +116,7 @@ CREATE TABLE `order_with_null_fk` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `customer_id` int(11),
   `created_at` int(11) NOT NULL,
-  `total` decimal(10,0) NOT NULL,
+  `total` float NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -124,7 +124,7 @@ CREATE TABLE `order_item` (
   `order_id` int(11) NOT NULL,
   `item_id` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `subtotal` decimal(10,0) NOT NULL,
+  `subtotal` float NOT NULL,
   PRIMARY KEY (`order_id`,`item_id`),
   KEY `FK_order_item_item_id` (`item_id`),
   CONSTRAINT `FK_order_item_order_id` FOREIGN KEY (`order_id`) REFERENCES `order` (`id`) ON DELETE CASCADE,
@@ -135,7 +135,7 @@ CREATE TABLE `order_item_name` (
   `order_id` int(11) NOT NULL,
   `item_name` varchar(128) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `subtotal` decimal(10,0) NOT NULL,
+  `subtotal` float NOT NULL,
   PRIMARY KEY (`order_id`, `item_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -143,7 +143,7 @@ CREATE TABLE `order_item_with_null_fk` (
   `order_id` int(11),
   `item_id` int(11),
   `quantity` int(11) NOT NULL,
-  `subtotal` decimal(10,0) NOT NULL
+  `subtotal` float NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `composite_fk` (
