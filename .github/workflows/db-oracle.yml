@@ -27,7 +27,6 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      COMPOSER_ROOT_VERSION: dev-master
       extensions: pdo, pdo_oci
       key: cache-v1
 
