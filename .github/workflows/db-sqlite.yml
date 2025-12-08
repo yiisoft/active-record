@@ -58,15 +58,16 @@ jobs:
           ini-values: date.timezone='UTC'
           coverage: pcov
 
-      - name: Update composer.
-        run: composer self-update
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
 
       - name: Remove unused dependencies of DB drivers
         run: composer remove --dev yiisoft/db-mysql yiisoft/db-pgsql yiisoft/db-mssql yiisoft/db-oracle
 
-      - name: Install db and db-sqlite.
+      - name: Install required yiisoft/db and yiisoft/db-sqlite
         uses: yiisoft/actions/install-packages@master
         with:
+          composer-root-version: 2.0.0
           packages: >-
             ['db', 'db-sqlite']
 

@@ -30,7 +30,7 @@
     "prefer-stable": true,
     "require": {
         "php": "8.1 - 8.5",
-        "yiisoft/db": "dev-master"
+        "yiisoft/db": "^2.0"
     },
     "require-dev": {
         "ext-pdo": "*",
@@ -42,11 +42,11 @@
         "spatie/phpunit-watcher": "^1.24",
         "yiisoft/aliases": "^2.0",
         "yiisoft/arrays": "^3.2",
-        "yiisoft/db-mssql": "dev-master",
-        "yiisoft/db-mysql": "dev-master",
-        "yiisoft/db-oracle": "dev-master",
-        "yiisoft/db-pgsql": "dev-master",
-        "yiisoft/db-sqlite": "dev-master",
+        "yiisoft/db-mssql": "^2.0",
+        "yiisoft/db-mysql": "^2.0",
+        "yiisoft/db-oracle": "^2.0",
+        "yiisoft/db-pgsql": "^2.0",
+        "yiisoft/db-sqlite": "^2.0",
         "yiisoft/di": "^1.4",
         "yiisoft/event-dispatcher": "^1.1",
         "yiisoft/factory": "^1.3",

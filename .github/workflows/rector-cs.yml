@@ -27,3 +27,4 @@ jobs:
       php: '8.5'
       required-packages: >-
         ['db']
+      composer-root-version: 2.0.0
