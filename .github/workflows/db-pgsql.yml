@@ -63,9 +63,6 @@ jobs:
           ini-values: date.timezone='UTC'
           coverage: pcov
 
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
-
       - name: Remove unused dependencies of DB drivers
         run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-mssql yiisoft/db-oracle
 
