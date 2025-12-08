@@ -27,7 +27,6 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      COMPOSER_ROOT_VERSION: dev-master
       extensions: pdo, pdo_mysql
       key: cache-v1
 
@@ -66,15 +65,13 @@ jobs:
           ini-values: date.timezone='UTC'
           coverage: pcov
 
-      - name: Update composer.
-        run: composer self-update
-
       - name: Remove unused dependencies of DB drivers
         run: composer remove --dev yiisoft/db-sqlite yiisoft/db-pgsql yiisoft/db-mssql yiisoft/db-oracle
 
-      - name: Install db and db-mysql.
+      - name: Install required yiisoft/db and yiisoft/db-mysql
         uses: yiisoft/actions/install-packages@master
         with:
+          composer-root-version: 2.0.0
           packages: >-
             ['db', 'db-mysql']
 

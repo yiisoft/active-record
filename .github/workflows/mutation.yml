@@ -57,15 +57,16 @@ jobs:
           ini-values: memory_limit=-1
           coverage: pcov
 
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
-
       - name: Remove unused dependencies of DB drivers
         run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-mssql yiisoft/db-oracle
 
-      - name: Install Yii DB + PostgreSQL driver
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Install required yiisoft/db and yiisoft/db-pgsql
         uses: yiisoft/actions/install-packages@master
         with:
+          composer-root-version: 2.0.0
           packages: >-
             ['db', 'db-pgsql']
 
