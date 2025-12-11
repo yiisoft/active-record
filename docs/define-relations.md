@@ -40,12 +40,17 @@ $profileQuery = $user->relationQuery('profile');
 $ordersQuery = $user->relationQuery('orders');
 ```
 
-### Using `MagicRelationsTrait`
+### Using `MagicRelationsTrait` (Optional)
 
-Alternatively, you can use [MagicRelationsTrait](traits/magic-relations.md) trait to define relations in the Active Record model.
-This trait allows you to define relation methods directly in the model without overriding `relationQuery()` method.
-The relation methods should have a specific naming convention to be recognized by the trait. The method names should 
-have prefix `get` and suffix `Query` and returns an object implementing `ActiveQueryInterface` interface.
+Alternatively, you can **optionally** use [MagicRelationsTrait](traits/magic-relations.md) trait to define relations
+in the Active Record model. This trait allows you to define relation methods directly in the model without overriding
+`relationQuery()` method. The relation methods should have a specific naming convention to be recognized by the trait.
+The method names should have prefix `get` and suffix `Query` and returns an object implementing `ActiveQueryInterface`
+interface.
+
+> [!NOTE]
+> Using `MagicRelationsTrait` is **optional**. The recommended approach is to use explicit `relationQuery()` method
+> (shown above) for better clarity and type safety.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveQueryInterface;

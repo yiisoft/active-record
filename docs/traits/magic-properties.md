@@ -1,13 +1,15 @@
-# MagicPropertiesTrait
+# MagicPropertiesTrait (Optional)
 
-`MagicPropertiesTrait` allows to use magic getters and setters to access model properties and relations.
-It stores properties in the `private array $propertyValues` property and provides magic methods for accessing them.
+`MagicPropertiesTrait` is an **optional** trait that allows to use magic getters and setters to access model properties
+and relations. It stores properties in the `private array $propertyValues` property and provides magic methods for
+accessing them.
 
 It also allows to call getter and setter methods as a property if they are defined in the model class
 (e.g. `getFullName()` and `setFullName($fullName)` for `fullName` property).
 
 > [!NOTE]
-> This trait is not required when using private, protected, public or dynamic properties.
+> **This trait is optional and not required** when using private, protected, public or dynamic properties.
+> For better performance and type safety, prefer explicit property definitions.
 
 > [!IMPORTANT]
 > - ✔️ It allows accessing relations as properties;

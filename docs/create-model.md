@@ -5,6 +5,10 @@ class properties, the table name and relations.
 
 ## Properties
 
+Active Record supports several ways to define and access properties. Each approach has its own trade-offs in terms of
+type safety, performance, and convenience. **Magic properties are optional** and provided for convenience, but explicit
+property definitions (public, protected, or private) are recommended for better type safety and performance.
+
 ### Dynamic properties
 
 The easiest way to define properties is to use dynamic properties.
@@ -182,9 +186,10 @@ final class User extends ActiveRecord
 
 Private properties have the same benefits as protected properties, and they are more secure.
     
-### Magic properties
+### Magic properties (optional)
 
-You can also use magic properties to access properties.
+You can optionally use magic properties to access properties via the `MagicPropertiesTrait`. This approach is
+**not required** and comes with performance trade-offs.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
