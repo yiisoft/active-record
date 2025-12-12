@@ -76,16 +76,16 @@ Now you can use the active record:
 ```php
 // Creating a new record
 $user = new User();
-$user->set('username', 'alexander-pushkin');
-$user->set('email', 'pushkin@example.com');
+$user->username = 'alexander-pushkin';
+$user->email = 'pushkin@example.com';
 $user->save();
 
 // Retrieving a record
 $user = User::query()->findByPk(1);
 
 // Read properties
-$username = $user->get('username');
-$email = $user->get('email');
+$username = $user->username;
+$email = $user->email;
 ```
 
 ## Documentation
