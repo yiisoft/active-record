@@ -88,12 +88,6 @@ $username = $user->username;
 $email = $user->email;
 ```
 
-> [!NOTE]
-> The example above uses explicit `set()` and `get()` methods to access properties. This is the recommended approach
-> for type safety and performance. Magic properties (via `MagicPropertiesTrait`) are **optional** and provided for
-> convenience, but come with performance trade-offs. See [Create Active Record Model](docs/create-model.md) guide for
-> different property definition approaches.
-
 ## Documentation
 
 - [Define the Database Connection for Active Record](docs/define-connection.md)
