@@ -1,7 +1,12 @@
-# MagicRelationsTrait
+# MagicRelationsTrait (Optional)
 
-`MagicRelationsTrait` allows using methods with the prefix `get` and suffix `Query` to define relations 
-in an Active Record model. For example, a method named `getOrdersQuery()` can be used to define a relation named `orders`.
+`MagicRelationsTrait` is an **optional** trait that allows using methods with the prefix `get` and suffix `Query` to
+define relations in an Active Record model. For example, a method named `getOrdersQuery()` can be used to define a
+relation named `orders`.
+
+> [!NOTE]
+> **This trait is optional and not required**. You can define relations explicitly using the `relationQuery()` method
+> without this trait. The explicit approach may be preferred for clarity and type safety.
 
 ## Methods
 

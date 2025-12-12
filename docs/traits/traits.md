@@ -1,7 +1,8 @@
 # Extending Functionality With Traits
 
-The library provides several traits that can be used to extend the functionality of `ActiveRecord` models.
-These traits can be included in your model classes to add specific behaviors or features.
+The library provides several **optional** traits that can be used to extend the functionality of `ActiveRecord` models.
+These traits can be included in your model classes to add specific behaviors or features. **All traits are optional**
+and should be used based on your specific needs.
 
 - [ArrayableTrait](arrayable.md) provides `toArray()` method to convert a model to an array format;
 - [ArrayAccessTrait](array-access.md) allows accessing model properties and relations using array syntax;
@@ -19,6 +20,11 @@ These traits can be included in your model classes to add specific behaviors or 
 - [RepositoryTrait](repository.md) provides methods to interact with a model as a repository.
 
 All traits are optional and can be used as needed. They can be combined to create models with the desired functionality.
+
+> [!IMPORTANT]
+> Magic-related traits (`MagicPropertiesTrait` and `MagicRelationsTrait`) are **optional convenience features**.
+> They are not required for using Active Record. For better performance and type safety, consider using explicit
+> property definitions (public, protected, or private) and explicit relation definitions via `relationQuery()` method.
 
 For example, to create an Active Record class that supports array access and can be converted to an array:
 
