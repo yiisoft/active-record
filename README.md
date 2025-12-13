@@ -53,21 +53,33 @@ guide.
 Defined your active record class (for more information, follow [Create Active Record Model](docs/create-model.md) guide):
 
 ```php
-/**
- * Entity User.
- *
- * Database fields:
- * @property int $id
- * @property string $username
- * @property string $email
- **/
-#[\AllowDynamicProperties]
 final class User extends \Yiisoft\ActiveRecord\ActiveRecord
 {
+    public int $id;
+    public string $username;
+    public string $email;
+    public string $status = 'active';
+
     public function tableName(): string
     {
         return '{{%user}}';
     }
+}
+```
+
+For fast prototyping you can use dynamic properties by adding `#[\AllowDynamicProperties]` attribute:
+
+```php
+/**
+ * Database fields:
+ * @property int $id
+ * @property string $username
+ * @property string $email
+ * @property string $status
+ **/
+#[\AllowDynamicProperties]
+final class User extends \Yiisoft\ActiveRecord\ActiveRecord
+{
 }
 ```
 
