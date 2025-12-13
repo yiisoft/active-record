@@ -55,11 +55,10 @@ Defined your active record class (for more information, follow [Create Active Re
 ```php
 final class User extends \Yiisoft\ActiveRecord\ActiveRecord
 {
-    public ?int $id = null;
-    public ?string $username = null;
-    public ?string $email = null;
+    public int $id;
+    public string $username;
+    public string $email;
     public string $status = 'active';
-    public DateTimeInterface $created_at = new DateTimeImmutable();
 
     public function tableName(): string
     {
@@ -71,6 +70,13 @@ final class User extends \Yiisoft\ActiveRecord\ActiveRecord
 For fast prototyping you can use dynamic properties by adding `#[\AllowDynamicProperties]` attribute:
 
 ```php
+/**
+ * Database fields:
+ * @property int $id
+ * @property string $username
+ * @property string $email
+ * @property string $status
+ **/
 #[\AllowDynamicProperties]
 final class User extends \Yiisoft\ActiveRecord\ActiveRecord
 {
