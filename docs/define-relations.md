@@ -79,13 +79,13 @@ final class User extends ActiveRecord
 the same signature:
 
 ```php
-public function hasOne(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface;
+public function hasOne(string|ActiveRecordInterface $class, array $link): ActiveQueryInterface;
 
-public function hasMany(string|ActiveRecordInterface|Closure $class, array $link): ActiveQueryInterface;
+public function hasMany(string|ActiveRecordInterface $class, array $link): ActiveQueryInterface;
 ```
 
-- `$class` parameter is the class name of the related record, or an instance of the related record, or a Closure to
-  create an `ActiveRecordInterface` object. For example: `Profile::class`, `new Profile()`, or `fn() => new Profile()`.
+- `$class` parameter is the class name of the related record or an instance of the related record.
+  For example: `Profile::class` or `new Profile()`.
 - `$link` parameter is an array that defines the foreign key constraint. The keys of the array refer to the attributes
   of the record associated with `$class` model, while the values of the array refer to the corresponding attributes 
   in the current Active Record class. For example: `['id' => 'profile_id']`, where `id` attribute of the related record 
@@ -314,7 +314,7 @@ $this->hasMany(Group::class, ['id' => 'group_ids']);
 
 In the example, `group_ids` attribute of the current record is an array of related keys that reference `id` attribute 
 of the related record. The array attribute can be represented in the database as an `array` type (currently supported 
-by `PgSQL` driver only) or as a `JSON` type (currently supported by `MySQL`, `PgSql`, and `SQLite` drivers).
+by `PgSQL` driver only) or as a `JSON` type.
 
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
@@ -348,8 +348,7 @@ final class Group extends ActiveRecord
 }
 ```
 
-Use this method when you don't need to store additional information in the junction table and the database supports
-`array` or `JSON` types.
+Use this method when you don't need to store additional information in the junction table.
 
 ## Deep relations
 
@@ -462,8 +461,6 @@ However, there are cases when you need to load the related record(s) in advance 
 To do this, use the `ActiveQueryInterface::with()` method.
 
 ```php
-use Yiisoft\ActiveRecord\ActiveQuery;
-
 $users = User::query()->with('profile', 'orders')->all();
 ```
 
@@ -509,8 +506,6 @@ final class User extends ActiveRecord
 Now you can use `$user->getProfile()` and `$user->getOrders()` to access the relations.
 
 ```php
-use Yiisoft\ActiveRecord\ActiveQuery;
-
 $user = User::query()->where(['id' => 1])->one();
 
 $profile = $user->getProfile();
