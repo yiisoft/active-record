@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
+use DateTimeImmutable;
 use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
@@ -908,6 +909,7 @@ abstract class ActiveRecordTest extends TestCase
                 'address' => null,
                 'status' => 0,
                 'bool_status' => false,
+                'registered_at' => null,
                 'profile_id' => null,
             ],
             $customer->newValues(),
@@ -916,6 +918,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
         $customer->set('address', null);
+        $customer->set('registered_at', ($registeredAt = new DateTimeImmutable('2026-01-01 12:12:12.123456 Europe/Berlin')));
 
         $this->assertSame([], $customer->newValues([]));
 
@@ -926,6 +929,7 @@ abstract class ActiveRecordTest extends TestCase
                 'address' => null,
                 'status' => 0,
                 'bool_status' => false,
+                'registered_at' => $registeredAt,
                 'profile_id' => null,
             ],
             $customer->newValues(),

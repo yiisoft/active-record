@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
+use DateTimeImmutable;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
@@ -29,11 +30,19 @@ class Customer extends ArrayableActiveRecord
     protected ?string $address = null;
     protected ?int $status = 0;
     protected bool|int|null $bool_status = false;
+    protected ?DateTimeImmutable $registered_at = null;
     protected ?int $profile_id = null;
 
     public function tableName(): string
     {
         return 'customer';
+    }
+
+    public function fields(): array
+    {
+        return array_merge(parent::fields(), [
+            'registered_at' => static fn(self $customer) => $customer->registered_at->format('Y-m-d\TH:i:s.uP')
+        ]);
     }
 
     public function relationQuery(string $name): ActiveQueryInterface
@@ -88,6 +97,11 @@ class Customer extends ArrayableActiveRecord
         return $this->bool_status;
     }
 
+    public function getRegisteredAt(): ?DateTimeImmutable
+    {
+        return $this->registered_at;
+    }
+
     public function getProfileId(): ?int
     {
         return $this->profile_id;
@@ -126,6 +140,12 @@ class Customer extends ArrayableActiveRecord
     {
         $this->bool_status = $bool_status;
     }
+
+    public function setRegisteredAt(?DateTimeImmutable $registered_at): void
+    {
+        $this->registered_at = $registered_at;
+    }
+
 
     public function setProfileId(?int $profile_id): void
     {
