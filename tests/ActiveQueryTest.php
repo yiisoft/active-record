@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Closure;
+use DateInterval;
 use DateTimeImmutable;
+use DateTimeInterface;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -2391,6 +2393,41 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->findByPk(1);
         $this->assertCount(2, $customer->getOrders());
         $this->assertCount(0, $customer->getExpensiveOrders());
+    }
+
+    public function testNewValuesStaysEmptyOnSameMomentInTime()
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customerQuery = Customer::query();
+        $customer = $customerQuery->findByPk(2);
+        $this->assertEmpty($customer->newValues());
+
+        /** @var DateTimeInterface $customerRegisteredAt */
+        $customerRegisteredAt = $customer->get('registered_at');
+        $equalRegisteredAt = $customerRegisteredAt->add(new DateInterval('PT0S'));
+        $this->assertEquals($equalRegisteredAt->format(($format = 'Y-m-d\TH:i:s.uP')), $customerRegisteredAt->format($format));
+
+        $customer->set('registered_at', $equalRegisteredAt);
+        $this->assertEmpty($customer->newValues());
+    }
+
+    public function testNewValuesStaysNotEmptyOnDifferentMomentInTime()
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customerQuery = Customer::query();
+        $customer = $customerQuery->findByPk(2);
+        $this->assertEmpty($customer->newValues());
+
+        /** @var DateTimeInterface $customerRegisteredAt */
+        $customerRegisteredAt = $customer->get('registered_at');
+        $differentRegisteredAt = $customerRegisteredAt->add(new DateInterval('PT1S'));
+        $this->assertNotEquals($differentRegisteredAt->format(($format = 'Y-m-d\TH:i:s.uP')), $customerRegisteredAt->format($format));
+
+        $customer->set('registered_at', $differentRegisteredAt);
+        $this->assertSame($customer->oldValues()['registered_at'], $customerRegisteredAt);
+        $this->assertSame($customer->newValues()['registered_at'], $differentRegisteredAt);
     }
 
     public function testUpdate(): void
