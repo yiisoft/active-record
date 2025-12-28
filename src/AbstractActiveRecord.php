@@ -126,8 +126,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
         foreach (array_diff_key($currentValues, $newValues) as $name => $newValue) {
             if ($newValue instanceof DateTimeInterface) {
-                if ($oldValues[$name] === null ||
-                    $newValue->format('Y-m-d\TH:i:s.uP') != $oldValues[$name]->format('Y-m-d\TH:i:s.uP')) {
+                if ($oldValues[$name] === null
+                    || $newValue->format('Y-m-d\TH:i:s.uP') != $oldValues[$name]->format('Y-m-d\TH:i:s.uP')) {
                     $newValues[$name] = $newValue;
                 }
             } elseif ($newValue !== $oldValues[$name]) {

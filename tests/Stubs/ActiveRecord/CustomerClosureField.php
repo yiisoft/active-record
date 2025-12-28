@@ -32,7 +32,7 @@ final class CustomerClosureField extends ArrayableActiveRecord
             parent::fields(),
             [
                 'status'        => static fn(self $customer) => $customer->status === 1 ? 'active' : 'inactive',
-                'registered_at' => static fn(self $customer) => $customer->registered_at->format('Y-m-d\TH:i:s.uP')
+                'registered_at' => static fn(self $customer) => $customer->registered_at->format('Y-m-d\TH:i:s.uP'),
             ],
         );
     }

@@ -909,7 +909,7 @@ abstract class ActiveRecordTest extends TestCase
             'new record 1.0' => [
                 'id' => null,
                 'propertyValues' => ['name' => 'user1'],
-                'expect' => ['name' => 'user1']
+                'expect' => ['name' => 'user1'],
             ],
             'new record 1.1' => [
                 'id' => null,
@@ -922,25 +922,25 @@ abstract class ActiveRecordTest extends TestCase
             'old record 1.0' => [
                 'id' => 1,
                 'propertyValues' => ['name' => 'user1'],
-                'expect' => []
+                'expect' => [],
             ],
             'old record 1.1' => [
                 'id' => 1,
                 'propertyValues' => ['name' => 'user1.1', 'registered_at' => $registeredAt_1],
                 // We set the same value, so we do not expect any change here.
-                'expect' => ['name' => 'user1.1']
+                'expect' => ['name' => 'user1.1'],
             ],
             'old record 1.2' => [
                 'id' => 1,
                 'propertyValues' => ['name' => 'user1.2', 'registered_at' => $registeredAt_1_1],
                 // We set the same moment in time but with different timezone. It will be detected as a new value.
-                'expect' => ['name' => 'user1.2', 'registered_at' => $registeredAt_1_1]
+                'expect' => ['name' => 'user1.2', 'registered_at' => $registeredAt_1_1],
             ],
         ];
     }
 
     #[DataProvider('providerForNewValues')]
-    public function testNewValues(?int $id, array $propertyValues,array $expect):void
+    public function testNewValues(?int $id, array $propertyValues, array $expect): void
     {
         $customer = $id === null ? new Customer() : Customer::findByPk($id);
         array_walk($propertyValues, static fn($value, string $key) => $customer->set($key, $value));
