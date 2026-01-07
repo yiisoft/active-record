@@ -28,11 +28,12 @@ trait ArrayableTrait
     use \Yiisoft\Arrays\ArrayableTrait;
 
     /**
-     * Returns the list of fields that can be expanded further and returned by {@see toArray()}.
+     * Returns the list of fields that can be expanded further and returned by {@see \Yiisoft\Arrays\ArrayableTrait::toArray()}.
      *
-     * This method is similar to {@see fields()} except that the list of fields returned by this method are not returned
-     * by default by {@see toArray()}. Only when field names to be expanded are explicitly specified when calling
-     * {@see toArray()}, will their values be exported.
+     * This method is similar to {@see ArrayableTrait::fields()} except that the list of fields returned by this
+     * method are not returned by default by {@see \Yiisoft\Arrays\ArrayableTrait::toArray()}. Only when field
+     * names to be expanded are explicitly specified when calling {@see \Yiisoft\Arrays\ArrayableTrait::toArray()},
+     * will their values be exported.
      *
      * The default implementation returns the names of the relations defined in this `ActiveRecord` class indexed by
      * themselves.
@@ -40,7 +41,7 @@ trait ArrayableTrait
      * You may override this method to return a list of expandable fields.
      *
      * @return (Closure|string)[] The list of expandable field names or field definitions. Please refer
-     * to {@see fields()} on the format of the return value.
+     * to {@see ArrayableTrait::fields()} on the format of the return value.
      *
      * @psalm-return FieldsArray
      */
@@ -52,9 +53,9 @@ trait ArrayableTrait
     }
 
     /**
-     * Returns the list of fields that should be returned by default by {@see toArray()}.
+     * Returns the list of fields that should be returned by default by {@see \Yiisoft\Arrays\ArrayableTrait::toArray()}.
      *
-     * A field is a named element in the returned array by {@see toArray()}.
+     * A field is a named element in the returned array by {@see \Yiisoft\Arrays\ArrayableTrait::toArray()}.
      *
      * This method should return an array of field names or field definitions.
      * If the former, the field name will be treated as an object property name whose value will be used

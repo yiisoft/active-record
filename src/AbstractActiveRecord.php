@@ -794,7 +794,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Internal method to insert or update a record in the database.
      *
-     * @see upsert()
+     * @see AbstractActiveRecord::upsert()
      */
     abstract protected function upsertInternal(
         ?array $insertProperties = null,
@@ -823,8 +823,8 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @psalm-param ModelClass $modelClass
      * @psalm-param array<string, string> $link
      *
-     * {@see hasOne()}
-     * {@see hasMany()}
+     * @see AbstractActiveRecord::hasOne()
+     * @see AbstractActiveRecord::hasMany()
      */
     protected function createRelationQuery(
         ActiveRecordInterface|string $modelClass,
@@ -835,12 +835,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * {@see delete()}
-     *
      * @throws Exception
      * @throws Throwable
      *
      * @return int The number of rows deleted.
+     *
+     * @see AbstractActiveRecord::delete()
      */
     protected function deleteInternal(): int
     {
@@ -875,7 +875,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * You may specify the properties to be returned as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see newValues() changed property values} will be returned.
+     * Only the {@see AbstractActiveRecord::newValues() changed property values} will be returned.
      *
      * @param array|null $properties List of property names or name-values pairs that need to be returned.
      * Defaults to `null`, meaning all changed property values will be returned.
@@ -911,7 +911,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return bool Whether refresh was successful.
      *
-     * {@see refresh()}
+     * @see AbstractActiveRecord::refresh()
      */
     protected function refreshInternal(array|ActiveRecordInterface|null $record = null): bool
     {
@@ -931,14 +931,14 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
-     * {@see update()}
-     *
      * @param array|null $properties Property names or name-values pairs to update, `null` means all properties.
      *
      * @throws Exception
      * @throws NotSupportedException
      *
      * @return int The number of rows affected.
+     *
+     * @see AbstractActiveRecord::update()
      */
     protected function updateInternal(?array $properties = null): int
     {

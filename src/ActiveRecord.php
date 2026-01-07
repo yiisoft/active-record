@@ -74,7 +74,6 @@ use const ARRAY_FILTER_USE_KEY;
  * ```
  *
  * For more details and usage information on ActiveRecord,
- * {@see the [guide article on ActiveRecord](guide:db-active-record)}
  *
  * @psalm-suppress ClassMustBeFinal
  */

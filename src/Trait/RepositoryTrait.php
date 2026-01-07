@@ -8,9 +8,11 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\ActiveRecord\NotFoundException;
+use Yiisoft\Db\Query\Query;
 
 /**
- * Trait to support static methods {@see find()}, {@see findOne()}, {@see findAll()}, {@see findBySql()} to find records.
+ * Trait to support static methods {@see RepositoryTrait::find()}, {@see RepositoryTrait::findOne()},
+ * {@see RepositoryTrait::findAll()}, {@see RepositoryTrait::findBySql()} to find records.
  *
  * For example:
  *
@@ -43,7 +45,7 @@ trait RepositoryTrait
     /**
      * Returns an instance of {@see ActiveQueryInterface} instantiated by {@see ActiveRecordInterface::query()} method.
      * If the `$condition` parameter is not null, it calls {@see ActiveQueryInterface::andWhere()} method.
-     * Do not to pass user input to this method, use {@see findByPk()} instead.
+     * Do not to pass user input to this method, use {@see RepositoryTrait::findByPk()} instead.
      *
      * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
      * No condition is applied if `null` (by default).
@@ -61,8 +63,8 @@ trait RepositoryTrait
     }
 
     /**
-     * Shortcut for {@see find()} method with calling {@see ActiveQueryInterface::all()} method to get all records.
-     * Do not to pass user input to this method, use {@see findByPk()} instead.
+     * Shortcut for {@see RepositoryTrait::find()} method with calling {@see ActiveQueryInterface::all()} method
+     * to get all records. Do not to pass user input to this method, use {@see RepositoryTrait::findByPk()} instead.
      *
      * ```php
      * // find the customers whose primary key value is 10, 11 or 12.
@@ -88,7 +90,7 @@ trait RepositoryTrait
      *
      * ```php
      * $posts = Post::findAll(['id' => $id]);
-     * // or use {@see findByPk()} method
+     * // or use {@see RepositoryTrait::findByPk()} method
      * $post = Post::findByPk($id);
      * ```
      *
@@ -104,7 +106,7 @@ trait RepositoryTrait
     }
 
     /**
-     * Shortcut for {@see findAll()} method with throwing {@see NotFoundException} if no records found.
+     * Shortcut for {@see RepositoryTrait::findAll()} method with throwing {@see NotFoundException} if no records found.
      *
      * ```php
      * $customers = Customer::findAllOrFail(['is_active' => true]);
@@ -164,7 +166,7 @@ trait RepositoryTrait
     }
 
     /**
-     * Shortcut for {@see findByPk()} method with throwing {@see NotFoundException} if no records found.
+     * Shortcut for {@see RepositoryTrait::findByPk()} method with throwing {@see NotFoundException} if no records found.
      *
      * ```php
      * $customer = Customer::findByPkOrFail(1);
@@ -186,9 +188,11 @@ trait RepositoryTrait
      * Creates an {@see ActiveQueryInterface} instance with a given SQL statement.
      *
      * Note: That because the SQL statement is already specified, calling more query modification methods
-     * (such as {@see where()}, {@see order()) on the created {@see ActiveQueryInterface} instance will have no effect.
+     * (such as {@see Query::where()}, {@see Query::orderBy()}) on the
+     * created {@see ActiveQueryInterface} instance will have no effect.
      *
-     * However, calling {@see with()}, {@see asArray()}, {@see indexBy()} or {@see resultCallback()} is still fine.
+     * However, calling {@see ActiveQueryInterface::with()}, {@see ActiveQueryInterface::asArray()},
+     * {@see Query::indexBy()} or {@see Query::resultCallback()} is still fine.
      *
      * Below is an example:
      *
@@ -208,7 +212,7 @@ trait RepositoryTrait
 
     /**
      * Shortcut for {@see find()} method with calling {@see ActiveQueryInterface::one()} method to get one record.
-     * Do not to pass user input to this method, use {@see findByPk()} instead.
+     * Do not to pass user input to this method, use {@see RepositoryTrait::findByPk()} instead.
      *
      * ```php
      * // find a single customer whose primary key value is 10
@@ -234,7 +238,7 @@ trait RepositoryTrait
      *
      * ```php
      * $post = Post::findOne(['id' => $id]);
-     * // or use {@see findByPk()} method
+     * // or use {@see RepositoryTrait::findByPk()} method
      * $post = Post::findByPk($id);
      * ```
      *
@@ -252,7 +256,7 @@ trait RepositoryTrait
     }
 
     /**
-     * Shortcut for {@see findOne()} method with throwing {@see NotFoundException} if no records found.
+     * Shortcut for {@see RepositoryTrait::findOne()} method with throwing {@see NotFoundException} if no records found.
      *
      * ```php
      * $customer = Customer::findOneOrFail(['id' => 1]);

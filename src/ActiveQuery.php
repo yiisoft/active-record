@@ -47,35 +47,37 @@ use function serialize;
  *
  * An ActiveQuery can be a normal query or be used in a relational context.
  *
- * ActiveQuery instances are usually created by {@see findOne()}, {@see findBySql()}, {@see findAll()}.
+ * ActiveQuery instances are usually created by {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findOne()},
+ * {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findBySql()},
+ * {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findAll()}.
  *
- * Relational queries are created by {@see ActiveRecord::hasOne()} and {@see ActiveRecord::hasMany()}.
+ * Relational queries are created by {@see AbstractActiveRecord::hasOne()} and {@see AbstractActiveRecord::hasMany()}.
  *
  * Normal Query
  * ------------
  *
  * ActiveQuery mainly provides the following methods to retrieve the query results:
  *
- * - {@see one()}: returns a single record populated with the first row of data.
- * - {@see all()}: returns all records based on the query results.
- * - {@see count()}: returns the number of records.
- * - {@see sum()}: returns the sum over the specified column.
- * - {@see average()}: returns the average over the specified column.
- * - {@see min()}: returns the min over the specified column.
- * - {@see max()}: returns the max over the specified column.
- * - {@see scalar()}: returns the value of the first column in the first row of the query result.
- * - {@see column()}: returns the value of the first column in the query result.
- * - {@see exists()}: returns a value indicating whether the query result has data or not.
+ * - {@see Query::one()}: returns a single record populated with the first row of data.
+ * - {@see Query::all()}: returns all records based on the query results.
+ * - {@see Query::count()}: returns the number of records.
+ * - {@see Query::sum()}: returns the sum over the specified column.
+ * - {@see Query::average()}: returns the average over the specified column.
+ * - {@see Query::min()}: returns the min over the specified column.
+ * - {@see Query::max()}: returns the max over the specified column.
+ * - {@see Query::scalar()}: returns the value of the first column in the first row of the query result.
+ * - {@see Query::column()}: returns the value of the first column in the query result.
+ * - {@see Query::exists()}: returns a value indicating whether the query result has data or not.
  *
- * Because ActiveQuery extends from {@see Query}, one can use query methods, such as {@see where()}, {@see orderBy()} to
- * customize the query options.
+ * Because ActiveQuery extends from {@see Query}, one can use query methods, such as {@see Query::where()},
+ * {@see Query::orderBy()} to customize the query options.
  *
  * ActiveQuery also provides the following more query options:
  *
- * - {@see with()}: list of relations that this query should be performed with.
- * - {@see joinWith()}: reuse a relation query definition to add a join to a query.
- * - {@see indexBy()}: the name of the column by which the query result should be indexed.
- * - {@see asArray()}: whether to return each record as an array.
+ * - {@see ActiveQuery::with()}: list of relations that this query should be performed with.
+ * - {@see ActiveQuery::joinWith()}: reuse a relation query definition to add a join to a query.
+ * - {@see Query::indexBy()}: the name of the column by which the query result should be indexed.
+ * - {@see ActiveQuery::asArray()}: whether to return each record as an array.
  *
  * These options can be configured using methods of the same name. For example:
  *
@@ -89,17 +91,19 @@ use function serialize;
  *
  * In relational context, ActiveQuery represents a relation between two Active Record classes.
  *
- * Relational ActiveQuery instances are usually created by calling {@see ActiveRecord::hasOne()} and
- * {@see ActiveRecord::hasMany()}. An Active Record class declares a relation by defining a getter method which calls
+ * Relational ActiveQuery instances are usually created by calling {@see AbstractActiveRecord::hasOne()} and
+ * {@see AbstractActiveRecord::hasMany()}. An Active Record class declares a relation by defining a getter method which calls
  * one of the above methods and returns the created ActiveQuery object.
  *
- * A relation is specified by {@see link()} which represents the association between columns of different tables; and
- * the multiplicity of the relation is indicated by {@see multiple()}.
+ * A relation is specified by {@see ActiveQuery::link()} which represents the association between columns
+ * of different tables; and the multiplicity of the relation is indicated by {@see ActiveQuery::multiple()}.
  *
- * If a relation involves a junction table, it may be specified by {@see via()} or {@see viaTable()} method.
+ * If a relation involves a junction table, it may be specified by {@see ActiveQuery::via()}
+ * or {@see ActiveQuery::viaTable()} method.
  *
- * These methods may only be called in a relational context. The same is true for {@see inverseOf()}, which marks a relation
- * as inverse of another relation and {@see onCondition()} which adds a condition that is to be added to relational
+ * These methods may only be called in a relational context. The same is true for
+ * {@see ActiveQuery::inverseOf()}, which marks a relation as inverse of another relation
+ * and {@see ActiveQuery::on()} which adds a condition that is to be added to relational
  * query join condition.
  *
  * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
@@ -140,7 +144,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * This property is only used in relational context.
      *
-     * @see inverseOf()
+     * @see ActiveQuery::inverseOf()
      */
     private ?string $inverseOf = null;
 
@@ -638,7 +642,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
-     * Queries a scalar value by setting {@see select()} first.
+     * Queries a scalar value by setting {@see Query::select()} first.
      *
      * Restores the value of select to make this query reusable.
      *
@@ -786,8 +790,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * Finds records corresponding to one or multiple relations and populates them into the primary models.
      *
-     * @param array $with a list of relations that this query should be performed with. Please refer to {@see with()}
-     * for details about specifying this parameter.
+     * @param array $with a list of relations that this query should be performed with. Please refer
+     * to {@see ActiveQuery::with()} for details about specifying this parameter.
      * @param ActiveRecordInterface[]|array[] $models the primary models (can be either AR instances or arrays)
      *
      * @throws Exception
@@ -865,7 +869,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * If applicable, populate the query's primary model into the related records' inverse relationship.
      *
-     * @param ActiveRecordInterface[]|array[] $result the array of related records as generated by {@see populate()}
+     * @param ActiveRecordInterface[]|array[] $result the array of related records as generated
+     * by {@see ActiveQuery::populate()}
      *
      * @throws InvalidConfigException
      *

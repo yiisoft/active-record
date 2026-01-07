@@ -28,7 +28,7 @@ abstract class AbstractEvent implements StoppableEventInterface
 
     /**
      * Returns the value that will be returned by the method that triggered this event
-     * if the {@see isDefaultPrevented() default action is prevented}.
+     * if the {@see AbstractEvent::isDefaultPrevented() default action is prevented}.
      */
     public function getReturnValue(): mixed
     {
@@ -51,7 +51,7 @@ abstract class AbstractEvent implements StoppableEventInterface
     /**
      * Prevents the default action associated with this event from being executed.
      *
-     * @see returnValue()
+     * @see AbstractEvent::returnValue()
      */
     public function preventDefault(): void
     {
@@ -60,9 +60,9 @@ abstract class AbstractEvent implements StoppableEventInterface
 
     /**
      * Sets the return value which will be returned by the method that triggered this event
-     * if the {@see isDefaultPrevented() default action is prevented}.
+     * if the {@see AbstractEvent::isDefaultPrevented() default action is prevented}.
      *
-     * @see preventDefault()
+     * @see AbstractEvent::preventDefault()
      */
     public function returnValue(mixed $returnValue): void
     {

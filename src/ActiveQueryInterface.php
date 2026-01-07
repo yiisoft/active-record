@@ -13,6 +13,7 @@ use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Exception\NotSupportedException;
 use Yiisoft\Db\Expression\ExpressionInterface;
 use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Db\Query\QueryPartsInterface;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
 
@@ -35,7 +36,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws Throwable
      *
      * @return ActiveRecordInterface[]|array[] All rows of the query result. Each array element is an `array` or
-     * instance of {@see ActiveRecordInterface} representing a row of data, depends on {@see isAsArray()} result.
+     * instance of {@see ActiveRecordInterface} representing a row of data, depends
+     * on {@see ActiveQueryInterface::isAsArray()} result.
      * Empty array if the query results in nothing.
      *
      * @psalm-return array<ActiveRecordInterface|array>
@@ -43,7 +45,7 @@ interface ActiveQueryInterface extends QueryInterface
     public function all(): array;
 
     /**
-     * Sets the {@see asArray} property.
+     * Sets the {@see ActiveQuery::$asArray} property.
      *
      * @param bool|null $value Whether to return the query results in terms of arrays instead of Active Records.
      *
@@ -57,8 +59,8 @@ interface ActiveQueryInterface extends QueryInterface
      * The parameters to this method can be either one or multiple strings, or a single array of relation names and the
      * optional callbacks to customize the relations.
      *
-     * A relation name can refer to a relation defined in {@see modelClass} or a sub-relation that stands for a relation
-     * of a related record.
+     * A relation name can refer to a relation defined in {@see ActiveQuery::$model} or a sub-relation that stands
+     * for a relation of a related record.
      *
      * For example, `orders.address` means the `address` relation defined in the model class corresponding to the
      * `orders` relation.
@@ -102,8 +104,8 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Resets the relations that this query should be performed with.
      *
-     * This method clears all relations set via {@see with()} and disables eager loading for relations
-     * set via {@see joinWith()}, while keeping the JOIN clauses intact.
+     * This method clears all relations set via {@see ActiveQueryInterface::with()} and disables eager
+     * loading for relations set via {@see ActiveQueryInterface::joinWith()}, while keeping the JOIN clauses intact.
      *
      * @return static The query object itself.
      */
@@ -127,7 +129,8 @@ interface ActiveQueryInterface extends QueryInterface
      * }
      * ```
      *
-     * @param string $relationName The relation name. This refers to a relation declared in {@see primaryModel}.
+     * @param string $relationName The relation name. This refers to a relation declared
+     * in {@see ActiveQueryInterface::primaryModel()}.
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
      *
@@ -140,12 +143,12 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * @return array|ExpressionInterface|string|null the join condition to be used when this query is used in a relational context.
      *
-     * The condition will be used in the ON part when {@see joinWith()} is called. Otherwise, the condition will be used
-     * in the `WHERE` part of a query.
+     * The condition will be used in the ON part when {@see ActiveQueryInterface::joinWith()} is called. Otherwise,
+     * the condition will be used in the `WHERE` part of a query.
      *
      * Please refer to {@see Query::where()} on how to specify this parameter.
      *
-     * @see on()
+     * @see ActiveQueryInterface::on()
      */
     public function getOn(): array|ExpressionInterface|string|null;
 
@@ -162,12 +165,13 @@ interface ActiveQueryInterface extends QueryInterface
      * the specified relation(s), the method will append one or many `JOIN` statements to the current query.
      *
      * If the `$eagerLoading` parameter is true, the method will also perform eager loading for the specified relations,
-     * which is equal to calling {@see with()} using the specified relations.
+     * which is equal to calling {@see ActiveQueryInterface::with()} using the specified relations.
      *
      * Note: That because a `JOIN` query will be performed, you're responsible for disambiguated column names.
      *
-     * This method differs from {@see with()} in that it will build up and execute a `JOIN` SQL statement for the primary
-     * table. And when `$eagerLoading` is true, it will call {@see with()} also with the specified relations.
+     * This method differs from {@see ActiveQueryInterface::with()} in that it will build up and execute a `JOIN` SQL
+     * statement for the primary table. And when `$eagerLoading` is true, it will
+     * call {@see ActiveQueryInterface::with()} also with the specified relations.
      *
      * Note: Relations specified in `$with` cannot have `GROUP BY`, `HAVING`, or `UNION` clauses. Using these clauses
      * will result in a {@see \LogicException}.
@@ -182,7 +186,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * The relation name may optionally contain an alias for the relation table (for example, `books b`).
      *
-     * Sub-relations can also be specified, see {@see with()} for the syntax.
+     * Sub-relations can also be specified, see {@see ActiveQueryInterface::with()} for the syntax.
      *
      * In the following, you find some examples:
      *
@@ -226,16 +230,16 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Inner joins with the specified relations.
      *
-     * This is a shortcut method to {@see joinWith()} with the join type set as "INNER JOIN".
+     * This is a shortcut method to {@see ActiveQueryInterface::joinWith()} with the join type set as "INNER JOIN".
      *
-     * Please refer to {@see joinWith()} for detailed usage of this method.
+     * Please refer to {@see ActiveQueryInterface::joinWith()} for detailed usage of this method.
      *
      * @param array|string $with The relations to be joined with.
      * @param array|bool $eagerLoading Whether to eager load the relations.
      * Note: That this doesn't mean that the relations are populated from the query result.
      * An extra query will still be performed to bring in the related data.
      *
-     * @see joinWith()
+     * @see ActiveQueryInterface::joinWith()
      *
      * @psalm-param array<string|Closure>|string $with
      */
@@ -244,7 +248,7 @@ interface ActiveQueryInterface extends QueryInterface
     /**
      * Sets the ON condition for a relational query.
      *
-     * The condition will be used in the ON part when {@see joinWith()} is called.
+     * The condition will be used in the ON part when {@see ActiveQueryInterface::joinWith()} is called.
      *
      * Otherwise, the condition will be used in the `WHERE` part of a query.
      *
@@ -253,7 +257,7 @@ interface ActiveQueryInterface extends QueryInterface
      * ```php
      * public function getActiveUsers(): ActiveQuery
      * {
-     *     return $this->hasMany(User::class, ['id' => 'user_id'])->onCondition(['active' => true]);
+     *     return $this->hasMany(User::class, ['id' => 'user_id'])->on(['active' => true]);
      * }
      * ```
      *
@@ -272,12 +276,12 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * The new condition and the existing one will be joined using the `AND` operator.
      *
-     * @param array|ExpressionInterface|string $condition The new `ON` condition. Please refer to {@see where()} on how
-     * to specify this parameter.
+     * @param array|ExpressionInterface|string $condition The new `ON` condition. Please refer
+     * to {@see Query::where()} on how to specify this parameter.
      * @param array $params the parameters (name => value) to be bound to the query.
      *
-     * @see on()
-     * @see orOn()
+     * @see ActiveQueryInterface::on()
+     * @see ActiveQueryInterface::orOn()
      */
     public function andOn(array|ExpressionInterface|string $condition, array $params = []): static;
 
@@ -286,12 +290,12 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * The new condition and the existing one will be joined using the `OR` operator.
      *
-     * @param array|ExpressionInterface|string $condition The new `ON` condition. Please refer to {@see where()} on how
-     * to specify this parameter.
+     * @param array|ExpressionInterface|string $condition The new `ON` condition. Please refer
+     * to {@see Query::where()} on how to specify this parameter.
      * @param array $params The parameters (name => value) to be bound to the query.
      *
-     * @see on()
-     * @see andOn()
+     * @see ActiveQueryInterface::on()
+     * @see ActiveQueryInterface::andOn()
      */
     public function orOn(array|ExpressionInterface|string $condition, array $params = []): static;
 
@@ -308,24 +312,24 @@ interface ActiveQueryInterface extends QueryInterface
      * ```
      *
      * @param string $tableName The name of the junction table.
-     * @param string[] $link The link between the junction table and the table associated with {@see primaryModel}.
-     * The keys of the array represent the columns in the junction table, and the values represent the columns in the
-     * {@see primaryModel} table.
+     * @param string[] $link The link between the junction table and the table associated
+     * with {@see ActiveQueryInterface::primaryModel()}. The keys of the array represent the columns in the
+     * junction table, and the values represent the columns in the {@see ActiveQueryInterface::primaryModel()} table.
      * @param callable|null $callable A PHP callback for customizing the relation associated with the junction table.
      * Its signature should be `function($query)`, where `$query` is the query to be customized.
      *
      * @psalm-param array<string,string> $link
      *
-     * @see via()
+     * @see ActiveQueryInterface::via()
      */
     public function viaTable(string $tableName, array $link, ?callable $callable = null): static;
 
     /**
      * Define an alias for the table defined in {@see ActiveRecordInterface}.
      *
-     * This method will adjust {@see from()} so that an already defined alias will be overwritten.
+     * This method will adjust {@see QueryPartsInterface::from()} so that an already defined alias will be overwritten.
      *
-     * If none was defined, {@see from()} will be populated with the given alias.
+     * If none was defined, {@see QueryPartsInterface::from()} will be populated with the given alias.
      *
      * @param string $alias The table alias.
      *
@@ -336,7 +340,7 @@ interface ActiveQueryInterface extends QueryInterface
     public function alias(string $alias): static;
 
     /**
-     * Returns table names used in {@see from} indexed by aliases.
+     * Returns table names used in {@see QueryPartsInterface::from()} indexed by aliases.
      *
      * Both aliases and names are enclosed into `{{` and `}}`.
      *
@@ -512,18 +516,18 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @param bool $value Whether this query represents a relation to more than one record.
      * This property is only used in relational context. If true, this relation will populate all query results into AR
-     * instances using {@see all()}.
-     * If false, only the first row of the results will be retrieved using {@see one()}.
+     * instances using {@see ActiveQueryInterface::all()}.
+     * If false, only the first row of the results will be retrieved using {@see ActiveQueryInterface::one()}.
      */
     public function multiple(bool $value): static;
 
     /**
      * @return ActiveQueryInterface|array|null The query associated with the junction table.
-     * Please call {@see via()} to set this property instead of directly setting it.
+     * Please call {@see ActiveQueryInterface::via()} to set this property instead of directly setting it.
      *
      * This property is only used in relational context.
      *
-     * @see via()
+     * @see ActiveQueryInterface::via()
      *
      * @psalm-return Via|null
      */
@@ -559,9 +563,10 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * This property is only used in relational context.
      *
-     * If `true`, this relation will populate all query results into active record instances using {@see all()}.
+     * If `true`, this relation will populate all query results into active record instances
+     * using {@see ActiveQueryInterface::all()}.
      *
-     * If `false`, only the first row of the results will be retrieved using {@see one()}.
+     * If `false`, only the first row of the results will be retrieved using {@see ActiveQueryInterface::one()}.
      */
     public function isMultiple(): bool;
 
@@ -576,7 +581,7 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws Throwable
      *
      * @return ActiveRecordInterface|array|null The first row as an `array` or instance of {@see ActiveRecordInterface}
-     * of the query result, depends on {@see isAsArray()} result. `null` if the query results in nothing.
+     * of the query result, depends on {@see ActiveQueryInterface::isAsArray()} result. `null` if the query results in nothing.
      */
     public function one(): array|ActiveRecordInterface|null;
 
@@ -587,8 +592,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @param ActiveRecordInterface[]|array[] $primaryModels Primary models.
      *
      * @throws Exception
-     * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable If {@see link()} is
-     * invalid.
+     * @throws InvalidArgumentException|InvalidConfigException|NotSupportedException|Throwable If
+     * {@see ActiveQueryInterface::link()} is invalid.
      * @return ActiveRecordInterface[]|array[] The related models.
      *
      * @psalm-param non-empty-list<ActiveQueryResult> $primaryModels

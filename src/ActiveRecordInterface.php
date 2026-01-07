@@ -100,7 +100,7 @@ interface ActiveRecordInterface
      * Returns a value indicating whether the given active record is the same as the current one.
      *
      * The comparison is made by comparing the table names and the primary key values of the two active records. If one
-     * of the records {@see isNew} they're also considered not equal.
+     * of the records {@see ActiveRecordInterface::isNew()} they're also considered not equal.
      *
      * @param self $record Record to compare to.
      *
@@ -117,7 +117,7 @@ interface ActiveRecordInterface
      *
      * @return mixed The property value. `null` if the property isn't set or doesn't exist.
      *
-     * @see hasProperty()
+     * @see ActiveRecordInterface::hasProperty()
      */
     public function get(string $propertyName): mixed;
 
@@ -125,7 +125,7 @@ interface ActiveRecordInterface
      * Returns property values.
      *
      * @param array|null $names List of property names whose value needs to be returned. Defaults to `null`, meaning all
-     * properties listed in {@see propertyNames()} will be returned.
+     * properties listed in {@see ActiveRecordInterface::propertyNames()} will be returned.
      * @param array $except List of property names whose value shouldn't be returned.
      *
      * @throws Exception
@@ -140,7 +140,7 @@ interface ActiveRecordInterface
     /**
      * Returns a value indicating whether the current record is new (not saved in the database).
      *
-     * @return bool Whether the record is new and should be inserted when calling {@see save()}.
+     * @return bool Whether the record is new and should be inserted when calling {@see ActiveRecordInterface::save()}.
      */
     public function isNew(): bool;
 
@@ -153,7 +153,7 @@ interface ActiveRecordInterface
      *
      * @return mixed The old property value. `null` if the property is not loaded before or doesn't exist.
      *
-     * @see hasProperty()
+     * @see ActiveRecordInterface::hasProperty()
      */
     public function oldValue(string $propertyName): mixed;
 
@@ -163,11 +163,11 @@ interface ActiveRecordInterface
      * This refers to the primary key value that is populated into the record after data is retrieved from the database
      * by an instance of {@see ActiveQueryInterface}.
      *
-     * The value remains unchanged while the record will not be {@see update() updated}.
+     * The value remains unchanged while the record will not be {@see ActiveRecordInterface::update() updated}.
      *
      * @throw Exception If multiple primary keys or no primary key.
      *
-     * @see primaryKeyOldValues()
+     * @see ActiveRecordInterface::primaryKeyOldValues()
      */
     public function primaryKeyOldValue(): float|int|string|null;
 
@@ -177,11 +177,11 @@ interface ActiveRecordInterface
      * This refers to the primary key values that is populated into the record after data is retrieved from the database
      * by an instance of {@see ActiveQueryInterface}.
      *
-     * The value remains unchanged while the record will not be {@see update() updated}.
+     * The value remains unchanged while the record will not be {@see ActiveRecordInterface::update() updated}.
      *
      * @throw Exception If no primary key or multiple primary keys.
      *
-     * @see primaryKeyOldValues()
+     * @see ActiveRecordInterface::primaryKeyOldValues()
      *
      * @psalm-return array<string, float|int|string|bool|null>
      */
@@ -192,14 +192,14 @@ interface ActiveRecordInterface
      *
      * @throw Exception If multiple primary keys or no primary key.
      *
-     * @see primaryKeyValues()
+     * @see ActiveRecordInterface::primaryKeyValues()
      */
     public function primaryKeyValue(): float|int|string|null;
 
     /**
      * Returns the values of the primary key as an array with property names as keys and property values as values.
      *
-     * @see primaryKeyValue()
+     * @see ActiveRecordInterface::primaryKeyValue()
      *
      * @psalm-return array<string, float|int|string|bool|null>
      */
@@ -256,7 +256,7 @@ interface ActiveRecordInterface
      *
      * @return array An array of related records indexed by relation names.
      *
-     * @see relationQuery()
+     * @see ActiveRecordInterface::relationQuery()
      */
     public function relatedRecords(): array;
 
@@ -346,7 +346,7 @@ interface ActiveRecordInterface
      * You may specify the properties to be inserted as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see newValues()} changed property values will be inserted into a database.
+     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be inserted into a database.
      *
      * If the table's primary key is auto incremental and is `null` during insertion, it will be populated with the
      * actual value after insertion.
@@ -369,14 +369,14 @@ interface ActiveRecordInterface
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
      * Defaults to `null`, meaning all changed property values will be saved.
      *
-     * @throws InvalidCallException If the record {@see isNew() is not new}.
+     * @throws InvalidCallException If the record {@see ActiveRecordInterface::isNew() is not new}.
      * @throws InvalidConfigException
      * @throws Throwable In case insert failed.
      */
     public function insert(?array $properties = null): void;
 
     /**
-     * Checks if any property returned by {@see propertyNames()} method has changed.
+     * Checks if any property returned by {@see ActiveRecordInterface::propertyNames()} method has changed.
      * A new active record instance is considered changed if any property has been set including default values.
      */
     public function isChanged(): bool;
@@ -416,7 +416,7 @@ interface ActiveRecordInterface
      *
      * @return bool Whether relation has been populated with records.
      *
-     * {@see relationQuery()}
+     * @see ActiveRecordInterface::relationQuery()
      */
     public function isRelationPopulated(string $name): bool;
 
@@ -495,7 +495,8 @@ interface ActiveRecordInterface
      * A relation is defined by a getter method which returns an object implementing the {@see ActiveQueryInterface}
      * (normally this would be a relational {@see ActiveQuery} object).
      *
-     * Relations can be defined using {@see hasOne()} and {@see hasMany()} methods. For example:
+     * Relations can be defined using {@see ActiveRecordInterface::hasOne()} and
+     * {@see ActiveRecordInterface::hasMany()} methods. For example:
      *
      * ```php
      * public function relationQuery(string $name): ActiveQueryInterface
@@ -528,10 +529,10 @@ interface ActiveRecordInterface
      * You may specify the properties to be updated as list of name or name-value pairs.
      * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see newValues()} changed property values will be saved into a database.
+     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be saved into a database.
      *
-     * This method will call {@see insert()} when {@see isNew()} is true, or {@see update()} when
-     * {@see isNew()} is false.
+     * This method will call {@see ActiveRecordInterface::insert()} when {@see ActiveRecordInterface::isNew()}
+     * is true, or {@see ActiveRecordInterface::update()} when {@see ActiveRecordInterface::isNew()} is false.
      *
      * For example, to save a customer record:
      *
@@ -563,20 +564,20 @@ interface ActiveRecordInterface
     public function set(string $propertyName, mixed $value): void;
 
     /**
-     * Marks this record as new. The record should be inserted when calling {@see save()}.
+     * Marks this record as new. The record should be inserted when calling {@see ActiveRecordInterface::save()}.
      *
-     * @see isNew()
-     * @see markAsExisting()
+     * @see ActiveRecordInterface::isNew()
+     * @see ActiveRecordInterface::markAsExisting()
      */
     public function markAsNew(): void;
 
     /**
-     * Marks this record as existing. The record should be updated when calling {@see save()}.
+     * Marks this record as existing. The record should be updated when calling {@see ActiveRecordInterface::save()}.
      *
      * Note: all current properties will be considered unchanged after calling this method.
      *
-     * @see isNew()
-     * @see markAsNew()
+     * @see ActiveRecordInterface::isNew()
+     * @see ActiveRecordInterface::markAsNew()
      */
     public function markAsExisting(): void;
 
@@ -587,7 +588,7 @@ interface ActiveRecordInterface
      *
      * The method will then save the specified properties into a database.
      *
-     * Only the {@see newValues()} changed property values will be saved into a database.
+     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be saved into a database.
      *
      * For example, to update a customer record:
      *
@@ -619,7 +620,7 @@ interface ActiveRecordInterface
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
      * Defaults to `null`, meaning all changed property values will be saved.
      *
-     * @throws InvalidCallException If the record {@see isNew() is new}.
+     * @throws InvalidCallException If the record {@see ActiveRecordInterface::isNew() is new}.
      * @throws OptimisticLockException If the instance implements {@see OptimisticLockInterface} and the data being
      * updated is outdated.
      * @throws Throwable In case update failed.
@@ -671,7 +672,7 @@ interface ActiveRecordInterface
      * Insert a row into the associated database table if the record doesn't already exist (matching unique constraints)
      * or update the record if it exists, with populating model by the returning record values.
      *
-     * Only the {@see newValues()} changed property values will be inserted or updated.
+     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be inserted or updated.
      *
      * If the table's primary key is auto incremental and is `null` during execution, it will be populated with the
      * actual value after insertion or update.
@@ -742,8 +743,8 @@ interface ActiveRecordInterface
     /**
      * Updates one or several counters for the current AR object.
      *
-     * Note that this method differs from {@see updateAllCounters()} in that it only saves counters for the current AR
-     * object.
+     * Note that this method differs from {@see ActiveRecordInterface::updateAllCounters()} in that it only
+     * saves counters for the current AR object.
      *
      * An example usage is as follows:
      *
@@ -757,7 +758,7 @@ interface ActiveRecordInterface
      *
      * @psalm-param array<string, int> $counters
      *
-     * @see updateAllCounters()
+     * @see ActiveRecordInterface::updateAllCounters()
      */
     public function updateCounters(array $counters): void;
 
@@ -808,7 +809,7 @@ interface ActiveRecordInterface
      * The comparison of new and old values uses `===`.
      *
      * @param array|null $propertyNames The names of the properties whose values may be returned if they're changed
-     * recently. If `null`, {@see propertyNames()} will be used.
+     * recently. If `null`, {@see ActiveRecordInterface::propertyNames()} will be used.
      *
      * @return array The changed property values (name-value pairs).
      *
@@ -819,8 +820,8 @@ interface ActiveRecordInterface
     /**
      * Marks a property as changed.
      *
-     * This method may be called to force updating a record when calling {@see update()}, even if there is no change
-     * being made to the record.
+     * This method may be called to force updating a record when calling {@see ActiveRecordInterface::update()},
+     * even if there is no change being made to the record.
      *
      * @param string $name The property name.
      */
@@ -847,7 +848,7 @@ interface ActiveRecordInterface
      *
      * @param array $values Property values (name => value) to be assigned to the model.
      *
-     * @see propertyNames()
+     * @see ActiveRecordInterface::propertyNames()
      *
      * @psalm-param array<string, mixed> $values
      */
@@ -860,7 +861,7 @@ interface ActiveRecordInterface
      *
      * @throws InvalidArgumentException If the named property doesn't exist.
      *
-     * @see hasProperty()
+     * @see ActiveRecordInterface::hasProperty()
      */
     public function assignOldValue(string $propertyName, mixed $value): void;
 
@@ -870,7 +871,7 @@ interface ActiveRecordInterface
      * All existing old property values will be discarded.
      *
      * @param array|null $propertyValues Old property values (name => value) to be set. If set to `null` this record
-     * is {@see isNew()}.
+     * is {@see ActiveRecordInterface::isNew()}.
      */
     public function assignOldValues(?array $propertyValues = null): void;
 }

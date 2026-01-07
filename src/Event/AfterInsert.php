@@ -9,7 +9,7 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
 /**
  * Event triggered after the record has been inserted into the database.
  *
- * @see ActiveRecordInterface::insert
+ * @see ActiveRecordInterface::insert()
  */
 final class AfterInsert extends AbstractEvent
 {

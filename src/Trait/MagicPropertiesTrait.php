@@ -57,7 +57,7 @@ trait MagicPropertiesTrait
      * @throws Exception
      * @return mixed Property or relation value.
      *
-     * @see get()
+     * @see AbstractActiveRecord::get()
      */
     public function __get(string $name)
     {
@@ -188,8 +188,8 @@ trait MagicPropertiesTrait
      *
      * @return bool Whether the property is defined.
      *
-     * {@see canGetProperty()}
-     * {@see canSetProperty()}
+     * @see MagicPropertiesTrait::canGetProperty()
+     * @see MagicPropertiesTrait::canSetProperty()
      */
     public function isProperty(string $name, bool $checkVars = true): bool
     {
