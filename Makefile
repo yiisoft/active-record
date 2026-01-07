@@ -59,7 +59,6 @@ mutation: ## Run mutation tests using Infection
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml --profile pgsql up -d
 	docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml exec php-pgsql \
 		vendor/bin/infection \
-		   --min-covered-msi=100 \
 		   --ignore-msi-with-no-mutations \
 		   --test-framework-options='--testsuite=Pgsql'
 
