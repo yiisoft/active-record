@@ -13,6 +13,7 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CategoryWithArrayAccess;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerWithProperties;
@@ -981,5 +982,13 @@ abstract class MagicActiveRecordTest extends TestCase
             . ' has a relation named "profile" instead of "Profile".',
         );
         $customer->relationQuery('Profile');
+    }
+
+    public function testOffsetSetWithProperty(): void
+    {
+        $model = new CategoryWithArrayAccess();
+        $model['name'] = 'new name';
+
+        $this->assertSame('new name', $model->name);
     }
 }
