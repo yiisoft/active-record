@@ -741,7 +741,7 @@ interface ActiveRecordInterface
     public function unlinkAll(string $relationName, bool $delete = false): void;
 
     /**
-     * Updates one or several counters for the current AR object.
+     * Updates one or several counters for the current active record object.
      *
      * Note that this method differs from {@see ActiveRecordInterface::updateAllCounters()} in that it only
      * saves counters for the current AR object.
