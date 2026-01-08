@@ -57,7 +57,7 @@ trait MagicPropertiesTrait
      * @throws Exception
      * @return mixed Property or relation value.
      *
-     * @see AbstractActiveRecord::get()
+     * @see ActiveRecordInterface::get()
      */
     public function __get(string $name)
     {
