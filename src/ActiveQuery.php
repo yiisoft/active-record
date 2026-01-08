@@ -50,8 +50,6 @@ use function serialize;
  *
  * ActiveQuery instances are usually created by {@see RepositoryTrait::findOne()},
  * {@see RepositoryTrait::findBySql()}, {@see RepositoryTrait::findAll()}.
- * {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findBySql()},
- * {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findAll()}.
  *
  * Relational queries are created by {@see AbstractActiveRecord::hasOne()} and {@see AbstractActiveRecord::hasMany()}.
  *
