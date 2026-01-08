@@ -55,14 +55,12 @@ test-oracle: ## Run Oracle tests
 psalm: CMD="vendor/bin/psalm --no-cache" ## Run static analysis using Psalm
 psalm: run
 
-mutation: CMD="\
-vendor/bin/roave-infection-static-analysis-plugin \
---threads=2 \
---min-msi=0 \
---min-covered-msi=100 \
---ignore-msi-with-no-mutations \
---only-covered" ## Run mutation tests using Infection
-mutation: run
+mutation: ## Run mutation tests using Infection
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml --profile pgsql up -d
+	docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml exec php-pgsql \
+		vendor/bin/infection \
+		   --ignore-msi-with-no-mutations \
+		   --test-framework-options='--testsuite=Pgsql'
 
 composer-require-checker: CMD="vendor/bin/composer-require-checker" ## Check dependencies using Composer Require Checker
 composer-require-checker: run

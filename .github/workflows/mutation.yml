@@ -72,6 +72,6 @@ jobs:
 
       - name: Run infection.
         run: |
-          vendor/bin/infection --threads=2 --ignore-msi-with-no-mutations --min-covered-msi=100 --test-framework-options="--testsuite=Pgsql"
+          vendor/bin/infection --ignore-msi-with-no-mutations --test-framework-options="--testsuite=Pgsql"
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
