@@ -15,6 +15,7 @@ use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\ActiveRecord\Internal\RelationPopulator;
 use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
 use Yiisoft\ActiveRecord\Internal\Typecaster;
+use Yiisoft\ActiveRecord\Trait\RepositoryTrait;
 use Yiisoft\Db\Command\CommandInterface;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidConfigException;
