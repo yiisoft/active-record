@@ -42,8 +42,8 @@ final class JoinsWithBuilder
         }
 
         /**
-         * Remove duplicated joins added by {@see joinWithRelations()} that may be added, for example, when joining a relation
-         * and a via relation at the same time.
+         * Remove duplicated joins added by {@see JoinsWithBuilder::joinWithRelations()} that may be added,
+         * for example, when joining a relation and a via relation at the same time.
          */
         $uniqueJoins = [];
         foreach ($query->getJoins() as $join) {
