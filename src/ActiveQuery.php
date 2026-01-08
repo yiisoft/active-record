@@ -91,7 +91,7 @@ use function serialize;
  *
  * In relational context, ActiveQuery represents a relation between two Active Record classes.
  *
- * Relational ActiveQuery instances are usually created by calling {@see AbstractActiveRecord::hasOne()} and
+ * Relational ActiveQuery instances are usually created by calling {@see ActiveRecordInterface::hasOne()} and
  * {@see ActiveRecordInterface::hasMany()}. An Active Record class declares a relation by defining a getter method which calls
  * one of the above methods and returns the created ActiveQuery object.
  *
