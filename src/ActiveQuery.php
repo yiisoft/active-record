@@ -51,7 +51,7 @@ use function serialize;
  * ActiveQuery instances are usually created by {@see RepositoryTrait::findOne()},
  * {@see RepositoryTrait::findBySql()}, {@see RepositoryTrait::findAll()}.
  *
- * Relational queries are created by {@see AbstractActiveRecord::hasOne()} and {@see AbstractActiveRecord::hasMany()}.
+ * Relational queries are created by {@see ActiveRecordInterface::hasOne()} and {@see ActiveRecordInterface::hasMany()}.
  *
  * Normal Query
  * ------------
