@@ -36,6 +36,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
+use RuntimeException;
 
 use function sort;
 use function ucfirst;
@@ -2784,7 +2785,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $query = Order::query()->indexBy('total.nonexistent')->asArray();
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Trying to get property of non-array or non-ActiveRecordInterface instance.');
         $query->all();
     }

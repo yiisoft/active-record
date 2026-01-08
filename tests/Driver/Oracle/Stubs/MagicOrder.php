@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Order;
 
 /**
  * Class Order.
@@ -14,7 +15,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
  * @property int $created_at
  * @property string $total
  */
-final class MagicOrder extends \Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Order
+final class MagicOrder extends Order
 {
     public function getCustomerQuery(): ActiveQuery
     {

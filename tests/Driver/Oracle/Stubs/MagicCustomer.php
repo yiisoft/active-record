@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Oracle\Stubs;
 
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer;
 
 /**
  * Class Customer.
@@ -16,7 +17,7 @@ use Yiisoft\ActiveRecord\ActiveQuery;
  * @property int $status
  * @property bool $bool_status
  */
-final class MagicCustomer extends \Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer
+final class MagicCustomer extends Customer
 {
     public function getOrdersQuery(): ActiveQuery
     {

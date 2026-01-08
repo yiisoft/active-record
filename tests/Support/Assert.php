@@ -6,13 +6,14 @@ namespace Yiisoft\ActiveRecord\Tests\Support;
 
 use ReflectionClass;
 use ReflectionObject;
+use PHPUnit\Framework\TestCase;
 
 use function str_replace;
 
 /**
  * @psalm-suppress PropertyNotSetInConstructor
  */
-final class Assert extends \PHPUnit\Framework\TestCase
+final class Assert extends TestCase
 {
     /**
      * Asserting two strings equality ignoring line endings.
