@@ -744,7 +744,7 @@ interface ActiveRecordInterface
      * Updates one or several counters for the current active record object.
      *
      * Note that this method differs from {@see ActiveRecordInterface::updateAllCounters()} in that it only
-     * saves counters for the current AR object.
+     * saves counters for the current active record object.
      *
      * An example usage is as follows:
      *
