@@ -48,7 +48,8 @@ use function serialize;
  *
  * An ActiveQuery can be a normal query or be used in a relational context.
  *
- * ActiveQuery instances are usually created by {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findOne()},
+ * ActiveQuery instances are usually created by {@see RepositoryTrait::findOne()},
+ * {@see RepositoryTrait::findBySql()}, {@see RepositoryTrait::findAll()}.
  * {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findBySql()},
  * {@see \Yiisoft\ActiveRecord\Trait\RepositoryTrait::findAll()}.
  *
