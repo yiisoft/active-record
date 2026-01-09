@@ -24,6 +24,8 @@ use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\Expression\Value\JsonValue;
 use Yiisoft\Factory\Factory;
 
+use const M_PI;
+
 final class ActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\ActiveRecordTest
 {
     public function testDefaultValues(): void

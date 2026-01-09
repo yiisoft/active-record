@@ -19,6 +19,8 @@ use Yiisoft\Db\Expression\Value\ArrayValue;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Expression\Value\JsonValue;
 
+use const M_PI;
+
 final class MagicActiveRecordTest extends \Yiisoft\ActiveRecord\Tests\MagicActiveRecordTest
 {
     public function testExplicitPkOnAutoIncrement(): void

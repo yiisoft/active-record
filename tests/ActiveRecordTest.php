@@ -53,6 +53,7 @@ use Yiisoft\Factory\Factory;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 use function in_array;
+use function count;
 
 abstract class ActiveRecordTest extends TestCase
 {
@@ -1697,7 +1698,7 @@ abstract class ActiveRecordTest extends TestCase
         $updatedOrders = $customer->getOrderItemsIndexedByClosure();
         $this->assertArrayHasKey($expectedIndex, $updatedOrders);
         $this->assertSame($newOrder, $updatedOrders[$expectedIndex]);
-        $this->assertCount(\count($existingOrders) + 1, $updatedOrders);
+        $this->assertCount(count($existingOrders) + 1, $updatedOrders);
     }
 
     public function testLinkWithNullPrimaryKeyOnForeignModel(): void
