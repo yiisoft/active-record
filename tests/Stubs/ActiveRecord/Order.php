@@ -14,6 +14,9 @@ use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 use Yiisoft\ActiveRecord\Trait\EventsTrait;
 
+use const SORT_ASC;
+use const SORT_DESC;
+
 /**
  * Class Order.
  */

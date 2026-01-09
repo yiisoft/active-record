@@ -16,6 +16,8 @@ use Yiisoft\Db\QueryBuilder\Condition\In;
 
 use function ksort;
 
+use const SORT_DESC;
+
 abstract class ActiveQueryFindTest extends TestCase
 {
     public function testFindScalar(): void

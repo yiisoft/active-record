@@ -32,6 +32,8 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\ActiveRecord\UnknownPropertyException;
 
+use function count;
+
 abstract class MagicActiveRecordTest extends TestCase
 {
     public function testStoreNull(): void
