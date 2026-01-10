@@ -41,7 +41,7 @@ class Customer extends ArrayableActiveRecord
     public function fields(): array
     {
         return array_merge(parent::fields(), [
-            'registered_at' => static fn(self $customer) => $customer->registered_at->format('Y-m-d\TH:i:s.uP'),
+            'registered_at' => static fn(self $customer) => $customer->registered_at?->format('Y-m-d\TH:i:s.uP'),
         ]);
     }
 
