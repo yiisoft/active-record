@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use DateTimeImmutable;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
@@ -12,7 +13,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Type;
 use InvalidArgumentException;
 use Yiisoft\Db\Exception\InvalidConfigException;
-use Yiisoft\Db\QueryBuilder\Condition\In;
 
 use function ksort;
 
@@ -179,6 +179,7 @@ abstract class ActiveQueryFindTest extends TestCase
             'address' => 'address2',
             'status' => 1,
             'bool_status' => true,
+            'registered_at' => new DateTimeImmutable('2022-02-02 02:02:02.222222 Europe/Kyiv'),
             'profile_id' => null,
         ], $customer);
 

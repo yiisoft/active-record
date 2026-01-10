@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use Closure;
+use DateInterval;
+use DateTimeImmutable;
+use DateTimeInterface;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
-use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -31,7 +33,6 @@ use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\UnknownPropertyException;
 use Yiisoft\Db\Command\AbstractCommand;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
@@ -2095,6 +2096,7 @@ abstract class ActiveQueryTest extends TestCase
             'address' => 'address1',
             'status' => 1,
             'bool_status' => true,
+            'registered_at' => new DateTimeImmutable('2011-01-01 01:01:01.111111 Europe/Berlin'),
             'profile_id' => 1,
         ];
 
@@ -2118,7 +2120,7 @@ abstract class ActiveQueryTest extends TestCase
     {
         $customer = Customer::query();
 
-        $values = $customer->findByPk(1)->propertyValues(null, ['status', 'bool_status', 'profile_id']);
+        $values = $customer->findByPk(1)->propertyValues(null, ['status', 'bool_status', 'registered_at', 'profile_id']);
 
         $this->assertEquals(
             ['id' => 1, 'email' => 'user1@example.com', 'name' => 'user1', 'address' => 'address1'],
@@ -2149,6 +2151,7 @@ abstract class ActiveQueryTest extends TestCase
             'address' => 'address1',
             'status' => 1,
             'bool_status' => true,
+            'registered_at' => new DateTimeImmutable('2011-01-01 01:01:01.111111 Europe/Berlin'),
             'profile_id' => 1,
         ];
 
@@ -2393,6 +2396,41 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(0, $customer->getExpensiveOrders());
     }
 
+    public function testNewValuesStaysEmptyOnSameMomentInTime()
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customerQuery = Customer::query();
+        $customer = $customerQuery->findByPk(2);
+        $this->assertEmpty($customer->newValues());
+
+        /** @var DateTimeInterface $customerRegisteredAt */
+        $customerRegisteredAt = $customer->get('registered_at');
+        $equalRegisteredAt = $customerRegisteredAt->add(new DateInterval('PT0S'));
+        $this->assertEquals($equalRegisteredAt->format(($format = 'Y-m-d\TH:i:s.uP')), $customerRegisteredAt->format($format));
+
+        $customer->set('registered_at', $equalRegisteredAt);
+        $this->assertEmpty($customer->newValues());
+    }
+
+    public function testNewValuesStaysNotEmptyOnDifferentMomentInTime()
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customerQuery = Customer::query();
+        $customer = $customerQuery->findByPk(2);
+        $this->assertEmpty($customer->newValues());
+
+        /** @var DateTimeInterface $customerRegisteredAt */
+        $customerRegisteredAt = $customer->get('registered_at');
+        $differentRegisteredAt = $customerRegisteredAt->add(new DateInterval('PT1S'));
+        $this->assertNotEquals($differentRegisteredAt->format(($format = 'Y-m-d\TH:i:s.uP')), $customerRegisteredAt->format($format));
+
+        $customer->set('registered_at', $differentRegisteredAt);
+        $this->assertSame($customer->oldValues()['registered_at'], $customerRegisteredAt);
+        $this->assertSame($customer->newValues()['registered_at'], $differentRegisteredAt);
+    }
+
     public function testUpdate(): void
     {
         $this->reloadFixtureAfterTest();
@@ -2401,6 +2439,7 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->findByPk(2);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->get('name'));
+        $this->assertEquals(new DateTimeImmutable('2022-02-02 02:02:02.222222 Europe/Kyiv'), $customer->get('registered_at'));
         $this->assertFalse($customer->isNew());
         $this->assertEmpty($customer->newValues());
 

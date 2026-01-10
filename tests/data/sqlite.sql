@@ -50,6 +50,7 @@ CREATE TABLE "customer" (
   address text,
   status INTEGER DEFAULT 0,
   bool_status bool DEFAULT FALSE,
+  registered_at DATETIME DEFAULT NULL,
   profile_id INTEGER,
   PRIMARY KEY (id)
 );
@@ -221,9 +222,9 @@ INSERT INTO "animal" ("type") VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRe
 INSERT INTO "profile" (description) VALUES ('profile customer 1');
 INSERT INTO "profile" (description) VALUES ('profile customer 3');
 
-INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
-INSERT INTO "customer" (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
-INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
+INSERT INTO "customer" (email, name, address, status, bool_status, registered_at, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, '2011-01-01 01:01:01.111111+01:00',1);
+INSERT INTO "customer" (email, name, address, status, bool_status, registered_at) VALUES ('user2@example.com', 'user2', 'address2', 1, 1,'2022-02-02 02:02:02.222222+02:00');
+INSERT INTO "customer" (email, name, address, status, bool_status, registered_at, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0,'2023-03-03 03:03:03.333333+03:00', 2);
 
 INSERT INTO "category" (name) VALUES ('Books');
 INSERT INTO "category" (name) VALUES ('Movies');
