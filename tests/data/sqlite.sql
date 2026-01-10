@@ -50,7 +50,7 @@ CREATE TABLE "customer" (
   address text,
   status INTEGER DEFAULT 0,
   bool_status bool DEFAULT FALSE,
-  registered_at DATE DEFAULT NULL,
+  registered_at DATETIME DEFAULT NULL,
   profile_id INTEGER,
   PRIMARY KEY (id)
 );
