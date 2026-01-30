@@ -23,13 +23,14 @@
 *.ttf  binary
 
 # Exclude development and metadata files from distribution archive
-*               export-ignore
-/src/          -export-ignore
-/src/**        -export-ignore
-/composer.json -export-ignore
-/README.md     -export-ignore
-/CHANGELOG.md  -export-ignore
-/LICENSE.md    -export-ignore
+*                 export-ignore
+/src/            -export-ignore
+/src/**          -export-ignore
+/.meta-storm.xml -export-ignore
+/composer.json   -export-ignore
+/README.md       -export-ignore
+/CHANGELOG.md    -export-ignore
+/LICENSE.md      -export-ignore
 
 # Avoid merge conflicts in CHANGELOG
 # https://about.gitlab.com/2015/02/10/gitlab-reduced-merge-conflicts-by-90-percent-with-changelog-placeholders/
