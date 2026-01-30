@@ -26,6 +26,8 @@
 *                 export-ignore
 /src/            -export-ignore
 /src/**          -export-ignore
+/tests/          -export-ignore
+/tests/**        -export-ignore
 /.meta-storm.xml -export-ignore
 /composer.json   -export-ignore
 /README.md       -export-ignore
