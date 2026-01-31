@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Closure;
+use DateTimeInterface;
 use InvalidArgumentException;
 use LogicException;
 use ReflectionClass;
@@ -116,21 +117,25 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function newValues(?array $propertyNames = null): array
     {
-        $values = $this->propertyValues($propertyNames);
-
-        if ($this->oldValues === null) {
-            return $values;
+        $currentValues = $this->propertyValues($propertyNames);
+        if (($oldValues = $this->oldValues()) === []) {
+            return $currentValues;
         }
 
-        $result = array_diff_key($values, $this->oldValues);
+        $newValues = array_diff_key($currentValues, $oldValues);
 
-        foreach (array_diff_key($values, $result) as $name => $value) {
-            if ($value !== $this->oldValues[$name]) {
-                $result[$name] = $value;
+        foreach (array_diff_key($currentValues, $newValues) as $name => $newValue) {
+            if ($newValue instanceof DateTimeInterface) {
+                if ($oldValues[$name] === null
+                    || $newValue->format('Y-m-d\TH:i:s.uP') != $oldValues[$name]->format('Y-m-d\TH:i:s.uP')) {
+                    $newValues[$name] = $newValue;
+                }
+            } elseif ($newValue !== $oldValues[$name]) {
+                $newValues[$name] = $newValue;
             }
         }
 
-        return $result;
+        return $newValues;
     }
 
     public function oldValues(): array

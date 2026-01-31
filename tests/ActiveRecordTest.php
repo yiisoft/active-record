@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
+use DateTimeImmutable;
 use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
@@ -897,6 +898,56 @@ abstract class ActiveRecordTest extends TestCase
         $orderItem->primaryKeyOldValues();
     }
 
+    public static function providerForNewValues(): array
+    {
+        /*
+         * Defines the same moment in time but in different timezones.
+         */
+        $registeredAt_1 = new DateTimeImmutable('2011-01-01T01:01:01.111111+01:00');
+        $registeredAt_1_1 = new DateTimeImmutable('2011-01-01T00:01:01.111111+00:00');
+
+        return [
+            'new record 1.0' => [
+                'id' => null,
+                'propertyValues' => ['name' => 'user1'],
+                'expect' => ['name' => 'user1'],
+            ],
+            'new record 1.1' => [
+                'id' => null,
+                'propertyValues' => ['name' => 'user1', 'registered_at' => $registeredAt_1],
+                'expect' => ['name' => 'user1', 'registered_at' => $registeredAt_1],
+            ],
+            /*
+             * This record already has the "$registeredAt_1" date set.
+             */
+            'old record 1.0' => [
+                'id' => 1,
+                'propertyValues' => ['name' => 'user1'],
+                'expect' => [],
+            ],
+            'old record 1.1' => [
+                'id' => 1,
+                'propertyValues' => ['name' => 'user1.1', 'registered_at' => $registeredAt_1],
+                // We set the same value, so we do not expect any change here.
+                'expect' => ['name' => 'user1.1'],
+            ],
+            'old record 1.2' => [
+                'id' => 1,
+                'propertyValues' => ['name' => 'user1.2', 'registered_at' => $registeredAt_1_1],
+                // We set the same moment in time but with different timezone. It will be detected as a new value.
+                'expect' => ['name' => 'user1.2', 'registered_at' => $registeredAt_1_1],
+            ],
+        ];
+    }
+
+    #[DataProvider('providerForNewValues')]
+    public function testNewValues(?int $id, array $propertyValues, array $expect): void
+    {
+        $customer = $id === null ? new Customer() : Customer::findByPk($id);
+        array_walk($propertyValues, static fn($value, string $key) => $customer->set($key, $value));
+        $this->assertSame($expect, $customer->newValues(array_keys($propertyValues)));
+    }
+
     public function testGetDirtyValuesOnNewRecord(): void
     {
         $this->reloadFixtureAfterTest();
@@ -909,6 +960,7 @@ abstract class ActiveRecordTest extends TestCase
                 'address' => null,
                 'status' => 0,
                 'bool_status' => false,
+                'registered_at' => null,
                 'profile_id' => null,
             ],
             $customer->newValues(),
@@ -917,6 +969,7 @@ abstract class ActiveRecordTest extends TestCase
         $customer->set('name', 'Adam');
         $customer->set('email', 'adam@example.com');
         $customer->set('address', null);
+        $customer->set('registered_at', ($registeredAt = new DateTimeImmutable('2026-01-01 12:12:12.123456 Europe/Berlin')));
 
         $this->assertSame([], $customer->newValues([]));
 
@@ -927,6 +980,7 @@ abstract class ActiveRecordTest extends TestCase
                 'address' => null,
                 'status' => 0,
                 'bool_status' => false,
+                'registered_at' => $registeredAt,
                 'profile_id' => null,
             ],
             $customer->newValues(),
