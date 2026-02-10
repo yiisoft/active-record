@@ -34,7 +34,7 @@ If the `$factory` property is initialized, then the defined relations will be cr
 
 ## Limitations
 
-When using `FactoryTrait` you should not use `ActiveRecord::query()` static method. It will not work correctly.
+When using `FactoryTrait`, you should not use the static `ActiveRecord::query()` method. It will not work correctly.
 Instead, create a new instance of the model using the factory and create a new `ActiveQuery` object using the model
 instance as the parameter or call `createQuery()` method on the model instance.
 
