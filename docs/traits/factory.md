@@ -51,7 +51,7 @@ Then you can use the query object as usual, for example:
 $users = $query->where(['is_active' => true])->all();
 ```
 
-Also, you cannot use `RepositoryTrait` with `FactoryTrait`, because it uses `ActiveRecord::query()` static method.
+Also, you cannot use `RepositoryTrait` with `FactoryTrait`, because it uses static `ActiveRecord::query()` method.
 
 ## See also
 
