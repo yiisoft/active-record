@@ -40,7 +40,7 @@ Instead, create a new instance of the model using the factory and create a new q
 
 ```php
 $user = $factory->create(User::class);
-/** @var Yiisoft\ActiveRecord\ActiveQuery $query */
+/** @var Yiisoft\ActiveRecord\ActiveQueryInterface $query */
 $query = $user->createQuery();
 ```
 
