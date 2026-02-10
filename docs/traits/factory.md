@@ -36,7 +36,7 @@ If the `$factory` property is initialized, then the defined relations will be cr
 
 When using `FactoryTrait`, you should not use the static `ActiveRecord::query()` method. It will not work correctly.
 Instead, create a new instance of the model using the factory and create a new query object by calling the
-`createQuery()` method on the model instance or by calling the model's `query()` method with the instance.
+`createQuery()` method on the model instance or by calling the static `query()` method with the instance.
 
 ```php
 $user = $factory->create(User::class);
