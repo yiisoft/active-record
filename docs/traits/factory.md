@@ -44,7 +44,7 @@ $user = $factory->create(User::class);
 $query = $user->createQuery();
 ```
 
-Then you can use the query object as usual, for example:
+Then you can use the active query object as usual, for example:
 
 ```php
 $users = $query->where(['is_active' => true])->all();
