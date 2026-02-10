@@ -35,16 +35,14 @@ If the `$factory` property is initialized, then the defined relations will be cr
 ## Limitations
 
 When using `FactoryTrait`, you should not use the static `ActiveRecord::query()` method. It will not work correctly.
-Instead, create a new instance of the model using the factory and create a new `ActiveQuery` object using the model
-instance as the parameter or call `createQuery()` method on the model instance.
+Instead, create a new instance of the model using the factory and create a new query object by calling the
+`createQuery()` method on the model instance or by calling the model's `query()` method with the instance.
 
 ```php
-use Yiisoft\ActiveRecord\ActiveQuery;
-
 $user = $factory->create(User::class);
-$query = new ActiveQuery($user);
-// or
 $query = $user->createQuery();
+// or
+$query = User::query($user);
 ```
 
 Then you can use the query object as usual, for example:
