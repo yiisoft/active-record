@@ -146,7 +146,8 @@ Private properties have the same benefits as protected properties, and they are 
 
 The easiest way to define properties is to use dynamic properties.
 This way you don't need to define properties explicitly.
-
+You can rely on the database schema instead of defining properties
+explicitly by using dynamic properties.
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
 
@@ -249,7 +250,7 @@ final class User extends ActiveRecord
 
 ### Limitations
 
-When using the constructor, you should either specify default values or `null` for the arguments, or not use the static
+When using the constructor, you should either specify default values or `null` for the arguments, or avoid using the static
 `ActiveRecord::query()` method. It will not work correctly. Instead, create a new model instance and create a new query
 object by calling the `createQuery()` method on the model instance.
 
