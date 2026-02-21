@@ -263,7 +263,7 @@ $query = $user->createQuery();
 Then you can use the active query object as usual, for example:
 
 ```php
-$users = $query->where(['is_active' => true])->all();
+$users = $query->where(['status' => 'active'])->all();
 ```
 
 Also, if the constructor arguments do not have default values, you cannot use `RepositoryTrait`, because it uses static
