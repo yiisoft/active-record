@@ -16,7 +16,6 @@ use function array_diff_key;
 use function array_filter;
 use function array_keys;
 use function array_merge;
-use function get_object_vars;
 use function is_array;
 
 use const ARRAY_FILTER_USE_KEY;
@@ -128,7 +127,7 @@ class ActiveRecord extends AbstractActiveRecord
 
     protected function propertyValuesInternal(): array
     {
-        return get_object_vars($this);
+        return ArArrayHelper::propertyValues($this);
     }
 
     protected function insertInternal(?array $properties = null): void

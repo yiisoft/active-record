@@ -18,6 +18,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Article;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryAfterDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
@@ -1890,6 +1891,23 @@ abstract class ActiveRecordTest extends TestCase
 
         $softDeletedOrder = Order::query()->setWhere(['id' => 1])->one();
         $this->assertSame($deletedAt->getTimestamp(), $softDeletedOrder->get('deleted_at'));
+    }
+
+    public function testRelationDefinedViaPropertyHook(): void
+    {
+        $item = Item::query()->findByPk(1);
+        $itemCategory = $item->category;
+
+        $this->assertInstanceOf(Category::class, $itemCategory);
+        $this->assertSame(1, $itemCategory->getId());
+        $this->assertSame('Books', $itemCategory->getName());
+
+        $item->category = Category::query()->findByPk(2);
+        $itemCategory = $item->category;
+
+        $this->assertInstanceOf(Category::class, $itemCategory);
+        $this->assertSame(2, $itemCategory->getId());
+        $this->assertSame('Movies', $itemCategory->getName());
     }
 
     abstract protected function createFactory(): Factory;

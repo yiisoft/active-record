@@ -189,7 +189,7 @@ final class ArArrayHelper
         }
 
         if ($object instanceof ActiveRecordInterface) {
-            return $object->propertyValues();
+            return self::propertyValues($object);
         }
 
         if ($object instanceof Traversable) {
@@ -200,5 +200,24 @@ final class ArArrayHelper
         }
 
         return get_object_vars($object);
+    }
+
+    public static function propertyValues(ActiveRecordInterface $model): array
+    {
+        $data = (array) $model;
+        unset(
+            $data["\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues"],
+            $data["\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related"],
+            $data["\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies"],
+        );
+
+        $keys = array_map(self::clearPropertyName(...), array_keys($data));
+
+        return array_combine($keys, $data);
+    }
+
+    private static function clearPropertyName(string $propertyName): string
+    {
+        return substr($propertyName, (strrpos($propertyName, "\0") ?: -1) + 1);
     }
 }
