@@ -144,8 +144,6 @@ Private properties have the same benefits as protected properties, and they are 
 
 ### Dynamic properties
 
-The easiest way to define properties is to use dynamic properties.
-This way you don't need to define properties explicitly.
 You can rely on the database schema instead of defining properties
 explicitly by using dynamic properties.
 ```php
