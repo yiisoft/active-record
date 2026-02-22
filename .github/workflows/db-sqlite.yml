@@ -27,7 +27,7 @@ jobs:
     name: PHP ${{ matrix.php }}-sqlite-${{ matrix.os }}
 
     env:
-      extensions: pdo, pdo_sqlite
+      extensions: pdo_sqlite
       key: cache-v1
 
     runs-on: ${{ matrix.os }}
