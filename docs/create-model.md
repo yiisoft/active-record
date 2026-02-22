@@ -9,50 +9,6 @@ Active Record supports several ways to define and access properties. Each approa
 type safety, performance, and convenience. **Magic properties are optional** and provided for convenience, but explicit
 property definitions (public, protected, or private) are recommended for better type safety and performance.
 
-### Dynamic properties
-
-The easiest way to define properties is to use dynamic properties.
-This way you don't need to define properties explicitly.
-
-```php
-use Yiisoft\ActiveRecord\ActiveRecord;
-
-/**
- * Entity User.
- *
- * @property int $id
- * @property string $username
- * @property string $email
- * 
- * The properties in PHPDoc are optional and used by static analysis and by IDEs for autocompletion, type hinting, 
- * code generation, and inspection tools. This doesn't affect code execution.
- **/
-#[\AllowDynamicProperties]
-final class User extends ActiveRecord
-{
-    public function tableName(): string
-    {
-        return '{{%user}}';
-    }
-}
-```
-
-Now you can use `$user->id`, `$user->username`, `$user->email` to access the properties.
-
-```php
-$user = new User($db);
-
-$user->username = 'admin';
-$user->email = 'admin@example.net';
-
-$user->save();
-```
-
-Notes:
-- It needs to use the `#[\AllowDynamicProperties]` attribute to enable dynamic properties;
-- ❌ It doesn't use strict typing and can be a reason of hard-to-detect errors;
-- ❌ It is slower than explicitly defined properties, it isn't optimized by PHP opcache and uses more memory;
-
 ### Public properties
 
 To define properties explicitly, you can use `public` properties.
@@ -179,13 +135,52 @@ final class User extends ActiveRecord
         return '{{%user}}';
     }
     
-    // Getters and setters as for the private properties
+    // Getters and setters as for the protected properties
     // ...
 }
 ```
 
 Private properties have the same benefits as protected properties, and they are more secure.
-    
+
+### Dynamic properties
+
+You can rely on the database schema instead of defining properties explicitly by using dynamic properties.
+
+```php
+use Yiisoft\ActiveRecord\ActiveRecord;
+
+/**
+ * Entity User.
+ *
+ * @property int $id
+ * @property string $username
+ * @property string $email
+ * 
+ * The properties in PHPDoc are optional and used by static analysis and by IDEs for autocompletion, type hinting, 
+ * code generation, and inspection tools. This doesn't affect code execution.
+ **/
+#[\AllowDynamicProperties]
+final class User extends ActiveRecord
+{
+}
+```
+
+Now you can use `$user->id`, `$user->username`, `$user->email` to access the properties.
+
+```php
+$user = new User($db);
+
+$user->username = 'admin';
+$user->email = 'admin@example.net';
+
+$user->save();
+```
+
+Notes:
+- It needs to use the `#[\AllowDynamicProperties]` attribute to enable dynamic properties;
+- ❌ It doesn't use strict typing and can be a reason of hard-to-detect errors;
+- ❌ It is slower than explicitly defined properties, it isn't optimized by PHP opcache and uses more memory;
+
 ### Magic properties (optional)
 
 You can optionally use magic properties to access properties via the `MagicPropertiesTrait`. This approach is
@@ -225,6 +220,49 @@ Notes:
 - ❌ It doesn't use strict typing and can be a reason of hard-to-detect errors;
 - ❌ It is slower than explicitly defined properties, it is not optimized by PHP opcache and uses more memory.
   Sometimes it can be 100 times slower than explicitly defined properties;
+
+## Constructor
+
+Optionally, you can define a constructor to initialize the properties.
+
+```php
+use Yiisoft\ActiveRecord\ActiveRecord;
+
+/**
+ * Entity User.
+ **/
+final class User extends ActiveRecord
+{
+    public function __construct(
+        public ?int $id = null,
+        public ?string $username = null,
+        public ?string $email = null,
+        public string $status = 'active',
+    ) {}
+}
+```
+
+### Limitations
+
+When using the constructor, you should either specify default values or `null` for the arguments, or avoid using the static
+`ActiveRecord::query()` method. It will not work correctly. Instead, create a new model instance and create a new query
+object by calling the `createQuery()` method on the model instance.
+
+```php
+// If the constructor arguments do not have default values
+$user = new User(1, 'admin', 'admin@example.net', 'active');
+/** @var Yiisoft\ActiveRecord\ActiveQueryInterface $query */
+$query = $user->createQuery();
+```
+
+Then you can use the active query object as usual, for example:
+
+```php
+$users = $query->where(['status' => 'active'])->all();
+```
+
+Also, if the constructor arguments do not have default values, you cannot use `RepositoryTrait`, because it uses static
+`ActiveRecord::query()` method.
 
 ## Relations
 
