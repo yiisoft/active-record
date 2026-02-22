@@ -144,8 +144,8 @@ Private properties have the same benefits as protected properties, and they are 
 
 ### Dynamic properties
 
-You can rely on the database schema instead of defining properties
-explicitly by using dynamic properties.
+You can rely on the database schema instead of defining properties explicitly by using dynamic properties.
+
 ```php
 use Yiisoft\ActiveRecord\ActiveRecord;
 
@@ -162,10 +162,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 #[\AllowDynamicProperties]
 final class User extends ActiveRecord
 {
-    public function tableName(): string
-    {
-        return '{{%user}}';
-    }
 }
 ```
 
@@ -254,7 +250,7 @@ object by calling the `createQuery()` method on the model instance.
 
 ```php
 // If the constructor arguments do not have default values
-$user = new User(1, 'user', 'user@example.net', 'active');
+$user = new User(1, 'admin', 'admin@example.net', 'active');
 /** @var Yiisoft\ActiveRecord\ActiveQueryInterface $query */
 $query = $user->createQuery();
 ```
