@@ -1,6 +1,6 @@
 on:
   pull_request:
-    paths:
+    paths: &paths
       - 'src/**'
       - 'tests/**'
       - '.github/workflows/db-pgsql.yml'
@@ -9,75 +9,17 @@ on:
 
   push:
     branches: ['master']
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - '.github/workflows/db-pgsql.yml'
-      - 'composer.json'
-      - 'phpunit.xml.dist'
+    paths: *paths
 
 name: db-pgsql
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: PHP ${{ matrix.php }}
-
-    env:
-      extensions: pdo_pgsql
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        php:
-          - 8.1
-          - 8.2
-          - 8.3
-          - 8.4
-          - 8.5
-
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_DB: ar-test
-          POSTGRES_USER: yii
-          POSTGRES_PASSWORD: q1w2e3r4
-        ports:
-          - 5432:5432
-        options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-      - name: Checkout.
-        uses: actions/checkout@v4
-
-      - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ env.extensions }}
-          ini-values: date.timezone='UTC'
-          coverage: pcov
-
-      - name: Remove unused dependencies of DB drivers
-        run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-mssql yiisoft/db-oracle
-
-      - name: Install required yiisoft/db and yiisoft/db-pgsql
-        uses: yiisoft/actions/install-packages@master
-        with:
-          composer-root-version: 2.0.1
-          packages: >-
-            ['db', 'db-pgsql']
-
-      - name: Run tests with phpunit.
-        run: vendor/bin/phpunit --testsuite=Pgsql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
-
-      - name: Upload coverage to Codecov.
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
+  tests:
+    uses: yiisoft/actions/.github/workflows/db-pgsql.yml@master
