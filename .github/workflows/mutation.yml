@@ -23,7 +23,7 @@ jobs:
     name: PHP ${{ matrix.php }}-${{ matrix.os }}
 
     env:
-      extensions: pdo, pdo_pgsql
+      extensions: pdo_pgsql
 
     runs-on: ${{ matrix.os }}
 
@@ -36,7 +36,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:17
+        image: postgres:18
         env:
           POSTGRES_DB: ar-test
           POSTGRES_USER: yii
@@ -66,7 +66,7 @@ jobs:
       - name: Install required yiisoft/db and yiisoft/db-pgsql
         uses: yiisoft/actions/install-packages@master
         with:
-          composer-root-version: 2.0.0
+          composer-root-version: 2.0.1
           packages: >-
             ['db', 'db-pgsql']
 

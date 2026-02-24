@@ -27,7 +27,7 @@ jobs:
     name: PHP ${{ matrix.php }}
 
     env:
-      extensions: pdo, pdo_mysql
+      extensions: pdo_mysql
       key: cache-v1
 
     runs-on: ubuntu-latest
