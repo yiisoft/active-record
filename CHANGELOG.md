@@ -4,7 +4,7 @@
 
 - Bug #527: Fix PHPDoc tags `@see` (@mspirkov)
 - Enh #532, #533: Remove unnecessary files from Composer package (@mspirkov)
-- Enh #538: Instantiate AR model without constructor (@Tigrov, @olegbaturin)
+- Enh #538: Instantiate AR model with constructor (@Tigrov, @olegbaturin)
 
 ## 1.0.0 December 09, 2025
 
