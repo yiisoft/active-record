@@ -16,10 +16,12 @@ final class OrderItem extends ActiveRecord
 {
     use CustomTableNameTrait;
 
-    protected int $order_id;
-    protected int $item_id;
-    protected int $quantity;
-    protected float $subtotal;
+    public function __construct(
+        protected int $order_id,
+        protected int $item_id,
+        protected int $quantity,
+        protected float $subtotal,
+    ) {}
 
     public function tableName(): string
     {
