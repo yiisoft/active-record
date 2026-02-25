@@ -22,7 +22,7 @@ class OrderWithConstructor extends ActiveRecord
     use EventsTrait;
     use RepositoryTrait;
 
-    protected ?int $id;
+    protected ?int $id = null;
 
     public function __construct(
         protected int $customer_id,
