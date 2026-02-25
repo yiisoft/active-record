@@ -7,23 +7,22 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
-use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 
 /**
  * Class OrderItem.
  */
-final class OrderItem extends ActiveRecord
+final class OrderItemWithConstructor extends ActiveRecord
 {
-    use CustomTableNameTrait;
-
-    protected int $order_id;
-    protected int $item_id;
-    protected int $quantity;
-    protected float $subtotal;
+    public function __construct(
+        protected int $order_id,
+        protected int $item_id,
+        protected int $quantity,
+        protected float $subtotal,
+    ) {}
 
     public function tableName(): string
     {
-        return $this->tableName ??= 'order_item';
+        return '{{%order_item}}';
     }
 
     public function getOrderId(): int
@@ -71,21 +70,18 @@ final class OrderItem extends ActiveRecord
         return match ($name) {
             'order' => $this->getOrderQuery(),
             'item' => $this->getItemQuery(),
-            'orderItemCompositeWithJoin' => $this->getOrderItemCompositeWithJoinQuery(),
-            'orderItemCompositeNoJoin' => $this->getOrderItemCompositeNoJoinQuery(),
-            'custom' => $this->getCustomQuery(),
             default => parent::relationQuery($name),
         };
     }
 
-    public function getOrder(): ?Order
+    public function getOrder(): ?OrderWithConstructor
     {
         return $this->relation('order');
     }
 
     public function getOrderQuery(): ActiveQuery
     {
-        return $this->hasOne(Order::class, ['id' => 'order_id']);
+        return $this->hasOne(OrderWithConstructor::class, ['id' => 'order_id']);
     }
 
     public function getItem(): ?Item
@@ -96,36 +92,5 @@ final class OrderItem extends ActiveRecord
     public function getItemQuery(): ActiveQuery
     {
         return $this->hasOne(Item::class, ['id' => 'item_id']);
-    }
-
-    public function getOrderItemCompositeWithJoin(): ?self
-    {
-        return $this->relation('orderItemCompositeWithJoin');
-    }
-
-    public function getOrderItemCompositeWithJoinQuery(): ActiveQuery
-    {
-        /** relations used by testFindCompositeWithJoin() */
-        return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ])->joinWith('item');
-    }
-
-    public function getOrderItemCompositeNoJoin(): ?self
-    {
-        return $this->relation('orderItemCompositeNoJoin');
-    }
-
-    public function getOrderItemCompositeNoJoinQuery(): ActiveQuery
-    {
-        return $this->hasOne(self::class, ['item_id' => 'item_id', 'order_id' => 'order_id' ]);
-    }
-
-    public function getCustom(): ?Order
-    {
-        return $this->relation('custom');
-    }
-
-    public function getCustomQuery(): ActiveQuery
-    {
-        return new ActiveQuery(Order::class);
     }
 }

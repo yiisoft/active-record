@@ -27,19 +27,18 @@ class Order extends ActiveRecord
 
     public const TABLE_NAME = 'order';
 
-    public function __construct(
-        protected ?int $id,
-        protected int $customer_id,
-        #[DefaultDateTimeOnInsert]
-        protected int|DateTimeInterface $created_at,
-        #[DefaultDateTimeOnInsert]
-        #[SetDateTimeOnUpdate]
-        protected int|DateTimeInterface $updated_at,
-        #[SoftDelete]
-        protected int|DateTimeInterface|null $deleted_at,
-        protected float $total,
-        protected string|int|null $virtualCustomerId = null,
-    ) {}
+    protected ?int $id;
+    protected int $customer_id;
+    #[DefaultDateTimeOnInsert]
+    protected int|DateTimeInterface $created_at;
+    #[DefaultDateTimeOnInsert]
+    #[SetDateTimeOnUpdate]
+    protected int|DateTimeInterface $updated_at;
+    #[SoftDelete]
+    protected int|DateTimeInterface|null $deleted_at;
+    protected float $total;
+
+    protected string|int|null $virtualCustomerId = null;
 
     public function tableName(): string
     {
