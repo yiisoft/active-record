@@ -30,10 +30,10 @@ class OrderWithConstructor extends ActiveRecord
     protected int|DateTimeInterface $updated_at;
     #[SoftDelete]
     protected int|DateTimeInterface|null $deleted_at;
-    protected float $total = 0.0;
 
     public function __construct(
         protected int $customer_id,
+        protected float $total = 0.0,
     ) {}
 
     public function tableName(): string
