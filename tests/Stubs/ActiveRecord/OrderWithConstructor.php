@@ -23,17 +23,17 @@ class OrderWithConstructor extends ActiveRecord
     use RepositoryTrait;
 
     protected ?int $id;
+    #[DefaultDateTimeOnInsert]
+    protected int|DateTimeInterface $created_at;
+    #[DefaultDateTimeOnInsert]
+    #[SetDateTimeOnUpdate]
+    protected int|DateTimeInterface $updated_at;
+    #[SoftDelete]
+    protected int|DateTimeInterface|null $deleted_at;
+    protected float $total = 0.0;
 
     public function __construct(
         protected int $customer_id,
-        #[DefaultDateTimeOnInsert]
-        protected int|DateTimeInterface|null $created_at = null,
-        #[DefaultDateTimeOnInsert]
-        #[SetDateTimeOnUpdate]
-        protected int|DateTimeInterface|null $updated_at = null,
-        #[SoftDelete]
-        protected int|DateTimeInterface|null $deleted_at = null,
-        protected float $total = 0,
     ) {}
 
     public function tableName(): string
@@ -68,7 +68,7 @@ class OrderWithConstructor extends ActiveRecord
 
     public function getDeletedAt(): int|DateTimeInterface|null
     {
-        return $this->deleted_at;
+        return $this->deleted_at ?? null;
     }
 
     public function setId(?int $id): void
