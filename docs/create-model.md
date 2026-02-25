@@ -228,8 +228,9 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  **/
 final class User extends ActiveRecord
 {
+    public ?int $id;
+
     public function __construct(
-        public int $id,
         public string $username,
         public string $email,
         public string $status = 'active',
