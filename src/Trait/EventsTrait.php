@@ -84,9 +84,9 @@ trait EventsTrait
 
     public static function query(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
-        $model = !$modelClass instanceof ActiveRecordInterface
-            ? (new ReflectionClass($modelClass ?? static::class))->newInstanceWithoutConstructor()
-            : $modelClass;
+        $model = $modelClass instanceof ActiveRecordInterface
+            ? $modelClass
+            : (new ReflectionClass($modelClass ?? static::class))->newInstanceWithoutConstructor();
 
         $eventDispatcher = EventDispatcherProvider::get($model::class);
         $eventDispatcher->dispatch($event = new BeforeCreateQuery($model));
