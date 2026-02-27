@@ -1060,7 +1060,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertInstanceOf(OrderWithFactory::class, $customer->getOrdersWithFactory()[0]);
     }
 
-    public function testWithFactoryInitiated(): void
+    public function testWithFactoryNonInitiated(): void
     {
         $orderQuery = OrderWithFactory::query();
         $order = $orderQuery->findByPk(2);
