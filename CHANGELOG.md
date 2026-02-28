@@ -1,5 +1,9 @@
 # Yii Active Record Change Log
 
+## 1.0.2 under development
+
+- no changes in this release.
+
 ## 1.0.1 February 28, 2026
 
 - Enh #532, #533: Remove unnecessary files from Composer package (@mspirkov)
