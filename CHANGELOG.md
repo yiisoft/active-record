@@ -4,6 +4,8 @@
 
 - Bug #527: Fix PHPDoc tags `@see` (@mspirkov)
 - Enh #532, #533: Remove unnecessary files from Composer package (@mspirkov)
+- Enh #538: It is now possible to instantiate AR model with constructor (@Tigrov, @olegbaturin)
+- Bug #538: Remove `Closure` type from parameter `$modelClass` of `EventsTrait::query()` method (@Tigrov)
 
 ## 1.0.0 December 09, 2025
 

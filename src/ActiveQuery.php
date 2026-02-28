@@ -6,6 +6,7 @@ namespace Yiisoft\ActiveRecord;
 
 use Closure;
 use InvalidArgumentException;
+use ReflectionClass;
 use ReflectionException;
 use Throwable;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
@@ -162,7 +163,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     ) {
         $this->model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
-            : new $modelClass();
+            : (new ReflectionClass($modelClass))->newInstanceWithoutConstructor();
 
         parent::__construct($this->model->db());
     }
