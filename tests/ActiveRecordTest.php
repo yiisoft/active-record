@@ -30,6 +30,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
@@ -1944,6 +1945,10 @@ abstract class ActiveRecordTest extends TestCase
         $orders = OrderWithConstructor::query()->all();
 
         $this->assertCount(3, $orders);
+
+        $orderItems = OrderItemWithConstructor::query()->all();
+
+        $this->assertCount(6, $orderItems);
     }
 
     public function testWithConstructorRelations(): void
