@@ -163,7 +163,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     ) {
         $this->model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
-            : (new ReflectionClass($modelClass))->newInstanceWithoutConstructor();
+            : (new ReflectionClass($modelClass))->newInstance();
 
         parent::__construct($this->model->db());
     }
