@@ -11,7 +11,6 @@ use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryEventsModel;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
