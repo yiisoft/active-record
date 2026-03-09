@@ -24,5 +24,6 @@ return RectorConfig::configure()
             'tests/Stubs/ActiveRecord/Category.php',
             'tests/Stubs/ActiveRecord/Customer.php',
             'tests/Stubs/ActiveRecord/Order.php',
+            'tests/Stubs/ActiveRecord/OrderWithConstructor.php',
         ],
     ]);

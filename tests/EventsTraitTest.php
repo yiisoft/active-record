@@ -110,13 +110,6 @@ abstract class EventsTraitTest extends TestCase
         $this->assertSame($customQuery, $query);
     }
 
-    public function testQueryWithClosureModelClass(): void
-    {
-        $query = CategoryEventsModel::query(fn() => new Category());
-
-        $this->assertInstanceOf(Category::class, $query->getModel());
-    }
-
     public function testSaveWithEventPrevention(): void
     {
         EventDispatcherProvider::set(

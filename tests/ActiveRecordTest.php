@@ -32,6 +32,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
@@ -1072,7 +1073,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectException(ArgumentCountError::class);
         $this->expectExceptionMessage('Too few arguments to function');
 
-        $customer = $order->getCustomerWithFactory();
+        $order->getCustomerWithFactory();
     }
 
     public function testSerialization(): void
@@ -1937,6 +1938,47 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(2, $promotions);
         $this->assertNull($promotions[0]->relation('singleItem'));
         $this->assertNull($promotions[1]->relation('singleItem'));
+    }
+
+    public function testWithConstructorQuery(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        OrderWithConstructor::query()->all();
+    }
+
+    public function testWithConstructorRelations(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        (new OrderWithConstructor(1))->createQuery()->findByPk(1)->getOrderItems();
+    }
+
+    public function testWithConstructorRepositoryTrait(): void
+    {
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        OrderWithConstructor::findAll();
+    }
+
+    public function testWithConstructorNewInstance(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $newOrder = new OrderWithConstructor(1);
+
+        $this->assertTrue($newOrder->isNew());
+        $newOrder->save();
+        $this->assertFalse($newOrder->isNew());
+        $this->assertSame(4, $newOrder->getId());
+        $this->assertNotNull($newOrder->getCreatedAt());
+        $this->assertNotNull($newOrder->getUpdatedAt());
+        $this->assertNull($newOrder->getDeletedAt());
+        $this->assertSame(1, $newOrder->delete());
+        $this->assertNotNull($newOrder->getDeletedAt());
     }
 
     abstract protected function createFactory(): Factory;

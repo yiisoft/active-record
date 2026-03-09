@@ -203,11 +203,6 @@ use Yiisoft\ActiveRecord\Trait\MagicPropertiesTrait;
 final class User extends ActiveRecord
 {
     use MagicPropertiesTrait;
-
-    public function tableName(): string
-    {
-        return '{{%user}}';
-    }
 }
 ```
 
@@ -233,8 +228,9 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  **/
 final class User extends ActiveRecord
 {
+    public ?int $id;
+
     public function __construct(
-        public ?int $id = null,
         public ?string $username = null,
         public ?string $email = null,
         public string $status = 'active',
@@ -250,7 +246,7 @@ object by calling the `createQuery()` method on the model instance.
 
 ```php
 // If the constructor arguments do not have default values
-$user = new User(1, 'admin', 'admin@example.net', 'active');
+$user = new User('admin', 'admin@example.net', 'active');
 /** @var Yiisoft\ActiveRecord\ActiveQueryInterface $query */
 $query = $user->createQuery();
 ```
