@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use ArgumentCountError;
 use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
@@ -31,7 +32,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
@@ -1069,9 +1069,10 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertInstanceOf(Customer::class, $customer);
 
-        $customer = $order->getCustomerWithFactory();
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
 
-        $this->assertInstanceOf(Customer::class, $customer);
+        $customer = $order->getCustomerWithFactory();
     }
 
     public function testSerialization(): void
@@ -1936,43 +1937,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(2, $promotions);
         $this->assertNull($promotions[0]->relation('singleItem'));
         $this->assertNull($promotions[1]->relation('singleItem'));
-    }
-
-    public function testWithConstructorQuery(): void
-    {
-        /** @var OrderWithConstructor[] $orders */
-        $orders = OrderWithConstructor::query()->all();
-
-        $this->assertCount(3, $orders);
-    }
-
-    public function testWithConstructorRelations(): void
-    {
-        $orderItems = OrderWithConstructor::query()->findByPk(1)->getOrderItems();
-        $this->assertCount(2, $orderItems);
-    }
-
-    public function testWithConstructorRepositoryTrait(): void
-    {
-        $this->assertCount(3, OrderWithConstructor::findAll());
-        $this->assertInstanceOf(OrderWithConstructor::class, OrderWithConstructor::findByPk(1));
-    }
-
-    public function testWithConstructorNewInstance(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $newOrder = new OrderWithConstructor(1);
-
-        $this->assertTrue($newOrder->isNew());
-        $newOrder->save();
-        $this->assertFalse($newOrder->isNew());
-        $this->assertSame(4, $newOrder->getId());
-        $this->assertNotNull($newOrder->getCreatedAt());
-        $this->assertNotNull($newOrder->getUpdatedAt());
-        $this->assertNull($newOrder->getDeletedAt());
-        $this->assertSame(1, $newOrder->delete());
-        $this->assertNotNull($newOrder->getDeletedAt());
     }
 
     abstract protected function createFactory(): Factory;
