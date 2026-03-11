@@ -1,5 +1,9 @@
 # Yii Active Record Change Log
 
+## 1.0.3 under development
+
+- no changes in this release.
+
 ## 1.0.2 March 11, 2026
 
 - Bug #544: Revert changes from #538 related to create model without a constructor (@Tigrov)
