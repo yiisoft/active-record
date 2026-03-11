@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Trait;
 
-use ReflectionClass;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Event\AfterCreateQuery;
@@ -86,7 +85,7 @@ trait EventsTrait
     {
         $model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
-            : (new ReflectionClass($modelClass ?? static::class))->newInstanceWithoutConstructor();
+            : new ($modelClass ?? static::class)();
 
         $eventDispatcher = EventDispatcherProvider::get($model::class);
         $eventDispatcher->dispatch($event = new BeforeCreateQuery($model));

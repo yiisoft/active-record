@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use ArgumentCountError;
 use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
@@ -1069,9 +1070,10 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertInstanceOf(Customer::class, $customer);
 
-        $customer = $order->getCustomerWithFactory();
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
 
-        $this->assertInstanceOf(Customer::class, $customer);
+        $order->getCustomerWithFactory();
     }
 
     public function testSerialization(): void
@@ -1940,22 +1942,26 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testWithConstructorQuery(): void
     {
-        /** @var OrderWithConstructor[] $orders */
-        $orders = OrderWithConstructor::query()->all();
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
 
-        $this->assertCount(3, $orders);
+        OrderWithConstructor::query()->all();
     }
 
     public function testWithConstructorRelations(): void
     {
-        $orderItems = OrderWithConstructor::query()->findByPk(1)->getOrderItems();
-        $this->assertCount(2, $orderItems);
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        (new OrderWithConstructor(1))->createQuery()->findByPk(1)->getOrderItems();
     }
 
     public function testWithConstructorRepositoryTrait(): void
     {
-        $this->assertCount(3, OrderWithConstructor::findAll());
-        $this->assertInstanceOf(OrderWithConstructor::class, OrderWithConstructor::findByPk(1));
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        OrderWithConstructor::findAll();
     }
 
     public function testWithConstructorNewInstance(): void

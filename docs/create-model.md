@@ -231,12 +231,34 @@ final class User extends ActiveRecord
     public ?int $id;
 
     public function __construct(
-        public string $username,
-        public string $email,
+        public ?string $username = null,
+        public ?string $email = null,
         public string $status = 'active',
     ) {}
 }
 ```
+
+### Limitations
+
+When using the constructor, you should either specify default values or `null` for the arguments, or avoid using the static
+`ActiveRecord::query()` method. It will not work correctly. Instead, create a new model instance and create a new query
+object by calling the `createQuery()` method on the model instance.
+
+```php
+// If the constructor arguments do not have default values
+$user = new User('admin', 'admin@example.net', 'active');
+/** @var Yiisoft\ActiveRecord\ActiveQueryInterface $query */
+$query = $user->createQuery();
+```
+
+Then you can use the active query object as usual, for example:
+
+```php
+$users = $query->where(['status' => 'active'])->all();
+```
+
+Also, if the constructor arguments do not have default values, you cannot use `RepositoryTrait`, because it uses static
+`ActiveRecord::query()` method.
 
 ## Relations
 
