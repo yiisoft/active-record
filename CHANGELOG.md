@@ -2,7 +2,7 @@
 
 ## 1.0.2 under development
 
-- no changes in this release.
+- Bug #544: Revert changes from #538 related to create model without a constructor (@Tigrov)
 
 ## 1.0.1 February 28, 2026
 
