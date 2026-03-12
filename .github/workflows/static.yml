@@ -1,6 +1,6 @@
 on:
   pull_request:
-    paths:
+    paths: &paths
       - 'src/**'
       - '.github/workflows/static.yml'
       - 'psalm*.xml'
@@ -8,13 +8,12 @@ on:
 
   push:
     branches: ['master']
-    paths:
-      - 'src/**'
-      - '.github/workflows/static.yml'
-      - 'psalm*.xml'
-      - 'composer.json'
+    paths: *paths
 
 name: Static analysis
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -28,4 +27,3 @@ jobs:
         ['8.1', '8.2', '8.3', '8.4']
       required-packages: >-
         ['db']
-      composer-root-version: 2.0.0
