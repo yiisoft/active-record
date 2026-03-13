@@ -211,6 +211,16 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame('customer c!', $alias);
     }
 
+    public function testGetTableNameAndAliasDoesNotExtractAliasFromSuffixAfterNewline(): void
+    {
+        $from = "ignored\ncustomer c";
+
+        [$tableName, $alias] = TableNameAndAliasResolver::resolve(Customer::query()->from([$from]));
+
+        $this->assertSame($from, $tableName);
+        $this->assertSame($from, $alias);
+    }
+
     public function testPopulateEmptyRowsDoesNotCallCreateModels(): void
     {
         $query = new class (Customer::class) extends ActiveQuery {
