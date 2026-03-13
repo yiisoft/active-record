@@ -320,12 +320,12 @@ abstract class EventsTraitTest extends TestCase
         $count = 1;
         $data = ['id' => 1];
 
-        $this->assertSame($model, new AfterInsert($model)->model);
-        $this->assertSame($model, new AfterSave($model)->model);
-        $this->assertSame($model, new AfterUpdate($model, $count)->model);
-        $this->assertSame($model, new AfterUpsert($model)->model);
-        $this->assertSame($model, new BeforePopulate($model, $data)->model);
-        $this->assertSame($model, new BeforeSave($model, $properties)->model);
+        $this->assertSame($model, (new AfterInsert($model))->model);
+        $this->assertSame($model, (new AfterSave($model))->model);
+        $this->assertSame($model, (new AfterUpdate($model, $count))->model);
+        $this->assertSame($model, (new AfterUpsert($model))->model);
+        $this->assertSame($model, (new BeforePopulate($model, $data))->model);
+        $this->assertSame($model, (new BeforeSave($model, $properties))->model);
     }
 
     public function testAttributeHandlerProviderPropertyNamesArePublic(): void
