@@ -76,6 +76,20 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals([], $query->populate([]));
     }
 
+    public function testPopulateKeepsAllModelsFromResultCallback(): void
+    {
+        $query = Customer::query()->resultCallback(static fn(array $rows): array => [
+            Customer::query()->findByPk(1),
+            Customer::query()->findByPk(2),
+        ]);
+
+        $models = $query->populate([['id' => 1], ['id' => 2]]);
+
+        $this->assertCount(2, $models);
+        $this->assertSame(1, $models[0]->getId());
+        $this->assertSame(2, $models[1]->getId());
+    }
+
     public function testAll(): void
     {
         $query = Customer::query();
@@ -264,13 +278,29 @@ abstract class ActiveQueryTest extends TestCase
     public function testViaTable(): void
     {
         $order = new Order();
-
+        $callableUsed = false;
         $query = Customer::query();
 
-        $query->primaryModel($order)->viaTable(Profile::class, ['id' => 'item_id']);
+        $query->primaryModel($order)->viaTable(
+            Profile::class,
+            ['id' => 'item_id'],
+            static function (ActiveQueryInterface $relation) use (&$callableUsed): void {
+                $callableUsed = true;
+                $relation->where(['id' => 1]);
+            },
+        );
 
         $this->assertInstanceOf(ActiveQuery::class, $query);
-        $this->assertInstanceOf(ActiveQuery::class, $query->getVia());
+        $this->assertTrue($callableUsed);
+
+        $via = $query->getVia();
+
+        $this->assertInstanceOf(ActiveQuery::class, $via);
+        $this->assertInstanceOf(Order::class, $via->getModel());
+        $this->assertTrue($via->isMultiple());
+        $this->assertTrue($via->isAsArray());
+        $this->assertSame(['id' => 'item_id'], $via->getLink());
+        $this->assertSame(['id' => 1], $via->getWhere());
     }
 
     public function testAliasNotSet(): void
@@ -2773,6 +2803,7 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertInstanceOf(Profile::class, $profile);
         $this->assertSame(1, $profile->getId());
+        $this->assertTrue($order->isRelationPopulated('customer'));
     }
 
     public function testGetViaWithHasOneUsesPopulatedIntermediateRelation(): void

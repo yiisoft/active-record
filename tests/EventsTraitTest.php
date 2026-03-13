@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
+use DateTimeImmutable;
+use Yiisoft\ActiveRecord\Event\AfterInsert;
+use Yiisoft\ActiveRecord\Event\AfterSave;
+use Yiisoft\ActiveRecord\Event\AfterUpdate;
+use Yiisoft\ActiveRecord\Event\AfterUpsert;
 use Yiisoft\ActiveRecord\Event\BeforeCreateQuery;
 use Yiisoft\ActiveRecord\Event\BeforeInsert;
 use Yiisoft\ActiveRecord\Event\BeforePopulate;
@@ -11,7 +16,10 @@ use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
+use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
+use Yiisoft\ActiveRecord\Event\Handler\DefaultValue;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryEventsModel;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 abstract class EventsTraitTest extends TestCase
@@ -250,5 +258,44 @@ abstract class EventsTraitTest extends TestCase
 
         $this->assertNull($model->id);
         $this->assertSame('Custom Return Upsert', $model->name);
+    }
+
+    public function testEventsKeepModelReference(): void
+    {
+        $model = new CategoryEventsModel();
+        $properties = ['name'];
+        $count = 1;
+        $data = ['id' => 1];
+
+        $this->assertSame($model, new AfterInsert($model)->model);
+        $this->assertSame($model, new AfterSave($model)->model);
+        $this->assertSame($model, new AfterUpdate($model, $count)->model);
+        $this->assertSame($model, new AfterUpsert($model)->model);
+        $this->assertSame($model, new BeforePopulate($model, $data)->model);
+        $this->assertSame($model, new BeforeSave($model, $properties)->model);
+    }
+
+    public function testAttributeHandlerProviderPropertyNamesArePublic(): void
+    {
+        $handler = new DefaultValue('value', 'name', 'status');
+
+        $this->assertSame(['name', 'status'], $handler->getPropertyNames());
+    }
+
+    public function testDefaultDateTimeOnInsertUsesCustomValue(): void
+    {
+        $dateTime = new DateTimeImmutable('2024-01-01 12:34:56');
+        $handler = new DefaultDateTimeOnInsert($dateTime, 'created_at');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeInsert = $eventHandlers[BeforeInsert::class];
+
+        $order = new Order();
+        $order->setCustomerId(1);
+        $order->setTotal(10.0);
+
+        $event = new BeforeInsert($order);
+        $beforeInsert($event);
+
+        $this->assertSame($dateTime, $order->getCreatedAt());
     }
 }
