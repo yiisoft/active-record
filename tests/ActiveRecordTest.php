@@ -531,6 +531,19 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertFalse($customer->isRelationPopulated('profile'));
     }
 
+    public function testSetPropertyResetViaTableRelation(): void
+    {
+        $order = Order::query()->findByPk(1);
+
+        $this->assertFalse($order->isRelationPopulated('booksViaTable'));
+        $this->assertCount(2, $order->getBooksViaTable());
+        $this->assertTrue($order->isRelationPopulated('booksViaTable'));
+
+        $order->setId(99);
+
+        $this->assertFalse($order->isRelationPopulated('booksViaTable'));
+    }
+
     public function testAssignOldValue(): void
     {
         $customer = new Customer();

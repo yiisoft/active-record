@@ -2723,9 +2723,41 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $items);
     }
 
+    public function testGetViaRelationUsesPopulatedIntermediateRelation(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $order->populateRelation('orderItems', []);
+
+        $items = $order->getItemsIndexedQuery()->all();
+
+        $this->assertSame([], $items);
+        $this->assertTrue($order->isRelationPopulated('orderItems'));
+    }
+
+    public function testGetViaRelationPopulatesIntermediateRelation(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $this->assertFalse($order->isRelationPopulated('orderItems'));
+
+        $order->getItemsIndexedQuery()->all();
+
+        $this->assertTrue($order->isRelationPopulated('orderItems'));
+    }
+
     public function testGetViaCallableWithHasOne(): void
     {
         $order = Order::query()->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCallableQuery()->one();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertSame(1, $profile->getId());
+    }
+
+    public function testGetViaCallableWithHasOneIgnoresPopulatedIntermediateRelation(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $order->populateRelation('customer', null);
 
         $profile = $order->getCustomerProfileViaCallableQuery()->one();
 
@@ -2741,6 +2773,16 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertInstanceOf(Profile::class, $profile);
         $this->assertSame(1, $profile->getId());
+    }
+
+    public function testGetViaWithHasOneUsesPopulatedIntermediateRelation(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $order->populateRelation('customer', null);
+
+        $profile = $order->getCustomerProfileViaCustomerQuery()->one();
+
+        $this->assertNull($profile);
     }
 
     public function testGetAlreadyPopulatedViaWithHasOne(): void
@@ -2778,7 +2820,9 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertIsArray($queryVia);
         $this->assertIsArray($clonedQueryVia);
+        $this->assertSame($queryVia[0], $clonedQueryVia[0]);
         $this->assertNotSame($queryVia[1], $clonedQueryVia[1]);
+        $this->assertSame($queryVia[2], $clonedQueryVia[2]);
     }
 
     public function testExceptionOnIndexWithNonExistentNestedProperty(): void
