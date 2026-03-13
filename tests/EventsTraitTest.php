@@ -294,6 +294,7 @@ abstract class EventsTraitTest extends TestCase
         );
 
         $model = new CategoryEventsModel();
+        $model->id = 100;
         $model->name = 'After Insert';
         $model->insert();
 
@@ -304,6 +305,7 @@ abstract class EventsTraitTest extends TestCase
         $model->update();
 
         $model = new CategoryEventsModel();
+        $model->id = 101;
         $model->name = 'After Upsert';
         $model->upsert();
 
@@ -345,8 +347,9 @@ abstract class EventsTraitTest extends TestCase
         $order = new Order();
         $order->setCustomerId(1);
         $order->setTotal(10.0);
+        $properties = null;
 
-        $event = new BeforeInsert($order);
+        $event = new BeforeInsert($order, $properties);
         $beforeInsert($event);
 
         $this->assertSame($dateTime, $order->getCreatedAt());

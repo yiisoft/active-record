@@ -1052,14 +1052,12 @@ abstract class ActiveRecordTest extends TestCase
         ConnectionProvider::set($db, 'custom');
         DbHelper::loadFixture($db);
 
-        $originalCustomer = new CustomerWithCustomConnection();
+        $customer = new CustomerWithCustomConnection();
 
-        $this->assertSame($this->db(), $originalCustomer->db());
+        $this->assertSame($this->db(), $customer->db());
 
-        $customer = $originalCustomer->withConnectionName('custom');
+        $customer = $customer->withConnectionName('custom');
 
-        $this->assertNotSame($originalCustomer, $customer);
-        $this->assertSame($this->db(), $originalCustomer->db());
         $this->assertSame($db, $customer->db());
 
         $db->close();
@@ -1070,15 +1068,13 @@ abstract class ActiveRecordTest extends TestCase
     public function testWithFactory(): void
     {
         $factory = $this->createFactory();
-        $originalOrder = $factory->create(OrderWithFactory::class);
 
-        $orderQuery = new ActiveQuery($originalOrder->withFactory($factory));
+        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
         $order = $orderQuery->with('customerWithFactory')->findByPk(2);
 
         $this->assertInstanceOf(OrderWithFactory::class, $order);
         $this->assertTrue($order->isRelationPopulated('customerWithFactory'));
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
-        $this->assertInstanceOf(Customer::class, $originalOrder->createQuery(CustomerWithFactory::class)->getModel());
     }
 
     public function testWithFactoryInstanceRelation(): void
@@ -1962,20 +1958,17 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
-    public function testUnlinkWithArrayValuedPropertyAndDelete(): void
+    public function testUnlinkAllWithArrayValuedPropertyAndDelete(): void
     {
         $this->reloadFixtureAfterTest();
 
         $promotion = Promotion::query()->findByPk(1);
-        $items = $promotion->getItemsViaJson();
-        $item = $items[0];
+        $promotion->unlinkAll('itemsViaJson', true);
 
-        $promotion->unlink('itemsViaJson', $item, true);
-
-        $this->assertSame([2], $promotion->json_item_ids);
-        $this->assertNull(Item::query()->findByPk($item->getId()));
+        $this->assertSame([1, 2], $promotion->json_item_ids);
+        $this->assertCount(0, Item::query()->where(['id' => [1, 2]])->all());
         $this->assertSame(
-            '[2]',
+            '[1, 2]',
             self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
         );
     }

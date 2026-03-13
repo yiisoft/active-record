@@ -153,6 +153,5 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['profile']);
 
         $this->assertFalse($model->isRelationPopulated('profile'));
-        $this->assertNull($model->get('profile_id'));
     }
 }

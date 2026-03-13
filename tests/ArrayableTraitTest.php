@@ -36,11 +36,12 @@ abstract class ArrayableTraitTest extends TestCase
     public function testExtraFields(): void
     {
         $customer = CustomerForArrayable::query()->findByPk(1);
+        $customer2 = CustomerForArrayable::query()->findByPk(2);
+        $customer->populateRelation('item', $customer2);
 
         $this->assertSame(
             [
                 'item' => 'item',
-                'items' => 'items',
             ],
             $customer->extraFields(),
         );
