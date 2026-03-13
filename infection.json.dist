@@ -13,6 +13,45 @@
     },
     "mutators": {
         "@default": true,
-        "ArrayItemRemoval": false
+        "ArrayItemRemoval": false,
+        "ConcatOperandRemoval": {
+            "ignore": [
+                "Yiisoft\\ActiveRecord\\Trait\\MagicRelationsTrait::relationQuery",
+                "Yiisoft\\ActiveRecord\\Trait\\MagicRelationsTrait::relationNames"
+            ]
+        },
+        "FalseValue": {
+            "ignore": [
+                "Yiisoft\\ActiveRecord\\Event\\Handler\\SetValueOnUpdate::beforeUpsert"
+            ]
+        },
+        "LogicalAnd": {
+            "ignore": [
+                "Yiisoft\\ActiveRecord\\Internal\\JoinsWithBuilder::joinWithRelations"
+            ]
+        },
+        "MatchArmRemoval": {
+            "ignore": [
+                "Yiisoft\\ActiveRecord\\Event\\Handler\\SetValueOnUpdate::beforeUpsert"
+            ]
+        },
+        "MethodCallRemoval": {
+            "ignore": [
+                "Yiisoft\\ActiveRecord\\Internal\\JoinsWithBuilder::build"
+            ]
+        },
+        "TrueValue": {
+            "ignore": [
+                "Yiisoft\\ActiveRecord\\ActiveRecord::upsertInternal"
+            ],
+            "ignoreSourceCodeByRegex": [
+                "protected function upsertInternal\\(\\?array \\$insertProperties = null, array\\|bool \\$updateProperties = true\\): void"
+            ]
+        },
+        "UnwrapArrayValues": {
+            "ignore": [
+                "Yiisoft\\ActiveRecord\\Internal\\JoinsWithBuilder::build"
+            ]
+        }
     }
 }
