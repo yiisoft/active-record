@@ -1121,6 +1121,23 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame('item', $joins[1][1]);
     }
 
+    public function testJoinWithViaTableDoesNotDuplicateChildWhere(): void
+    {
+        $query = Order::query()->joinWith([
+            'booksViaTable' => static function (ActiveQueryInterface $relation): void {
+                $relation->andWhere(['item.id' => 2]);
+            },
+        ]);
+        $query->prepare($this->db()->getQueryBuilder());
+
+        $where = $query->getWhere();
+
+        $this->assertIsArray($where);
+        $this->assertCount(3, $where);
+        $this->assertSame('and', $where[0]);
+        $this->assertSame(['and', ['category_id' => 1], ['item.id' => 2]], $where[2]);
+    }
+
     public function testJoinWithViaRelationAddsOnlyExpectedJoins(): void
     {
         $query = Customer::query()->joinWith('items2');
