@@ -436,6 +436,18 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(1, $order->getOrderItems());
     }
 
+    public function testResetRelation(): void
+    {
+        $customer = Customer::query()->findByPk(2);
+        $customer->getOrders();
+
+        $this->assertStringContainsString('orders', serialize($customer));
+
+        $customer->resetRelation('orders');
+
+        $this->assertStringNotContainsString('orders', serialize($customer));
+    }
+
     public function testIssetException(): void
     {
         self::markTestSkipped('There are no magic properties in the Cat class');
@@ -656,61 +668,61 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(2, $customers);
     }
 
-    public function testPropertyAccess(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $arClass = new Customer();
-
-        $this->assertTrue($arClass->canSetProperty('name'));
-        $this->assertTrue($arClass->canGetProperty('name'));
-        $this->assertFalse($arClass->canSetProperty('unExistingColumn'));
-        $this->assertFalse(isset($arClass->name));
-
-        $arClass->name = 'foo';
-        $this->assertTrue(isset($arClass->name));
-
-        unset($arClass->name);
-        $this->assertNull($arClass->name);
-
-        /** @see https://github.com/yiisoft/yii2-gii/issues/190 */
-        $baseModel = new Customer();
-        $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
-
-        $customer = new Customer();
-        $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertTrue($customer->canGetProperty('id'));
-        $this->assertTrue($customer->canSetProperty('id'));
-
-        /** tests that we really can get and set this property */
-        $this->assertNull($customer->id);
-        $customer->id = 10;
-        $this->assertNotNull($customer->id);
-
-        /** Let's test relations */
-        $this->assertTrue($customer->canGetProperty('orderItems'));
-        $this->assertFalse($customer->canSetProperty('orderItems'));
-
-        /** Newly created model must have empty relation */
-        $this->assertSame([], $customer->orderItems);
-
-        /** does it still work after accessing the relation? */
-        $this->assertTrue($customer->canGetProperty('orderItems'));
-        $this->assertFalse($customer->canSetProperty('orderItems'));
-
-        $this->expectException(InvalidCallException::class);
-        $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
-        $customer->orderItems = [new Item()];
-
-        /** related property $customer->orderItems didn't change cause it's read-only */
-        $this->assertSame([], $customer->orderItems);
-        $this->assertFalse($customer->canGetProperty('non_existing_property'));
-        $this->assertFalse($customer->canSetProperty('non_existing_property'));
-
-        $this->expectException(UnknownPropertyException::class);
-        $this->expectExceptionMessage('Setting unknown property: ' . Customer::class . '::non_existing_property');
-        $customer->non_existing_property = null;
-    }
+//    public function testPropertyAccess(): void
+//    {
+//        self::markTestSkipped('There are no magic properties in the Cat class');
+//
+//        $arClass = new Customer();
+//
+//        $this->assertTrue($arClass->canSetProperty('name'));
+//        $this->assertTrue($arClass->canGetProperty('name'));
+//        $this->assertFalse($arClass->canSetProperty('unExistingColumn'));
+//        $this->assertFalse(isset($arClass->name));
+//
+//        $arClass->name = 'foo';
+//        $this->assertTrue(isset($arClass->name));
+//
+//        unset($arClass->name);
+//        $this->assertNull($arClass->name);
+//
+//        /** @see https://github.com/yiisoft/yii2-gii/issues/190 */
+//        $baseModel = new Customer();
+//        $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
+//
+//        $customer = new Customer();
+//        $this->assertInstanceOf(Customer::class, $customer);
+//        $this->assertTrue($customer->canGetProperty('id'));
+//        $this->assertTrue($customer->canSetProperty('id'));
+//
+//        /** tests that we really can get and set this property */
+//        $this->assertNull($customer->id);
+//        $customer->id = 10;
+//        $this->assertNotNull($customer->id);
+//
+//        /** Let's test relations */
+//        $this->assertTrue($customer->canGetProperty('orderItems'));
+//        $this->assertFalse($customer->canSetProperty('orderItems'));
+//
+//        /** Newly created model must have empty relation */
+//        $this->assertSame([], $customer->orderItems);
+//
+//        /** does it still work after accessing the relation? */
+//        $this->assertTrue($customer->canGetProperty('orderItems'));
+//        $this->assertFalse($customer->canSetProperty('orderItems'));
+//
+//        $this->expectException(InvalidCallException::class);
+//        $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
+//        $customer->orderItems = [new Item()];
+//
+//        /** related property $customer->orderItems didn't change cause it's read-only */
+//        $this->assertSame([], $customer->orderItems);
+//        $this->assertFalse($customer->canGetProperty('non_existing_property'));
+//        $this->assertFalse($customer->canSetProperty('non_existing_property'));
+//
+//        $this->expectException(UnknownPropertyException::class);
+//        $this->expectExceptionMessage('Setting unknown property: ' . Customer::class . '::non_existing_property');
+//        $customer->non_existing_property = null;
+//    }
 
     public function testHasProperty(): void
     {
