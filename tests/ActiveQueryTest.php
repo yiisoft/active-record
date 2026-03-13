@@ -126,6 +126,11 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame('magic', ArArrayHelper::getValueByPath($record, 'name', 'default'));
     }
 
+    public function testArArrayHelperGetValueByPathReturnsDefaultForMissingSimpleKey(): void
+    {
+        $this->assertSame('default', ArArrayHelper::getValueByPath([], 'missing', 'default'));
+    }
+
     public function testArArrayHelperIndexCastsFloatKeyToString(): void
     {
         $indexed = ArArrayHelper::index([
