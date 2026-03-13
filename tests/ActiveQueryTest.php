@@ -3325,33 +3325,60 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertNull($primaryModels[1]['profile']);
     }
 
-    public function testRelationPopulatorGetModelKeysCastsArrayValuesToString(): void
+    public function testRelationPopulatorMatchesArrayPrimaryModelsWithMixedScalarKeyTypes(): void
     {
-        $method = new \ReflectionMethod(RelationPopulator::class, 'getModelKeys');
-        $method->setAccessible(true);
-
-        $keys = $method->invoke(null, ['department_id' => '2', 'employee_id' => 2], ['department_id', 'employee_id']);
-
-        $this->assertSame([serialize(['2', '2'])], $keys);
-    }
-
-    public function testRelationPopulatorGetModelKeysCastsRecordValuesToString(): void
-    {
-        $method = new \ReflectionMethod(RelationPopulator::class, 'getModelKeys');
-        $method->setAccessible(true);
-
         $employee = Employee::query()->findByPk([2, 2]);
-        $keys = $method->invoke(null, $employee, ['department_id', 'id']);
+        $query = $employee->getDossierQuery()->primaryModel(null)->asArray();
 
-        $this->assertSame([serialize(['2', '2'])], $keys);
+        $primaryModels = [
+            ['department_id' => '1', 'id' => 1],
+            ['department_id' => '2', 'id' => 2],
+        ];
+
+        $dossiers = RelationPopulator::populate($query, 'dossier', $primaryModels);
+
+        $this->assertCount(2, $dossiers);
+        $this->assertSame(1, $primaryModels[0]['dossier']['id']);
+        $this->assertSame(3, $primaryModels[1]['dossier']['id']);
     }
 
-    public function testRelationPopulatorGetModelKeysReturnsEmptyArrayWhenValuesAreMissing(): void
+    public function testRelationPopulatorMatchesRecordPrimaryModelsWithCompositeKeys(): void
     {
-        $method = new \ReflectionMethod(RelationPopulator::class, 'getModelKeys');
-        $method->setAccessible(true);
+        $employees = [
+            Employee::query()->findByPk([1, 1]),
+            Employee::query()->findByPk([2, 2]),
+        ];
 
-        $this->assertSame([], $method->invoke(null, [], ['missing']));
+        $query = $employees[0]->getDossierQuery()->primaryModel(null);
+        $dossiers = RelationPopulator::populate($query, 'dossier', $employees);
+
+        $this->assertCount(2, $dossiers);
+        $this->assertSame(1, $employees[0]->getDossier()->getId());
+        $this->assertSame(3, $employees[1]->getDossier()->getId());
+    }
+
+    public function testRelationPopulatorDoesNotPopulateRelationWhenLinkValuesAreMissing(): void
+    {
+        $query = new class (Customer::class) extends ActiveQuery {
+            public function all(): array
+            {
+                return [['name' => 'orphan-profile']];
+            }
+        };
+        $query->asArray();
+        $query->multiple(false);
+        $query->link(['id' => 'profile_id']);
+
+        $primaryModels = [
+            [],
+            [],
+        ];
+
+        $profiles = RelationPopulator::populate($query, 'profile', $primaryModels);
+
+        $this->assertCount(1, $profiles);
+        $this->assertNull($primaryModels[0]['profile']);
+        $this->assertNull($primaryModels[1]['profile']);
     }
 
     public function testGetViaCallableWithHasOne(): void
