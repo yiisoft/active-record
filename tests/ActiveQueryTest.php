@@ -13,6 +13,7 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\ActiveRecord\Internal\RelationPopulator;
+use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
 use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
@@ -114,6 +115,91 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertArrayHasKey('1.5', $indexed);
         $this->assertSame('float-key', $indexed['1.5']['name']);
+    }
+
+    public function testPopulateRemovesDuplicateRowsUsingSinglePrimaryKey(): void
+    {
+        $rows = [
+            [
+                'id' => 1,
+                'email' => 'first@example.com',
+                'name' => 'First',
+                'address' => 'First street',
+                'status' => 1,
+                'bool_status' => true,
+                'profile_id' => 1,
+            ],
+            [
+                'id' => '1',
+                'email' => 'second@example.com',
+                'name' => 'Second',
+                'address' => 'Second street',
+                'status' => 1,
+                'bool_status' => true,
+                'profile_id' => 1,
+            ],
+        ];
+
+        $models = Customer::query()->leftJoin('profile', '1=1')->asArray()->populate($rows);
+
+        $this->assertCount(1, $models);
+        $this->assertSame('second@example.com', $models[0]['email']);
+        $this->assertSame('Second street', $models[0]['address']);
+    }
+
+    public function testPopulateRemovesDuplicateRowsUsingCompositePrimaryKey(): void
+    {
+        $rows = [
+            [
+                'order_id' => 1,
+                'item_id' => 2,
+                'quantity' => 1,
+                'subtotal' => 10.0,
+            ],
+            [
+                'order_id' => 1,
+                'item_id' => 2,
+                'quantity' => 7,
+                'subtotal' => 70.0,
+            ],
+        ];
+
+        $models = OrderItem::query()->leftJoin('item', '1=1')->asArray()->populate($rows);
+
+        $this->assertCount(1, $models);
+        $this->assertSame(7, $models[0]['quantity']);
+        $this->assertSame(70.0, $models[0]['subtotal']);
+    }
+
+    public function testPopulateKeepsDistinctRowsForDifferentCompositePrimaryKeys(): void
+    {
+        $rows = [
+            [
+                'order_id' => 1,
+                'item_id' => 1,
+                'quantity' => 1,
+                'subtotal' => 10.0,
+            ],
+            [
+                'order_id' => 1,
+                'item_id' => 2,
+                'quantity' => 2,
+                'subtotal' => 20.0,
+            ],
+        ];
+
+        $models = OrderItem::query()->leftJoin('item', '1=1')->asArray()->populate($rows);
+
+        $this->assertCount(2, $models);
+        $this->assertSame([1, 2], array_column($models, 'item_id'));
+    }
+
+    public function testGetTableNameAndAliasDoesNotTrimTrailingGarbage(): void
+    {
+        [$tableName, $alias] = TableNameAndAliasResolver::resolve(Customer::query()->from(['customer c!']));
+
+        $this->assertSame('customer c!', $tableName);
+        $this->assertSame('customer c!', $alias);
     }
 
     public function testCreateModelsCanBeOverridden(): void

@@ -1098,6 +1098,25 @@ abstract class ActiveRecordTest extends TestCase
         ConnectionProvider::remove('custom');
     }
 
+    public function testWithCustomConnectionReturnsClone(): void
+    {
+        $db = $this->createConnection();
+
+        ConnectionProvider::set($db, 'custom');
+        DbHelper::loadFixture($db);
+
+        $customer = new CustomerWithCustomConnection();
+        $customerWithCustomConnection = $customer->withConnectionName('custom');
+
+        $this->assertNotSame($customer, $customerWithCustomConnection);
+        $this->assertSame($this->db(), $customer->db());
+        $this->assertSame($db, $customerWithCustomConnection->db());
+
+        $db->close();
+
+        ConnectionProvider::remove('custom');
+    }
+
     public function testWithFactory(): void
     {
         $factory = $this->createFactory();
@@ -1169,6 +1188,25 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectExceptionMessage('Too few arguments to function');
 
         $order->getCustomerWithFactory();
+    }
+
+    public function testWithFactoryReturnsCloneAndKeepsOriginalUnchanged(): void
+    {
+        $factory = $this->createFactory();
+        $order = new OrderWithFactory();
+        $orderWithFactory = $order->withFactory($factory);
+
+        $this->assertNotSame($order, $orderWithFactory);
+
+        $loadedOrder = (new ActiveQuery($orderWithFactory))->findByPk(2);
+        $this->assertInstanceOf(CustomerWithFactory::class, $loadedOrder->getCustomerWithFactory());
+
+        $loadedOrderWithoutFactory = (new ActiveQuery($order))->findByPk(2);
+
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        $loadedOrderWithoutFactory->getCustomerWithFactory();
     }
 
     public function testSerialization(): void
@@ -1902,6 +1940,16 @@ abstract class ActiveRecordTest extends TestCase
         $expectedAffectedRows = $this->db()->getDriverName() === 'mysql' ? 0 : 1;
         $affectedRows = $customer->update();
         $this->assertSame($expectedAffectedRows, $affectedRows);
+    }
+
+    public function testMarkPropertyChangedWithEmptyNameDoesNotModifyOldValues(): void
+    {
+        $customer = new Customer();
+        $customer->assignOldValues(['' => 'sentinel', 'name' => 'user1']);
+
+        $customer->markPropertyChanged('');
+
+        $this->assertSame(['' => 'sentinel', 'name' => 'user1'], $customer->oldValues());
     }
 
     public function testResetsIntermediateViaRelationWhenLinkPropertyChanges(): void

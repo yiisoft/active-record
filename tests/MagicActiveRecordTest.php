@@ -563,6 +563,16 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($customer->canSetProperty('non_existing_property', false));
     }
 
+    public function testCanGetAndSetMemberVariableDependOnCheckVars(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->canGetProperty('status2'));
+        $this->assertFalse($customer->canGetProperty('status2', false));
+        $this->assertTrue($customer->canSetProperty('status2'));
+        $this->assertFalse($customer->canSetProperty('status2', false));
+    }
+
     public function testHasRelationQuery(): void
     {
         $customer = new Customer();

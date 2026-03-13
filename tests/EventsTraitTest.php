@@ -19,7 +19,13 @@ use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
 use Yiisoft\ActiveRecord\Event\Handler\DefaultValue;
+use Yiisoft\ActiveRecord\Event\Handler\DefaultValueOnInsert;
+use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
+use Yiisoft\ActiveRecord\Event\Handler\SetValueOnUpdate;
+use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryEventsModel;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
@@ -335,6 +341,155 @@ abstract class EventsTraitTest extends TestCase
         $handler = new DefaultValue('value', 'name', 'status');
 
         $this->assertSame(['name', 'status'], $handler->getPropertyNames());
+    }
+
+    public function testDefaultValueOnInsertBeforeUpsertInitializesInsertPropertiesFromPropertyNames(): void
+    {
+        $model = new DefaultValueOnInsertAr();
+        $model->id = 7;
+
+        $insertProperties = null;
+        $updateProperties = true;
+        $event = new BeforeUpsert($model, $insertProperties, $updateProperties);
+
+        $handler = new DefaultValueOnInsert('Vasya', 'name');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeUpsert = $eventHandlers[BeforeUpsert::class];
+        $beforeUpsert($event);
+
+        $this->assertSame(
+            [0 => 'id', 1 => 'name', 'name' => 'Vasya'],
+            $insertProperties,
+        );
+    }
+
+    public function testDefaultValueOnInsertBeforeUpsertPreservesExistingInsertProperties(): void
+    {
+        $model = new DefaultValueOnInsertAr();
+        $model->id = 7;
+
+        $insertProperties = ['id'];
+        $updateProperties = true;
+        $event = new BeforeUpsert($model, $insertProperties, $updateProperties);
+
+        $handler = new DefaultValueOnInsert('Vasya', 'name');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeUpsert = $eventHandlers[BeforeUpsert::class];
+        $beforeUpsert($event);
+
+        $this->assertSame(
+            [0 => 'id', 'name' => 'Vasya'],
+            $insertProperties,
+        );
+    }
+
+    public function testSetDateTimeOnUpdateUsesCustomValue(): void
+    {
+        $dateTime = new DateTimeImmutable('2020-01-02 03:04:05');
+        $properties = null;
+        $event = new BeforeUpdate(new Order(), $properties);
+
+        $handler = new SetDateTimeOnUpdate($dateTime, 'updated_at');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeUpdate = $eventHandlers[BeforeUpdate::class];
+        $beforeUpdate($event);
+
+        $this->assertSame($dateTime, $event->model->get('updated_at'));
+    }
+
+    public function testSetValueOnUpdateBeforeUpsertKeepsConfiguredPropertyNamesAndAccumulatedUpdates(): void
+    {
+        $model = new Customer();
+        $model->setId(1);
+
+        $insertProperties = ['id' => 1];
+        $updateProperties = ['status' => 1];
+        $event = new BeforeUpsert($model, $insertProperties, $updateProperties);
+
+        $handler = new SetValueOnUpdate('Updated', 'name', 'email');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeUpsert = $eventHandlers[BeforeUpsert::class];
+        $beforeUpsert($event);
+
+        $this->assertSame(['name', 'email'], $handler->getPropertyNames());
+        $this->assertSame(
+            ['status' => 1, 'name' => 'Updated', 'email' => 'Updated'],
+            $updateProperties,
+        );
+    }
+
+    public function testSetValueOnUpdateBeforeUpsertUsesInsertPropertiesWithoutPrimaryKeys(): void
+    {
+        $model = new Customer();
+        $model->setId(1);
+        $model->setEmail('model@example.com');
+
+        $insertProperties = ['id' => 1, 'email' => 'insert@example.com'];
+        $updateProperties = true;
+        $event = new BeforeUpsert($model, $insertProperties, $updateProperties);
+
+        $handler = new SetValueOnUpdate('Updated', 'name');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeUpsert = $eventHandlers[BeforeUpsert::class];
+        $beforeUpsert($event);
+
+        $this->assertSame(
+            ['email' => 'insert@example.com', 'name' => 'Updated'],
+            $updateProperties,
+        );
+    }
+
+    public function testSetValueOnUpdateBeforeUpsertAddsPropertyWhenUpdatesAreDisabled(): void
+    {
+        $model = new Customer();
+        $model->setId(1);
+
+        $insertProperties = ['id' => 1];
+        $updateProperties = false;
+        $event = new BeforeUpsert($model, $insertProperties, $updateProperties);
+
+        $handler = new SetValueOnUpdate('Updated', 'name');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeUpsert = $eventHandlers[BeforeUpsert::class];
+        $beforeUpsert($event);
+
+        $this->assertSame(['name' => 'Updated'], $updateProperties);
+    }
+
+    public function testSoftDeleteBeforeDeleteUsesCustomValueAndPreventsDefault(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $dateTime = new DateTimeImmutable('2021-02-03 04:05:06');
+        $event = new BeforeDelete($order);
+
+        $handler = new SoftDelete($dateTime, 'deleted_at');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeDelete = $eventHandlers[BeforeDelete::class];
+        $beforeDelete($event);
+
+        $this->assertTrue($event->isDefaultPrevented());
+        $this->assertSame(1, $event->getReturnValue());
+        $this->assertSame($dateTime, $order->get('deleted_at'));
+    }
+
+    public function testSoftDeleteBeforeDeleteSkipsAlreadyDeletedProperty(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $order->set('deleted_at', new DateTimeImmutable('2020-01-01 00:00:00'));
+
+        $event = new BeforeDelete($order);
+        $handler = new SoftDelete(new DateTimeImmutable('2022-03-04 05:06:07'), 'deleted_at');
+        $eventHandlers = $handler->getEventHandlers();
+        $beforeDelete = $eventHandlers[BeforeDelete::class];
+        $beforeDelete($event);
+
+        $this->assertTrue($event->isDefaultPrevented());
+        $this->assertNull($event->getReturnValue());
+        $this->assertNull(self::db()->select('deleted_at')->from('{{order}}')->where(['id' => 1])->scalar());
     }
 
     public function testDefaultDateTimeOnInsertUsesCustomValue(): void
