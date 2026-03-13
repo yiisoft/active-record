@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerArrayAccessModel;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CategoryWithNameRelationArrayAccess;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CategoryWithArrayAccess;
 
 abstract class ArrayAccessTraitTest extends TestCase
@@ -160,6 +161,21 @@ abstract class ArrayAccessTraitTest extends TestCase
         $this->assertTrue(!isset($model->customProperty));
     }
 
+    public function testOffsetUnsetWithPropertyResetsDependentRelation(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $model = CustomerArrayAccessModel::query()->findByPk(1);
+
+        $this->assertInstanceOf(Profile::class, $model['profile']);
+        $this->assertTrue($model->isRelationPopulated('profile'));
+
+        unset($model['profile_id']);
+
+        $this->assertNull($model->get('profile_id'));
+        $this->assertFalse($model->isRelationPopulated('profile'));
+    }
+
     public function testOffsetUnsetWithRelation(): void
     {
         $this->reloadFixtureAfterTest();
@@ -180,5 +196,19 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['name']);
 
         $this->assertNull($model->get('name'));
+    }
+
+    public function testOffsetUnsetPropertyDoesNotResetRelationWithSameName(): void
+    {
+        $model = new CategoryWithNameRelationArrayAccess();
+
+        $model['name'] = 'magic';
+        $model->populateRelation('name', new Profile());
+
+        unset($model['name']);
+
+        $this->assertNull($model->get('name'));
+        $this->assertTrue($model->isRelationPopulated('name'));
+        $this->assertInstanceOf(Profile::class, $model->relation('name'));
     }
 }
