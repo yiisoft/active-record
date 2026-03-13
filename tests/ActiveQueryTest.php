@@ -32,6 +32,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithDeepViaProfile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer as MagicCustomer;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\UnknownPropertyException;
@@ -115,6 +116,14 @@ abstract class ActiveQueryTest extends TestCase
         $record->set('var1', 123);
 
         $this->assertSame(123, ArArrayHelper::getValueByPath($record, 'var1', 'default'));
+    }
+
+    public function testArArrayHelperGetValueByPathReturnsMagicPropertyWithoutDeclaredProperty(): void
+    {
+        $record = new MagicCustomer();
+        $record->set('name', 'magic');
+
+        $this->assertSame('magic', ArArrayHelper::getValueByPath($record, 'name', 'default'));
     }
 
     public function testArArrayHelperIndexCastsFloatKeyToString(): void
