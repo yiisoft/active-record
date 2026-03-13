@@ -93,7 +93,34 @@ abstract class ActiveQueryTest extends TestCase
     public function testPopulateEmptyRows(): void
     {
         $query = Customer::query();
-        $this->assertEquals([], $query->populate([]));
+        $this->assertSame([], $query->populate([]));
+    }
+
+    public function testCreateModelsCanBeOverridden(): void
+    {
+        $query = new class (Customer::class) extends ActiveQuery {
+            protected function createModels(array $rows): array
+            {
+                return [['overridden' => true, 'rows' => $rows]];
+            }
+        };
+
+        $this->assertSame(
+            [['overridden' => true, 'rows' => [['id' => 1]]]],
+            $query->populate([['id' => 1]]),
+        );
+    }
+
+    public function testGetPrimaryTableNameCanBeOverridden(): void
+    {
+        $query = new class (Customer::class) extends ActiveQuery {
+            protected function getPrimaryTableName(): string
+            {
+                return 'profile';
+            }
+        };
+
+        $this->assertSame(['{{profile}}' => '{{profile}}'], $query->getTablesUsedInFrom());
     }
 
     public function testPopulateKeepsAllModelsFromResultCallback(): void
@@ -343,6 +370,14 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertInstanceOf(ActiveQuery::class, $query);
         $this->assertEquals(['alias' => 'old'], $query->getFrom());
+    }
+
+    public function testFindByPkWithAliasDoesNotPrefixBaseTableName(): void
+    {
+        $customer = Customer::query()->alias('c')->findByPk(1);
+
+        $this->assertInstanceOf(Customer::class, $customer);
+        $this->assertSame(1, $customer->getId());
     }
 
     public function testGetTableNamesNotFilledFrom(): void
@@ -762,6 +797,33 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertEquals(2, $orders[0]->getItems()[0]->getCategory()->getId());
         $this->assertTrue($orders[0]->isRelationPopulated('items'));
         $this->assertTrue($orders[0]->getItems()[0]->isRelationPopulated('category'));
+    }
+
+    public function testJoinWithRejectsMalformedAliasedRelationNameWithPrefix(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(Order::class . ' has no relation named "bad customer".');
+
+        Order::query()->joinWith(['bad customer c'])->all();
+    }
+
+    public function testJoinWithRejectsMalformedAliasedRelationNameWithSuffix(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(Order::class . ' has no relation named "customer as c".');
+
+        Order::query()->joinWith(['customer as c trailing'])->all();
+    }
+
+    public function testFindByPkWithJoinAndJoinWithUsesQualifiedPrimaryKey(): void
+    {
+        $order = Order::query()
+            ->joinWith('customer', false)
+            ->innerJoin('profile', '{{customer}}.{{profile_id}} = {{profile}}.{{id}}')
+            ->findByPk(1);
+
+        $this->assertInstanceOf(Order::class, $order);
+        $this->assertSame(1, $order->getId());
     }
 
     /**
@@ -2792,6 +2854,19 @@ abstract class ActiveQueryTest extends TestCase
         $order->getItemsIndexedQuery()->all();
 
         $this->assertTrue($order->isRelationPopulated('orderItems'));
+    }
+
+    public function testGetViaRelationRestoresOriginalWhereCondition(): void
+    {
+        $order = Order::query()->findByPk(1);
+        $query = $order->getItemsIndexedQuery();
+
+        $this->assertNull($query->getWhere());
+
+        $items = $query->all();
+
+        $this->assertCount(2, $items);
+        $this->assertNull($query->getWhere());
     }
 
     public function testGetViaCallableWithHasOne(): void
