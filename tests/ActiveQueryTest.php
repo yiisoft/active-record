@@ -3372,6 +3372,21 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame(3, $primaryModels[1]['dossier']['id']);
     }
 
+    public function testRelationPopulatorMatchesRecordPrimaryModelsAgainstArrayRelatedModelsWithCompositeKeys(): void
+    {
+        $employees = [
+            Employee::query()->findByPk([1, 1]),
+            Employee::query()->findByPk([2, 2]),
+        ];
+
+        $query = $employees[0]->getDossierQuery()->primaryModel(null)->asArray();
+        $dossiers = RelationPopulator::populate($query, 'dossier', $employees);
+
+        $this->assertCount(2, $dossiers);
+        $this->assertSame(1, $employees[0]->relation('dossier')['id']);
+        $this->assertSame(3, $employees[1]->relation('dossier')['id']);
+    }
+
     public function testRelationPopulatorMatchesRecordPrimaryModelsWithCompositeKeys(): void
     {
         $employees = [
