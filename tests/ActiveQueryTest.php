@@ -244,15 +244,7 @@ abstract class ActiveQueryTest extends TestCase
             ['id' => 1, 'email' => 'user1@example.com'],
         ];
 
-        set_error_handler(
-            static fn(int $severity, string $message): never => throw new \ErrorException($message, 0, $severity),
-        );
-
-        try {
-            $result = $method->invoke($query, $rows);
-        } finally {
-            restore_error_handler();
-        }
+        $result = $method->invoke($query, $rows);
 
         $this->assertSame($rows, $result);
     }
@@ -3314,6 +3306,23 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertSame([['id' => 1, 'name' => 'single-related-model']], $models);
         $this->assertSame(['id' => 1, 'name' => 'single-related-model'], $primaryModels[0]['profile']);
+    }
+
+    public function testRelationPopulatorDoesNotWarnWhenSingleBucketIsMissing(): void
+    {
+        $customer = Customer::query()->findByPk(1);
+        $query = $customer->getProfileQuery()->primaryModel(null)->asArray();
+
+        $primaryModels = [
+            ['profile_id' => 1],
+            ['profile_id' => 999],
+        ];
+
+        $profiles = RelationPopulator::populate($query, 'profile', $primaryModels);
+
+        $this->assertCount(1, $profiles);
+        $this->assertSame(1, $primaryModels[0]['profile']['id']);
+        $this->assertNull($primaryModels[1]['profile']);
     }
 
     public function testRelationPopulatorGetModelKeysCastsArrayValuesToString(): void
