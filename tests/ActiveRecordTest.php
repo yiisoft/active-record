@@ -2399,6 +2399,13 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNotSame(ActiveQuery::class, $query::class);
     }
 
+    public function testCreateRelationQueryIsProtected(): void
+    {
+        $method = new \ReflectionMethod(\Yiisoft\ActiveRecord\AbstractActiveRecord::class, 'createRelationQuery');
+
+        $this->assertTrue($method->isProtected());
+    }
+
     public function testDeleteInternalCanBeOverridden(): void
     {
         $this->reloadFixtureAfterTest();

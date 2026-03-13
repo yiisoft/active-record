@@ -3282,6 +3282,30 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([2], ArArrayHelper::getColumn($categories[1]->getOrders(), 'id'));
     }
 
+    public function testRelationPopulatorReturnsAfterSingleModelPopulation(): void
+    {
+        $query = new class (Customer::class) extends ActiveQuery {
+            public function one(): array|\Yiisoft\ActiveRecord\ActiveRecordInterface|null
+            {
+                return ['id' => 1, 'name' => 'single-related-model'];
+            }
+
+            public function all(): array
+            {
+                throw new RuntimeException('all() should not be called after one() for a single related model.');
+            }
+        };
+        $query->asArray();
+        $query->multiple(false);
+        $query->link(['id' => 'profile_id']);
+
+        $primaryModels = [['profile_id' => 1]];
+        $models = RelationPopulator::populate($query, 'profile', $primaryModels);
+
+        $this->assertSame([['id' => 1, 'name' => 'single-related-model']], $models);
+        $this->assertSame(['id' => 1, 'name' => 'single-related-model'], $primaryModels[0]['profile']);
+    }
+
     public function testRelationPopulatorGetModelKeysCastsArrayValuesToString(): void
     {
         $method = new \ReflectionMethod(RelationPopulator::class, 'getModelKeys');
