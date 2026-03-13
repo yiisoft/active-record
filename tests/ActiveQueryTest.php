@@ -11,6 +11,8 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
+use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
+use Yiisoft\ActiveRecord\Internal\RelationPopulator;
 use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
@@ -36,6 +38,7 @@ use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
 use Yiisoft\Db\Query\QueryInterface;
+use Yiisoft\Db\QueryBuilder\Condition\In;
 use RuntimeException;
 
 use function sort;
@@ -96,6 +99,23 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([], $query->populate([]));
     }
 
+    public function testArArrayHelperGetValueByPathReturnsActiveRecordProperty(): void
+    {
+        $customer = Customer::query()->findByPk(1);
+
+        $this->assertSame('user1', ArArrayHelper::getValueByPath($customer, 'name', 'default'));
+    }
+
+    public function testArArrayHelperIndexCastsFloatKeyToString(): void
+    {
+        $indexed = ArArrayHelper::index([
+            ['id' => 1.5, 'name' => 'float-key'],
+        ], 'id');
+
+        $this->assertArrayHasKey('1.5', $indexed);
+        $this->assertSame('float-key', $indexed['1.5']['name']);
+    }
+
     public function testCreateModelsCanBeOverridden(): void
     {
         $query = new class (Customer::class) extends ActiveQuery {
@@ -121,6 +141,72 @@ abstract class ActiveQueryTest extends TestCase
         };
 
         $this->assertSame(['{{profile}}' => '{{profile}}'], $query->getTablesUsedInFrom());
+    }
+
+    public function testModelRelationFilterFlattensAndDeduplicatesArrayValues(): void
+    {
+        $query = Item::query()->link(['id' => 'item_ids']);
+
+        ModelRelationFilter::apply($query, [
+            ['item_ids' => [1, 2]],
+            ['item_ids' => [2, 3]],
+        ]);
+
+        $where = $query->getWhere();
+
+        $this->assertInstanceOf(In::class, $where);
+        $this->assertSame('id', $where->column);
+        $this->assertSame([1, 2, 3], array_values($where->values));
+    }
+
+    public function testModelRelationFilterSingleColumnEmulatesExecutionWhenValuesMissing(): void
+    {
+        $query = Item::query()->link(['id' => 'missing']);
+
+        ModelRelationFilter::apply($query, [[]]);
+
+        $this->assertTrue($query->shouldEmulateExecution());
+        $this->assertSame('1=0', $query->getWhere());
+    }
+
+    public function testModelRelationFilterCompositeKeysFillMissingValuesWithNull(): void
+    {
+        $query = Dossier::query()->link(['department_id' => 'department_id', 'employee_id' => 'employee_id']);
+
+        ModelRelationFilter::apply($query, [
+            ['department_id' => 2],
+        ]);
+
+        $where = $query->getWhere();
+
+        $this->assertInstanceOf(In::class, $where);
+        $this->assertSame(['department_id', 'employee_id'], array_values($where->column));
+        $this->assertSame([['department_id' => 2, 'employee_id' => null]], array_values($where->values));
+    }
+
+    public function testModelRelationFilterCompositeEmulatesExecutionWhenValuesMissing(): void
+    {
+        $query = Dossier::query()->link(['department_id' => 'department_id', 'employee_id' => 'employee_id']);
+
+        ModelRelationFilter::apply($query, [[]]);
+
+        $this->assertTrue($query->shouldEmulateExecution());
+        $this->assertSame('1=0', $query->getWhere());
+    }
+
+    public function testModelRelationFilterThrowsForExpressionFromWithoutAlias(): void
+    {
+        $query = Item::query()
+            ->from([new Expression('(SELECT 1)')])
+            ->join('INNER JOIN', 'customer', '1=1')
+            ->link(['id' => 'item_ids']);
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('Alias must be set for a table specified by an expression.');
+
+        ModelRelationFilter::apply($query, [
+            ['item_ids' => [1]],
+        ]);
     }
 
     public function testPopulateKeepsAllModelsFromResultCallback(): void
@@ -824,6 +910,60 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertInstanceOf(Order::class, $order);
         $this->assertSame(1, $order->getId());
+    }
+
+    public function testJoinWithViaTableAddsOnlyIntermediateAndChildJoins(): void
+    {
+        $query = Order::query()->joinWith('books');
+        $query->prepare($this->db()->getQueryBuilder());
+
+        $joins = $query->getJoins();
+
+        $this->assertCount(2, $joins);
+        $this->assertSame('order_item', $joins[0][1]);
+        $this->assertSame('item', $joins[1][1]);
+    }
+
+    public function testJoinWithViaRelationAddsOnlyExpectedJoins(): void
+    {
+        $query = Customer::query()->joinWith('items2');
+        $query->prepare($this->db()->getQueryBuilder());
+
+        $joins = $query->getJoins();
+
+        $this->assertCount(3, $joins);
+        $this->assertSame('order', $joins[0][1]);
+        $this->assertSame('order_item', $joins[1][1]);
+        $this->assertSame('item', $joins[2][1]);
+    }
+
+    public function testJoinWithKeepsDistinctJoinsForDifferentTableSpecifications(): void
+    {
+        $query = Order::query()->joinWith(['books', 'books2']);
+        $query->prepare($this->db()->getQueryBuilder());
+
+        $joins = $query->getJoins();
+
+        $this->assertCount(3, $joins);
+        $this->assertSame('order_item', $joins[0][1]);
+        $this->assertSame('item', $joins[1][1]);
+        $this->assertSame(['order_item'], $joins[2][1]);
+    }
+
+    public function testJoinWithAppliesOrderByWhereAndParamsFromChildRelation(): void
+    {
+        $query = Order::query()->joinWith([
+            'customer' => static function (ActiveQueryInterface $relation): void {
+                $relation->orderBy(['id' => SORT_DESC]);
+                $relation->andWhere(['id' => 2]);
+                $relation->addParams([':custom' => 42]);
+            },
+        ]);
+        $query->prepare($this->db()->getQueryBuilder());
+
+        $this->assertSame(['id' => SORT_DESC], $query->getOrderBy());
+        $this->assertSame([':custom' => 42], $query->getParams());
+        $this->assertIsArray($query->getWhere());
     }
 
     /**
@@ -2867,6 +3007,69 @@ abstract class ActiveQueryTest extends TestCase
 
         $this->assertCount(2, $items);
         $this->assertNull($query->getWhere());
+    }
+
+    public function testRelationPopulatorReturnsAllRelatedModelsForMultiplePrimaries(): void
+    {
+        $customers = [
+            Customer::query()->findByPk(1),
+            Customer::query()->findByPk(2),
+        ];
+
+        $query = $customers[0]->getOrdersQuery()->primaryModel(null);
+        $orders = RelationPopulator::populate($query, 'orders', $customers);
+
+        $this->assertCount(3, $orders);
+        $this->assertCount(1, $customers[0]->getOrders());
+        $this->assertCount(2, $customers[1]->getOrders());
+    }
+
+    public function testRelationPopulatorFiltersRelatedModelsForSpecificPrimaries(): void
+    {
+        $customers = [
+            Customer::query()->findByPk(1),
+            Customer::query()->findByPk(3),
+        ];
+
+        $query = $customers[0]->getOrdersQuery()->primaryModel(null);
+        $orders = RelationPopulator::populate($query, 'orders', $customers);
+
+        $this->assertCount(1, $orders);
+        $this->assertCount(1, $customers[0]->getOrders());
+        $this->assertSame([], $customers[1]->getOrders());
+    }
+
+    public function testRelationPopulatorRestoresIndexByAfterPopulation(): void
+    {
+        $customers = [
+            Customer::query()->findByPk(1),
+            Customer::query()->findByPk(2),
+        ];
+
+        $query = $customers[0]->getOrdersIndexedWithInverseOfQuery()->primaryModel(null);
+
+        $this->assertSame('id', $query->getIndexBy());
+
+        RelationPopulator::populate($query, 'ordersIndexedWithInverseOf', $customers);
+
+        $this->assertSame('id', $query->getIndexBy());
+    }
+
+    public function testRelationPopulatorHandlesDeepViaRelation(): void
+    {
+        $categories = [
+            Category::query()->findByPk(1),
+            Category::query()->findByPk(2),
+        ];
+
+        $query = $categories[0]->getOrdersQuery()->primaryModel(null);
+        $orders = RelationPopulator::populate($query, 'orders', $categories);
+
+        $this->assertCount(3, $orders);
+        $this->assertCount(2, $categories[0]->getOrders());
+        $this->assertCount(1, $categories[1]->getOrders());
+        $this->assertSame([1, 3], ArArrayHelper::getColumn($categories[0]->getOrders(), 'id'));
+        $this->assertSame([2], ArArrayHelper::getColumn($categories[1]->getOrders(), 'id'));
     }
 
     public function testGetViaCallableWithHasOne(): void
