@@ -1647,6 +1647,20 @@ abstract class ActiveRecordTest extends TestCase
         $customer->link('items2', $item);
     }
 
+    public function testLinkViaRelationWithOneNewRecord(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
+        $item = new Item();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: the models being linked cannot be newly created.',
+        );
+        $customer->link('items2', $item);
+    }
+
     public function testLinkViaTable(): void
     {
         $this->reloadFixtureAfterTest();
