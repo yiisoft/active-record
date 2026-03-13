@@ -33,6 +33,19 @@ abstract class ArrayableTraitTest extends TestCase
         );
     }
 
+    public function testExtraFields(): void
+    {
+        $customer = CustomerForArrayable::query()->findByPk(1);
+
+        $this->assertSame(
+            [
+                'item' => 'item',
+                'items' => 'items',
+            ],
+            $customer->extraFields(),
+        );
+    }
+
     public function testToArray(): void
     {
         $customerQuery = Customer::query();

@@ -64,6 +64,26 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([], $query->getJoinsWith());
     }
 
+    public function testJoinWithWithoutEagerLoadingCreatesNewInstance(): void
+    {
+        $joinWith = new JoinWith(['customer', 'items'], true, 'LEFT JOIN');
+        $withoutEagerLoading = $joinWith->withoutEagerLoading();
+
+        $this->assertNotSame($joinWith, $withoutEagerLoading);
+        $this->assertSame(['customer', 'items'], $joinWith->getWith());
+        $this->assertSame([], $withoutEagerLoading->getWith());
+    }
+
+    public function testJoinWithGetWithKeepsFilteredRelations(): void
+    {
+        $joinWith = new JoinWith(['customer', 'items', 'books'], ['customer', 'books'], 'LEFT JOIN');
+
+        $this->assertSame(
+            [0 => 'customer', 2 => 'books'],
+            $joinWith->getWith(),
+        );
+    }
+
     public function testPrepare(): void
     {
         $query = Customer::query();

@@ -23,6 +23,15 @@ abstract class ArrayAccessTraitTest extends TestCase
         $this->assertFalse(isset($model['not-exists']));
     }
 
+    public function testOffsetExistsDoesNotTreatPropertyAsRelation(): void
+    {
+        $model = new CustomerArrayAccessModel();
+        $model->name = 'test';
+
+        $this->assertTrue(isset($model['name']));
+        $this->assertFalse($model->isRelationPopulated('name'));
+    }
+
     public function testOffsetExistsWithRelation(): void
     {
         $model = CustomerArrayAccessModel::query()->with('profile')->findByPk(1);
@@ -39,6 +48,15 @@ abstract class ArrayAccessTraitTest extends TestCase
         $this->assertSame('test name', $model['name']);
         $this->assertNull($model['email']);
         $this->assertSame('custom value', $model['customProperty']);
+    }
+
+    public function testOffsetGetReturnsPropertyValue(): void
+    {
+        $model = new CustomerArrayAccessModel();
+        $model->name = 'property value';
+
+        $this->assertSame('property value', $model['name']);
+        $this->assertFalse($model->isRelationPopulated('name'));
     }
 
     public function testOffsetGetWithRelation(): void
@@ -112,6 +130,7 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['name']);
 
         $this->assertTrue(!isset($model->name));
+        $this->assertNull($model->get('name'));
     }
 
     public function testOffsetUnsetWithObjectProperty(): void
@@ -134,5 +153,6 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['profile']);
 
         $this->assertFalse($model->isRelationPopulated('profile'));
+        $this->assertNull($model->get('profile_id'));
     }
 }

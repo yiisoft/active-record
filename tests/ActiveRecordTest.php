@@ -1052,12 +1052,14 @@ abstract class ActiveRecordTest extends TestCase
         ConnectionProvider::set($db, 'custom');
         DbHelper::loadFixture($db);
 
-        $customer = new CustomerWithCustomConnection();
+        $originalCustomer = new CustomerWithCustomConnection();
 
-        $this->assertSame($this->db(), $customer->db());
+        $this->assertSame($this->db(), $originalCustomer->db());
 
-        $customer = $customer->withConnectionName('custom');
+        $customer = $originalCustomer->withConnectionName('custom');
 
+        $this->assertNotSame($originalCustomer, $customer);
+        $this->assertSame($this->db(), $originalCustomer->db());
         $this->assertSame($db, $customer->db());
 
         $db->close();
@@ -1068,13 +1070,15 @@ abstract class ActiveRecordTest extends TestCase
     public function testWithFactory(): void
     {
         $factory = $this->createFactory();
+        $originalOrder = $factory->create(OrderWithFactory::class);
 
-        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
+        $orderQuery = new ActiveQuery($originalOrder->withFactory($factory));
         $order = $orderQuery->with('customerWithFactory')->findByPk(2);
 
         $this->assertInstanceOf(OrderWithFactory::class, $order);
         $this->assertTrue($order->isRelationPopulated('customerWithFactory'));
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
+        $this->assertInstanceOf(Customer::class, $originalOrder->createQuery(CustomerWithFactory::class)->getModel());
     }
 
     public function testWithFactoryInstanceRelation(): void

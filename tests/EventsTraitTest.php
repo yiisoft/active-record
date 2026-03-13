@@ -10,6 +10,7 @@ use Yiisoft\ActiveRecord\Event\AfterSave;
 use Yiisoft\ActiveRecord\Event\AfterUpdate;
 use Yiisoft\ActiveRecord\Event\AfterUpsert;
 use Yiisoft\ActiveRecord\Event\BeforeCreateQuery;
+use Yiisoft\ActiveRecord\Event\BeforeDelete;
 use Yiisoft\ActiveRecord\Event\BeforeInsert;
 use Yiisoft\ActiveRecord\Event\BeforePopulate;
 use Yiisoft\ActiveRecord\Event\BeforeSave;
@@ -162,6 +163,25 @@ abstract class EventsTraitTest extends TestCase
         $this->assertSame('Custom Return Save', $model->name);
     }
 
+    public function testDeleteWithEventPrevention(): void
+    {
+        EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event): void {
+                    if ($event instanceof BeforeDelete) {
+                        $event->preventDefault();
+                    }
+                },
+            ),
+        );
+
+        $model = CategoryEventsModel::query()->findByPk(1);
+
+        $this->assertSame(0, $model->delete());
+        $this->assertNotNull(CategoryEventsModel::query()->findByPk(1));
+    }
+
     public function testUpdateWithEventPrevention(): void
     {
         EventDispatcherProvider::set(
@@ -258,6 +278,39 @@ abstract class EventsTraitTest extends TestCase
 
         $this->assertNull($model->id);
         $this->assertSame('Custom Return Upsert', $model->name);
+    }
+
+    public function testAfterEventsAreDispatched(): void
+    {
+        $triggeredEvents = [];
+
+        EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event) use (&$triggeredEvents): void {
+                    $triggeredEvents[] = $event::class;
+                },
+            ),
+        );
+
+        $model = new CategoryEventsModel();
+        $model->name = 'After Insert';
+        $model->insert();
+
+        $model->name = 'After Save';
+        $model->save();
+
+        $model->name = 'After Update';
+        $model->update();
+
+        $model = new CategoryEventsModel();
+        $model->name = 'After Upsert';
+        $model->upsert();
+
+        $this->assertContains(AfterInsert::class, $triggeredEvents);
+        $this->assertContains(AfterSave::class, $triggeredEvents);
+        $this->assertContains(AfterUpdate::class, $triggeredEvents);
+        $this->assertContains(AfterUpsert::class, $triggeredEvents);
     }
 
     public function testEventsKeepModelReference(): void

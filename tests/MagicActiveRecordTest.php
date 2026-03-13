@@ -930,6 +930,17 @@ abstract class MagicActiveRecordTest extends TestCase
         $customer->nonExistentProperty = 'value';
     }
 
+    public function testGettingUnknownProperty(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(UnknownPropertyException::class);
+        $this->expectExceptionMessage(
+            'Getting unknown property or relation: ' . Customer::class . '::nonExistentProperty',
+        );
+        $customer->nonExistentProperty;
+    }
+
     public static function dataIsProperty(): array
     {
         return [
