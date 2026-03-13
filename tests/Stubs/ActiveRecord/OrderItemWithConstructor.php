@@ -9,7 +9,7 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 
 /**
- * Class OrderItem.
+ * Class OrderItemWithConstructor.
  */
 final class OrderItemWithConstructor extends ActiveRecord
 {

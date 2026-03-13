@@ -28,6 +28,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithDeepViaProfile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
@@ -3282,6 +3283,23 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $categories[1]->getOrders());
         $this->assertSame([1, 3], ArArrayHelper::getColumn($categories[0]->getOrders(), 'id'));
         $this->assertSame([2], ArArrayHelper::getColumn($categories[1]->getOrders(), 'id'));
+    }
+
+    public function testRelationPopulatorUsesDeepestViaLink(): void
+    {
+        $orderItems = [
+            OrderItemWithDeepViaProfile::query()->findByPk([1, 1]),
+            OrderItemWithDeepViaProfile::query()->findByPk([2, 4]),
+        ];
+
+        $query = $orderItems[0]->getProfileViaCustomerViaOrderQuery()->primaryModel(null);
+        $profiles = RelationPopulator::populate($query, 'profileViaCustomerViaOrder', $orderItems);
+
+        $this->assertCount(1, $profiles);
+        $this->assertInstanceOf(Profile::class, $orderItems[0]->relation('profileViaCustomerViaOrder'));
+        $this->assertSame(1, $orderItems[0]->relation('profileViaCustomerViaOrder')->getId());
+        $this->assertTrue($orderItems[1]->isRelationPopulated('profileViaCustomerViaOrder'));
+        $this->assertNull($orderItems[1]->relation('profileViaCustomerViaOrder'));
     }
 
     public function testRelationPopulatorReturnsAfterSingleModelPopulation(): void
