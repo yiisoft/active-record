@@ -28,6 +28,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
@@ -923,6 +924,18 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
 
         $orderItem->primaryKeyOldValue();
+    }
+
+    public function testPrimaryKeyOldValueWithoutPrimaryKeyContainsTableName(): void
+    {
+        $model = new NoPk();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage(
+            NoPk::class . ' does not have a primary key. You should either define a primary key for no_pk table or override the primaryKey() method.',
+        );
+
+        $model->primaryKeyOldValue();
     }
 
     public function testPrimaryKeyOldValuesWithoutPrimaryKey(): void
