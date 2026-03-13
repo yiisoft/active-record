@@ -517,6 +517,19 @@ abstract class ActiveRecordTest extends TestCase
         $cat->set('noExist', 1);
     }
 
+    public function testSetPropertyReset(): void
+    {
+        $customer = Customer::query()->findByPk(2);
+
+        $this->assertFalse($customer->isRelationPopulated('profile'));
+        $this->assertNull($customer->getProfile());
+        $this->assertTrue($customer->isRelationPopulated('profile'));
+
+        $customer->setProfileId(null);
+
+        $this->assertFalse($customer->isRelationPopulated('profile'));
+    }
+
     public function testAssignOldValue(): void
     {
         $customer = new Customer();
