@@ -747,6 +747,17 @@ abstract class ActiveRecordTest extends TestCase
         $customerB = new Customer();
         $this->assertFalse($customerA->equals($customerB));
 
+        $customerA = Customer::query()->findByPk(1);
+        $customerB = new Customer();
+        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerB->equals($customerA));
+
+        $customerA = Customer::query()->findByPk(1);
+        $customerB = new Customer();
+        $customerB->setId(1);
+        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerB->equals($customerA));
+
         $customerA = new Customer();
         $customerB = new Item();
         $this->assertFalse($customerA->equals($customerB));
