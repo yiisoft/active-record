@@ -1107,6 +1107,14 @@ abstract class ActiveQueryTest extends TestCase
         Order::query()->joinWith(['customer as c trailing'])->all();
     }
 
+    public function testJoinWithRejectsMalformedAliasedRelationNameWithPrefixOnSeparateLine(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('has no relation named');
+
+        Order::query()->joinWith(["ignored\ncustomer c"])->all();
+    }
+
     public function testFindByPkWithJoinAndJoinWithUsesQualifiedPrimaryKey(): void
     {
         $order = Order::query()
