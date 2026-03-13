@@ -13,6 +13,8 @@ abstract class RepositoryTraitTest extends TestCase
     {
         $customerQuery = Customer::query();
 
+        $this->assertEquals($customerQuery, Customer::find());
+
         $this->assertEquals(
             $customerQuery->setWhere(['id' => 1]),
             Customer::find(['id' => 1]),

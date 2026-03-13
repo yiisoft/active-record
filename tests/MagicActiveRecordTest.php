@@ -545,6 +545,24 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($customer->hasProperty('notExist'));
     }
 
+    public function testCanGetPropertyWithoutCheckingVars(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->canGetProperty('name', false));
+        $this->assertTrue($customer->canGetProperty('orders', false));
+        $this->assertFalse($customer->canGetProperty('non_existing_property', false));
+    }
+
+    public function testCanSetPropertyWithoutCheckingVars(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->canSetProperty('name', false));
+        $this->assertFalse($customer->canSetProperty('orders', false));
+        $this->assertFalse($customer->canSetProperty('non_existing_property', false));
+    }
+
     public function testHasRelationQuery(): void
     {
         $customer = new Customer();
@@ -939,6 +957,13 @@ abstract class MagicActiveRecordTest extends TestCase
             'Getting unknown property or relation: ' . Customer::class . '::nonExistentProperty',
         );
         $customer->nonExistentProperty;
+    }
+
+    public function testIssetWriteOnlyPropertyReturnsFalse(): void
+    {
+        $cat = new Cat();
+
+        $this->assertFalse(isset($cat->nonExistingProperty));
     }
 
     public static function dataIsProperty(): array
