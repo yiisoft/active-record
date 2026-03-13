@@ -1209,6 +1209,18 @@ abstract class ActiveRecordTest extends TestCase
         $loadedOrderWithoutFactory->getCustomerWithFactory();
     }
 
+    public function testWithFactoryPropagatesToNestedRelations(): void
+    {
+        $factory = $this->createFactory();
+
+        $order = (new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory)))->findByPk(2);
+        $customer = $order->getCustomerWithFactory();
+        $relatedOrder = $customer->getOrdersWithFactory()[0];
+
+        $this->assertInstanceOf(OrderWithFactory::class, $relatedOrder);
+        $this->assertInstanceOf(CustomerWithFactory::class, $relatedOrder->getCustomerWithFactory());
+    }
+
     public function testSerialization(): void
     {
         $profile = new Profile();
@@ -1586,6 +1598,49 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame('updated-via-default-upsert', $reloadedCustomer->name);
     }
 
+    public function testCustomerUpsertUpdatesExistingRecordByDefault(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = new Customer();
+        $customer->setEmail('user1@example.com');
+        $customer->setAddress('updated-address-via-default-upsert');
+
+        $customer->upsert();
+
+        $reloadedCustomer = Customer::query()->findByPk(1);
+        $this->assertSame('updated-address-via-default-upsert', $reloadedCustomer->getAddress());
+    }
+
+    public function testSetValueOnUpdateUpsertKeepsOtherChangedPropertiesWhenUpdatesAreImplicit(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
+            use \Yiisoft\ActiveRecord\Trait\EventsTrait;
+
+            public string $email;
+            #[\Yiisoft\ActiveRecord\Event\Handler\SetValueOnUpdate('Updated')]
+            public ?string $name = null;
+            public ?string $address = null;
+
+            public function tableName(): string
+            {
+                return 'customer';
+            }
+        };
+
+        $customer->email = 'user1@example.com';
+        $customer->name = 'Ignored';
+        $customer->address = 'address-via-handler-upsert';
+
+        $customer->upsert();
+
+        $reloadedCustomer = Customer::query()->findByPk(1);
+        $this->assertSame('Updated', $reloadedCustomer->getName());
+        $this->assertSame('address-via-handler-upsert', $reloadedCustomer->getAddress());
+    }
+
     public function testTimestampBehavior(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1876,6 +1931,79 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
+    public function testLinkExistingRecordToNewWithStrictPrimaryKeyValidationUsesLinkValues(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $dossierPrototype = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
+            protected ?int $id = null;
+            protected int $department_id;
+            protected int $employee_id;
+            protected string $summary;
+
+            public function tableName(): string
+            {
+                return 'dossier';
+            }
+
+            public function primaryKey(): array
+            {
+                return ['department_id', 'employee_id'];
+            }
+        };
+
+        $employeePrototype = new class ($dossierPrototype) extends \Yiisoft\ActiveRecord\ActiveRecord {
+            public function __construct(
+                private readonly \Yiisoft\ActiveRecord\ActiveRecordInterface $dossierPrototype,
+            ) {}
+
+            protected int $id;
+            protected int $department_id;
+            protected string $first_name;
+            protected string $last_name;
+
+            public function tableName(): string
+            {
+                return 'employee';
+            }
+
+            public function relationQuery(string $name): \Yiisoft\ActiveRecord\ActiveQueryInterface
+            {
+                return match ($name) {
+                    'dossier' => $this->hasOne(
+                        clone $this->dossierPrototype,
+                        ['department_id' => 'department_id', 'employee_id' => 'id'],
+                    ),
+                    default => parent::relationQuery($name),
+                };
+            }
+
+            public function isPrimaryKey(array $keys): bool
+            {
+                return array_is_list($keys) && parent::isPrimaryKey($keys);
+            }
+        };
+
+        $employee = (new ActiveQuery(clone $employeePrototype))->findByPk([2, 2]);
+        $this->assertNotNull($employee);
+
+        $dossier = clone $dossierPrototype;
+        $dossier->set('id', 100);
+        $dossier->set('summary', 'Strict primary key validation');
+
+        $employee->link('dossier', $dossier);
+
+        $this->assertSame(2, $dossier->get('department_id'));
+        $this->assertSame(2, $dossier->get('employee_id'));
+        $this->assertTrue(
+            self::db()->createQuery()->from('{{dossier}}')->where([
+                'id' => 100,
+                'department_id' => 2,
+                'employee_id' => 2,
+            ])->exists(),
+        );
+    }
+
     public function testLinkWithNonPrimaryKeyFields(): void
     {
         $this->reloadFixtureAfterTest();
@@ -2138,7 +2266,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame([1, 2], $promotion->json_item_ids);
         $this->assertCount(0, Item::query()->where(['id' => [1, 2]])->all());
         $this->assertSame(
-            '[1,2]',
+            '[1, 2]',
             self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
         );
     }
@@ -2230,6 +2358,20 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertSame(1, $customer->getStatus());
         $this->assertSame(1, Customer::query()->findByPk($customer->getId())->getStatus());
+    }
+
+    public function testUpdateCountersUsesZeroForExistingNullColumnValue(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new NullValues();
+        $record->save();
+
+        $this->assertNull($record->get('var1'));
+
+        $record->updateCounters(['var1' => 1]);
+
+        $this->assertSame(1, $record->get('var1'));
     }
 
     public function testCreateRelationQueryCanBeOverridden(): void

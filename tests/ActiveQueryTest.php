@@ -25,6 +25,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Employee;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
@@ -105,6 +106,14 @@ abstract class ActiveQueryTest extends TestCase
         $customer = Customer::query()->findByPk(1);
 
         $this->assertSame('user1', ArArrayHelper::getValueByPath($customer, 'name', 'default'));
+    }
+
+    public function testArArrayHelperGetValueByPathReturnsColumnWithoutDeclaredProperty(): void
+    {
+        $record = new NullValues();
+        $record->set('var1', 123);
+
+        $this->assertSame(123, ArArrayHelper::getValueByPath($record, 'var1', 'default'));
     }
 
     public function testArArrayHelperIndexCastsFloatKeyToString(): void
@@ -202,6 +211,42 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame('customer c!', $alias);
     }
 
+    public function testPopulateEmptyRowsDoesNotCallCreateModels(): void
+    {
+        $query = new class (Customer::class) extends ActiveQuery {
+            protected function createModels(array $rows): array
+            {
+                throw new RuntimeException('createModels() should not be called for empty rows.');
+            }
+        };
+
+        $this->assertSame([], $query->populate([]));
+    }
+
+    public function testRemoveDuplicatedRowsChecksPrimaryKeyPresenceInFirstRow(): void
+    {
+        $query = Customer::query();
+        $method = new \ReflectionMethod(ActiveQuery::class, 'removeDuplicatedRows');
+        $method->setAccessible(true);
+
+        $rows = [
+            ['email' => 'missing-id@example.com'],
+            ['id' => 1, 'email' => 'user1@example.com'],
+        ];
+
+        set_error_handler(
+            static fn(int $severity, string $message): never => throw new \ErrorException($message, 0, $severity),
+        );
+
+        try {
+            $result = $method->invoke($query, $rows);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame($rows, $result);
+    }
+
     public function testCreateModelsCanBeOverridden(): void
     {
         $query = new class (Customer::class) extends ActiveQuery {
@@ -245,6 +290,20 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([1, 2, 3], array_values($where->values));
     }
 
+    public function testModelRelationFilterSeparatesScalarAndNonScalarValues(): void
+    {
+        $query = Item::query()->link(['id' => 'item_ids']);
+
+        ModelRelationFilter::apply($query, [
+            ['item_ids' => [1, [2], 1]],
+        ]);
+
+        $where = $query->getWhere();
+
+        $this->assertInstanceOf(In::class, $where);
+        $this->assertSame([1, [2]], array_values($where->values));
+    }
+
     public function testModelRelationFilterSingleColumnEmulatesExecutionWhenValuesMissing(): void
     {
         $query = Item::query()->link(['id' => 'missing']);
@@ -268,6 +327,55 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(In::class, $where);
         $this->assertSame(['department_id', 'employee_id'], array_values($where->column));
         $this->assertSame([['department_id' => 2, 'employee_id' => null]], array_values($where->values));
+    }
+
+    public function testModelRelationFilterCompositeKeysFillMissingValuesWithNullForActiveRecordModel(): void
+    {
+        $model = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
+            protected int $department_id;
+            protected int $employee_id;
+
+            public function tableName(): string
+            {
+                return 'dossier';
+            }
+        };
+        $model->set('department_id', 2);
+
+        $query = Dossier::query()
+            ->from(['d' => 'dossier'])
+            ->join('INNER JOIN', 'employee e', '1=1')
+            ->link(['department_id' => 'department_id', 'employee_id' => 'employee_id']);
+
+        ModelRelationFilter::apply($query, [$model]);
+
+        $where = $query->getWhere();
+
+        $this->assertInstanceOf(In::class, $where);
+        $this->assertSame(
+            [['d.department_id' => 2, 'd.employee_id' => null]],
+            array_values($where->values),
+        );
+    }
+
+    public function testModelRelationFilterCompositeArrayModelsUseQualifiedColumnNames(): void
+    {
+        $query = Dossier::query()
+            ->from(['d' => 'dossier'])
+            ->join('INNER JOIN', 'employee e', '1=1')
+            ->link(['department_id' => 'department_id', 'employee_id' => 'employee_id']);
+
+        ModelRelationFilter::apply($query, [
+            ['department_id' => 2],
+        ]);
+
+        $where = $query->getWhere();
+
+        $this->assertInstanceOf(In::class, $where);
+        $this->assertSame(
+            [['d.department_id' => 2, 'd.employee_id' => null]],
+            array_values($where->values),
+        );
     }
 
     public function testModelRelationFilterCompositeEmulatesExecutionWhenValuesMissing(): void
@@ -1050,6 +1158,22 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame(['id' => SORT_DESC], $query->getOrderBy());
         $this->assertSame([':custom' => 42], $query->getParams());
         $this->assertIsArray($query->getWhere());
+    }
+
+    public function testJoinWithDoesNotPrepareChildRelationWithoutNestedJoins(): void
+    {
+        $capturedRelation = null;
+
+        $query = Order::query()->joinWith([
+            'customer' => static function (ActiveQueryInterface $relation) use (&$capturedRelation): void {
+                $capturedRelation = $relation;
+            },
+        ]);
+        $query->prepare($this->db()->getQueryBuilder());
+
+        $this->assertInstanceOf(ActiveQueryInterface::class, $capturedRelation);
+        $this->assertSame([], $capturedRelation->getJoinsWith());
+        $this->assertSame([], $capturedRelation->getFrom());
     }
 
     /**
@@ -3156,6 +3280,35 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(1, $categories[1]->getOrders());
         $this->assertSame([1, 3], ArArrayHelper::getColumn($categories[0]->getOrders(), 'id'));
         $this->assertSame([2], ArArrayHelper::getColumn($categories[1]->getOrders(), 'id'));
+    }
+
+    public function testRelationPopulatorGetModelKeysCastsArrayValuesToString(): void
+    {
+        $method = new \ReflectionMethod(RelationPopulator::class, 'getModelKeys');
+        $method->setAccessible(true);
+
+        $keys = $method->invoke(null, ['department_id' => '2', 'employee_id' => 2], ['department_id', 'employee_id']);
+
+        $this->assertSame([serialize(['2', '2'])], $keys);
+    }
+
+    public function testRelationPopulatorGetModelKeysCastsRecordValuesToString(): void
+    {
+        $method = new \ReflectionMethod(RelationPopulator::class, 'getModelKeys');
+        $method->setAccessible(true);
+
+        $employee = Employee::query()->findByPk([2, 2]);
+        $keys = $method->invoke(null, $employee, ['department_id', 'id']);
+
+        $this->assertSame([serialize(['2', '2'])], $keys);
+    }
+
+    public function testRelationPopulatorGetModelKeysReturnsEmptyArrayWhenValuesAreMissing(): void
+    {
+        $method = new \ReflectionMethod(RelationPopulator::class, 'getModelKeys');
+        $method->setAccessible(true);
+
+        $this->assertSame([], $method->invoke(null, [], ['missing']));
     }
 
     public function testGetViaCallableWithHasOne(): void

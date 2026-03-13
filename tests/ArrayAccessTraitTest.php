@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerArrayAccessModel;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CategoryWithArrayAccess;
 
 abstract class ArrayAccessTraitTest extends TestCase
 {
@@ -39,6 +40,14 @@ abstract class ArrayAccessTraitTest extends TestCase
         $this->assertTrue(isset($model['profile']));
     }
 
+    public function testOffsetExistsWithMagicProperty(): void
+    {
+        $model = new CategoryWithArrayAccess();
+        $model['name'] = 'magic';
+
+        $this->assertTrue(isset($model['name']));
+    }
+
     public function testOffsetGet(): void
     {
         $model = new CustomerArrayAccessModel();
@@ -64,6 +73,14 @@ abstract class ArrayAccessTraitTest extends TestCase
         $model = CustomerArrayAccessModel::query()->with('profile')->findByPk(1);
 
         $this->assertInstanceOf(Profile::class, $model['profile']);
+    }
+
+    public function testOffsetGetWithMagicProperty(): void
+    {
+        $model = new CategoryWithArrayAccess();
+        $model['name'] = 'magic';
+
+        $this->assertSame('magic', $model['name']);
     }
 
     public function testOffsetGetWithNonExistentProperty(): void
@@ -153,5 +170,15 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['profile']);
 
         $this->assertFalse($model->isRelationPopulated('profile'));
+    }
+
+    public function testOffsetUnsetWithMagicProperty(): void
+    {
+        $model = new CategoryWithArrayAccess();
+        $model['name'] = 'magic';
+
+        unset($model['name']);
+
+        $this->assertNull($model->get('name'));
     }
 }
