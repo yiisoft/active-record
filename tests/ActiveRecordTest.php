@@ -2135,10 +2135,10 @@ abstract class ActiveRecordTest extends TestCase
         $promotion = Promotion::query()->findByPk(1);
         $promotion->unlinkAll('itemsViaJson', true);
 
-        $this->assertSame([1,2], $promotion->json_item_ids);
+        $this->assertSame([1, 2], $promotion->json_item_ids);
         $this->assertCount(0, Item::query()->where(['id' => [1, 2]])->all());
         $this->assertSame(
-            '[1, 2]',
+            '[1,2]',
             self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
         );
     }
