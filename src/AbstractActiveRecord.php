@@ -243,6 +243,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $this->insertInternal($properties);
     }
 
+    public static function instantiate(): static
+    {
+        return (new ReflectionClass(static::class))->newInstanceWithoutConstructor();
+    }
+
     public function isChanged(): bool
     {
         return !empty($this->newValues());
