@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
+use Yiisoft\ActiveRecord\Tests\Support\MyService;
 use Yiisoft\ActiveRecord\Trait\FactoryTrait;
 use Yiisoft\Factory\Factory;
 
@@ -12,10 +13,9 @@ final class CustomerWithFactory extends Customer
 {
     use FactoryTrait;
 
-    public function __construct(Factory $factory)
-    {
-        $this->factory = $factory;
-    }
+    public function __construct(
+        public readonly MyService $service,
+    ) {}
 
     public function relationQuery(string $name): ActiveQueryInterface
     {

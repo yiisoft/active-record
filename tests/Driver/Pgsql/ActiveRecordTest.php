@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests\Driver\Pgsql;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Item;
 use Yiisoft\ActiveRecord\Tests\Driver\Pgsql\Stubs\Promotion;

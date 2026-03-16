@@ -16,7 +16,7 @@ abstract class ConnectionHelper
     public function createFactory(ConnectionInterface $db): Factory
     {
         $container = new Container(ContainerConfig::create()->withDefinitions([ConnectionInterface::class => $db]));
-        return new Factory($container, [ConnectionInterface::class => $db]);
+        return new Factory($container);
     }
 
     protected function createSchemaCache(): SchemaCache
