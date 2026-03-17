@@ -1586,6 +1586,10 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testUpsertUpdatesExistingRecordByDefault(): void
     {
+        if ($this->db()->getDriverName() === 'oci') {
+            $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
+        }
+
         $this->reloadFixtureAfterTest();
 
         $customer = new DefaultValueOnInsertAr();
@@ -1600,6 +1604,10 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCustomerUpsertUpdatesExistingRecordByDefault(): void
     {
+        if ($this->db()->getDriverName() === 'oci') {
+            $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
+        }
+
         $this->reloadFixtureAfterTest();
 
         $customer = new Customer();
@@ -1614,6 +1622,10 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testSetValueOnUpdateUpsertKeepsOtherChangedPropertiesWhenUpdatesAreImplicit(): void
     {
+        if ($this->db()->getDriverName() === 'oci') {
+            $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
+        }
+
         $this->reloadFixtureAfterTest();
 
         $customer = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {

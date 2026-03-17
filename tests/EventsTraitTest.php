@@ -24,6 +24,7 @@ use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
 use Yiisoft\ActiveRecord\Event\Handler\SetValueOnUpdate;
 use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryEventsModel;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerEventsModel;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
@@ -298,6 +299,14 @@ abstract class EventsTraitTest extends TestCase
                 },
             ),
         );
+        EventDispatcherProvider::set(
+            CustomerEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event) use (&$triggeredEvents): void {
+                    $triggeredEvents[] = $event::class;
+                },
+            ),
+        );
 
         $model = new CategoryEventsModel();
         $model->id = 100;
@@ -310,15 +319,19 @@ abstract class EventsTraitTest extends TestCase
         $model->name = 'After Update';
         $model->update();
 
-        $model = new CategoryEventsModel();
-        $model->id = 101;
-        $model->name = 'After Upsert';
-        $model->upsert();
+        if ($this->db()->getDriverName() !== 'oci') {
+            $model = new CustomerEventsModel();
+            $model->setEmail('after-upsert@example.com');
+            $model->setName('After Upsert');
+            $model->upsert();
+        }
 
         $this->assertContains(AfterInsert::class, $triggeredEvents);
         $this->assertContains(AfterSave::class, $triggeredEvents);
         $this->assertContains(AfterUpdate::class, $triggeredEvents);
-        $this->assertContains(AfterUpsert::class, $triggeredEvents);
+        if ($this->db()->getDriverName() !== 'oci') {
+            $this->assertContains(AfterUpsert::class, $triggeredEvents);
+        }
     }
 
     public function testEventsKeepModelReference(): void
