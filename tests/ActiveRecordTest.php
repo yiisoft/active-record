@@ -1927,6 +1927,9 @@ abstract class ActiveRecordTest extends TestCase
             }
         };
         $dossier->set('summary', 'Linked via shared composite key');
+        if ($this->db()->getDriverName() !== 'sqlsrv') {
+            $dossier->set('id', 99);
+        }
 
         $dossier->link('employee', $employee);
 
@@ -2000,6 +2003,9 @@ abstract class ActiveRecordTest extends TestCase
 
         $dossier = clone $dossierPrototype;
         $dossier->set('summary', 'Strict primary key validation');
+        if ($this->db()->getDriverName() !== 'sqlsrv') {
+            $dossier->set('id', 100);
+        }
 
         $employee->link('dossier', $dossier);
 
