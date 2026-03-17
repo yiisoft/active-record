@@ -1900,7 +1900,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNotNull($employee);
 
         $dossier = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
-            protected ?int $id = null;
+            protected ?int $id;
             protected int $department_id;
             protected int $employee_id;
             protected string $summary;
@@ -1926,7 +1926,6 @@ abstract class ActiveRecordTest extends TestCase
                 };
             }
         };
-        $dossier->set('id', 99);
         $dossier->set('summary', 'Linked via shared composite key');
 
         $dossier->link('employee', $employee);
@@ -1948,7 +1947,7 @@ abstract class ActiveRecordTest extends TestCase
         $this->reloadFixtureAfterTest();
 
         $dossierPrototype = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
-            protected ?int $id = null;
+            protected ?int $id;
             protected int $department_id;
             protected int $employee_id;
             protected string $summary;
@@ -2000,18 +1999,18 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNotNull($employee);
 
         $dossier = clone $dossierPrototype;
-        $dossier->set('id', 100);
         $dossier->set('summary', 'Strict primary key validation');
 
         $employee->link('dossier', $dossier);
 
         $this->assertSame(2, $dossier->get('department_id'));
         $this->assertSame(2, $dossier->get('employee_id'));
+        $this->assertNotNull($dossier->get('id'));
         $this->assertTrue(
             self::db()->createQuery()->from('{{dossier}}')->where([
-                'id' => 100,
                 'department_id' => 2,
                 'employee_id' => 2,
+                'summary' => 'Strict primary key validation',
             ])->exists(),
         );
     }

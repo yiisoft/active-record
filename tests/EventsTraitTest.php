@@ -309,7 +309,7 @@ abstract class EventsTraitTest extends TestCase
         );
 
         $model = new CategoryEventsModel();
-        $model->id = 100;
+        unset($model->id);
         $model->name = 'After Insert';
         $model->insert();
 
