@@ -2240,6 +2240,22 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
+    public function testUnlinkAllWithArrayValuedPropertyAndDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+
+        $promotion->unlinkAll('itemsViaJson', true);
+
+        $reloadedPromotion = Promotion::query()->findByPk(1);
+
+        $this->assertSame([1, 2], $reloadedPromotion->json_item_ids);
+        $this->assertCount(0, $reloadedPromotion->getItemsViaJson());
+        $this->assertNull(Item::query()->findByPk(1));
+        $this->assertNull(Item::query()->findByPk(2));
+    }
+
     public function testUnlinkWithArrayValuedProperty(): void
     {
         $this->reloadFixtureAfterTest();
@@ -2252,21 +2268,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(1, $promotion->getItemsViaJson());
         $this->assertSame(
             '[2]',
-            self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
-        );
-    }
-
-    public function testUnlinkAllWithArrayValuedPropertyAndDelete(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $promotion = Promotion::query()->findByPk(1);
-        $promotion->unlinkAll('itemsViaJson', true);
-
-        $this->assertSame([1, 2], $promotion->json_item_ids);
-        $this->assertCount(0, Item::query()->where(['id' => [1, 2]])->all());
-        $this->assertSame(
-            '[1, 2]',
             self::db()->select('json_item_ids')->from('{{promotion}}')->where(['id' => 1])->scalar(),
         );
     }
