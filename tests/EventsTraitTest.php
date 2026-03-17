@@ -292,6 +292,14 @@ abstract class EventsTraitTest extends TestCase
         $triggeredEvents = [];
 
         EventDispatcherProvider::set(
+            CategoryEventsModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event) use (&$triggeredEvents): void {
+                    $triggeredEvents[] = $event::class;
+                },
+            ),
+        );
+        EventDispatcherProvider::set(
             CustomerEventsModel::class,
             new SimpleEventDispatcher(
                 static function (object $event) use (&$triggeredEvents): void {
@@ -300,15 +308,15 @@ abstract class EventsTraitTest extends TestCase
             ),
         );
 
-        $model = new CustomerEventsModel();
-        $model->setEmail('after-insert@example.com');
-        $model->setName('After Insert');
+        $model = new CategoryEventsModel();
+        unset($model->id);
+        $model->name = 'After Insert';
         $model->insert();
 
-        $model->setName('After Save');
+        $model->name = 'After Save';
         $model->save();
 
-        $model->setName('After Update');
+        $model->name = 'After Update';
         $model->update();
 
         if ($this->db()->getDriverName() !== 'oci') {
