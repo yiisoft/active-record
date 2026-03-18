@@ -7,7 +7,6 @@ namespace Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Tests\Support\MyService;
 use Yiisoft\ActiveRecord\Trait\FactoryTrait;
-use Yiisoft\Factory\Factory;
 
 final class CustomerWithFactory extends Customer
 {

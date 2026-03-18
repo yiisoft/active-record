@@ -1077,8 +1077,7 @@ abstract class ActiveRecordTest extends TestCase
     #[Depends('testWithNotInitializedFactory')]
     public function testWithConcreteFactory(): void
     {
-        $factory = $this->createFactory();
-        ActiveRecordFactory::setFactory($factory);
+        $this->initFactory();
 
         $newFactory = $this->createFactory()->withDefinitions([
             MyService::class => [
@@ -1086,7 +1085,7 @@ abstract class ActiveRecordTest extends TestCase
             ],
         ]);
 
-        ActiveRecordFactory::setFactory($newFactory, CustomerWithFactory::class);
+        ActiveRecordFactory::set($newFactory, CustomerWithFactory::class);
 
         $order = OrderWithFactory::instantiate();
 
@@ -2027,7 +2026,8 @@ abstract class ActiveRecordTest extends TestCase
     {
         $factory = $this->createFactory();
 
-        ActiveRecordFactory::setFactory($factory);
+        ActiveRecordFactory::clear();
+        ActiveRecordFactory::set($factory);
     }
 
     abstract protected function createFactory(): Factory;

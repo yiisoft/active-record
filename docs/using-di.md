@@ -23,10 +23,14 @@ use Yiisoft\Factory\Factory;
 
 return [
     static function (ContainerInterface $container): void {
-        ActiveRecordFactory::setFactory($container->get(Factory::class));
+        ActiveRecordFactory::set(new Factory($container));
+        // or `ActiveRecordFactory::set($container->get(Factory::class))` if the factory is defined in the container.
     }
 ];
 ```
+
+> [!NOTE]
+> The factory can be represented as `Factory` or `StrictFactory` class instance.
 
 ### Using DI container autowiring
 
@@ -41,7 +45,7 @@ final class SomeController
 {
     public function someAction(Factory $factory): ResponseInterface
     {
-        ActiveRecordFactory::setFactory($factory);
+        ActiveRecordFactory::set($factory);
     
         // ...
     }
