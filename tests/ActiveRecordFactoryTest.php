@@ -14,7 +14,7 @@ use Yiisoft\ActiveRecord\Tests\Support\MyService;
 use Yiisoft\Factory\NotFoundException;
 use Yiisoft\Factory\StrictFactory;
 
-final class ActiveRecordFactoryTest extends TestCase
+abstract class ActiveRecordFactoryTest extends TestCase
 {
     protected function tearDown(): void
     {
@@ -162,8 +162,9 @@ final class ActiveRecordFactoryTest extends TestCase
         $className = OrderWithFactory::class;
 
         $factory = new StrictFactory([
+            $className => [],
             MyService::class => [
-                '__construct()' => ['custom'],
+                '__construct()' => ['strict'],
             ],
         ]);
         ActiveRecordFactory::set($factory);
