@@ -44,6 +44,7 @@ final class ActiveRecordFactory
      */
     public static function create(string $className): ActiveRecordInterface
     {
+        /** @var ActiveRecordInterface */
         return self::get($className)->create($className);
     }
 
