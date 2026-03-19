@@ -22,7 +22,8 @@ final class CustomerWithOverriddenRelationQuery extends Customer
         ActiveRecordInterface|string $modelClass,
         array $link,
         bool $multiple,
-    ): ActiveQueryInterface {
+    ): ActiveQueryInterface
+    {
         return new AlternativeActiveQuery($modelClass);
     }
 }
