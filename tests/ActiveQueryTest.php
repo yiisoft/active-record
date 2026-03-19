@@ -17,6 +17,12 @@ use Yiisoft\ActiveRecord\Internal\RelationPopulator;
 use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
 use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\CreateModelsExceptionOnEmptyRowsActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\MissingLinkValuesActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\OverriddenCreateModelsActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\OverriddenPrimaryTableNameActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\SingleModelArrayActiveQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CompositePrimaryKeyDossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -239,12 +245,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testPopulateEmptyRowsDoesNotCallCreateModels(): void
     {
-        $query = new class (Customer::class) extends ActiveQuery {
-            protected function createModels(array $rows): array
-            {
-                throw new RuntimeException('createModels() should not be called for empty rows.');
-            }
-        };
+        $query = new CreateModelsExceptionOnEmptyRowsActiveQuery(Customer::class);
 
         $this->assertSame([], $query->populate([]));
     }
@@ -267,12 +268,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testCreateModelsCanBeOverridden(): void
     {
-        $query = new class (Customer::class) extends ActiveQuery {
-            protected function createModels(array $rows): array
-            {
-                return [['overridden' => true, 'rows' => $rows]];
-            }
-        };
+        $query = new OverriddenCreateModelsActiveQuery(Customer::class);
 
         $this->assertSame(
             [['overridden' => true, 'rows' => [['id' => 1]]]],
@@ -282,12 +278,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetPrimaryTableNameCanBeOverridden(): void
     {
-        $query = new class (Customer::class) extends ActiveQuery {
-            protected function getPrimaryTableName(): string
-            {
-                return 'profile';
-            }
-        };
+        $query = new OverriddenPrimaryTableNameActiveQuery(Customer::class);
 
         $this->assertSame(['{{profile}}' => '{{profile}}'], $query->getTablesUsedInFrom());
     }
@@ -349,15 +340,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testModelRelationFilterCompositeKeysFillMissingValuesWithNullForActiveRecordModel(): void
     {
-        $model = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
-            protected int $department_id;
-            protected int $employee_id;
-
-            public function tableName(): string
-            {
-                return 'dossier';
-            }
-        };
+        $model = new CompositePrimaryKeyDossier();
         $model->set('department_id', 2);
 
         $query = Dossier::query()
@@ -3356,17 +3339,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testRelationPopulatorReturnsAfterSingleModelPopulation(): void
     {
-        $query = new class (Customer::class) extends ActiveQuery {
-            public function one(): array|\Yiisoft\ActiveRecord\ActiveRecordInterface|null
-            {
-                return ['id' => 1, 'name' => 'single-related-model'];
-            }
-
-            public function all(): array
-            {
-                throw new RuntimeException('all() should not be called after one() for a single related model.');
-            }
-        };
+        $query = new SingleModelArrayActiveQuery(Customer::class);
         $query->asArray();
         $query->multiple(false);
         $query->link(['id' => 'profile_id']);
@@ -3444,12 +3417,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testRelationPopulatorDoesNotPopulateRelationWhenLinkValuesAreMissing(): void
     {
-        $query = new class (Customer::class) extends ActiveQuery {
-            public function all(): array
-            {
-                return [['name' => 'orphan-profile']];
-            }
-        };
+        $query = new MissingLinkValuesActiveQuery(Customer::class);
         $query->asArray();
         $query->multiple(false);
         $query->link(['id' => 'profile_id']);

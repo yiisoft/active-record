@@ -20,13 +20,20 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryAfterDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerSetValueOnUpdateUpsert;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithDeleteInternalOverride;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithOverriddenRelationQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithRefreshInternalOverride;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithUpdateInternalOverride;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CompositePrimaryKeyDossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Employee;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\EmployeeWithPrototypeDossierRelation;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
@@ -35,6 +42,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithCustomerProfileViaCustomerRelation;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
@@ -1628,19 +1636,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->reloadFixtureAfterTest();
 
-        $customer = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
-            use \Yiisoft\ActiveRecord\Trait\EventsTrait;
-
-            public string $email;
-            #[\Yiisoft\ActiveRecord\Event\Handler\SetValueOnUpdate('Updated')]
-            public ?string $name = null;
-            public ?string $address = null;
-
-            public function tableName(): string
-            {
-                return 'customer';
-            }
-        };
+        $customer = new CustomerSetValueOnUpdateUpsert();
 
         $customer->email = 'user1@example.com';
         $customer->name = 'Ignored';
@@ -1899,33 +1895,7 @@ abstract class ActiveRecordTest extends TestCase
         $employee = Employee::query()->findByPk([2, 2]);
         $this->assertNotNull($employee);
 
-        $dossier = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
-            protected ?int $id;
-            protected int $department_id;
-            protected int $employee_id;
-            protected string $summary;
-
-            public function tableName(): string
-            {
-                return 'dossier';
-            }
-
-            public function primaryKey(): array
-            {
-                return ['department_id', 'employee_id'];
-            }
-
-            public function relationQuery(string $name): \Yiisoft\ActiveRecord\ActiveQueryInterface
-            {
-                return match ($name) {
-                    'employee' => $this->hasOne(Employee::class, [
-                        'department_id' => 'department_id',
-                        'id' => 'employee_id',
-                    ]),
-                    default => parent::relationQuery($name),
-                };
-            }
-        };
+        $dossier = new CompositePrimaryKeyDossier();
         $dossier->set('summary', 'Linked via shared composite key');
         if ($this->db()->getDriverName() !== 'sqlsrv') {
             $dossier->set('id', 99);
@@ -1949,54 +1919,9 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $dossierPrototype = new class () extends \Yiisoft\ActiveRecord\ActiveRecord {
-            protected ?int $id;
-            protected int $department_id;
-            protected int $employee_id;
-            protected string $summary;
+        $dossierPrototype = new CompositePrimaryKeyDossier();
 
-            public function tableName(): string
-            {
-                return 'dossier';
-            }
-
-            public function primaryKey(): array
-            {
-                return ['department_id', 'employee_id'];
-            }
-        };
-
-        $employeePrototype = new class ($dossierPrototype) extends \Yiisoft\ActiveRecord\ActiveRecord {
-            public function __construct(
-                private readonly \Yiisoft\ActiveRecord\ActiveRecordInterface $dossierPrototype,
-            ) {}
-
-            protected int $id;
-            protected int $department_id;
-            protected string $first_name;
-            protected string $last_name;
-
-            public function tableName(): string
-            {
-                return 'employee';
-            }
-
-            public function relationQuery(string $name): \Yiisoft\ActiveRecord\ActiveQueryInterface
-            {
-                return match ($name) {
-                    'dossier' => $this->hasOne(
-                        clone $this->dossierPrototype,
-                        ['department_id' => 'department_id', 'employee_id' => 'id'],
-                    ),
-                    default => parent::relationQuery($name),
-                };
-            }
-
-            public function isPrimaryKey(array $keys): bool
-            {
-                return array_is_list($keys) && parent::isPrimaryKey($keys);
-            }
-        };
+        $employeePrototype = new EmployeeWithPrototypeDossierRelation($dossierPrototype);
 
         $employee = (new ActiveQuery(clone $employeePrototype))->findByPk([2, 2]);
         $this->assertNotNull($employee);
@@ -2099,15 +2024,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testResetsIntermediateViaRelationWhenLinkPropertyChanges(): void
     {
-        $order = (new class () extends Order {
-            public function relationQuery(string $name): \Yiisoft\ActiveRecord\ActiveQueryInterface
-            {
-                return match ($name) {
-                    'customerProfileViaCustomer' => $this->getCustomerProfileViaCustomerQuery(),
-                    default => parent::relationQuery($name),
-                };
-            }
-        })::query()->findByPk(1);
+        $order = OrderWithCustomerProfileViaCustomerRelation::query()->findByPk(1);
 
         $profile = $order->getCustomerProfileViaCustomer();
 
@@ -2394,23 +2311,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCreateRelationQueryCanBeOverridden(): void
     {
-        $customer = new class () extends Customer {
-            public function relationQuery(string $name): \Yiisoft\ActiveRecord\ActiveQueryInterface
-            {
-                return match ($name) {
-                    'profile' => $this->hasOne(Profile::class, ['id' => 'profile_id']),
-                    default => parent::relationQuery($name),
-                };
-            }
-
-            protected function createRelationQuery(
-                \Yiisoft\ActiveRecord\ActiveRecordInterface|string $modelClass,
-                array $link,
-                bool $multiple,
-            ): \Yiisoft\ActiveRecord\ActiveQueryInterface {
-                return new class ($modelClass) extends ActiveQuery {};
-            }
-        };
+        $customer = new CustomerWithOverriddenRelationQuery();
 
         $query = $customer->relationQuery('profile');
 
@@ -2428,12 +2329,7 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $customer = (new class () extends Customer {
-            protected function deleteInternal(): int
-            {
-                return 77;
-            }
-        })::query()->findByPk(1);
+        $customer = CustomerWithDeleteInternalOverride::query()->findByPk(1);
 
         $this->assertSame(77, $customer->delete());
         $this->assertNotNull(Customer::query()->findByPk(1));
@@ -2441,14 +2337,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRefreshInternalCanBeOverridden(): void
     {
-        $customer = (new class () extends Customer {
-            protected function refreshInternal(
-                array|\Yiisoft\ActiveRecord\ActiveRecordInterface|null $record = null,
-            ): bool {
-                $this->setName('refreshed-via-override');
-                return true;
-            }
-        })::query()->findByPk(1);
+        $customer = CustomerWithRefreshInternalOverride::query()->findByPk(1);
 
         $this->assertTrue($customer->refresh());
         $this->assertSame('refreshed-via-override', $customer->getName());
@@ -2458,12 +2347,7 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $customer = (new class () extends Customer {
-            protected function updateInternal(?array $properties = null): int
-            {
-                return 91;
-            }
-        })::query()->findByPk(1);
+        $customer = CustomerWithUpdateInternalOverride::query()->findByPk(1);
 
         $customer->setName('should-not-hit-db');
 
