@@ -22,51 +22,24 @@ abstract class ActiveRecordFactoryTest extends TestCase
         parent::tearDown();
     }
 
-    public function testSetAndGet(): void
+    public function testSet(): void
     {
-        $factory = new Factory();
-        ActiveRecordFactory::set($factory);
+        $this->assertFalse(ActiveRecordFactory::has());
 
-        $this->assertSame($factory, ActiveRecordFactory::get());
+        ActiveRecordFactory::set(new Factory());
+
+        $this->assertTrue(ActiveRecordFactory::has());
     }
 
-    public function testSetAndGetWithClassName(): void
-    {
-        $factory = new Factory();
-        ActiveRecordFactory::set($factory);
-
-        $newFactory = new Factory();
-        $className = Order::class;
-        ActiveRecordFactory::set($newFactory, $className);
-
-        $this->assertNotSame($factory, $newFactory);
-        $this->assertSame($newFactory, ActiveRecordFactory::get($className));
-    }
-
-    public function testGetFallbackToDefault(): void
-    {
-        $factory = new Factory();
-        ActiveRecordFactory::set($factory);
-        $className = Order::class;
-
-        $this->assertSame($factory, ActiveRecordFactory::get($className));
-    }
-
-    public function testGetThrowsExceptionWhenNotFound(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Default factory not found");
-        ActiveRecordFactory::get();
-    }
-
-    public function testGetWithClassNameThrowsExceptionWhenNotFound(): void
+    public function testSetWithClassName(): void
     {
         $className = Order::class;
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage("Factory for class '$className' not found");
+        $this->assertFalse(ActiveRecordFactory::has($className));
 
-        ActiveRecordFactory::get($className);
+        ActiveRecordFactory::set(new Factory(), $className);
+
+        $this->assertTrue(ActiveRecordFactory::has($className));
     }
 
     public function testHas(): void
@@ -86,22 +59,6 @@ abstract class ActiveRecordFactoryTest extends TestCase
         $this->assertTrue(ActiveRecordFactory::has($className));
     }
 
-    public function testRemove(): void
-    {
-        $className = Order::class;
-
-        ActiveRecordFactory::set(new Factory());
-        ActiveRecordFactory::set(new Factory(), $className);
-
-        ActiveRecordFactory::remove($className);
-
-        $this->assertFalse(ActiveRecordFactory::has($className));
-        $this->assertTrue(ActiveRecordFactory::has());
-
-        ActiveRecordFactory::remove();
-
-        $this->assertFalse(ActiveRecordFactory::has());
-    }
 
     public function testClear(): void
     {
@@ -114,23 +71,8 @@ abstract class ActiveRecordFactoryTest extends TestCase
 
         $this->assertFalse(ActiveRecordFactory::has());
         $this->assertFalse(ActiveRecordFactory::has($className));
-        $this->assertEmpty(ActiveRecordFactory::all());
     }
 
-    public function testAll(): void
-    {
-        $factory1 = new Factory();
-        $factory2 = new Factory();
-        $className = Order::class;
-
-        ActiveRecordFactory::set($factory1);
-        ActiveRecordFactory::set($factory2, $className);
-
-        $all = ActiveRecordFactory::all();
-        $this->assertCount(2, $all);
-        $this->assertSame($factory1, $all['']);
-        $this->assertSame($factory2, $all[$className]);
-    }
 
     public function testCreate(): void
     {
@@ -149,12 +91,22 @@ abstract class ActiveRecordFactoryTest extends TestCase
         $this->assertSame('custom', $order->service->name);
     }
 
-    public function testSetAndGetWithStrictFactory(): void
+    public function testCreateWithClassNameThrowsExceptionWhenNotFound(): void
+    {
+        $className = Order::class;
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Factory for class '$className' not found");
+
+        ActiveRecordFactory::create(Order::class);
+    }
+
+    public function testSetWithStrictFactory(): void
     {
         $factory = new StrictFactory([]);
         ActiveRecordFactory::set($factory);
 
-        $this->assertSame($factory, ActiveRecordFactory::get());
+        $this->assertTrue(ActiveRecordFactory::has());
     }
 
     public function testCreateWithStrictFactory(): void
