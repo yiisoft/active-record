@@ -8,6 +8,7 @@ use Closure;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use ReflectionMethod;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
@@ -251,7 +252,7 @@ abstract class ActiveQueryTest extends TestCase
     public function testRemoveDuplicatedRowsChecksPrimaryKeyPresenceInFirstRow(): void
     {
         $query = Customer::query();
-        $method = new \ReflectionMethod(ActiveQuery::class, 'removeDuplicatedRows');
+        $method = new ReflectionMethod(ActiveQuery::class, 'removeDuplicatedRows');
         $method->setAccessible(true);
 
         $rows = [
