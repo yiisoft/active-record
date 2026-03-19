@@ -11,6 +11,7 @@ use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
 use ReflectionMethod;
+use ReflectionProperty;
 use Yiisoft\ActiveRecord\AbstractActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Event\AfterDelete;
@@ -460,6 +461,27 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertFalse($customer->isRelationPopulated('orders'));
         $this->assertArrayNotHasKey('orders', $customer->relatedRecords());
+    }
+
+    public function testResetRelationRemovesRelationFromDependencies(): void
+    {
+        $order = OrderWithCustomerProfileViaCustomerRelation::query()->findByPk(1);
+        $order->getCustomerProfileViaCustomer();
+
+        $reflection = new ReflectionProperty(AbstractActiveRecord::class, 'relationsDependencies');
+        $dependencies = $reflection->getValue($order);
+
+        $this->assertArrayHasKey('customer_id', $dependencies);
+        $this->assertContains('customerProfileViaCustomer', $dependencies['customer_id']);
+        $this->assertContains('customer', $dependencies['customer_id']);
+
+        $order->resetRelation('customerProfileViaCustomer');
+
+        $dependencies = $reflection->getValue($order);
+
+        $this->assertArrayHasKey('customer_id', $dependencies);
+        $this->assertNotContains('customerProfileViaCustomer', $dependencies['customer_id']);
+        $this->assertContains('customer', $dependencies['customer_id']);
     }
 
     public function testIssetException(): void
