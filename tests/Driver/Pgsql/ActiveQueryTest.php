@@ -44,6 +44,24 @@ final class ActiveQueryTest extends \Yiisoft\ActiveRecord\Tests\ActiveQueryTest
         $this->assertSame([1], $where->values->value);
     }
 
+    public function testModelRelationFilterWrapsArrayColumnValuesIntoArrayValueWithColumnSchema(): void
+    {
+        $query = Promotion::query()->link(['array_item_ids' => 'id']);
+
+        ModelRelationFilter::apply($query, [
+            ['id' => 1],
+            ['id' => 2],
+        ]);
+
+        $where = $query->getWhere();
+        $column = $query->getModel()->column('array_item_ids');
+
+        $this->assertInstanceOf(ArrayOverlaps::class, $where);
+        $this->assertInstanceOf(ArrayValue::class, $where->values);
+        $this->assertSame([1, 2], $where->values->value);
+        $this->assertSame($column, $where->values->type);
+    }
+
     public function testModelRelationFilterUsesJsonOverlapsForJsonColumns(): void
     {
         $query = Promotion::query()->link(['json_item_ids' => 'id']);
