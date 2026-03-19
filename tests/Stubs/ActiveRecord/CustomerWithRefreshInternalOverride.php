@@ -10,7 +10,8 @@ final class CustomerWithRefreshInternalOverride extends Customer
 {
     protected function refreshInternal(
         array|ActiveRecordInterface|null $record = null,
-    ): bool {
+    ): bool
+    {
         $this->setName('refreshed-via-override');
 
         return true;
