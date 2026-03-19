@@ -64,8 +64,7 @@ final class ActiveRecordFactory
     /**
      * Returns the factory for the given class name or the default factory if none is found.
      *
-     * @param class-string<ActiveRecordInterface> $className The class name of the active record to be checked
-     * or `null` to get the default factory.
+     * @param class-string<ActiveRecordInterface> $className The class name of the active record to be checked.
      */
     private static function get(string $className): Factory|StrictFactory
     {
