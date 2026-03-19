@@ -451,11 +451,13 @@ abstract class ActiveRecordTest extends TestCase
         $customer = Customer::query()->findByPk(2);
         $customer->getOrders();
 
-        $this->assertStringContainsString('orders', serialize($customer));
+        $this->assertTrue($customer->isRelationPopulated('orders'));
+        $this->assertArrayHasKey('orders', $customer->relatedRecords());
 
         $customer->resetRelation('orders');
 
-        $this->assertStringNotContainsString('orders', serialize($customer));
+        $this->assertFalse($customer->isRelationPopulated('orders'));
+        $this->assertArrayNotHasKey('orders', $customer->relatedRecords());
     }
 
     public function testIssetException(): void
