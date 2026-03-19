@@ -10,6 +10,8 @@ use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestWith;
+use ReflectionMethod;
+use Yiisoft\ActiveRecord\AbstractActiveRecord;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\Event\AfterDelete;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
@@ -2322,7 +2324,7 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testCreateRelationQueryIsProtected(): void
     {
-        $method = new \ReflectionMethod(\Yiisoft\ActiveRecord\AbstractActiveRecord::class, 'createRelationQuery');
+        $method = new ReflectionMethod(AbstractActiveRecord::class, 'createRelationQuery');
 
         $this->assertTrue($method->isProtected());
     }
