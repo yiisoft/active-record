@@ -2,7 +2,7 @@
 
 ## 1.0.3 under development
 
-- Test #529: Increase MSI to 100% (@dbuhonov)
+- no changes in this release.
 
 ## 1.0.2 March 11, 2026
 
