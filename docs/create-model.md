@@ -239,9 +239,9 @@ final class User extends ActiveRecord
 ```
 
 > [!IMPORTANT]
-> When using `ActiveRecord::query()` method to create a query or `RepositoryTrait` methods, the constructor is not called.
-> If you need to call the constructor, override the `ActiveRecord::instantiate()` method to create a new instance with
-> calling the constructor. For example, `return new static();`.
+> When calling `ActiveRecord::query()`, `ActiveRecord::instantiate()` or methods from `RepositoryTrait`,
+> the constructor is not invoked. If you need the constructor to run, override the `ActiveRecord::instantiate()` method
+> and return a new instance that calls the constructor. For example, `return new static();`.
 
 ## Relations
 
