@@ -1,0 +1,95 @@
+name: Update README packages
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/update-readme-packages.yml'
+      - 'composer.json'
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Update package lists in README.md
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require('fs');
+            const composer = JSON.parse(fs.readFileSync('composer.json', 'utf8'));
+
+            async function getPackageInfo(pkg) {
+              const [owner, repo] = pkg.split('/');
+
+              try {
+                const { data } = await github.rest.repos.get({ owner, repo });
+                return {
+                  url: `https://github.com/${pkg}`,
+                  description: data.description ?? null,
+                };
+              } catch {}
+
+              let description = null;
+              try {
+                const response = await fetch(`https://packagist.org/packages/${pkg}.json`);
+                const data = await response.json();
+                description = data.package?.description ?? null;
+              } catch {}
+
+              return {
+                url: `https://packagist.org/packages/${pkg}`,
+                description,
+              };
+            }
+
+            async function buildList(packages) {
+              const items = [];
+              for (const [pkg, ver] of Object.entries(packages)) {
+                if (pkg.startsWith('php') || pkg.startsWith('ext-')) continue;
+                const { url, description } = await getPackageInfo(pkg);
+                items.push(`- [${pkg}](${url}): \`${ver}\`${description ? ' — ' + description : ''}`);
+              }
+              return items.length ? '\n\n' + items.join('\n') + '\n\n' : '\n\n';
+            }
+
+            const summaryText = {
+              require: 'List of required packages to be installed.',
+              suggest: 'Some features require additional packages.',
+            };
+
+            function ensureDetailsExists(readme, section) {
+              if (readme.includes(`<details id="${section}">`)) {
+                return readme;
+              }
+              const tag = `\n<details id="${section}">\n<summary>${summaryText[section]}</summary>\n</details>\n`;
+              // Insert before the next ## heading after ## Installation
+              return readme.replace(/(## Installation[\s\S]*?)(^## )/m, `$1${tag}\n$2`);
+            }
+
+            let readme = fs.readFileSync('README.md', 'utf8');
+
+            for (const section of ['require', 'suggest']) {
+              readme = ensureDetailsExists(readme, section);
+              const packages = composer[section] ?? {};
+              const content = await buildList(packages);
+              const pattern = new RegExp(`(<details id="${section}">[\\s\\S]*?<\\/summary>)[\\s\\S]*?(<\\/details>)`);
+              readme = readme.replace(pattern, `$1${content}$2`);
+            }
+
+            fs.writeFileSync('README.md', readme);
+            console.log('README.md updated successfully');
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet README.md || (
+            git add README.md
+            git commit -m "chore: update package lists in README.md"
+            git push
+          )
