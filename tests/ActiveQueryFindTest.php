@@ -177,7 +177,7 @@ abstract class ActiveQueryFindTest extends TestCase
             'address' => 'address2',
             'status' => 1,
             'bool_status' => true,
-            'registered_at' => new DateTimeImmutable('2022-02-02 02:02:02.222222 Europe/Kyiv'),
+            'registered_at' => new DateTimeImmutable('2022-02-02 02:02:02.222222 UTC'),
             'profile_id' => null,
         ], $customer);
 

@@ -2095,7 +2095,7 @@ abstract class ActiveQueryTest extends TestCase
             'address' => 'address1',
             'status' => 1,
             'bool_status' => true,
-            'registered_at' => new DateTimeImmutable('2011-01-01 01:01:01.111111 Europe/Berlin'),
+            'registered_at' => new DateTimeImmutable('2011-01-01 01:01:01.111111 UTC'),
             'profile_id' => 1,
         ];
 
@@ -2150,7 +2150,7 @@ abstract class ActiveQueryTest extends TestCase
             'address' => 'address1',
             'status' => 1,
             'bool_status' => true,
-            'registered_at' => new DateTimeImmutable('2011-01-01 01:01:01.111111 Europe/Berlin'),
+            'registered_at' => new DateTimeImmutable('2011-01-01 01:01:01.111111 UTC'),
             'profile_id' => 1,
         ];
 
@@ -2438,7 +2438,7 @@ abstract class ActiveQueryTest extends TestCase
         $customer = $customerQuery->findByPk(2);
         $this->assertInstanceOf(Customer::class, $customer);
         $this->assertEquals('user2', $customer->get('name'));
-        $this->assertEquals(new DateTimeImmutable('2022-02-02 02:02:02.222222 Europe/Kyiv'), $customer->get('registered_at'));
+        $this->assertEquals(new DateTimeImmutable('2022-02-02 02:02:02.222222 UTC'), $customer->get('registered_at'));
         $this->assertFalse($customer->isNew());
         $this->assertEmpty($customer->newValues());
 

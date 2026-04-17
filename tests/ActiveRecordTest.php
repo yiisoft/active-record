@@ -902,8 +902,8 @@ abstract class ActiveRecordTest extends TestCase
         /*
          * Defines the same moment in time but in different timezones.
          */
-        $registeredAt_1 = new DateTimeImmutable('2011-01-01T01:01:01.111111+01:00');
-        $registeredAt_1_1 = new DateTimeImmutable('2011-01-01T00:01:01.111111+00:00');
+        $registeredAt_1 = new DateTimeImmutable('2011-01-01T01:01:01.111111+00:00');
+        $registeredAt_1_1 = new DateTimeImmutable('2022-02-12T12:12:12.121212+00:00');
 
         return [
             'new record 1.0' => [

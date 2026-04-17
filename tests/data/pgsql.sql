@@ -74,6 +74,7 @@ CREATE TABLE "customer" (
   address text,
   status integer DEFAULT 0,
   bool_status boolean DEFAULT FALSE,
+  registered_at TIMESTAMP(6) WITHOUT TIME ZONE DEFAULT NULL,
   profile_id integer
 );
 
@@ -281,9 +282,9 @@ INSERT INTO "profile" (description) VALUES ('profile customer 3');
 INSERT INTO "schema1"."profile" (description) VALUES ('profile customer 1');
 INSERT INTO "schema1"."profile" (description) VALUES ('profile customer 3');
 
-INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, true, 1);
-INSERT INTO "customer" (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, true);
-INSERT INTO "customer" (email, name, address, status, bool_status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, false, 2);
+INSERT INTO "customer" (email, name, address, status, bool_status, registered_at, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, true, '2011-01-01 01:01:01.111111', 1);
+INSERT INTO "customer" (email, name, address, status, bool_status, registered_at) VALUES ('user2@example.com', 'user2', 'address2', 1, true, '2022-02-02 02:02:02.222222');
+INSERT INTO "customer" (email, name, address, status, bool_status, registered_at, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, false, '2023-03-03 03:03:03.333333', 2);
 
 INSERT INTO "category" (name) VALUES ('Books');
 INSERT INTO "category" (name) VALUES ('Movies');
