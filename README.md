@@ -48,29 +48,6 @@ After installing `yiisoft/active-record`, you also need to configure a database 
 guide.
 2.  [Define the Database Connection for Active Record](docs/define-connection.md)
 
-
-<details id="require">
-<summary>Package dependencies installed automatically.</summary>
-
-- [yiisoft/db](https://github.com/yiisoft/db): `^2.0` — Yii Database Library
-
-</details>
-
-
-<details id="suggest">
-<summary>Some features require additional packages.</summary>
-
-- [yiisoft/arrays](https://github.com/yiisoft/arrays): `For \Yiisoft\Arrays\ArrayableInterface support` — Yii Array Helper
-- [yiisoft/db-sqlite](https://github.com/yiisoft/db-sqlite): `For SQLite database support` — SQLite driver for Yii Database
-- [yiisoft/db-mysql](https://github.com/yiisoft/db-mysql): `For MySQL database support` — MySQL and MariaDB driver for Yii Database
-- [yiisoft/db-pgsql](https://github.com/yiisoft/db-pgsql): `For PostgreSQL database support` — PostgreSQL driver for Yii Database
-- [yiisoft/db-mssql](https://github.com/yiisoft/db-mssql): `For MSSQL database support` — Microsoft SQL Server driver for Yii Database
-- [yiisoft/db-oracle](https://github.com/yiisoft/db-oracle): `For Oracle database support` — Oracle driver for Yii Database
-- [yiisoft/factory](https://github.com/yiisoft/factory): `For factory support` — Object factory that is able to resolve dependencies from PSR-11 container
-- [yiisoft/event-dispatcher](https://github.com/yiisoft/event-dispatcher): `For events support` — PSR-14 event dispatcher
-
-</details>
-
 ## General usage
 
 Defined your active record class (for more information, follow [Create Active Record Model](docs/create-model.md) guide):

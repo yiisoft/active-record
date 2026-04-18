@@ -61,7 +61,7 @@ jobs:
                 items.push(`- [${pkg}](${url}): \`${ver}\`${description ? ' — ' + description : ''}`);
               }
 
-              return items.length ? '\n\n' + items.join('\n') + '\n\n' : null;
+              return items.length ? '\n\n' + items.join('\n') + '\n' : null;
             }
 
             const summaryText = {
@@ -74,9 +74,9 @@ jobs:
                 return readme;
               }
 
-              const details = `\n<details id="${section}">\n<summary>${summaryText[section]}</summary>\n</details>\n`;
+              const details = `<details id="${section}">\n<summary>${summaryText[section]}</summary>\n</details>\n\n`;
               // Insert before the next ## heading after ## Installation
-              return readme.replace(/(## Installation.*?)(^## )/s, `$1${details}\n$2`);
+              return readme.replace(/(## Installation.*?)(^## )/s, `$1${details}$2`);
             }
 
             let readme = fs.readFileSync('README.md', 'utf8');
