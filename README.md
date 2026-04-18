@@ -50,7 +50,7 @@ guide.
 
 
 <details id="require">
-<summary>List of required packages to be installed.</summary>
+<summary>Package dependencies installed automatically.</summary>
 
 - [yiisoft/db](https://github.com/yiisoft/db): `^2.0` — Yii Database Library
 
