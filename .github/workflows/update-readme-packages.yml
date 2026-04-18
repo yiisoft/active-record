@@ -76,7 +76,7 @@ jobs:
 
               const details = `<details id="${section}">\n<summary>${summaryText[section]}</summary>\n</details>\n\n`;
               // Insert before the next ## heading after ## Installation
-              return readme.replace(/(## Installation.*?)(^## )/s, `$1${details}$2`);
+              return readme.replace(/(## Installation.*?)(^## )/sm, `$1${details}$2`);
             }
 
             let readme = fs.readFileSync('README.md', 'utf8');
