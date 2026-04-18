@@ -29,7 +29,7 @@ jobs:
               const [owner, repo] = pkg.split('/');
 
               try {
-                const { data } = await github.rest.repos.get({ owner, repo });
+                const {data} = await github.rest.repos.get({owner, repo});
                 return {
                   url: `https://github.com/${pkg}`,
                   description: data.description ?? null,
@@ -51,16 +51,21 @@ jobs:
 
             async function buildList(packages) {
               const items = [];
+
               for (const [pkg, ver] of Object.entries(packages)) {
-                if (pkg.startsWith('php') || pkg.startsWith('ext-')) continue;
-                const { url, description } = await getPackageInfo(pkg);
+                if (!pkg.includes('/')) {
+                  continue;
+                }
+
+                const {url, description} = await getPackageInfo(pkg);
                 items.push(`- [${pkg}](${url}): \`${ver}\`${description ? ' — ' + description : ''}`);
               }
-              return items.length ? '\n\n' + items.join('\n') + '\n\n' : '\n\n';
+
+              return items.length ? '\n\n' + items.join('\n') + '\n\n' : null;
             }
 
             const summaryText = {
-              require: 'List of required packages to be installed.',
+              require: 'Package dependencies installed automatically.',
               suggest: 'Some features require additional packages.',
             };
 
@@ -68,19 +73,26 @@ jobs:
               if (readme.includes(`<details id="${section}">`)) {
                 return readme;
               }
-              const tag = `\n<details id="${section}">\n<summary>${summaryText[section]}</summary>\n</details>\n`;
+
+              const details = `\n<details id="${section}">\n<summary>${summaryText[section]}</summary>\n</details>\n`;
               // Insert before the next ## heading after ## Installation
-              return readme.replace(/(## Installation[\s\S]*?)(^## )/m, `$1${tag}\n$2`);
+              return readme.replace(/(## Installation.*?)(^## )/s, `$1${details}\n$2`);
             }
 
             let readme = fs.readFileSync('README.md', 'utf8');
 
             for (const section of ['require', 'suggest']) {
-              readme = ensureDetailsExists(readme, section);
               const packages = composer[section] ?? {};
               const content = await buildList(packages);
-              const pattern = new RegExp(`(<details id="${section}">[\\s\\S]*?<\\/summary>)[\\s\\S]*?(<\\/details>)`);
-              readme = readme.replace(pattern, `$1${content}$2`);
+
+              if (content) {
+                readme = ensureDetailsExists(readme, section);
+                const pattern = new RegExp(`(<details id="${section}">.*?<\\/summary>).*?(<\\/details>)`, 's');
+                readme = readme.replace(pattern, `$1${content}$2`);
+              } else {
+                const pattern = new RegExp(`\\n<details id="${section}">.*?<\\/details>\\n`, 's');
+                readme = readme.replace(pattern, '');
+              }
             }
 
             fs.writeFileSync('README.md', readme);
@@ -92,6 +104,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git diff --quiet README.md || (
             git add README.md
-            git commit -m "chore: update package lists in README.md"
+            git commit -m "Update package lists in README.md"
             git push
           )
