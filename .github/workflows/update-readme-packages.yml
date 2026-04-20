@@ -13,4 +13,4 @@ jobs:
   update-readme:
     uses: yiisoft/actions/.github/workflows/update-readme-packages.yml@update-readme-packages
     secrets:
-      GITHUB_TOKEN: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
+      TOKEN: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
