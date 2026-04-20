@@ -1,13 +1,13 @@
 name: Update README packages
 
 on:
-  pull_request:
+  pull_request_target:
     paths:
       - '.github/workflows/update-readme-packages.yml'
       - 'composer.json'
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   update-readme:
