@@ -23,65 +23,67 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            let readme = fs.readFileSync('README.md', 'utf8');
             const composer = JSON.parse(fs.readFileSync('composer.json', 'utf8'));
+            const sections = {
+              require: 'Package dependencies installed automatically.',
+              suggest: 'Some features require additional packages.',
+            };
 
-            async function getPackageInfo(pkg) {
-              const [owner, repo] = pkg.split('/');
+            async function getPackageInfo(name) {
+              const [owner, repo] = name.split('/');
 
               try {
                 const {data} = await github.rest.repos.get({owner, repo});
+
                 return {
-                  url: `https://github.com/${pkg}`,
+                  url: `https://github.com/${name}`,
                   description: data.description ?? null,
                 };
               } catch {}
 
-              let description = null;
               try {
-                const response = await fetch(`https://packagist.org/packages/${pkg}.json`);
+                const response = await fetch(`https://packagist.org/packages/${name}.json`);
                 const data = await response.json();
-                description = data.package?.description ?? null;
+
+                return {
+                  url: `https://packagist.org/packages/${name}`,
+                  description: data.package?.description ?? null,
+                };
               } catch {}
 
               return {
-                url: `https://packagist.org/packages/${pkg}`,
-                description,
+                url: `https://packagist.org/packages/${name}`,
+                description: null,
               };
             }
 
             async function buildList(packages) {
               const items = [];
 
-              for (const [pkg, ver] of Object.entries(packages)) {
-                if (!pkg.includes('/')) {
+              for (const [name, version] of Object.entries(packages)) {
+                if (!name.includes('/')) {
                   continue;
                 }
 
-                const {url, description} = await getPackageInfo(pkg);
-                items.push(`- [${pkg}](${url}): \`${ver}\`${description ? ' — ' + description : ''}`);
+                const {url, description} = await getPackageInfo(name);
+                items.push(`- [${name}](${url}): \`${version}\`${description ? ' — ' + description : ''}`);
               }
 
               return items.length ? '\n\n' + items.join('\n') + '\n' : null;
             }
-
-            const summaryText = {
-              require: 'Package dependencies installed automatically.',
-              suggest: 'Some features require additional packages.',
-            };
 
             function ensureDetailsExists(readme, section) {
               if (readme.includes(`<details id="${section}">`)) {
                 return readme;
               }
 
-              const details = `<details id="${section}">\n<summary>${summaryText[section]}</summary>\n</details>\n\n`;
-              // Insert before the next ## heading after ## Installation
-              return readme.replace(/(## Installation.*?)(^## )/sm, `$1${details}$2`);
+              const details = `\n<details id="${section}">\n<summary>${sections[section]}</summary>\n</details>\n`;
+              // Insert at the end of section "## Installation"
+              return readme.replace(/(## Installation.*?)(\n## |$)/s, `$1${details}$2`);
             }
 
-            let readme = fs.readFileSync('README.md', 'utf8');
-
-            for (const section of ['require', 'suggest']) {
+            for (const section in sections) {
               const packages = composer[section] ?? {};
               const content = await buildList(packages);
 
@@ -90,7 +92,7 @@ jobs:
                 const pattern = new RegExp(`(<details id="${section}">.*?<\\/summary>).*?(<\\/details>)`, 's');
                 readme = readme.replace(pattern, `$1${content}$2`);
               } else {
-                const pattern = new RegExp(`\\n<details id="${section}">.*?<\\/details>\\n`, 's');
+                const pattern = new RegExp(`<details id="${section}">.*?<\\/details>\\n{0,2}`, 's');
                 readme = readme.replace(pattern, '');
               }
             }
