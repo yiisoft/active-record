@@ -11,6 +11,6 @@ permissions:
 
 jobs:
   update-readme:
-    uses: yiisoft/actions/.github/workflows/update-readme-packages.yml@update-readme-packages
+    uses: yiisoft/actions/.github/workflows/update-readme-packages.yml@master
     secrets:
       TOKEN: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
