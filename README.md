@@ -30,24 +30,6 @@ Supported databases:
 
 - PHP 8.1 - 8.5.
 
-## Installation
-
-The package could be installed with [Composer](https://getcomposer.org):
-
-```shell
-composer require yiisoft/active-record
-```
-
-> [!IMPORTANT]
-> See also [installation notes](https://github.com/yiisoft/db/?tab=readme-ov-file#documentation) for `yiisoft/db`
-> package.
-
-After installing `yiisoft/active-record`, you also need to configure a database connection:
-
-1. Configure the connection, follow [Yii Database](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md)
-guide.
-2.  [Define the Database Connection for Active Record](docs/define-connection.md)
-
 <details id="require">
 <summary>Package dependencies installed automatically.</summary>
 
@@ -66,6 +48,24 @@ guide.
 - [yiisoft/factory](https://github.com/yiisoft/factory): `For factory support` — Object factory that is able to resolve dependencies from PSR-11 container
 - [yiisoft/event-dispatcher](https://github.com/yiisoft/event-dispatcher): `For events support` — PSR-14 event dispatcher
 </details>
+
+## Installation
+
+The package could be installed with [Composer](https://getcomposer.org):
+
+```shell
+composer require yiisoft/active-record
+```
+
+> [!IMPORTANT]
+> See also [installation notes](https://github.com/yiisoft/db/?tab=readme-ov-file#documentation) for `yiisoft/db`
+> package.
+
+After installing `yiisoft/active-record`, you also need to configure a database connection:
+
+1. Configure the connection, follow [Yii Database](https://github.com/yiisoft/db/blob/master/docs/guide/en/README.md)
+guide.
+2.  [Define the Database Connection for Active Record](docs/define-connection.md)
 
 ## General usage
 
