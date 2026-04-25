@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
 use ReflectionException;
 use Throwable;
 use Yiisoft\Db\Exception\Exception;
@@ -198,7 +197,7 @@ interface ActiveQueryInterface extends QueryInterface
      * // Find all orders, eagerly load "books", and sort the orders and books by the book names.
      * $orderQuery = Order::query();
      * $orderQuery->joinWith([
-     *     'books' => function (ActiveQuery $query) {
+     *     'books' => function (ActiveQueryInterface $query) {
      *         $query->orderBy('item.name');
      *     }
      * ])->all();
@@ -216,7 +215,7 @@ interface ActiveQueryInterface extends QueryInterface
      * applies to all relations specified in `$with`. Use an array in the format of `relationName => joinType` to
      * specify different join types for different relations.
      *
-     * @psalm-param array<string|Closure>|string $with
+     * @psalm-param array<string|callable(ActiveQueryInterface):void>|string $with
      * @psalm-param array<string,string>|string $joinType
      */
     public function joinWith(
@@ -241,7 +240,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @see ActiveQueryInterface::joinWith()
      *
-     * @psalm-param array<string|Closure>|string $with
+     * @psalm-param array<string|callable(ActiveQueryInterface):void>|string $with
      */
     public function innerJoinWith(array|string $with, array|bool $eagerLoading = true): static;
 
