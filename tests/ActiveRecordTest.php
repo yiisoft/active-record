@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
+use DateTimeImmutable;
 use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
@@ -1979,6 +1980,19 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($newOrder->getDeletedAt());
         $this->assertSame(1, $newOrder->delete());
         $this->assertNotNull($newOrder->getDeletedAt());
+    }
+
+    public function testSoftDeleteWithCustomDate(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $deletedAt = new DateTimeImmutable('2026-04-28 12:58:13');
+        $order->set('deleted_at', $deletedAt);
+        $order->delete();
+
+        $softDeletedOrder = Order::query()->setWhere(['id' => 1])->one();
+        $this->assertSame($deletedAt->getTimestamp(), $softDeletedOrder->get('deleted_at'));
     }
 
     abstract protected function createFactory(): Factory;
