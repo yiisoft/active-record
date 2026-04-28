@@ -2,7 +2,7 @@
 
 ## 1.0.3 under development
 
-- no changes in this release.
+- Bug #558: Fix `SoftDelete` with initiated custom date (@Tigrov)
 
 ## 1.0.2 March 11, 2026
 
