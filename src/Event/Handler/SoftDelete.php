@@ -59,14 +59,15 @@ final class SoftDelete extends AttributeHandlerProvider
     {
         $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
+        $propertyNames = $this->getPropertyNames();
 
-        foreach ($this->getPropertyNames() as $propertyName) {
+        foreach ($propertyNames as $propertyName) {
             if ($model->hasProperty($propertyName) && $model->get($propertyName) === null) {
                 $model->set($propertyName, $value);
             }
         }
 
-        $event->returnValue($model->update($this->getPropertyNames()));
+        $event->returnValue($model->update($propertyNames));
         $event->preventDefault();
     }
 }
