@@ -170,7 +170,7 @@ abstract class EventsTraitTest extends TestCase
         $this->assertSame('Custom Return Save', $model->name);
     }
 
-    public function testDeleteWithEventPrevention(): void
+    public function testDeleteReturnsZeroAndSkipsDeletionWhenBeforeDeletePreventsDefault(): void
     {
         EventDispatcherProvider::set(
             CategoryEventsModel::class,
