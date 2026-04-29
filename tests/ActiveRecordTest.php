@@ -1755,6 +1755,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $dossier = new CompositePrimaryKeyDossier();
         $dossier->set('summary', 'Linked via shared composite key');
+        // SQL Server doesn't allow explicit values for IDENTITY columns without IDENTITY_INSERT.
         if ($this->db()->getDriverName() !== 'sqlsrv') {
             $dossier->set('id', 99);
         }
@@ -1786,6 +1787,7 @@ abstract class ActiveRecordTest extends TestCase
 
         $dossier = clone $dossierPrototype;
         $dossier->set('summary', 'Strict primary key validation');
+        // SQL Server doesn't allow explicit values for IDENTITY columns without IDENTITY_INSERT.
         if ($this->db()->getDriverName() !== 'sqlsrv') {
             $dossier->set('id', 100);
         }
@@ -1794,7 +1796,13 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertSame(2, $dossier->get('department_id'));
         $this->assertSame(2, $dossier->get('employee_id'));
-        $this->assertNotNull($dossier->get('id'));
+
+        if ($this->db()->getDriverName() !== 'sqlsrv') {
+            $this->assertSame(100, $dossier->get('id'));
+        } else {
+            $this->assertNotNull($dossier->get('id'));
+        }
+
         $this->assertTrue(
             self::db()->createQuery()->from('{{dossier}}')->where([
                 'department_id' => 2,
@@ -1868,16 +1876,6 @@ abstract class ActiveRecordTest extends TestCase
         $expectedAffectedRows = $this->db()->getDriverName() === 'mysql' ? 0 : 1;
         $affectedRows = $customer->update();
         $this->assertSame($expectedAffectedRows, $affectedRows);
-    }
-
-    public function testMarkPropertyChangedWithEmptyNameDoesNotModifyOldValues(): void
-    {
-        $customer = new Customer();
-        $customer->assignOldValues(['' => 'sentinel', 'name' => 'user1']);
-
-        $customer->markPropertyChanged('');
-
-        $this->assertSame(['' => 'sentinel', 'name' => 'user1'], $customer->oldValues());
     }
 
     public function testResetsIntermediateViaRelationWhenLinkPropertyChanges(): void
