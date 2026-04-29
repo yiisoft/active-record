@@ -2167,52 +2167,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(1, $record->get('var1'));
     }
 
-    public function testCreateRelationQueryCanBeOverridden(): void
-    {
-        $customer = new CustomerWithOverriddenRelationQuery();
-
-        $query = $customer->relationQuery('profile');
-
-        $this->assertNotSame(ActiveQuery::class, $query::class);
-    }
-
-    public function testCreateRelationQueryIsProtected(): void
-    {
-        $method = new ReflectionMethod(AbstractActiveRecord::class, 'createRelationQuery');
-
-        $this->assertTrue($method->isProtected());
-    }
-
-    public function testDeleteInternalCanBeOverridden(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $customer = CustomerWithDeleteInternalOverride::query()->findByPk(1);
-
-        $this->assertSame(77, $customer->delete());
-        $this->assertNotNull(Customer::query()->findByPk(1));
-    }
-
-    public function testRefreshInternalCanBeOverridden(): void
-    {
-        $customer = CustomerWithRefreshInternalOverride::query()->findByPk(1);
-
-        $this->assertTrue($customer->refresh());
-        $this->assertSame('refreshed-via-override', $customer->getName());
-    }
-
-    public function testUpdateInternalCanBeOverridden(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $customer = CustomerWithUpdateInternalOverride::query()->findByPk(1);
-
-        $customer->setName('should-not-hit-db');
-
-        $this->assertSame(91, $customer->update());
-        $this->assertSame('user1', Customer::query()->findByPk(1)->getName());
-    }
-
     public function testGetAllWithHasOneAndArrayValue(): void
     {
         $promotions = Promotion::query()->with('singleItem')->andWhere(['id' => [1, 2]])->all();

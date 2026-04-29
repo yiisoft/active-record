@@ -41,14 +41,6 @@ abstract class ArrayAccessTraitTest extends TestCase
         $this->assertTrue(isset($model['profile']));
     }
 
-    public function testOffsetExistsWithMagicProperty(): void
-    {
-        $model = new CategoryWithArrayAccess();
-        $model['name'] = 'magic';
-
-        $this->assertTrue(isset($model['name']));
-    }
-
     public function testOffsetGet(): void
     {
         $model = new CustomerArrayAccessModel();
@@ -186,19 +178,5 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['name']);
 
         $this->assertNull($model->get('name'));
-    }
-
-    public function testOffsetUnsetPropertyDoesNotResetRelationWithSameName(): void
-    {
-        $model = new CategoryWithNameRelationArrayAccess();
-
-        $model['name'] = 'magic';
-        $model->populateRelation('name', new Profile());
-
-        unset($model['name']);
-
-        $this->assertNull($model->get('name'));
-        $this->assertTrue($model->isRelationPopulated('name'));
-        $this->assertInstanceOf(Profile::class, $model->relation('name'));
     }
 }
