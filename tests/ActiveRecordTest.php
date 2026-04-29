@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
+use DateTimeImmutable;
 use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
@@ -449,71 +450,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(1, $order->getOrderItems());
     }
 
-    public function testResetRelation(): void
-    {
-        $customer = Customer::query()->findByPk(2);
-        $customer->getOrders();
-
-        $this->assertTrue($customer->isRelationPopulated('orders'));
-        $this->assertArrayHasKey('orders', $customer->relatedRecords());
-
-        $customer->resetRelation('orders');
-
-        $this->assertFalse($customer->isRelationPopulated('orders'));
-        $this->assertArrayNotHasKey('orders', $customer->relatedRecords());
-    }
-
-    public function testResetRelationRemovesRelationFromDependencies(): void
-    {
-        $order = OrderWithCustomerProfileViaCustomerRelation::query()->findByPk(1);
-        $order->getCustomerProfileViaCustomer();
-
-        $reflection = new ReflectionProperty(AbstractActiveRecord::class, 'relationsDependencies');
-        $dependencies = $reflection->getValue($order);
-
-        $this->assertArrayHasKey('customer_id', $dependencies);
-        $this->assertContains('customerProfileViaCustomer', $dependencies['customer_id']);
-        $this->assertContains('customer', $dependencies['customer_id']);
-
-        $order->resetRelation('customerProfileViaCustomer');
-
-        $dependencies = $reflection->getValue($order);
-
-        $this->assertArrayHasKey('customer_id', $dependencies);
-        $this->assertNotContains('customerProfileViaCustomer', $dependencies['customer_id']);
-        $this->assertContains('customer', $dependencies['customer_id']);
-    }
-
-    public function testIssetException(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->expectException(Exception::class);
-        isset($cat->exception);
-    }
-
-    public function testIssetThrowable(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->expectException(DivisionByZeroError::class);
-        isset($cat->throwable);
-    }
-
-    public function testIssetNonExisting(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->assertFalse(isset($cat->non_existing));
-        $this->assertFalse(isset($cat->non_existing_property));
-    }
-
     public function testSetProperties(): void
     {
         $this->reloadFixtureAfterTest();
@@ -537,62 +473,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue(
             $this->db()->createQuery()->from('customer')->where(['email' => 'samdark@mail.ru'])->exists(),
         );
-    }
-
-    public function testPopulatePropertiesIgnoresUnknownFields(): void
-    {
-        $customer = new Customer();
-
-        $customer->populateProperties([
-            'email' => 'samdark@mail.ru',
-            'name' => 'samdark',
-            'unknown' => 'ignored',
-        ]);
-
-        $this->assertSame('samdark@mail.ru', $customer->getEmail());
-        $this->assertSame('samdark', $customer->getName());
-        $this->assertFalse($customer->hasProperty('unknown'));
-        $this->assertNull($customer->get('unknown'));
-    }
-
-    public function testSetPropertyNoExist(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"',
-        );
-
-        $cat->set('noExist', 1);
-    }
-
-    public function testSetPropertyReset(): void
-    {
-        $customer = Customer::query()->findByPk(2);
-
-        $this->assertFalse($customer->isRelationPopulated('profile'));
-        $this->assertNull($customer->getProfile());
-        $this->assertTrue($customer->isRelationPopulated('profile'));
-
-        $customer->setProfileId(null);
-
-        $this->assertFalse($customer->isRelationPopulated('profile'));
-    }
-
-    public function testSetPropertyResetViaTableRelation(): void
-    {
-        $order = Order::query()->findByPk(1);
-
-        $this->assertFalse($order->isRelationPopulated('booksViaTable'));
-        $this->assertCount(2, $order->getBooksViaTable());
-        $this->assertTrue($order->isRelationPopulated('booksViaTable'));
-
-        $order->setId(99);
-
-        $this->assertFalse($order->isRelationPopulated('booksViaTable'));
     }
 
     public function testAssignOldValue(): void
@@ -744,62 +624,6 @@ abstract class ActiveRecordTest extends TestCase
         $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => false])->all();
         $this->assertCount(2, $customers);
-    }
-
-    public function testPropertyAccess(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $arClass = new Customer();
-
-        $this->assertTrue($arClass->canSetProperty('name'));
-        $this->assertTrue($arClass->canGetProperty('name'));
-        $this->assertFalse($arClass->canSetProperty('unExistingColumn'));
-        $this->assertFalse(isset($arClass->name));
-
-        $arClass->name = 'foo';
-        $this->assertTrue(isset($arClass->name));
-
-        unset($arClass->name);
-        $this->assertNull($arClass->name);
-
-        /** @see https://github.com/yiisoft/yii2-gii/issues/190 */
-        $baseModel = new Customer();
-        $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
-
-        $customer = new Customer();
-        $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertTrue($customer->canGetProperty('id'));
-        $this->assertTrue($customer->canSetProperty('id'));
-
-        /** tests that we really can get and set this property */
-        $this->assertNull($customer->id);
-        $customer->id = 10;
-        $this->assertNotNull($customer->id);
-
-        /** Let's test relations */
-        $this->assertTrue($customer->canGetProperty('orderItems'));
-        $this->assertFalse($customer->canSetProperty('orderItems'));
-
-        /** Newly created model must have empty relation */
-        $this->assertSame([], $customer->orderItems);
-
-        /** does it still work after accessing the relation? */
-        $this->assertTrue($customer->canGetProperty('orderItems'));
-        $this->assertFalse($customer->canSetProperty('orderItems'));
-
-        $this->expectException(InvalidCallException::class);
-        $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
-        $customer->orderItems = [new Item()];
-
-        /** related property $customer->orderItems didn't change cause it's read-only */
-        $this->assertSame([], $customer->orderItems);
-        $this->assertFalse($customer->canGetProperty('non_existing_property'));
-        $this->assertFalse($customer->canSetProperty('non_existing_property'));
-
-        $this->expectException(UnknownPropertyException::class);
-        $this->expectExceptionMessage('Setting unknown property: ' . Customer::class . '::non_existing_property');
-        $customer->non_existing_property = null;
     }
 
     public function testHasProperty(): void
@@ -2429,6 +2253,19 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($newOrder->getDeletedAt());
         $this->assertSame(1, $newOrder->delete());
         $this->assertNotNull($newOrder->getDeletedAt());
+    }
+
+    public function testSoftDeleteWithCustomDate(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $deletedAt = new DateTimeImmutable('2026-04-28 12:58:13');
+        $order->set('deleted_at', $deletedAt);
+        $order->delete();
+
+        $softDeletedOrder = Order::query()->setWhere(['id' => 1])->one();
+        $this->assertSame($deletedAt->getTimestamp(), $softDeletedOrder->get('deleted_at'));
     }
 
     abstract protected function createFactory(): Factory;

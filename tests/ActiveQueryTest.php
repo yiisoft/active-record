@@ -2710,34 +2710,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame('Harry', $customer->oldValue('name'));
     }
 
-    public function testCheckRelationUnknownPropertyException(): void
-    {
-        self::markTestSkipped('There is no check for access to an unknown property.');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(1);
-
-        $this->expectException(UnknownPropertyException::class);
-        $this->expectExceptionMessage('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::noExist');
-        $query->noExist;
-    }
-
-    public function testCheckRelationInvalidCallException(): void
-    {
-        self::markTestSkipped('There is no check for access to an unknown property.');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(2);
-
-        $this->expectException(InvalidCallException::class);
-        $this->expectExceptionMessage(
-            'Getting write-only property: Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::ordersReadOnly',
-        );
-        $query->ordersReadOnly;
-    }
-
     public function testGetRelationInvalidArgumentException(): void
     {
         $customer = Customer::query();
@@ -2750,38 +2722,6 @@ abstract class ActiveQueryTest extends TestCase
             'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "items".',
         );
         $query->relationQuery('items');
-    }
-
-    public function testGetRelationInvalidArgumentExceptionHasNoRelationNamed(): void
-    {
-        self::markTestSkipped('The same as test testGetRelationInvalidArgumentException()');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(1);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Relation query method "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::getItemQuery()" should'
-            . ' return type "Yiisoft\ActiveRecord\ActiveQueryInterface", but  returns "void" type.',
-        );
-        $query->relationQuery('item');
-    }
-
-    public function testGetRelationInvalidArgumentExceptionCaseSensitive(): void
-    {
-        self::markTestSkipped('The same as test testGetRelationInvalidArgumentException()');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(1);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Relation names are case sensitive. Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer '
-            . 'has a relation named "expensiveOrders" instead of "expensiveorders"',
-        );
-        $query->relationQuery('expensiveorders');
     }
 
     public function testExists(): void

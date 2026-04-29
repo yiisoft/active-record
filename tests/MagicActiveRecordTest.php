@@ -516,9 +516,12 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertTrue($customer->canGetProperty('orderItems'));
         $this->assertFalse($customer->canSetProperty('orderItems'));
 
-        $this->expectException(InvalidCallException::class);
-        $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
-        $customer->orderItems = [new Item()];
+        try {
+            $customer->orderItems = [new Item()];
+            $this->fail('Setting read-only property should throw an exception.');
+        } catch (InvalidCallException $e) {
+            $this->assertSame('Setting read-only property: ' . Customer::class . '::orderItems', $e->getMessage());
+        }
 
         /** related property $customer->orderItems didn't change cause it's read-only */
         $this->assertSame([], $customer->orderItems);
