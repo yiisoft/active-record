@@ -52,21 +52,13 @@ abstract class ArrayAccessTraitTest extends TestCase
     public function testOffsetGet(): void
     {
         $model = new CustomerArrayAccessModel();
-        $model->name = 'test name';
-        $model->customProperty = 'custom value';
-
-        $this->assertSame('test name', $model['name']);
-        $this->assertNull($model['email']);
-        $this->assertSame('custom value', $model['customProperty']);
-    }
-
-    public function testOffsetGetReturnsPropertyValue(): void
-    {
-        $model = new CustomerArrayAccessModel();
         $model->name = 'property value';
+        $model->customProperty = 'custom value';
 
         $this->assertSame('property value', $model['name']);
         $this->assertFalse($model->isRelationPopulated('name'));
+        $this->assertNull($model['email']);
+        $this->assertSame('custom value', $model['customProperty']);
     }
 
     public function testOffsetGetWithRelation(): void
@@ -163,8 +155,6 @@ abstract class ArrayAccessTraitTest extends TestCase
 
     public function testOffsetUnsetWithPropertyResetsDependentRelation(): void
     {
-        $this->reloadFixtureAfterTest();
-
         $model = CustomerArrayAccessModel::query()->findByPk(1);
 
         $this->assertInstanceOf(Profile::class, $model['profile']);
