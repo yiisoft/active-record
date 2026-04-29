@@ -10,7 +10,6 @@ use DivisionByZeroError;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Alpha;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat;
@@ -234,19 +233,6 @@ abstract class MagicActiveRecordTest extends TestCase
 
         $animals = $animal->setWhere(['type' => Cat::class])->one();
         $this->assertEquals('meow', $animals->getDoes());
-    }
-
-    public function testSaveNewRecordDoesNotExecuteUpdate(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $record = new SetValueOnUpdateAr();
-        $record->id = 99;
-        $record->name = 'Test';
-
-        $record->save();
-
-        $this->assertSame('Test', $record->name);
     }
 
     public function testSaveEmpty(): void

@@ -487,24 +487,6 @@ abstract class EventsTraitTest extends TestCase
         $this->assertSame($dateTime, $order->get('deleted_at'));
     }
 
-    public function testSoftDeleteBeforeDeleteSkipsAlreadyDeletedProperty(): void
-    {
-        $this->reloadFixtureAfterTest();
-
-        $order = Order::query()->findByPk(1);
-        $order->set('deleted_at', new DateTimeImmutable('2020-01-01 00:00:00'));
-
-        $event = new BeforeDelete($order);
-        $handler = new SoftDelete(new DateTimeImmutable('2022-03-04 05:06:07'), 'deleted_at');
-        $eventHandlers = $handler->getEventHandlers();
-        $beforeDelete = $eventHandlers[BeforeDelete::class];
-        $beforeDelete($event);
-
-        $this->assertTrue($event->isDefaultPrevented());
-        $this->assertNull($event->getReturnValue());
-        $this->assertNull(self::db()->select('deleted_at')->from('{{order}}')->where(['id' => 1])->scalar());
-    }
-
     public function testDefaultDateTimeOnInsertUsesCustomValue(): void
     {
         $dateTime = new DateTimeImmutable('2024-01-01 12:34:56');

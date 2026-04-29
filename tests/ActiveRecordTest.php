@@ -1591,6 +1591,19 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame('Updated', $record->name);
     }
 
+    public function testSetValueOnUpdateSaveNewRecordDoesNotExecuteUpdate(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 99;
+        $record->name = 'Test';
+
+        $record->save();
+
+        $this->assertSame('Test', $record->name);
+    }
+
     public function testSetValueOnUpdateUpsert(): void
     {
         $this->reloadFixtureAfterTest();

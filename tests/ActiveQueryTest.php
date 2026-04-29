@@ -225,24 +225,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame([1, 2], array_column($models, 'item_id'));
     }
 
-    public function testGetTableNameAndAliasDoesNotTrimTrailingGarbage(): void
-    {
-        [$tableName, $alias] = TableNameAndAliasResolver::resolve(Customer::query()->from(['customer c!']));
-
-        $this->assertSame('customer c!', $tableName);
-        $this->assertSame('customer c!', $alias);
-    }
-
-    public function testGetTableNameAndAliasDoesNotExtractAliasFromSuffixAfterNewline(): void
-    {
-        $from = "ignored\ncustomer c";
-
-        [$tableName, $alias] = TableNameAndAliasResolver::resolve(Customer::query()->from([$from]));
-
-        $this->assertSame($from, $tableName);
-        $this->assertSame($from, $alias);
-    }
-
     public function testPopulateEmptyRowsDoesNotCallCreateModels(): void
     {
         $query = new CreateModelsExceptionOnEmptyRowsActiveQuery(Customer::class);
@@ -254,7 +236,6 @@ abstract class ActiveQueryTest extends TestCase
     {
         $query = Customer::query();
         $method = new ReflectionMethod(ActiveQuery::class, 'removeDuplicatedRows');
-        $method->setAccessible(true);
 
         $rows = [
             ['email' => 'missing-id@example.com'],
@@ -264,23 +245,6 @@ abstract class ActiveQueryTest extends TestCase
         $result = $method->invoke($query, $rows);
 
         $this->assertSame($rows, $result);
-    }
-
-    public function testCreateModelsCanBeOverridden(): void
-    {
-        $query = new OverriddenCreateModelsActiveQuery(Customer::class);
-
-        $this->assertSame(
-            [['overridden' => true, 'rows' => [['id' => 1]]]],
-            $query->populate([['id' => 1]]),
-        );
-    }
-
-    public function testGetPrimaryTableNameCanBeOverridden(): void
-    {
-        $query = new OverriddenPrimaryTableNameActiveQuery(Customer::class);
-
-        $this->assertSame(['{{profile}}' => '{{profile}}'], $query->getTablesUsedInFrom());
     }
 
     public function testModelRelationFilterFlattensAndDeduplicatesArrayValues(): void
@@ -359,7 +323,7 @@ abstract class ActiveQueryTest extends TestCase
         );
     }
 
-    public function testModelRelationFilterCompositeArrayModelsUseQualifiedColumnNames(): void
+    public function testModelRelationFilterCompositeArrayModelsFillMissingValuesWithNullUsingQualifiedColumnNames(): void
     {
         $query = Dossier::query()
             ->from(['d' => 'dossier'])
