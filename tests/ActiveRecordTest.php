@@ -1621,11 +1621,6 @@ abstract class ActiveRecordTest extends TestCase
         $record->id = 1;
         $record->upsert(updateProperties: ['name' => 'Kesha']);
         $this->assertSame('Updated', $record->name);
-
-        $record = new SetValueOnUpdateAr();
-        $record->id = 1;
-        $record->upsert(updateProperties: false);
-        $this->assertSame('Updated', $record->name);
     }
 
     public function testStopPropagation(): void

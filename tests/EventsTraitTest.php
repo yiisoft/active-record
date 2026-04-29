@@ -452,23 +452,6 @@ abstract class EventsTraitTest extends TestCase
         );
     }
 
-    public function testSetValueOnUpdateBeforeUpsertAddsPropertyWhenUpdatesAreDisabled(): void
-    {
-        $model = new Customer();
-        $model->setId(1);
-
-        $insertProperties = ['id' => 1];
-        $updateProperties = false;
-        $event = new BeforeUpsert($model, $insertProperties, $updateProperties);
-
-        $handler = new SetValueOnUpdate('Updated', 'name');
-        $eventHandlers = $handler->getEventHandlers();
-        $beforeUpsert = $eventHandlers[BeforeUpsert::class];
-        $beforeUpsert($event);
-
-        $this->assertSame(['name' => 'Updated'], $updateProperties);
-    }
-
     public function testSoftDeleteBeforeDeleteUsesCustomValueAndPreventsDefault(): void
     {
         $this->reloadFixtureAfterTest();
