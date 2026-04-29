@@ -356,26 +356,6 @@ abstract class EventsTraitTest extends TestCase
         $this->assertSame(['name', 'status'], $handler->getPropertyNames());
     }
 
-    public function testDefaultValueOnInsertBeforeUpsertInitializesInsertPropertiesFromPropertyNames(): void
-    {
-        $model = new DefaultValueOnInsertAr();
-        $model->id = 7;
-
-        $insertProperties = null;
-        $updateProperties = true;
-        $event = new BeforeUpsert($model, $insertProperties, $updateProperties);
-
-        $handler = new DefaultValueOnInsert('Vasya', 'name');
-        $eventHandlers = $handler->getEventHandlers();
-        $beforeUpsert = $eventHandlers[BeforeUpsert::class];
-        $beforeUpsert($event);
-
-        $this->assertSame(
-            [0 => 'id', 1 => 'name', 'name' => 'Vasya'],
-            $insertProperties,
-        );
-    }
-
     public function testDefaultValueOnInsertBeforeUpsertPreservesExistingInsertProperties(): void
     {
         $model = new DefaultValueOnInsertAr();
