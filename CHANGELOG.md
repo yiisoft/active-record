@@ -3,6 +3,8 @@
 ## 1.0.3 under development
 
 - Bug #558: Fix `SoftDelete` with initiated custom date (@Tigrov)
+- Enh #564: Clarify `$relations` parameter type in `JoinWith::__construct()` from `array<string|Closure>` to
+  `array<string|callable(ActiveQueryInterface):void>` (@vjik)
 
 ## 1.0.2 March 11, 2026
 
