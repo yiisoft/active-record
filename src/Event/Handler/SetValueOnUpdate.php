@@ -49,19 +49,21 @@ class SetValueOnUpdate extends AttributeHandlerProvider
 
     private function beforeUpsert(BeforeUpsert $event): void
     {
+        if ($event->updateProperties === false) {
+            return;
+        }
+
         $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
 
         foreach ($this->getPropertyNames() as $propertyName) {
             if ($model->hasProperty($propertyName)) {
-                $updateProperties ??= match ($event->updateProperties) {
-                    true => array_diff_key(
+                $updateProperties ??= $event->updateProperties === true
+                    ? array_diff_key(
                         $event->insertProperties ?? $model->newValues(),
                         array_fill_keys($model->primaryKey(), null),
-                    ),
-                    false => [],
-                    default => $event->updateProperties,
-                };
+                    )
+                    : $event->updateProperties;
 
                 $updateProperties[$propertyName] = $value;
             }
