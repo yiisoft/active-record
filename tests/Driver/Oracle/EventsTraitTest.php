@@ -13,4 +13,9 @@ final class EventsTraitTest extends \Yiisoft\ActiveRecord\Tests\EventsTraitTest
     {
         return (new OracleHelper())->createConnection();
     }
+
+    public function testSetValueOnUpdateOnUpsertWithUpdatePropertiesFalse(): void
+    {
+        $this->markTestSkipped('Yiisoft\Db\Oracle\DMLQueryBuilder::upsertReturning() is not supported by Oracle.');
+    }
 }

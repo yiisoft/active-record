@@ -253,7 +253,7 @@ abstract class EventsTraitTest extends TestCase
         $this->assertSame('Custom Return Upsert', $model->name);
     }
 
-    public function testSetValueOnUpdateBeforeUpsertAddsPropertyWhenUpdatesAreDisabled(): void
+    public function testSetValueOnUpdateOnUpsertWithUpdatePropertiesFalse(): void
     {
         $model = new SetValueOnUpdateAr();
         $model->id = 1;
