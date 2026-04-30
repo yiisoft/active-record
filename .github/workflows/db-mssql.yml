@@ -80,7 +80,6 @@ jobs:
       - name: Install required yiisoft/db and yiisoft/db-mssql
         uses: yiisoft/actions/install-packages@master
         with:
-          composer-root-version: 2.0.0
           packages: >-
             ['db', 'db-mssql']
 
