@@ -8,7 +8,6 @@ use InvalidArgumentException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerArrayAccessModel;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
-use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CategoryWithNameRelationArrayAccess;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CategoryWithArrayAccess;
 
 abstract class ArrayAccessTraitTest extends TestCase
