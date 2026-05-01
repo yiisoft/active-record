@@ -51,6 +51,7 @@ CREATE TABLE [dbo].[customer] (
     [address] [text],
     [status] [int] DEFAULT 0,
     [bool_status] [bit] DEFAULT 0,
+    [registered_at] DATETIME2(6) DEFAULT NULL,
     [profile_id] [int],
     CONSTRAINT [PK_customer] PRIMARY KEY CLUSTERED (
         [id] ASC
@@ -243,9 +244,9 @@ INSERT INTO [dbo].[animal] (type) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\Acti
 INSERT INTO [dbo].[profile] ([description]) VALUES ('profile customer 1');
 INSERT INTO [dbo].[profile] ([description]) VALUES ('profile customer 3');
 
-INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status], [profile_id]) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
-INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status]) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
-INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status], [profile_id]) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
+INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status], [registered_at], [profile_id]) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, '2011-01-01 01:01:01.111111+00:00', 1);
+INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status], [registered_at]) VALUES ('user2@example.com', 'user2', 'address2', 1, 1, '2022-02-02 02:02:02.222222+00:00');
+INSERT INTO [dbo].[customer] ([email], [name], [address], [status], [bool_status], [registered_at], [profile_id]) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, '2023-03-03 03:03:03.333333+00:00', 2);
 
 INSERT INTO [dbo].[category] ([name]) VALUES ('Books');
 INSERT INTO [dbo].[category] ([name]) VALUES ('Movies');

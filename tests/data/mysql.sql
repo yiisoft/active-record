@@ -62,6 +62,7 @@ CREATE TABLE `customer` (
   `address` text,
   `status` int (11) DEFAULT 0,
   `bool_status` bit(1) DEFAULT 0,
+  `registered_at` DATETIME(6) DEFAULT NULL,
   `profile_id` int(11),
   PRIMARY KEY (`id`),
   CONSTRAINT `FK_customer_profile_id` FOREIGN KEY (`profile_id`) REFERENCES `profile` (`id`)
@@ -269,9 +270,9 @@ INSERT INTO `animal` (`type`) VALUES ('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRe
 INSERT INTO `profile` (description) VALUES ('profile customer 1');
 INSERT INTO `profile` (description) VALUES ('profile customer 3');
 
-INSERT INTO `customer` (email, name, address, status, bool_status, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, 1);
-INSERT INTO `customer` (email, name, address, status, bool_status) VALUES ('user2@example.com', 'user2', 'address2', 1, 1);
-INSERT INTO `customer` (email, name, address, status, bool_status, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, 2);
+INSERT INTO `customer` (email, name, address, status, bool_status, registered_at, profile_id) VALUES ('user1@example.com', 'user1', 'address1', 1, 1, '2011-01-01 01:01:01.111111+00:00', 1);
+INSERT INTO `customer` (email, name, address, status, bool_status, registered_at) VALUES ('user2@example.com', 'user2', 'address2', 1, 1, '2022-02-02 02:02:02.222222+00:00');
+INSERT INTO `customer` (email, name, address, status, bool_status, registered_at, profile_id) VALUES ('user3@example.com', 'user3', 'address3', 2, 0, '2023-03-03 03:03:03.333333+00:00', 2);
 
 INSERT INTO `category` (name) VALUES ('Books');
 INSERT INTO `category` (name) VALUES ('Movies');
