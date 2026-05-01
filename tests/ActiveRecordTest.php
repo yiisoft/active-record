@@ -6,7 +6,6 @@ namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
 use DateTimeImmutable;
-use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -45,9 +44,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserProfile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UuidPromotion;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
-use Yiisoft\ActiveRecord\UnknownPropertyException;
 use Yiisoft\Db\Connection\ConnectionProvider;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
