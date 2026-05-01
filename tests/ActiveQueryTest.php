@@ -19,8 +19,6 @@ use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\CreateModelsExceptionOnEmptyRowsActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\MissingLinkValuesActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\OverriddenCreateModelsActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\OverriddenPrimaryTableNameActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\SingleModelArrayActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CompositePrimaryKeyDossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
