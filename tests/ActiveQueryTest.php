@@ -26,6 +26,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithSoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
@@ -348,7 +349,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testJoinWithRelationChildParams(): void
     {
-        $query = Order::query()->joinWith(
+        $query = OrderWithSoftDelete::query()->joinWith(
             [
                 'customer' => static function (ActiveQueryInterface $q) {
                     $q->where('{{customer}}.{{id}} = :customer_id', [':customer_id' => 1]);
@@ -2582,7 +2583,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetJoinTypeWithNestedRelations(): void
     {
-        $sql = Order::query()
+        $sql = OrderWithSoftDelete::query()
             ->joinWith(
                 ['customer.profile'],
                 joinType: ['customer.profile' => 'LEFT JOIN'],
