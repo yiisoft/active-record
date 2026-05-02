@@ -10,12 +10,6 @@ use Yiisoft\ActiveRecord\ActiveRecord;
 
 class Item extends ActiveRecord
 {
-    public Category $category {
-        get => $this->relation('category');
-        set {
-            $this->populateRelation('category', $value);
-        }
-    }
     protected int $id;
     protected string $name;
     protected int $category_id;

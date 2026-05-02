@@ -28,6 +28,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ItemWithProperyHooks;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
@@ -1901,7 +1902,7 @@ abstract class ActiveRecordTest extends TestCase
             $this->markTestSkipped('Property hooks are not supported in PHP < 8.4');
         }
 
-        $item = Item::query()->findByPk(1);
+        $item = ItemWithProperyHooks::query()->findByPk(1);
         $itemCategory = $item->category;
 
         $this->assertInstanceOf(Category::class, $itemCategory);
