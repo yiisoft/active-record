@@ -8,7 +8,6 @@ use Attribute;
 use DateTimeImmutable;
 use Yiisoft\ActiveRecord\Event\AfterCreateQuery;
 use Yiisoft\ActiveRecord\Event\BeforeDelete;
-use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
 use Yiisoft\Db\QueryBuilder\Condition\Equals;
 
 use function is_callable;
@@ -47,11 +46,11 @@ final class SoftDelete extends AttributeHandlerProvider
     private function afterCreateQuery(AfterCreateQuery $event): void
     {
         $model = $event->model;
-        [, $alias] = TableNameAndAliasResolver::resolve($event->query);
+        $tableName = $model->tableName();
 
         foreach ($this->getPropertyNames() as $propertyName) {
             if ($model->hasProperty($propertyName)) {
-                $event->query->andWhere(new Equals("$alias.$propertyName", null));
+                $event->query->andWhere(new Equals("$tableName.$propertyName", null));
             }
         }
     }
