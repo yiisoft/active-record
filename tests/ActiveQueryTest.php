@@ -26,10 +26,10 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithSoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
-use Yiisoft\ActiveRecord\UnknownPropertyException;
 use Yiisoft\Db\Command\AbstractCommand;
 use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
@@ -349,7 +349,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testJoinWithRelationChildParams(): void
     {
-        $query = Order::query()->joinWith(
+        $query = OrderWithSoftDelete::query()->joinWith(
             [
                 'customer' => static function (ActiveQueryInterface $q) {
                     $q->where('{{customer}}.{{id}} = :customer_id', [':customer_id' => 1]);
@@ -2210,34 +2210,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertSame('Harry', $customer->oldValue('name'));
     }
 
-    public function testCheckRelationUnknownPropertyException(): void
-    {
-        self::markTestSkipped('There is no check for access to an unknown property.');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(1);
-
-        $this->expectException(UnknownPropertyException::class);
-        $this->expectExceptionMessage('Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::noExist');
-        $query->noExist;
-    }
-
-    public function testCheckRelationInvalidCallException(): void
-    {
-        self::markTestSkipped('There is no check for access to an unknown property.');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(2);
-
-        $this->expectException(InvalidCallException::class);
-        $this->expectExceptionMessage(
-            'Getting write-only property: Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::ordersReadOnly',
-        );
-        $query->ordersReadOnly;
-    }
-
     public function testGetRelationInvalidArgumentException(): void
     {
         $customer = Customer::query();
@@ -2250,38 +2222,6 @@ abstract class ActiveQueryTest extends TestCase
             'Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer has no relation named "items".',
         );
         $query->relationQuery('items');
-    }
-
-    public function testGetRelationInvalidArgumentExceptionHasNoRelationNamed(): void
-    {
-        self::markTestSkipped('The same as test testGetRelationInvalidArgumentException()');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(1);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Relation query method "Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer::getItemQuery()" should'
-            . ' return type "Yiisoft\ActiveRecord\ActiveQueryInterface", but  returns "void" type.',
-        );
-        $query->relationQuery('item');
-    }
-
-    public function testGetRelationInvalidArgumentExceptionCaseSensitive(): void
-    {
-        self::markTestSkipped('The same as test testGetRelationInvalidArgumentException()');
-
-        $customer = Customer::query();
-
-        $query = $customer->findByPk(1);
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Relation names are case sensitive. Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer '
-            . 'has a relation named "expensiveOrders" instead of "expensiveorders"',
-        );
-        $query->relationQuery('expensiveorders');
     }
 
     public function testExists(): void
@@ -2643,7 +2583,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetJoinTypeWithNestedRelations(): void
     {
-        $sql = Order::query()
+        $sql = OrderWithSoftDelete::query()
             ->joinWith(
                 ['customer.profile'],
                 joinType: ['customer.profile' => 'LEFT JOIN'],

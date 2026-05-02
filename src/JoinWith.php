@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord;
 
-use Closure;
-
 use function in_array;
 use function is_array;
 use function is_int;
@@ -13,7 +11,7 @@ use function is_int;
 final class JoinWith
 {
     /**
-     * @psalm-param array<string|Closure> $relations
+     * @psalm-param array<string|callable(ActiveQueryInterface):void> $relations
      * @psalm-param array<string,string>|string $joinType
      */
     public function __construct(
