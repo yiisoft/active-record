@@ -34,7 +34,6 @@ class Order extends ActiveRecord
     #[DefaultDateTimeOnInsert]
     #[SetDateTimeOnUpdate]
     protected int|DateTimeInterface $updated_at;
-    #[SoftDelete]
     protected int|DateTimeInterface|null $deleted_at;
     protected float $total;
 
