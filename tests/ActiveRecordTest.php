@@ -36,6 +36,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithSoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
@@ -1294,7 +1295,7 @@ abstract class ActiveRecordTest extends TestCase
                 'expected' => [
                     'id' => 3,
                     'email' => 'user3@example.com',
-                    'address' => 'insert address',
+                    'address' => 'update address',
                 ],
             ],
         ];
@@ -1887,12 +1888,12 @@ abstract class ActiveRecordTest extends TestCase
     {
         $this->reloadFixtureAfterTest();
 
-        $order = Order::query()->findByPk(1);
+        $order = OrderWithSoftDelete::query()->findByPk(1);
         $deletedAt = new DateTimeImmutable('2026-04-28 12:58:13');
         $order->set('deleted_at', $deletedAt);
         $order->delete();
 
-        $softDeletedOrder = Order::query()->setWhere(['id' => 1])->one();
+        $softDeletedOrder = OrderWithSoftDelete::query()->setWhere(['id' => 1])->one();
         $this->assertSame($deletedAt->getTimestamp(), $softDeletedOrder->get('deleted_at'));
     }
 

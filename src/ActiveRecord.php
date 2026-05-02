@@ -161,10 +161,7 @@ class ActiveRecord extends AbstractActiveRecord
             $updateNames = array_filter($updateProperties, is_int(...), ARRAY_FILTER_USE_KEY);
 
             if (!empty($updateNames)) {
-                $updateProperties = array_merge(
-                    array_diff_key($updateProperties, $updateNames),
-                    $this->newPropertyValues($updateNames),
-                );
+                $updateProperties = array_diff_key($updateProperties, $updateNames) + $this->newValues($updateNames);
             }
             /** @psalm-var array<string, mixed> $updateProperties */
 
