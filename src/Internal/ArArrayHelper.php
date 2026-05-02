@@ -189,7 +189,7 @@ final class ArArrayHelper
         }
 
         if ($object instanceof ActiveRecordInterface) {
-            return self::propertyValues($object);
+            return $object->propertyValues();
         }
 
         if ($object instanceof Traversable) {
