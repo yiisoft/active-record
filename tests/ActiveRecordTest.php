@@ -55,6 +55,8 @@ use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use function in_array;
 use function count;
 
+use const PHP_VERSION_ID;
+
 abstract class ActiveRecordTest extends TestCase
 {
     public function testStoreNull(): void
@@ -1895,6 +1897,10 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testRelationDefinedViaPropertyHook(): void
     {
+        if (PHP_VERSION_ID < 80400) {
+            $this->markTestSkipped('Property hooks are not supported in PHP < 8.4');
+        }
+
         $item = Item::query()->findByPk(1);
         $itemCategory = $item->category;
 
