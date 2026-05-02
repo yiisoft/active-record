@@ -9,13 +9,13 @@ use Yiisoft\Db\Connection\ConnectionInterface;
 
 final class EventsTraitTest extends \Yiisoft\ActiveRecord\Tests\EventsTraitTest
 {
-    protected static function createConnection(): ConnectionInterface
-    {
-        return (new OracleHelper())->createConnection();
-    }
-
     public function testSetValueOnUpdateOnUpsertWithUpdatePropertiesFalse(): void
     {
         $this->markTestSkipped('Yiisoft\Db\Oracle\DMLQueryBuilder::upsertReturning() is not supported by Oracle.');
+    }
+
+    protected static function createConnection(): ConnectionInterface
+    {
+        return (new OracleHelper())->createConnection();
     }
 }
