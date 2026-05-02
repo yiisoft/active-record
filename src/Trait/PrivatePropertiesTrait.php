@@ -6,8 +6,6 @@ namespace Yiisoft\ActiveRecord\Trait;
 
 use Yiisoft\ActiveRecord\AbstractActiveRecord;
 
-use function get_object_vars;
-
 /**
  * Trait to handle private properties in Active Record classes.
  *
