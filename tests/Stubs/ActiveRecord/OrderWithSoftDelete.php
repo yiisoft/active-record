@@ -10,5 +10,5 @@ use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 class OrderWithSoftDelete extends Order
 {
     #[SoftDelete]
-    protected int|DateTimeInterface|null $deleted_at;
+    protected int|DateTimeInterface|null $deleted_at = null;
 }
