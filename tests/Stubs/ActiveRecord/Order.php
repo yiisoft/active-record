@@ -10,7 +10,6 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecord;
 use Yiisoft\ActiveRecord\Event\Handler\DefaultDateTimeOnInsert;
 use Yiisoft\ActiveRecord\Event\Handler\SetDateTimeOnUpdate;
-use Yiisoft\ActiveRecord\Event\Handler\SoftDelete;
 use Yiisoft\ActiveRecord\Trait\CustomTableNameTrait;
 use Yiisoft\ActiveRecord\Trait\EventsTrait;
 
@@ -34,7 +33,6 @@ class Order extends ActiveRecord
     #[DefaultDateTimeOnInsert]
     #[SetDateTimeOnUpdate]
     protected int|DateTimeInterface $updated_at;
-    #[SoftDelete]
     protected int|DateTimeInterface|null $deleted_at;
     protected float $total;
 
