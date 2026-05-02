@@ -1291,7 +1291,7 @@ abstract class ActiveRecordTest extends TestCase
                 'expected' => [
                     'id' => 3,
                     'email' => 'user3@example.com',
-                    'address' => 'insert address',
+                    'address' => 'update address',
                 ],
             ],
         ];

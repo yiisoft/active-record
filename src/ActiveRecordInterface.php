@@ -697,10 +697,12 @@ interface ActiveRecordInterface
      * ```
      *
      * @param array|null $insertProperties List of property names or name-values pairs that need to be inserted.
+     * If name-value pairs are specified, the values will be used for insertion.
      * Defaults to `null`, meaning all changed property values will be inserted.
      * @param array|bool $updateProperties List of property names or name-values pairs that need to be updated
-     * if the record already exists. Also available a boolean value:
-     * - `true` the record values will be updated to match the insert property values;
+     * if the record already exists. If name-value pairs are specified, the values will be used for update.
+     * Also available a boolean value:
+     * - `true` the record values will be updated to match the inserted property values;
      * - `false` no update will be performed if the record already exist.
      *
      * @throws InvalidConfigException
