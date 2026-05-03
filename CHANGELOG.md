@@ -9,6 +9,7 @@
 - Bug #562: Fix `ActiveRecordInterface::upsert()` to prioritize passed associative values during updates (@Tigrov)
 - Bug #561: Fix `ActiveRecordInterface::upsert()` with `$updateProperties = false` (@Tigrov)
 - Bug #550: Relation query should be created by related class, not primary model class (@batyrmastyr)
+- Enh #571: Optimize performance of `ActiveRecord::get()` method (@Tigrov)
 
 ## 1.0.2 March 11, 2026
 
