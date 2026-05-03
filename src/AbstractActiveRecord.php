@@ -92,7 +92,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function get(string $propertyName): mixed
     {
-        return $this->propertyValuesInternal()[$propertyName] ?? null;
+        return $this->propertyValueInternal($propertyName);
     }
 
     public function propertyValues(?array $names = null, array $except = []): array
@@ -764,9 +764,18 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     }
 
     /**
+     * Returns the value of a property for an Active Record object.
+     *
+     * @param string $name Property name
+     *
+     * @return mixed Property value or `null` if the property is not set.
+     */
+    abstract protected function propertyValueInternal(string $name): mixed;
+
+    /**
      * Returns the available property values of an Active Record object.
      *
-     * @return array
+     * @return array The property values (name-value pairs).
      *
      * @psalm-return array<string, mixed>
      */

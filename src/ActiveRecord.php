@@ -125,6 +125,11 @@ class ActiveRecord extends AbstractActiveRecord
         return $this->tableSchema()->getPrimaryKey();
     }
 
+    protected function propertyValueInternal(string $name): mixed
+    {
+        return $this->$name ?? null;
+    }
+
     protected function propertyValuesInternal(): array
     {
         return ArArrayHelper::propertyValues($this);

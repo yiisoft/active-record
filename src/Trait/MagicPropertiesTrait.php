@@ -221,6 +221,15 @@ trait MagicPropertiesTrait
             || $this->hasProperty($name);
     }
 
+    protected function propertyValueInternal(string $name): mixed
+    {
+        if ($name !== 'propertyValues' && property_exists($this, $name)) {
+            return $this->$name ?? null;
+        }
+
+        return $this->propertyValues[$name] ?? null;
+    }
+
     /** @psalm-return array<string, mixed> */
     protected function propertyValuesInternal(): array
     {
