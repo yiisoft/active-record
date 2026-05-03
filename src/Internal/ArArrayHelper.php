@@ -208,10 +208,12 @@ final class ArArrayHelper
      * @param ActiveRecordInterface $model The ActiveRecord model instance.
      *
      * @psalm-return array<string, mixed>
+     *
+     * @see https://www.php.net/manual/en/language.types.array.php#language.types.array.casting
      */
     public static function propertyValues(ActiveRecordInterface $model): array
     {
-        /** @psalm-var array<string, mixed> */
+        /** @psalm-var array<string, mixed> $data */
         $data = (array) $model;
         unset(
             $data["\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues"],
@@ -226,6 +228,12 @@ final class ArArrayHelper
 
     private static function clearPropertyName(string $propertyName): string
     {
-        return substr($propertyName, (strrpos($propertyName, "\0") ?: -1) + 1);
+        $pos = strrpos($propertyName, "\0");
+
+        if ($pos === false) {
+            return $propertyName;
+        }
+
+        return substr($propertyName, $pos + 1);
     }
 }
