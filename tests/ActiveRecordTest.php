@@ -18,8 +18,10 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Article;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryAfterDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
@@ -27,6 +29,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ItemWithPropertyHooks;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
@@ -54,6 +57,8 @@ use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 use function in_array;
 use function count;
+
+use const PHP_VERSION_ID;
 
 abstract class ActiveRecordTest extends TestCase
 {
@@ -1891,6 +1896,78 @@ abstract class ActiveRecordTest extends TestCase
 
         $softDeletedOrder = OrderWithSoftDelete::query()->setWhere(['id' => 1])->one();
         $this->assertSame($deletedAt->getTimestamp(), $softDeletedOrder->get('deleted_at'));
+    }
+
+    public function testQuery(): void
+    {
+        $query = Customer::query();
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testQueryWithStringClassName(): void
+    {
+        $query = Customer::query(Order::class);
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testQueryWithModelInstance(): void
+    {
+        $query = Customer::query(new Order());
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testCreateQuery(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery();
+
+        $this->assertSame(ActiveQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testCreateQueryWithStringClassName(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery(Customer::class);
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testCreateQueryWithModelInstance(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery(new Customer());
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testRelationDefinedViaPropertyHook(): void
+    {
+        if (PHP_VERSION_ID < 80400) {
+            $this->markTestSkipped('Property hooks are not supported in PHP < 8.4');
+        }
+
+        $item = ItemWithPropertyHooks::query()->findByPk(1);
+        $itemCategory = $item->category;
+
+        $this->assertInstanceOf(Category::class, $itemCategory);
+        $this->assertSame(1, $itemCategory->getId());
+        $this->assertSame('Books', $itemCategory->getName());
+
+        $item->category = Category::query()->findByPk(2);
+        $itemCategory = $item->category;
+
+        $this->assertInstanceOf(Category::class, $itemCategory);
+        $this->assertSame(2, $itemCategory->getId());
+        $this->assertSame('Movies', $itemCategory->getName());
     }
 
     abstract protected function createFactory(): Factory;
