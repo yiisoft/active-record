@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Trait;
 
-use Closure;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\Event\AfterCreateQuery;
@@ -22,8 +21,6 @@ use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
-
-use function is_string;
 
 /**
  * Trait to implement event dispatching for ActiveRecord.
@@ -84,14 +81,11 @@ trait EventsTrait
         return $this;
     }
 
-    public static function query(ActiveRecordInterface|Closure|string|null $modelClass = null): ActiveQueryInterface
+    public static function query(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
-        $model = match (true) {
-            $modelClass === null => new static(),
-            is_string($modelClass) => new $modelClass(),
-            $modelClass instanceof ActiveRecordInterface => $modelClass,
-            default => ($modelClass)(),
-        };
+        $model = $modelClass instanceof ActiveRecordInterface
+            ? $modelClass
+            : new ($modelClass ?? static::class)();
 
         $eventDispatcher = EventDispatcherProvider::get($model::class);
         $eventDispatcher->dispatch($event = new BeforeCreateQuery($model));

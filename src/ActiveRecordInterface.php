@@ -174,7 +174,7 @@ interface ActiveRecordInterface
     /**
      * Returns the old values of the primary key as an array with property names as keys and property values as values.
      *
-     * This refers to the primary key values that is populated into the record after data is retrieved from the database
+     * This refers to the primary key values that are populated into the record after data is retrieved from the database
      * by an instance of {@see ActiveQueryInterface}.
      *
      * The value remains unchanged while the record will not be {@see ActiveRecordInterface::update() updated}.
@@ -342,11 +342,9 @@ interface ActiveRecordInterface
     public function hasOne(self|string $modelClass, array $link): ActiveQueryInterface;
 
     /**
-     * Inserts a row into the associated database table using the property values of this record.
-     * You may specify the properties to be inserted as list of name or name-value pairs.
-     * If name-value pair specified, the corresponding property values will be modified.
+     * Inserts a new row into the associated database table using the property values of this record.
      *
-     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be inserted into a database.
+     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be inserted into the database.
      *
      * If the table's primary key is auto incremental and is `null` during insertion, it will be populated with the
      * actual value after insertion.
@@ -366,8 +364,9 @@ interface ActiveRecordInterface
      * $customer->insert(['name' => $name, 'email' => $email]);
      * ```
      *
-     * @param array|null $properties List of property names or name-values pairs that need to be saved.
-     * Defaults to `null`, meaning all changed property values will be saved.
+     * @param array|null $properties List of property names or name-values pairs that need to be inserted.
+     * If name-value pairs are specified, the corresponding property values will be modified before insertion.
+     * Defaults to `null`, meaning all changed property values will be inserted.
      *
      * @throws InvalidCallException If the record {@see ActiveRecordInterface::isNew() is not new}.
      * @throws InvalidConfigException
@@ -526,10 +525,8 @@ interface ActiveRecordInterface
 
     /**
      * Saves the changes to this active record into the associated database table.
-     * You may specify the properties to be updated as list of name or name-value pairs.
-     * If name-value pair specified, the corresponding property values will be modified.
      *
-     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be saved into a database.
+     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be saved into the database.
      *
      * This method will call {@see ActiveRecordInterface::insert()} when {@see ActiveRecordInterface::isNew()}
      * is true, or {@see ActiveRecordInterface::update()} when {@see ActiveRecordInterface::isNew()} is false.
@@ -550,6 +547,7 @@ interface ActiveRecordInterface
      * ```
      *
      * @param array|null $properties List of property names or name-values pairs that need to be saved.
+     * If name-value pairs are specified, the corresponding property values will be modified before saving.
      * Defaults to `null`, meaning all changed property values will be saved.
      */
     public function save(?array $properties = null): void;
@@ -582,13 +580,9 @@ interface ActiveRecordInterface
     public function markAsExisting(): void;
 
     /**
-     * Saves the changes to this active record into the associated database table.
-     * You may specify the properties to be updated as list of name or name-value pairs.
-     * If name-value pair specified, the corresponding property values will be modified.
+     * Updates the changes to this active record into the associated database table.
      *
-     * The method will then save the specified properties into a database.
-     *
-     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be saved into a database.
+     * Only the {@see ActiveRecordInterface::newValues()} changed property values will be updated into the database.
      *
      * For example, to update a customer record:
      *
@@ -617,8 +611,9 @@ interface ActiveRecordInterface
      * }
      * ```
      *
-     * @param array|null $properties List of property names or name-values pairs that need to be saved.
-     * Defaults to `null`, meaning all changed property values will be saved.
+     * @param array|null $properties List of property names or name-values pairs that need to be updated.
+     * If name-value pairs are specified, the corresponding property values will be modified before updating.
+     * Defaults to `null`, meaning all changed property values will be updated.
      *
      * @throws InvalidCallException If the record {@see ActiveRecordInterface::isNew() is new}.
      * @throws OptimisticLockException If the instance implements {@see OptimisticLockInterface} and the data being
@@ -697,10 +692,12 @@ interface ActiveRecordInterface
      * ```
      *
      * @param array|null $insertProperties List of property names or name-values pairs that need to be inserted.
+     * If name-value pairs are specified, the values will be used for insertion.
      * Defaults to `null`, meaning all changed property values will be inserted.
      * @param array|bool $updateProperties List of property names or name-values pairs that need to be updated
-     * if the record already exists. Also available a boolean value:
-     * - `true` the record values will be updated to match the insert property values;
+     * if the record already exists. If name-value pairs are specified, the values will be used for update.
+     * Also available a boolean value:
+     * - `true` the record values will be updated to match the inserted property values;
      * - `false` no update will be performed if the record already exist.
      *
      * @throws InvalidConfigException

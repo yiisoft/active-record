@@ -11,8 +11,8 @@ use Yiisoft\ActiveRecord\Event\BeforeSave;
 use Yiisoft\ActiveRecord\Event\BeforeUpdate;
 use Yiisoft\ActiveRecord\Event\BeforeUpsert;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryEventsModel;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 abstract class EventsTraitTest extends TestCase
@@ -108,13 +108,6 @@ abstract class EventsTraitTest extends TestCase
         $query = CategoryEventsModel::query();
 
         $this->assertSame($customQuery, $query);
-    }
-
-    public function testQueryWithClosureModelClass(): void
-    {
-        $query = CategoryEventsModel::query(fn() => new Category());
-
-        $this->assertInstanceOf(Category::class, $query->getModel());
     }
 
     public function testSaveWithEventPrevention(): void
@@ -258,5 +251,16 @@ abstract class EventsTraitTest extends TestCase
 
         $this->assertNull($model->id);
         $this->assertSame('Custom Return Upsert', $model->name);
+    }
+
+    public function testSetValueOnUpdateOnUpsertWithUpdatePropertiesFalse(): void
+    {
+        $model = new SetValueOnUpdateAr();
+        $model->id = 1;
+        $model->name = 'Vasya';
+
+        $model->upsert(['id' => 1], false);
+
+        $this->assertSame('Vasya', $model->name);
     }
 }
