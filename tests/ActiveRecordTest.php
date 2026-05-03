@@ -9,8 +9,10 @@ use DivisionByZeroError;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\TestWith;
 use Yiisoft\ActiveRecord\ActiveQuery;
+use Yiisoft\ActiveRecord\ActiveRecordFactory;
 use Yiisoft\ActiveRecord\Event\AfterDelete;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
@@ -45,6 +47,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserProfile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UuidPromotion;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
+use Yiisoft\ActiveRecord\Tests\Support\MyService;
 use Yiisoft\ActiveRecord\UnknownPropertyException;
 use Yiisoft\Db\Connection\ConnectionProvider;
 use Yiisoft\Db\Exception\Exception;
@@ -1004,62 +1007,95 @@ abstract class ActiveRecordTest extends TestCase
         ConnectionProvider::remove('custom');
     }
 
-    public function testWithFactory(): void
+    public function testWithNotInitializedFactory(): void
     {
-        $factory = $this->createFactory();
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage("Factory for class '" . OrderWithFactory::class . "' not found");
 
-        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
-        $order = $orderQuery->with('customerWithFactory')->findByPk(2);
+        OrderWithFactory::query()->with('customerWithFactory')->findByPk(2);
+    }
+
+    #[Depends('testWithNotInitializedFactory')]
+    public function testWithFactoryInstantiate(): void
+    {
+        $this->initFactory();
+
+        $order = OrderWithFactory::instantiate();
 
         $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertInstanceOf(MyService::class, $order->service);
+    }
+
+    #[Depends('testWithNotInitializedFactory')]
+    public function testWithFactoryQuery(): void
+    {
+        $this->initFactory();
+
+        $order = OrderWithFactory::query()->with('customerWithFactory')->findByPk(2);
+
+        $this->assertInstanceOf(OrderWithFactory::class, $order);
+        $this->assertInstanceOf(MyService::class, $order->service);
         $this->assertTrue($order->isRelationPopulated('customerWithFactory'));
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
     }
 
-    public function testWithFactoryInstanceRelation(): void
-    {
-        $factory = $this->createFactory();
-
-        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
-        $order = $orderQuery->findByPk(2);
-
-        $this->assertInstanceOf(OrderWithFactory::class, $order);
-        $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactoryInstance());
-    }
-
+    #[Depends('testWithNotInitializedFactory')]
     public function testWithFactoryRelationWithoutFactory(): void
     {
-        $factory = $this->createFactory();
+        $this->initFactory();
 
-        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
-        $order = $orderQuery->findByPk(2);
+        $order = OrderWithFactory::query()->findByPk(2);
 
         $this->assertInstanceOf(OrderWithFactory::class, $order);
         $this->assertInstanceOf(Customer::class, $order->getCustomer());
     }
 
+    #[Depends('testWithNotInitializedFactory')]
     public function testWithFactoryLazyRelation(): void
     {
-        $factory = $this->createFactory();
+        $this->initFactory();
 
-        $orderQuery = new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory));
-        $order = $orderQuery->findByPk(2);
+        $order = OrderWithFactory::query()->findByPk(2);
 
         $this->assertInstanceOf(OrderWithFactory::class, $order);
         $this->assertFalse($order->isRelationPopulated('customerWithFactory'));
         $this->assertInstanceOf(CustomerWithFactory::class, $order->getCustomerWithFactory());
     }
 
-    public function testWithFactoryWithConstructor(): void
+    #[Depends('testWithNotInitializedFactory')]
+    public function testWithFactoryRelationWithConstructor(): void
     {
-        $factory = $this->createFactory();
+        $this->initFactory();
 
-        $customerQuery = new ActiveQuery($factory->create(CustomerWithFactory::class));
-        $customer = $customerQuery->findByPk(2);
+        $customer = CustomerWithFactory::query()->findByPk(2);
 
         $this->assertInstanceOf(CustomerWithFactory::class, $customer);
         $this->assertFalse($customer->isRelationPopulated('ordersWithFactory'));
         $this->assertInstanceOf(OrderWithFactory::class, $customer->getOrdersWithFactory()[0]);
+    }
+
+    #[Depends('testWithNotInitializedFactory')]
+    public function testWithConcreteFactory(): void
+    {
+        $this->initFactory();
+
+        $newFactory = $this->createFactory()->withDefinitions([
+            MyService::class => [
+                '__construct()' => ['name' => 'new factory'],
+            ],
+        ]);
+
+        ActiveRecordFactory::set($newFactory, CustomerWithFactory::class);
+
+        $order = OrderWithFactory::instantiate();
+
+        $this->assertInstanceOf(MyService::class, $order->service);
+        $this->assertSame('default', $order->service->name);
+
+        $customer = CustomerWithFactory::instantiate();
+
+        $this->assertInstanceOf(MyService::class, $customer->service);
+        $this->assertSame('new factory', $customer->service->name);
     }
 
     public function testWithFactoryNonInitiated(): void
@@ -1984,6 +2020,14 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($newOrder->getDeletedAt());
         $this->assertSame(1, $newOrder->delete());
         $this->assertNotNull($newOrder->getDeletedAt());
+    }
+
+    protected function initFactory(): void
+    {
+        $factory = $this->createFactory();
+
+        ActiveRecordFactory::clear();
+        ActiveRecordFactory::set($factory);
     }
 
     abstract protected function createFactory(): Factory;
