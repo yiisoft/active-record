@@ -201,4 +201,39 @@ final class ArArrayHelper
 
         return get_object_vars($object);
     }
+
+    /**
+     * Returns the available property values of an Active Record object.
+     *
+     * @param ActiveRecordInterface $model The ActiveRecord model instance.
+     *
+     * @psalm-return array<string, mixed>
+     *
+     * @see https://www.php.net/manual/en/language.types.array.php#language.types.array.casting
+     */
+    public static function propertyValues(ActiveRecordInterface $model): array
+    {
+        /** @psalm-var array<string, mixed> $data */
+        $data = (array) $model;
+        unset(
+            $data["\0Yiisoft\ActiveRecord\AbstractActiveRecord\0oldValues"],
+            $data["\0Yiisoft\ActiveRecord\AbstractActiveRecord\0related"],
+            $data["\0Yiisoft\ActiveRecord\AbstractActiveRecord\0relationsDependencies"],
+        );
+
+        $keys = array_map(self::clearPropertyName(...), array_keys($data));
+
+        return array_combine($keys, $data);
+    }
+
+    private static function clearPropertyName(string $propertyName): string
+    {
+        $pos = strrpos($propertyName, "\0");
+
+        if ($pos === false) {
+            return $propertyName;
+        }
+
+        return substr($propertyName, $pos + 1);
+    }
 }

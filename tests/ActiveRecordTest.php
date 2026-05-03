@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord\Tests;
 
 use ArgumentCountError;
-use DivisionByZeroError;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -18,8 +18,10 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Animal;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Article;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryAfterDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
@@ -27,6 +29,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ItemWithPropertyHooks;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
@@ -35,6 +38,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithSoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Promotion;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
@@ -45,9 +49,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UserProfile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\UuidPromotion;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\ActiveRecord\Tests\Support\ModelFactory;
-use Yiisoft\ActiveRecord\UnknownPropertyException;
 use Yiisoft\Db\Connection\ConnectionProvider;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
@@ -56,6 +58,8 @@ use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 use function in_array;
 use function count;
+
+use const PHP_VERSION_ID;
 
 abstract class ActiveRecordTest extends TestCase
 {
@@ -437,36 +441,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertCount(1, $order->getOrderItems());
     }
 
-    public function testIssetException(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->expectException(Exception::class);
-        isset($cat->exception);
-    }
-
-    public function testIssetThrowable(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->expectException(DivisionByZeroError::class);
-        isset($cat->throwable);
-    }
-
-    public function testIssetNonExisting(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->assertFalse(isset($cat->non_existing));
-        $this->assertFalse(isset($cat->non_existing_property));
-    }
-
     public function testSetProperties(): void
     {
         $this->reloadFixtureAfterTest();
@@ -490,20 +464,6 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertTrue(
             $this->db()->createQuery()->from('customer')->where(['email' => 'samdark@mail.ru'])->exists(),
         );
-    }
-
-    public function testSetPropertyNoExist(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $cat = new Cat();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Cat has no property named "noExist"',
-        );
-
-        $cat->set('noExist', 1);
     }
 
     public function testAssignOldValue(): void
@@ -655,62 +615,6 @@ abstract class ActiveRecordTest extends TestCase
         $customerQuery = Customer::query();
         $customers = $customerQuery->where(['bool_status' => false])->all();
         $this->assertCount(2, $customers);
-    }
-
-    public function testPropertyAccess(): void
-    {
-        self::markTestSkipped('There are no magic properties in the Cat class');
-
-        $arClass = new Customer();
-
-        $this->assertTrue($arClass->canSetProperty('name'));
-        $this->assertTrue($arClass->canGetProperty('name'));
-        $this->assertFalse($arClass->canSetProperty('unExistingColumn'));
-        $this->assertFalse(isset($arClass->name));
-
-        $arClass->name = 'foo';
-        $this->assertTrue(isset($arClass->name));
-
-        unset($arClass->name);
-        $this->assertNull($arClass->name);
-
-        /** @see https://github.com/yiisoft/yii2-gii/issues/190 */
-        $baseModel = new Customer();
-        $this->assertFalse($baseModel->hasProperty('unExistingColumn'));
-
-        $customer = new Customer();
-        $this->assertInstanceOf(Customer::class, $customer);
-        $this->assertTrue($customer->canGetProperty('id'));
-        $this->assertTrue($customer->canSetProperty('id'));
-
-        /** tests that we really can get and set this property */
-        $this->assertNull($customer->id);
-        $customer->id = 10;
-        $this->assertNotNull($customer->id);
-
-        /** Let's test relations */
-        $this->assertTrue($customer->canGetProperty('orderItems'));
-        $this->assertFalse($customer->canSetProperty('orderItems'));
-
-        /** Newly created model must have empty relation */
-        $this->assertSame([], $customer->orderItems);
-
-        /** does it still work after accessing the relation? */
-        $this->assertTrue($customer->canGetProperty('orderItems'));
-        $this->assertFalse($customer->canSetProperty('orderItems'));
-
-        $this->expectException(InvalidCallException::class);
-        $this->expectExceptionMessage('Setting read-only property: ' . Customer::class . '::orderItems');
-        $customer->orderItems = [new Item()];
-
-        /** related property $customer->orderItems didn't change cause it's read-only */
-        $this->assertSame([], $customer->orderItems);
-        $this->assertFalse($customer->canGetProperty('non_existing_property'));
-        $this->assertFalse($customer->canSetProperty('non_existing_property'));
-
-        $this->expectException(UnknownPropertyException::class);
-        $this->expectExceptionMessage('Setting unknown property: ' . Customer::class . '::non_existing_property');
-        $customer->non_existing_property = null;
     }
 
     public function testHasProperty(): void
@@ -1392,7 +1296,7 @@ abstract class ActiveRecordTest extends TestCase
                 'expected' => [
                     'id' => 3,
                     'email' => 'user3@example.com',
-                    'address' => 'insert address',
+                    'address' => 'update address',
                 ],
             ],
         ];
@@ -1984,6 +1888,91 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertNull($newOrder->getDeletedAt());
         $this->assertSame(1, $newOrder->delete());
         $this->assertNotNull($newOrder->getDeletedAt());
+    }
+
+    public function testSoftDeleteWithCustomDate(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = OrderWithSoftDelete::query()->findByPk(1);
+        $deletedAt = new DateTimeImmutable('2026-04-28 12:58:13');
+        $order->set('deleted_at', $deletedAt);
+        $order->delete();
+
+        $softDeletedOrder = OrderWithSoftDelete::query()->setWhere(['id' => 1])->one();
+        $this->assertSame($deletedAt->getTimestamp(), $softDeletedOrder->get('deleted_at'));
+    }
+
+    public function testQuery(): void
+    {
+        $query = Customer::query();
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testQueryWithStringClassName(): void
+    {
+        $query = Customer::query(Order::class);
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testQueryWithModelInstance(): void
+    {
+        $query = Customer::query(new Order());
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testCreateQuery(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery();
+
+        $this->assertSame(ActiveQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testCreateQueryWithStringClassName(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery(Customer::class);
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testCreateQueryWithModelInstance(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery(new Customer());
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testRelationDefinedViaPropertyHook(): void
+    {
+        if (PHP_VERSION_ID < 80400) {
+            $this->markTestSkipped('Property hooks are not supported in PHP < 8.4');
+        }
+
+        $item = ItemWithPropertyHooks::query()->findByPk(1);
+        $itemCategory = $item->category;
+
+        $this->assertInstanceOf(Category::class, $itemCategory);
+        $this->assertSame(1, $itemCategory->getId());
+        $this->assertSame('Books', $itemCategory->getName());
+
+        $item->category = Category::query()->findByPk(2);
+        $itemCategory = $item->category;
+
+        $this->assertInstanceOf(Category::class, $itemCategory);
+        $this->assertSame(2, $itemCategory->getId());
+        $this->assertSame('Movies', $itemCategory->getName());
     }
 
     abstract protected function createFactory(): Factory;
