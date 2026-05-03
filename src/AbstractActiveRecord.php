@@ -90,6 +90,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->tableName() === $record->tableName() && $this->primaryKeyValues() === $record->primaryKeyValues();
     }
 
+    public function get(string $propertyName): mixed
+    {
+        return $this->propertyValuesInternal()[$propertyName] ?? null;
+    }
+
     public function propertyValues(?array $names = null, array $except = []): array
     {
         $names ??= $this->propertyNames();
