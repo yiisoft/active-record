@@ -79,6 +79,11 @@ use const ARRAY_FILTER_USE_KEY;
  */
 class ActiveRecord extends AbstractActiveRecord
 {
+    public function get(string $propertyName): mixed
+    {
+        return $this->$propertyName ?? null;
+    }
+
     public function propertyNames(): array
     {
         return $this->tableSchema()->getColumnNames();

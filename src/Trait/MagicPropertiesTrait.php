@@ -165,6 +165,15 @@ trait MagicPropertiesTrait
         return method_exists($this, "get{$name}Query");
     }
 
+    public function get(string $propertyName): mixed
+    {
+        if ($propertyName !== 'propertyValues' && property_exists($this, $propertyName)) {
+            return $this->$propertyName ?? null;
+        }
+
+        return $this->propertyValues[$propertyName] ?? null;
+    }
+
     public function set(string $propertyName, mixed $value): void
     {
         if ($this->hasProperty($propertyName)) {
