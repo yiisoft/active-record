@@ -20,6 +20,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ArticleComment;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Cat;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryAfterDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
@@ -1891,6 +1892,57 @@ abstract class ActiveRecordTest extends TestCase
 
         $softDeletedOrder = OrderWithSoftDelete::query()->setWhere(['id' => 1])->one();
         $this->assertSame($deletedAt->getTimestamp(), $softDeletedOrder->get('deleted_at'));
+    }
+
+    public function testQuery(): void
+    {
+        $query = Customer::query();
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testQueryWithStringClassName(): void
+    {
+        $query = Customer::query(Order::class);
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testQueryWithModelInstance(): void
+    {
+        $query = Customer::query(new Order());
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testCreateQuery(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery();
+
+        $this->assertSame(ActiveQuery::class, $query::class);
+        $this->assertSame(Order::class, $query->getModel()::class);
+    }
+
+    public function testCreateQueryWithStringClassName(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery(Customer::class);
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
+    }
+
+    public function testCreateQueryWithModelInstance(): void
+    {
+        $order = new Order();
+        $query = $order->createQuery(new Customer());
+
+        $this->assertSame(CustomerQuery::class, $query::class);
+        $this->assertSame(Customer::class, $query->getModel()::class);
     }
 
     abstract protected function createFactory(): Factory;

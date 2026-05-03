@@ -11,7 +11,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
-use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
@@ -31,7 +30,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Command\AbstractCommand;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
@@ -2524,21 +2522,6 @@ abstract class ActiveQueryTest extends TestCase
         $customerA = Customer::query()->findByPk(1);
         $customerB = Item::query()->findByPk(1);
         $this->assertFalse($customerA->equals($customerB));
-    }
-
-    public function testArClassAsString(): void
-    {
-        $query = Customer::query();
-
-        $this->assertInstanceOf(Customer::class, $query->getModel());
-    }
-
-    public function testArClassAsInstance(): void
-    {
-        $customer = new Customer();
-        $query = $customer->createQuery();
-
-        $this->assertInstanceOf(Customer::class, $query->getModel());
     }
 
     public function testGetPrimaryModelOnNonRelationQuery(): void
