@@ -63,7 +63,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
-        return static::query($modelClass ?? $this);
+        $modelClass ??= $this;
+
+        return $modelClass::query($modelClass);
     }
 
     public function delete(): int
