@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
  * Event triggered before the model is upserted (inserted or updated) in the database.
- * It allows to modify properties that will be used for {@see ActiveRecordInterface::upsert()} operation.
+ * It allows modifying properties that will be used for {@see ActiveRecordInterface::upsert()} operation.
  *
  * @see ActiveRecordInterface::upsert()
  */
