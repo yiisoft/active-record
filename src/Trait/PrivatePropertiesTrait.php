@@ -17,9 +17,9 @@ use Yiisoft\ActiveRecord\AbstractActiveRecord;
  */
 trait PrivatePropertiesTrait
 {
-    protected function propertyValueInternal(string $name): mixed
+    public function get(string $propertyName): mixed
     {
-        return $this->$name ?? null;
+        return $this->$propertyName ?? null;
     }
 
     protected function populateProperty(string $name, mixed $value): void

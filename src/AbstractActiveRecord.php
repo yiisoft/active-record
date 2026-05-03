@@ -90,11 +90,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         return $this->tableName() === $record->tableName() && $this->primaryKeyValues() === $record->primaryKeyValues();
     }
 
-    public function get(string $propertyName): mixed
-    {
-        return $this->propertyValueInternal($propertyName);
-    }
-
     public function propertyValues(?array $names = null, array $except = []): array
     {
         $names ??= $this->propertyNames();
@@ -762,15 +757,6 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     {
         return ConnectionProvider::get();
     }
-
-    /**
-     * Returns the value of a property for an Active Record object.
-     *
-     * @param string $name Property name
-     *
-     * @return mixed Property value or `null` if the property is not set.
-     */
-    abstract protected function propertyValueInternal(string $name): mixed;
 
     /**
      * Returns the available property values of an Active Record object.

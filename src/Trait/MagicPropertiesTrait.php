@@ -165,6 +165,15 @@ trait MagicPropertiesTrait
         return method_exists($this, "get{$name}Query");
     }
 
+    public function get(string $propertyName): mixed
+    {
+        if ($propertyName !== 'propertyValues' && property_exists($this, $propertyName)) {
+            return $this->$propertyName ?? null;
+        }
+
+        return $this->propertyValues[$propertyName] ?? null;
+    }
+
     public function set(string $propertyName, mixed $value): void
     {
         if ($this->hasProperty($propertyName)) {
@@ -219,15 +228,6 @@ trait MagicPropertiesTrait
         return method_exists($this, "set$name")
             || ($checkVars && property_exists($this, $name))
             || $this->hasProperty($name);
-    }
-
-    protected function propertyValueInternal(string $name): mixed
-    {
-        if ($name !== 'propertyValues' && property_exists($this, $name)) {
-            return $this->$name ?? null;
-        }
-
-        return $this->propertyValues[$name] ?? null;
     }
 
     /** @psalm-return array<string, mixed> */

@@ -79,6 +79,11 @@ use const ARRAY_FILTER_USE_KEY;
  */
 class ActiveRecord extends AbstractActiveRecord
 {
+    public function get(string $propertyName): mixed
+    {
+        return $this->$propertyName ?? null;
+    }
+
     public function propertyNames(): array
     {
         return $this->tableSchema()->getColumnNames();
@@ -123,11 +128,6 @@ class ActiveRecord extends AbstractActiveRecord
     public function primaryKey(): array
     {
         return $this->tableSchema()->getPrimaryKey();
-    }
-
-    protected function propertyValueInternal(string $name): mixed
-    {
-        return $this->$name ?? null;
     }
 
     protected function propertyValuesInternal(): array
