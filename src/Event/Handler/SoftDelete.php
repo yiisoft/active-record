@@ -22,13 +22,10 @@ use function is_callable;
 #[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_PROPERTY | Attribute::IS_REPEATABLE)]
 final class SoftDelete extends AttributeHandlerProvider
 {
-    private bool $useCurrentPropertyValues;
-
     public function __construct(
         private mixed $value = null,
         string ...$propertyNames,
     ) {
-        $this->useCurrentPropertyValues = $value === null;
         $this->value ??= static fn(): DateTimeImmutable => new DateTimeImmutable();
 
         if (empty($propertyNames)) {
@@ -63,25 +60,14 @@ final class SoftDelete extends AttributeHandlerProvider
         $model = $event->model;
         $value = is_callable($this->value) ? ($this->value)($event) : $this->value;
         $propertyNames = $this->getPropertyNames();
-        $updatedPropertyNames = [];
 
         foreach ($propertyNames as $propertyName) {
-            if (!$model->hasProperty($propertyName)) {
-                continue;
-            }
-
-            if ($model->get($propertyName) === null) {
+            if ($model->hasProperty($propertyName) && $model->get($propertyName) === null) {
                 $model->set($propertyName, $value);
-                $updatedPropertyNames[] = $propertyName;
-            } elseif ($this->useCurrentPropertyValues) {
-                $updatedPropertyNames[] = $propertyName;
             }
         }
 
-        if ($updatedPropertyNames !== []) {
-            $event->returnValue($model->update($updatedPropertyNames));
-        }
-
+        $event->returnValue($model->update($propertyNames));
         $event->preventDefault();
     }
 }
