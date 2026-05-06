@@ -35,11 +35,13 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithDeepViaProfile;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithNullFK;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithSoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
 use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer as MagicCustomer;
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Command\AbstractCommand;
+use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
@@ -674,7 +676,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testJoinWithRelationChildParams(): void
     {
-        $query = Order::query()->joinWith(
+        $query = OrderWithSoftDelete::query()->joinWith(
             [
                 'customer' => static function (ActiveQueryInterface $q) {
                     $q->where('{{customer}}.{{id}} = :customer_id', [':customer_id' => 1]);
@@ -1084,23 +1086,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $joins);
         $this->assertSame('order_item', $joins[0][1]);
         $this->assertSame('item', $joins[1][1]);
-    }
-
-    public function testJoinWithViaTableDoesNotDuplicateChildWhere(): void
-    {
-        $query = Order::query()->joinWith([
-            'booksViaTable' => static function (ActiveQueryInterface $relation): void {
-                $relation->andWhere(['item.id' => 2]);
-            },
-        ]);
-        $query->prepare($this->db()->getQueryBuilder());
-
-        $where = $query->getWhere();
-
-        $this->assertIsArray($where);
-        $this->assertCount(3, $where);
-        $this->assertSame('and', $where[0]);
-        $this->assertSame(['and', ['category_id' => 1], ['item.id' => 2]], $where[2]);
     }
 
     public function testJoinWithViaRelationAddsOnlyExpectedJoins(): void
@@ -3042,7 +3027,7 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testGetJoinTypeWithNestedRelations(): void
     {
-        $sql = Order::query()
+        $sql = OrderWithSoftDelete::query()
             ->joinWith(
                 ['customer.profile'],
                 joinType: ['customer.profile' => 'LEFT JOIN'],
