@@ -28,6 +28,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerEventsModel;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\SetValueOnUpdateAr;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 
 abstract class EventsTraitTest extends TestCase
@@ -285,6 +286,17 @@ abstract class EventsTraitTest extends TestCase
 
         $this->assertNull($model->id);
         $this->assertSame('Custom Return Upsert', $model->name);
+    }
+
+    public function testSetValueOnUpdateOnUpsertWithUpdatePropertiesFalse(): void
+    {
+        $model = new SetValueOnUpdateAr();
+        $model->id = 1;
+        $model->name = 'Vasya';
+
+        $model->upsert(['id' => 1], false);
+
+        $this->assertSame('Vasya', $model->name);
     }
 
     public function testAfterEventsAreDispatched(): void

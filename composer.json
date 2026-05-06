@@ -38,7 +38,6 @@
         "phpunit/phpunit": "^10.5.58",
         "rector/rector": "^2.2.3",
         "spatie/phpunit-watcher": "^1.24",
-        "yiisoft/aliases": "^2.0",
         "yiisoft/arrays": "^3.2",
         "yiisoft/db-mssql": "^2.0",
         "yiisoft/db-mysql": "^2.0",

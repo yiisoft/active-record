@@ -16,7 +16,6 @@ use function array_diff_key;
 use function array_filter;
 use function array_keys;
 use function array_merge;
-use function get_object_vars;
 use function is_array;
 
 use const ARRAY_FILTER_USE_KEY;
@@ -80,6 +79,11 @@ use const ARRAY_FILTER_USE_KEY;
  */
 class ActiveRecord extends AbstractActiveRecord
 {
+    public function get(string $propertyName): mixed
+    {
+        return $this->$propertyName ?? null;
+    }
+
     public function propertyNames(): array
     {
         return $this->tableSchema()->getColumnNames();
@@ -128,7 +132,7 @@ class ActiveRecord extends AbstractActiveRecord
 
     protected function propertyValuesInternal(): array
     {
-        return get_object_vars($this);
+        return ArArrayHelper::propertyValues($this);
     }
 
     protected function insertInternal(?array $properties = null): void
@@ -162,10 +166,7 @@ class ActiveRecord extends AbstractActiveRecord
             $updateNames = array_filter($updateProperties, is_int(...), ARRAY_FILTER_USE_KEY);
 
             if (!empty($updateNames)) {
-                $updateProperties = array_merge(
-                    array_diff_key($updateProperties, $updateNames),
-                    $this->newPropertyValues($updateNames),
-                );
+                $updateProperties = array_diff_key($updateProperties, $updateNames) + $this->newValues($updateNames);
             }
             /** @psalm-var array<string, mixed> $updateProperties */
 

@@ -8,7 +8,7 @@ use Yiisoft\ActiveRecord\ActiveRecordInterface;
 
 /**
  * Event triggered before the model is saved (inserted or updated) to the database.
- * It allows to modify properties that will be used for {@see ActiveRecordInterface::save()} operation.
+ * It allows modifying properties that will be used for {@see ActiveRecordInterface::save()} operation.
  *
  * @see ActiveRecordInterface::save()
  */
@@ -16,7 +16,9 @@ final class BeforeSave extends AbstractEvent
 {
     /**
      * @param ActiveRecordInterface $model The model that is being saved.
-     * @param array|null &$properties The properties that will be used for the save operation.
+     * @param array|null &$properties List of property names or name-values pairs that need to be saved.
+     * If name-value pairs are specified, the values will be used for saving.
+     * If `null`, the properties will be taken from the model.
      */
     public function __construct(ActiveRecordInterface $model, public ?array &$properties)
     {

@@ -63,7 +63,9 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
-        return static::query($modelClass ?? $this);
+        $modelClass ??= $this;
+
+        return $modelClass::query($modelClass);
     }
 
     public function delete(): int
@@ -764,7 +766,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Returns the available property values of an Active Record object.
      *
-     * @return array
+     * @return array The property values (name-value pairs).
      *
      * @psalm-return array<string, mixed>
      */

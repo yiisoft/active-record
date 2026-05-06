@@ -577,7 +577,7 @@ abstract class ActiveQueryFindTest extends TestCase
         $customer = $customerQuery->findByPk(2);
         $this->assertFalse($customer->isRelationPopulated('orders'));
 
-        $orders = $customer->getOrdersQuery()->where(['id' => 3])->all();
+        $orders = $customer->getOrdersQuery()->andWhere(['id' => 3])->all();
         $this->assertFalse($customer->isRelationPopulated('orders'));
         $this->assertCount(0, $customer->relatedRecords());
         $this->assertCount(1, $orders);
