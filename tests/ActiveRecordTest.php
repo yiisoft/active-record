@@ -26,12 +26,9 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerSetValueOnUpdateUpsert
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CompositePrimaryKeyDossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\DefaultValueOnInsertAr;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Employee;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\EmployeeWithPrototypeDossierRelation;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ItemWithPropertyHooks;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;

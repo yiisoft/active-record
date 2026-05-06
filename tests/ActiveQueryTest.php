@@ -14,7 +14,6 @@ use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
 use Yiisoft\ActiveRecord\Internal\ModelRelationFilter;
 use Yiisoft\ActiveRecord\Internal\RelationPopulator;
-use Yiisoft\ActiveRecord\Internal\TableNameAndAliasResolver;
 use Yiisoft\ActiveRecord\JoinWith;
 use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\CreateModelsExceptionOnEmptyRowsActiveQuery;
@@ -41,7 +40,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer as MagicCustomer
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Command\AbstractCommand;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
