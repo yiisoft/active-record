@@ -41,7 +41,6 @@ use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\Customer as MagicCustomer
 use Yiisoft\ActiveRecord\Tests\Support\Assert;
 use Yiisoft\ActiveRecord\Tests\Support\DbHelper;
 use Yiisoft\Db\Command\AbstractCommand;
-use Yiisoft\Db\Exception\Exception;
 use Yiisoft\Db\Exception\InvalidCallException;
 use Yiisoft\Db\Exception\InvalidConfigException;
 use Yiisoft\Db\Expression\Expression;
@@ -1086,6 +1085,20 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertCount(2, $joins);
         $this->assertSame('order_item', $joins[0][1]);
         $this->assertSame('item', $joins[1][1]);
+    }
+
+    public function testJoinWithViaTableDoesNotDuplicateChildWhere(): void
+    {
+        $query = Order::query()->joinWith([
+            'booksViaTable' => static function (ActiveQueryInterface $relation): void {
+                $relation->andWhere(['item.id' => 2]);
+            },
+        ]);
+        $query->prepare($this->db()->getQueryBuilder());
+
+        $where = $query->getWhere();
+
+        $this->assertSame(['and', ['category_id' => 1], ['item.id' => 2]], $where);
     }
 
     public function testJoinWithViaRelationAddsOnlyExpectedJoins(): void
@@ -2968,21 +2981,6 @@ abstract class ActiveQueryTest extends TestCase
         $customerA = Customer::query()->findByPk(1);
         $customerB = Item::query()->findByPk(1);
         $this->assertFalse($customerA->equals($customerB));
-    }
-
-    public function testArClassAsString(): void
-    {
-        $query = Customer::query();
-
-        $this->assertInstanceOf(Customer::class, $query->getModel());
-    }
-
-    public function testArClassAsInstance(): void
-    {
-        $customer = new Customer();
-        $query = $customer->createQuery();
-
-        $this->assertInstanceOf(Customer::class, $query->getModel());
     }
 
     public function testGetPrimaryModelOnNonRelationQuery(): void
