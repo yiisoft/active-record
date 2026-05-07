@@ -8,7 +8,6 @@ use Closure;
 use InvalidArgumentException;
 use LogicException;
 use PHPUnit\Framework\Attributes\DataProvider;
-use ReflectionMethod;
 use Yiisoft\ActiveRecord\ActiveQuery;
 use Yiisoft\ActiveRecord\ActiveQueryInterface;
 use Yiisoft\ActiveRecord\Internal\ArArrayHelper;
@@ -229,15 +228,12 @@ abstract class ActiveQueryTest extends TestCase
 
     public function testRemoveDuplicatedRowsChecksPrimaryKeyPresenceInFirstRow(): void
     {
-        $query = Customer::query();
-        $method = new ReflectionMethod(ActiveQuery::class, 'removeDuplicatedRows');
-
         $rows = [
             ['email' => 'missing-id@example.com'],
             ['id' => 1, 'email' => 'user1@example.com'],
         ];
 
-        $result = $method->invoke($query, $rows);
+        $result = Customer::query()->leftJoin('profile', '1=1')->asArray()->populate($rows);
 
         $this->assertSame($rows, $result);
     }
