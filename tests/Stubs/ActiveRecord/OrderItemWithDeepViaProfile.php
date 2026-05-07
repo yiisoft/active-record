@@ -13,6 +13,11 @@ use Yiisoft\ActiveRecord\ActiveRecord;
  */
 final class OrderItemWithDeepViaProfile extends ActiveRecord
 {
+    public int $order_id;
+    public int $item_id;
+    public int $quantity;
+    public float $subtotal;
+
     public function tableName(): string
     {
         return 'order_item';
