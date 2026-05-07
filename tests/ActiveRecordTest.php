@@ -1634,6 +1634,16 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame($expectedAffectedRows, $affectedRows);
     }
 
+    public function testMarkPropertyChangedWithEmptyName()
+    {
+        $model = new NullValues();
+        $model->assignOldValues(['' => 'empty name', 'name' => 'Vasya']);
+
+        $model->markPropertyChanged('');
+
+        $this->assertSame(['name' => 'Vasya'], $model->oldValues());
+    }
+
     public function testMarkAsNew(): void
     {
         $this->reloadFixtureAfterTest();
