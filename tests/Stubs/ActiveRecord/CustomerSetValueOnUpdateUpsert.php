@@ -12,12 +12,14 @@ final class CustomerSetValueOnUpdateUpsert extends ActiveRecord
 {
     use EventsTrait;
 
+    public int $id;
     public string $email;
-
     #[SetValueOnUpdate('Updated')]
     public ?string $name = null;
-
     public ?string $address = null;
+    public ?int $status = 0;
+    public bool|int|null $bool_status = false;
+    public ?int $profile_id = null;
 
     public function tableName(): string
     {
