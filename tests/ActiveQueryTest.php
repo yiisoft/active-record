@@ -49,6 +49,8 @@ use RuntimeException;
 use function sort;
 use function ucfirst;
 
+use const SORT_DESC;
+
 abstract class ActiveQueryTest extends TestCase
 {
     public function testOptions(): void
