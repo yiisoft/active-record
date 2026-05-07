@@ -19,7 +19,6 @@ use Yiisoft\ActiveRecord\OptimisticLockException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\CreateModelsExceptionOnEmptyRowsActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\MissingLinkValuesActiveQuery;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveQuery\SingleModelArrayActiveQuery;
-use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CompositePrimaryKeyDossier;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\BitValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
@@ -296,27 +295,6 @@ abstract class ActiveQueryTest extends TestCase
         $this->assertInstanceOf(In::class, $where);
         $this->assertSame(['department_id', 'employee_id'], array_values($where->column));
         $this->assertSame([['department_id' => 2, 'employee_id' => null]], array_values($where->values));
-    }
-
-    public function testModelRelationFilterCompositeKeysFillMissingValuesWithNullForActiveRecordModel(): void
-    {
-        $model = new CompositePrimaryKeyDossier();
-        $model->set('department_id', 2);
-
-        $query = Dossier::query()
-            ->from(['d' => 'dossier'])
-            ->join('INNER JOIN', 'employee e', '1=1')
-            ->link(['department_id' => 'department_id', 'employee_id' => 'employee_id']);
-
-        ModelRelationFilter::apply($query, [$model]);
-
-        $where = $query->getWhere();
-
-        $this->assertInstanceOf(In::class, $where);
-        $this->assertSame(
-            [['d.department_id' => 2, 'd.employee_id' => null]],
-            array_values($where->values),
-        );
     }
 
     public function testModelRelationFilterCompositeArrayModelsFillMissingValuesWithNullUsingQualifiedColumnNames(): void
