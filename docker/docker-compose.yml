@@ -9,7 +9,9 @@ x-php-base: &php-base
     - ./../src:/code/src
     - ./../tests:/code/tests
     - ./../composer.json:/code/composer.json
+    - ./../.php-cs-fixer.dist.php:/code/.php-cs-fixer.dist.php
     - ./../phpunit.xml.dist:/code/phpunit.xml.dist
+    - ./../rector.php:/code/rector.php
   command: tail -F anything
 
 services:
