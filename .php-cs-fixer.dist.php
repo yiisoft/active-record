@@ -9,7 +9,8 @@ use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
 $finder = (new Finder())->in([
     __DIR__ . '/src',
     __DIR__ . '/tests',
-]);
+])
+    ->notPath('Stubs/ActiveRecord/ItemWithPropertyHooks.php');
 
 return (new Config())
     ->setRiskyAllowed(true)

@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerArrayAccessModel;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CategoryWithArrayAccess;
 
 abstract class ArrayAccessTraitTest extends TestCase
 {
@@ -23,6 +24,15 @@ abstract class ArrayAccessTraitTest extends TestCase
         $this->assertFalse(isset($model['not-exists']));
     }
 
+    public function testOffsetExistsDoesNotTreatPropertyAsRelation(): void
+    {
+        $model = new CustomerArrayAccessModel();
+        $model->name = 'test';
+
+        $this->assertTrue(isset($model['name']));
+        $this->assertFalse($model->isRelationPopulated('name'));
+    }
+
     public function testOffsetExistsWithRelation(): void
     {
         $model = CustomerArrayAccessModel::query()->with('profile')->findByPk(1);
@@ -33,10 +43,11 @@ abstract class ArrayAccessTraitTest extends TestCase
     public function testOffsetGet(): void
     {
         $model = new CustomerArrayAccessModel();
-        $model->name = 'test name';
+        $model->name = 'property value';
         $model->customProperty = 'custom value';
 
-        $this->assertSame('test name', $model['name']);
+        $this->assertSame('property value', $model['name']);
+        $this->assertFalse($model->isRelationPopulated('name'));
         $this->assertNull($model['email']);
         $this->assertSame('custom value', $model['customProperty']);
     }
@@ -46,6 +57,14 @@ abstract class ArrayAccessTraitTest extends TestCase
         $model = CustomerArrayAccessModel::query()->with('profile')->findByPk(1);
 
         $this->assertInstanceOf(Profile::class, $model['profile']);
+    }
+
+    public function testOffsetGetWithMagicProperty(): void
+    {
+        $model = new CategoryWithArrayAccess();
+        $model['name'] = 'magic';
+
+        $this->assertSame('magic', $model['name']);
     }
 
     public function testOffsetGetWithNonExistentProperty(): void
@@ -112,6 +131,7 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['name']);
 
         $this->assertTrue(!isset($model->name));
+        $this->assertNull($model->get('name'));
     }
 
     public function testOffsetUnsetWithObjectProperty(): void
@@ -124,6 +144,19 @@ abstract class ArrayAccessTraitTest extends TestCase
         $this->assertTrue(!isset($model->customProperty));
     }
 
+    public function testOffsetUnsetWithPropertyResetsDependentRelation(): void
+    {
+        $model = CustomerArrayAccessModel::query()->findByPk(1);
+
+        $this->assertInstanceOf(Profile::class, $model['profile']);
+        $this->assertTrue($model->isRelationPopulated('profile'));
+
+        unset($model['profile_id']);
+
+        $this->assertNull($model->get('profile_id'));
+        $this->assertFalse($model->isRelationPopulated('profile'));
+    }
+
     public function testOffsetUnsetWithRelation(): void
     {
         $this->reloadFixtureAfterTest();
@@ -134,5 +167,15 @@ abstract class ArrayAccessTraitTest extends TestCase
         unset($model['profile']);
 
         $this->assertFalse($model->isRelationPopulated('profile'));
+    }
+
+    public function testOffsetUnsetWithMagicProperty(): void
+    {
+        $model = new CategoryWithArrayAccess();
+        $model['name'] = 'magic';
+
+        unset($model['name']);
+
+        $this->assertNull($model->get('name'));
     }
 }

@@ -534,6 +534,34 @@ abstract class MagicActiveRecordTest extends TestCase
         $this->assertFalse($customer->hasProperty('notExist'));
     }
 
+    public function testCanGetPropertyWithoutCheckingVars(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->canGetProperty('name', false));
+        $this->assertTrue($customer->canGetProperty('orders', false));
+        $this->assertFalse($customer->canGetProperty('non_existing_property', false));
+    }
+
+    public function testCanSetPropertyWithoutCheckingVars(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->canSetProperty('name', false));
+        $this->assertFalse($customer->canSetProperty('orders', false));
+        $this->assertFalse($customer->canSetProperty('non_existing_property', false));
+    }
+
+    public function testCanGetAndSetMemberVariableDependOnCheckVars(): void
+    {
+        $customer = new Customer();
+
+        $this->assertTrue($customer->canGetProperty('status2'));
+        $this->assertFalse($customer->canGetProperty('status2', false));
+        $this->assertTrue($customer->canSetProperty('status2'));
+        $this->assertFalse($customer->canSetProperty('status2', false));
+    }
+
     public function testHasRelationQuery(): void
     {
         $customer = new Customer();
@@ -562,6 +590,17 @@ abstract class MagicActiveRecordTest extends TestCase
         $customerA = new Customer();
         $customerB = new Customer();
         $this->assertFalse($customerA->equals($customerB));
+
+        $customerA = Customer::query()->findByPk(1);
+        $customerB = new Customer();
+        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerB->equals($customerA));
+
+        $customerA = Customer::query()->findByPk(1);
+        $customerB = new Customer();
+        $customerB->id = 1;
+        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerB->equals($customerA));
 
         $customerA = new Customer();
         $customerB = new Item();
@@ -906,6 +945,24 @@ abstract class MagicActiveRecordTest extends TestCase
             'Setting unknown property: ' . Customer::class . '::nonExistentProperty',
         );
         $customer->nonExistentProperty = 'value';
+    }
+
+    public function testGettingUnknownProperty(): void
+    {
+        $customer = new Customer();
+
+        $this->expectException(UnknownPropertyException::class);
+        $this->expectExceptionMessage(
+            'Getting unknown property or relation: ' . Customer::class . '::nonExistentProperty',
+        );
+        $customer->nonExistentProperty;
+    }
+
+    public function testIssetWriteOnlyPropertyReturnsFalse(): void
+    {
+        $cat = new Cat();
+
+        $this->assertFalse(isset($cat->nonExistingProperty));
     }
 
     public static function dataIsProperty(): array
