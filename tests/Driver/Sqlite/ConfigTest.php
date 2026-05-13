@@ -31,7 +31,7 @@ final class ConfigTest extends TestCase
 
     public function testBootstrap(): void
     {
-        $container = $this->createConsoleContainer();
+        $container = $this->createContainer();
         $bootstrapList = $this->getBootstrapList();
 
         $this->assertFalse(ConnectionProvider::has());
@@ -42,21 +42,18 @@ final class ConfigTest extends TestCase
         $this->assertInstanceOf(SQLiteConnection::class, ConnectionProvider::get());
     }
 
-    private function createConsoleContainer(): Container
+    private function createContainer(): Container
     {
         $config = ContainerConfig::create()
-            ->withDefinitions(
-                [
-                    CacheInterface::class => MemorySimpleCache::class,
-
-                    ConnectionInterface::class => [
-                        'class' => SQLiteConnection::class,
-                        '__construct()' => [
-                            'driver' => new SQLiteDriver('sqlite::memory:'),
-                        ],
+            ->withDefinitions([
+                CacheInterface::class => MemorySimpleCache::class,
+                ConnectionInterface::class => [
+                    'class' => SQLiteConnection::class,
+                    '__construct()' => [
+                        'driver' => new SQLiteDriver('sqlite::memory:'),
                     ],
                 ],
-            );
+            ]);
 
         return new Container($config);
     }
