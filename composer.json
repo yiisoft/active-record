@@ -48,7 +48,8 @@
         "yiisoft/event-dispatcher": "^1.1",
         "yiisoft/factory": "^1.3",
         "yiisoft/psr-dummy-provider": "^1.0",
-        "yiisoft/test-support": "^3.0.2"
+        "yiisoft/test-support": "^3.0.2",
+        "yiisoft/yii-runner": "^2.2"
     },
     "suggest": {
         "yiisoft/arrays": "For \\Yiisoft\\Arrays\\ArrayableInterface support",
