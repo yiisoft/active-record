@@ -21,8 +21,10 @@ final class ConfigTest extends TestCase
 {
     protected function tearDown(): void
     {
-        ConnectionProvider::get()->close();
-        ConnectionProvider::remove();
+        if (ConnectionProvider::has()) {
+            ConnectionProvider::get()?->close();
+            ConnectionProvider::remove();
+        }
 
         parent::tearDown();
     }
