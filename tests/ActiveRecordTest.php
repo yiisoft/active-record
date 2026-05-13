@@ -1805,6 +1805,16 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame($expectedAffectedRows, $affectedRows);
     }
 
+    public function testMarkPropertyChangedWithEmptyName()
+    {
+        $model = new NullValues();
+        $model->assignOldValues(['' => 'empty name', 'name' => 'Vasya']);
+
+        $model->markPropertyChanged('');
+
+        $this->assertSame(['name' => 'Vasya'], $model->oldValues());
+    }
+
     public function testResetsIntermediateViaRelationWhenLinkPropertyChanges(): void
     {
         $order = OrderWithCustomerProfileViaCustomerRelation::query()->findByPk(1);

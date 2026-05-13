@@ -391,7 +391,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function markPropertyChanged(string $name): void
     {
-        if ($this->oldValues !== null && $name !== '') {
+        if ($this->oldValues !== null) {
             unset($this->oldValues[$name]);
         }
     }

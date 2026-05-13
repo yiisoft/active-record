@@ -11,6 +11,7 @@
 - Bug #550: Relation query should be created by related class, not primary model class (@batyrmastyr)
 - Enh #571: Optimize performance of `ActiveRecord::get()` method (@Tigrov)
 - Enh #576: Add default config for `yiisoft/config` plugin (@Tigrov)
+- Enh #575: Remove check for empty string in `AbstractActiveRecord::markPropertyChanged()` method (@Tigrov)
 
 ## 1.0.2 March 11, 2026
 
