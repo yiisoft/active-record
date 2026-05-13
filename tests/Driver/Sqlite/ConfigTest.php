@@ -22,7 +22,7 @@ final class ConfigTest extends TestCase
     protected function tearDown(): void
     {
         if (ConnectionProvider::has()) {
-            ConnectionProvider::get()?->close();
+            ConnectionProvider::get()->close();
             ConnectionProvider::remove();
         }
 
