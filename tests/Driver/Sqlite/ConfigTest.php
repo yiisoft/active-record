@@ -19,6 +19,14 @@ use function dirname;
 
 final class ConfigTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        ConnectionProvider::get()->close();
+        ConnectionProvider::remove();
+
+        parent::tearDown();
+    }
+
     public function testBootstrap(): void
     {
         $container = $this->createConsoleContainer();
