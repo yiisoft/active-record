@@ -24,6 +24,8 @@
 
 # Exclude development and metadata files from distribution archive
 *                 export-ignore
+/config/         -export-ignore
+/config/**       -export-ignore
 /src/            -export-ignore
 /src/**          -export-ignore
 /tests/          -export-ignore

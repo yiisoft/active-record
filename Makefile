@@ -68,5 +68,8 @@ composer-require-checker: run
 rector: CMD="vendor/bin/rector" ## Check code style using Rector
 rector: run
 
+cs-fix: CMD="vendor/bin/php-cs-fixer fix" ## Check code style using PHP CS Fixer
+cs-fix: run
+
 shell: CMD="bash" ## Open interactive shell
 shell: run

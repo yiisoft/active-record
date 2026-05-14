@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'src/**'
+      - 'config/**'
       - 'tests/**'
       - '.github/workflows/rector-cs.yml'
       - 'composer.json'

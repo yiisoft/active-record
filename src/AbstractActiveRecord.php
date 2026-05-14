@@ -391,7 +391,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
 
     public function markPropertyChanged(string $name): void
     {
-        if ($this->oldValues !== null && $name !== '') {
+        if ($this->oldValues !== null) {
             unset($this->oldValues[$name]);
         }
     }
@@ -766,7 +766,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /**
      * Returns the available property values of an Active Record object.
      *
-     * @return array
+     * @return array The property values (name-value pairs).
      *
      * @psalm-return array<string, mixed>
      */

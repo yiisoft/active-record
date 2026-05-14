@@ -22,6 +22,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Category;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CategoryAfterDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Customer;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerQuery;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerSetValueOnUpdateUpsert;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithAlias;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithCustomConnection;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerWithFactory;
@@ -31,11 +32,13 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Dog;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Item;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\ItemWithPropertyHooks;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoExist;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithCustomerProfileViaCustomerRelation;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithFactory;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithSoftDelete;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Profile;
@@ -651,6 +654,17 @@ abstract class ActiveRecordTest extends TestCase
         $customerB = new Customer();
         $this->assertFalse($customerA->equals($customerB));
 
+        $customerA = Customer::query()->findByPk(1);
+        $customerB = new Customer();
+        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerB->equals($customerA));
+
+        $customerA = Customer::query()->findByPk(1);
+        $customerB = new Customer();
+        $customerB->setId(1);
+        $this->assertFalse($customerA->equals($customerB));
+        $this->assertFalse($customerB->equals($customerA));
+
         $customerA = new Customer();
         $customerB = new Item();
         $this->assertFalse($customerA->equals($customerB));
@@ -749,7 +763,11 @@ abstract class ActiveRecordTest extends TestCase
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
+        $this->expectExceptionMessage(
+            OrderItemWithNullFK::class
+            . ' does not have a primary key. You should either define a primary key for order_item_with_null_fk table'
+            . ' or override the primaryKey() method.',
+        );
         $orderItem->primaryKeyValue();
     }
 
@@ -758,7 +776,11 @@ abstract class ActiveRecordTest extends TestCase
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
+        $this->expectExceptionMessage(
+            OrderItemWithNullFK::class
+            . ' does not have a primary key. You should either define a primary key for order_item_with_null_fk table'
+            . ' or override the primaryKey() method.',
+        );
         $orderItem->primaryKeyValues();
     }
 
@@ -788,9 +810,25 @@ abstract class ActiveRecordTest extends TestCase
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
+        $this->expectExceptionMessage(
+            OrderItemWithNullFK::class
+            . ' does not have a primary key. You should either define a primary key for order_item_with_null_fk table'
+            . ' or override the primaryKey() method.',
+        );
 
         $orderItem->primaryKeyOldValue();
+    }
+
+    public function testPrimaryKeyOldValueWithoutPrimaryKeyContainsTableName(): void
+    {
+        $model = new NoPk();
+
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage(
+            NoPk::class . ' does not have a primary key. You should either define a primary key for no_pk table or override the primaryKey() method.',
+        );
+
+        $model->primaryKeyOldValue();
     }
 
     public function testPrimaryKeyOldValuesWithoutPrimaryKey(): void
@@ -798,7 +836,11 @@ abstract class ActiveRecordTest extends TestCase
         $orderItem = new OrderItemWithNullFK();
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage(OrderItemWithNullFK::class . ' does not have a primary key.');
+        $this->expectExceptionMessage(
+            OrderItemWithNullFK::class
+            . ' does not have a primary key. You should either define a primary key for order_item_with_null_fk table'
+            . ' or override the primaryKey() method.',
+        );
         $orderItem->primaryKeyOldValues();
     }
 
@@ -907,6 +949,25 @@ abstract class ActiveRecordTest extends TestCase
         ConnectionProvider::remove('custom');
     }
 
+    public function testWithCustomConnectionReturnsClone(): void
+    {
+        $db = $this->createConnection();
+
+        ConnectionProvider::set($db, 'custom');
+        DbHelper::loadFixture($db);
+
+        $customer = new CustomerWithCustomConnection();
+        $customerWithCustomConnection = $customer->withConnectionName('custom');
+
+        $this->assertNotSame($customer, $customerWithCustomConnection);
+        $this->assertSame($this->db(), $customer->db());
+        $this->assertSame($db, $customerWithCustomConnection->db());
+
+        $db->close();
+
+        ConnectionProvider::remove('custom');
+    }
+
     public function testWithFactory(): void
     {
         $factory = $this->createFactory();
@@ -978,6 +1039,37 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectExceptionMessage('Too few arguments to function');
 
         $order->getCustomerWithFactory();
+    }
+
+    public function testWithFactoryReturnsCloneAndKeepsOriginalUnchanged(): void
+    {
+        $factory = $this->createFactory();
+        $order = new OrderWithFactory();
+        $orderWithFactory = $order->withFactory($factory);
+
+        $this->assertNotSame($order, $orderWithFactory);
+
+        $loadedOrder = (new ActiveQuery($orderWithFactory))->findByPk(2);
+        $this->assertInstanceOf(CustomerWithFactory::class, $loadedOrder->getCustomerWithFactory());
+
+        $loadedOrderWithoutFactory = (new ActiveQuery($order))->findByPk(2);
+
+        $this->expectException(ArgumentCountError::class);
+        $this->expectExceptionMessage('Too few arguments to function');
+
+        $loadedOrderWithoutFactory->getCustomerWithFactory();
+    }
+
+    public function testWithFactoryPropagatesToNestedRelations(): void
+    {
+        $factory = $this->createFactory();
+
+        $order = (new ActiveQuery($factory->create(OrderWithFactory::class)->withFactory($factory)))->findByPk(2);
+        $customer = $order->getCustomerWithFactory();
+        $relatedOrder = $customer->getOrdersWithFactory()[0];
+
+        $this->assertInstanceOf(OrderWithFactory::class, $relatedOrder);
+        $this->assertInstanceOf(CustomerWithFactory::class, $relatedOrder->getCustomerWithFactory());
     }
 
     public function testSerialization(): void
@@ -1343,6 +1435,63 @@ abstract class ActiveRecordTest extends TestCase
         $customer->upsert();
     }
 
+    public function testUpsertUpdatesExistingRecordByDefault(): void
+    {
+        if ($this->db()->getDriverName() === 'oci') {
+            $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
+        }
+
+        $this->reloadFixtureAfterTest();
+
+        $customer = new DefaultValueOnInsertAr();
+        $customer->id = 1;
+        $customer->name = 'updated-via-default-upsert';
+
+        $customer->upsert();
+
+        $reloadedCustomer = DefaultValueOnInsertAr::query()->findByPk(1);
+        $this->assertSame('updated-via-default-upsert', $reloadedCustomer->name);
+    }
+
+    public function testCustomerUpsertUpdatesExistingRecordByDefault(): void
+    {
+        if ($this->db()->getDriverName() === 'oci') {
+            $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
+        }
+
+        $this->reloadFixtureAfterTest();
+
+        $customer = new Customer();
+        $customer->setEmail('user1@example.com');
+        $customer->setAddress('updated-address-via-default-upsert');
+
+        $customer->upsert();
+
+        $reloadedCustomer = Customer::query()->findByPk(1);
+        $this->assertSame('updated-address-via-default-upsert', $reloadedCustomer->getAddress());
+    }
+
+    public function testSetValueOnUpdateUpsertKeepsOtherChangedPropertiesWhenUpdatesAreImplicit(): void
+    {
+        if ($this->db()->getDriverName() === 'oci') {
+            $this->markTestSkipped('Oracle does not support RETURNING clause in UPDATE statement.');
+        }
+
+        $this->reloadFixtureAfterTest();
+
+        $customer = new CustomerSetValueOnUpdateUpsert();
+
+        $customer->email = 'user1@example.com';
+        $customer->name = 'Ignored';
+        $customer->address = 'address-via-handler-upsert';
+
+        $customer->upsert();
+
+        $reloadedCustomer = Customer::query()->findByPk(1);
+        $this->assertSame('Updated', $reloadedCustomer->getName());
+        $this->assertSame('address-via-handler-upsert', $reloadedCustomer->getAddress());
+    }
+
     public function testTimestampBehavior(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1435,6 +1584,19 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame('Updated', $record->name);
     }
 
+    public function testSetValueOnUpdateSaveNewRecordDoesNotExecuteUpdate(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new SetValueOnUpdateAr();
+        $record->id = 99;
+        $record->name = 'Test';
+
+        $record->save();
+
+        $this->assertSame('Test', $record->name);
+    }
+
     public function testSetValueOnUpdateUpsert(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1451,11 +1613,6 @@ abstract class ActiveRecordTest extends TestCase
         $record = new SetValueOnUpdateAr();
         $record->id = 1;
         $record->upsert(updateProperties: ['name' => 'Kesha']);
-        $this->assertSame('Updated', $record->name);
-
-        $record = new SetValueOnUpdateAr();
-        $record->id = 1;
-        $record->upsert(updateProperties: false);
         $this->assertSame('Updated', $record->name);
     }
 
@@ -1493,6 +1650,20 @@ abstract class ActiveRecordTest extends TestCase
     public function testLinkViaRelationWithNewRecord(): void
     {
         $customer = new Customer();
+        $item = new Item();
+
+        $this->expectException(InvalidCallException::class);
+        $this->expectExceptionMessage(
+            'Unable to link models: the models being linked cannot be newly created.',
+        );
+        $customer->link('items2', $item);
+    }
+
+    public function testLinkViaRelationWithOneNewRecord(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = Customer::query()->findByPk(1);
         $item = new Item();
 
         $this->expectException(InvalidCallException::class);
@@ -1634,6 +1805,32 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame($expectedAffectedRows, $affectedRows);
     }
 
+    public function testMarkPropertyChangedWithEmptyName()
+    {
+        $model = new NullValues();
+        $model->assignOldValues(['' => 'empty name', 'name' => 'Vasya']);
+
+        $model->markPropertyChanged('');
+
+        $this->assertSame(['name' => 'Vasya'], $model->oldValues());
+    }
+
+    public function testResetsIntermediateViaRelationWhenLinkPropertyChanges(): void
+    {
+        $order = OrderWithCustomerProfileViaCustomerRelation::query()->findByPk(1);
+
+        $profile = $order->getCustomerProfileViaCustomer();
+
+        $this->assertInstanceOf(Profile::class, $profile);
+        $this->assertTrue($order->isRelationPopulated('customerProfileViaCustomer'));
+        $this->assertTrue($order->isRelationPopulated('customer'));
+
+        $order->setCustomerId(2);
+
+        $this->assertFalse($order->isRelationPopulated('customerProfileViaCustomer'));
+        $this->assertFalse($order->isRelationPopulated('customer'));
+    }
+
     public function testMarkAsNew(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1770,6 +1967,22 @@ abstract class ActiveRecordTest extends TestCase
         );
     }
 
+    public function testUnlinkAllWithArrayValuedPropertyAndDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $promotion = Promotion::query()->findByPk(1);
+
+        $promotion->unlinkAll('itemsViaJson', true);
+
+        $reloadedPromotion = Promotion::query()->findByPk(1);
+
+        $this->assertSame([1, 2], $reloadedPromotion->json_item_ids);
+        $this->assertCount(0, $reloadedPromotion->getItemsViaJson());
+        $this->assertNull(Item::query()->findByPk(1));
+        $this->assertNull(Item::query()->findByPk(2));
+    }
+
     public function testUnlinkWithArrayValuedProperty(): void
     {
         $this->reloadFixtureAfterTest();
@@ -1798,6 +2011,30 @@ abstract class ActiveRecordTest extends TestCase
         $this->assertSame(
             1,
             self::db()->createQuery()->from('{{order_item}}')->where(['order_id' => 1])->count(),
+        );
+    }
+
+    public function testUnlinkViaTableWithoutDelete(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $order = Order::query()->findByPk(1);
+        $book = $order->getBooksWithNullFKViaTable()[0];
+        $initialNullLinksCount = self::db()
+            ->createQuery()
+            ->from('{{order_item_with_null_fk}}')
+            ->where(['order_id' => null, 'item_id' => null])
+            ->count();
+
+        $order->unlink('booksWithNullFKViaTable', $book, false);
+
+        $this->assertCount(1, $order->getBooksWithNullFKViaTable());
+        $this->assertSame(
+            $initialNullLinksCount + 1,
+            self::db()->createQuery()->from('{{order_item_with_null_fk}}')->where([
+                'order_id' => null,
+                'item_id' => null,
+            ])->count(),
         );
     }
 
@@ -1833,6 +2070,36 @@ abstract class ActiveRecordTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('Updating counters is not possible for new records.');
         $orderItem->updateCounters(['quantity' => 1]);
+    }
+
+    public function testUpdateCountersUsesZeroForNullCurrentValue(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $customer = new Customer();
+        $customer->setEmail('counter-null@example.com');
+        $customer->setName('Counter Null');
+        $customer->setAddress('Counter street');
+        $customer->save();
+
+        $customer->updateCounters(['status' => 1]);
+
+        $this->assertSame(1, $customer->getStatus());
+        $this->assertSame(1, Customer::query()->findByPk($customer->getId())->getStatus());
+    }
+
+    public function testUpdateCountersUsesZeroForExistingNullColumnValue(): void
+    {
+        $this->reloadFixtureAfterTest();
+
+        $record = new NullValues();
+        $record->save();
+
+        $this->assertNull($record->get('var1'));
+
+        $record->updateCounters(['var1' => 1]);
+
+        $this->assertSame(1, $record->get('var1'));
     }
 
     public function testGetAllWithHasOneAndArrayValue(): void
