@@ -375,6 +375,13 @@ interface ActiveRecordInterface
     public function insert(?array $properties = null): void;
 
     /**
+     * Creates a new instance of the active record class.
+     * The method is used by {@see ActiveQuery} class and {@see EventsTrait} trait when an active record model passed
+     * as a string class name. Usually, it happens when calling {@see ActiveRecordInterface::query()} method.
+     */
+    public static function instantiate(): static;
+
+    /**
      * Checks if any property returned by {@see ActiveRecordInterface::propertyNames()} method has changed.
      * A new active record instance is considered changed if any property has been set including default values.
      */
