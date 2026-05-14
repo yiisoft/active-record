@@ -26,7 +26,7 @@ $users = $user->withConnectionName('db2')->createQuery()->all(); // Uses 'db2' c
 ```
 
 Before using `db2` connection name, it should be configured in the application using
-`\Yiisoft\ActiveRecord\ConnectionProvider::set($db2Connection, 'db2')` method where `$db2Connection` is an instance of 
+`\Yiisoft\Db\Connection\ConnectionProvider::set($db2Connection, 'db2')` method where `$db2Connection` is an instance of
 `\Yiisoft\Db\Connection\ConnectionInterface`.
 
 See how to [Define the Database Connection for Active Record](../define-connection.md).
