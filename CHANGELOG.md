@@ -1,5 +1,9 @@
 # Yii Active Record Change Log
 
+## 1.1.1 under development
+
+- no changes in this release.
+
 ## 1.1.0 May 14, 2026
 
 - Enh #564: Clarify `$relations` parameter type in `JoinWith::__construct()` from `array<string|Closure>` to
