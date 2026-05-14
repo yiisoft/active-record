@@ -1,76 +1,26 @@
 on:
   pull_request:
-    paths:
+    paths: &paths
+      - 'resources/**'
       - 'src/**'
+      - 'tests/**'
       - '.github/workflows/mutation.yml'
       - 'composer.json'
+      - 'infection.json.dist'
 
   push:
     branches: ['master']
-    paths:
-      - 'src/**'
-      - '.github/workflows/mutation.yml'
-      - 'composer.json'
+    paths: *paths
 
-name: Mutation
+name: mutation
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  mutation:
-    name: PHP ${{ matrix.php }}-${{ matrix.os }}
-
-    env:
-      extensions: pdo_pgsql
-
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-        php:
-          - 8.5
-
-    services:
-      postgres:
-        image: postgres:18
-        env:
-          POSTGRES_DB: ar-test
-          POSTGRES_USER: yii
-          POSTGRES_PASSWORD: q1w2e3r4
-        ports:
-          - 5432:5432
-        options: --name=postgres --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
-
-    steps:
-      - name: Checkout.
-        uses: actions/checkout@v4
-
-      - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: ${{ env.extensions }}
-          ini-values: memory_limit=-1
-          coverage: pcov
-
-      - name: Remove unused dependencies of DB drivers
-        run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-mssql yiisoft/db-oracle
-
-      - name: Install Composer dependencies
-        uses: ramsey/composer-install@v3
-
-      - name: Install required yiisoft/db and yiisoft/db-pgsql
-        uses: yiisoft/actions/install-packages@master
-        with:
-          packages: >-
-            ['db', 'db-pgsql']
-
-      - name: Run infection.
-        run: |
-          vendor/bin/infection --ignore-msi-with-no-mutations --test-framework-options="--testsuite=Pgsql"
-        env:
-          STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
+  tests:
+    uses: yiisoft/actions/.github/workflows/db-mutation.yml@master
