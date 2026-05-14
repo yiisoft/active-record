@@ -1,6 +1,14 @@
 # Define the Database Connection for Active Record
 
-To use the Active Record, you need to define the DB connection in one of the following ways:
+To use the Active Record, it requires defining the DB connection.
+
+> [!NOTE]
+> If you are using `yiisoft/config` to configure the application, it will configure the DB connection automatically.
+
+By default `yiisoft/config` plugin will configure `default` DB connection for Active Record using
+`ConnectionInterface::class` from the container.
+
+If you do not use `yiisoft/config`, you need to define the DB connection for Active Record in one of the following ways:
 
 ## Using the bootstrap configuration
 
