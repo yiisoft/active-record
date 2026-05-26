@@ -47,7 +47,6 @@ use function strtolower;
  *
  * See {@see ActiveRecord} for a concrete implementation.
  *
- * @psalm-import-type ModelClass from ActiveQuery
  * @psalm-import-type RawFrom from QueryInterface
  */
 abstract class AbstractActiveRecord implements ActiveRecordInterface
@@ -61,6 +60,12 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
     /** @var string[][] */
     private array $relationsDependencies = [];
 
+    /**
+     * @template T as ActiveRecordInterface
+     * @template TModelClass as T|class-string<T>|null
+     * @psalm-param TModelClass $modelClass
+     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), false>
+     */
     public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
         $modelClass ??= $this;
@@ -419,8 +424,15 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         $this->related[$name] = $records;
     }
 
+    /**
+     * @template T as ActiveRecordInterface
+     * @template TModelClass as T|class-string<T>|null
+     * @psalm-param TModelClass $modelClass
+     * @psalm-return ActiveQuery<(TModelClass is null ? static : T), false>
+     */
     public static function query(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
+        /** @psalm-var ActiveQuery<(TModelClass is null ? static : T), false> */
         return new ActiveQuery($modelClass ?? static::class);
     }
 
@@ -822,8 +834,10 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param ModelClass $modelClass
+     * @template T as ActiveRecordInterface
+     * @psalm-param T|class-string<T> $modelClass
      * @psalm-param array<string, string> $link
+     * @psalm-return ActiveQueryInterface<T, false>
      *
      * @see AbstractActiveRecord::hasOne()
      * @see AbstractActiveRecord::hasMany()
@@ -833,6 +847,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         array $link,
         bool $multiple,
     ): ActiveQueryInterface {
+        /** @psalm-var ActiveQueryInterface<T, false> */
         return $this->createQuery($modelClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
 

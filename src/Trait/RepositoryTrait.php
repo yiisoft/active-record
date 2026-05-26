@@ -50,6 +50,8 @@ trait RepositoryTrait
      * @param array|ExpressionInterface|string|null $condition The condition to be applied to the query where clause.
      * No condition is applied if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
+     *
+     * @psalm-return ActiveQueryInterface<static, false>
      */
     public static function find(array|string|ExpressionInterface|null $condition = null, array $params = []): ActiveQueryInterface
     {
@@ -98,7 +100,7 @@ trait RepositoryTrait
      * Returns all records if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
-     * @return ActiveRecordInterface[]|array[] An array of ActiveRecord instance, or an empty array if nothing matches.
+     * @return static[]|array[] An array of ActiveRecord instance, or an empty array if nothing matches.
      */
     public static function findAll(array|string|ExpressionInterface|null $condition = null, array $params = []): array
     {
@@ -118,8 +120,7 @@ trait RepositoryTrait
      *
      * @throws NotFoundException
      *
-     * @return ActiveRecordInterface[]|array[] An array of ActiveRecord instance, or throws {@see NotFoundException}
-     * if nothing matches.
+     * @return static[]|array[] An array of ActiveRecord instance, or throws {@see NotFoundException} if nothing matches.
      */
     public static function findAllOrFail(array|string|ExpressionInterface|null $condition = null, array $params = []): array
     {
@@ -158,7 +159,7 @@ trait RepositoryTrait
      *
      * @param array|float|int|string $values The primary key value(s) to find the record.
      *
-     * @return ActiveRecordInterface|array|null Instance matching the primary key value(s), or `null` if nothing matches.
+     * @return static|array|null Instance matching the primary key value(s), or `null` if nothing matches.
      */
     public static function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null
     {
@@ -176,10 +177,10 @@ trait RepositoryTrait
      *
      * @throws NotFoundException
      *
-     * @return ActiveRecordInterface|array|null Instance matching the primary key value(s),
+     * @return static|array Instance matching the primary key value(s),
      * or throws {@see NotFoundException} if nothing matches.
      */
-    public static function findByPkOrFail(array|float|int|string $values): array|ActiveRecordInterface|null
+    public static function findByPkOrFail(array|float|int|string $values): array|ActiveRecordInterface
     {
         return static::findByPk($values) ?? throw new NotFoundException('No records found.');
     }
@@ -204,6 +205,8 @@ trait RepositoryTrait
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
      * @return ActiveQueryInterface The newly created {@see ActiveQueryInterface} instance.
+     *
+     * @psalm-return ActiveQueryInterface<static, false>
      */
     public static function findBySql(string $sql, array $params = []): ActiveQueryInterface
     {
@@ -246,7 +249,7 @@ trait RepositoryTrait
      * Returns the first record if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
-     * @return ActiveRecordInterface|array|null Instance matching the condition, or `null` if nothing matches.
+     * @return static|array|null Instance matching the condition, or `null` if nothing matches.
      */
     public static function findOne(
         array|string|ExpressionInterface|null $condition = null,
@@ -268,13 +271,13 @@ trait RepositoryTrait
      *
      * @throws NotFoundException
      *
-     * @return ActiveRecordInterface|array|null Instance matching the condition, or throws {@see NotFoundException}
+     * @return static|array Instance matching the condition, or throws {@see NotFoundException}
      * if nothing matches.
      */
     public static function findOneOrFail(
         array|string|ExpressionInterface|null $condition = null,
         array $params = [],
-    ): ActiveRecordInterface|array|null {
+    ): ActiveRecordInterface|array {
         return static::findOne($condition, $params) ?? throw new NotFoundException('No records found.');
     }
 }

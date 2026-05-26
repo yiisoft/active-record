@@ -106,10 +106,11 @@ use function serialize;
  * and {@see ActiveQuery::on()} which adds a condition that is to be added to relational
  * query join condition.
  *
- * @psalm-type ModelClass = ActiveRecordInterface|class-string<ActiveRecordInterface>
+ * @template TModel as ActiveRecordInterface
+ * @template TAsArray as ?bool
+ * @implements ActiveQueryInterface<TModel, TAsArray>
  * @psalm-import-type IndexBy from QueryInterface
  * @psalm-import-type Join from QueryInterface
- * @psalm-import-type ActiveQueryResult from ActiveQueryInterface
  * @psalm-import-type Via from ActiveQueryInterface
  *
  * @psalm-property IndexBy|null $indexBy
@@ -117,9 +118,11 @@ use function serialize;
  */
 class ActiveQuery extends Query implements ActiveQueryInterface
 {
+    /** @psalm-var TModel $model */
     private ActiveRecordInterface $model;
     private ?string $sql = null;
     private array|ExpressionInterface|string|null $on = null;
+    /** @psalm-var TAsArray $asArray */
     private ?bool $asArray = null;
     private array $with = [];
     private bool $multiple = false;
@@ -155,7 +158,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     private array|ActiveQueryInterface|null $via = null;
 
     /**
-     * @psalm-param ModelClass $modelClass
+     * @psalm-param TModel|class-string<TModel> $modelClass
      */
     final public function __construct(
         ActiveRecordInterface|string $modelClass,
@@ -180,9 +183,17 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
     }
 
+    /**
+     * @template T as ?bool
+     * @psalm-param T $value
+     * @psalm-return static<TModel, T>
+     */
     public function asArray(?bool $value = true): static
     {
+        /** @psalm-suppress InvalidPropertyAssignmentValue */
         $this->asArray = $value;
+
+        /** @psalm-var static<TModel, T> */
         return $this;
     }
 
@@ -325,11 +336,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->findWith($this->with, $models);
         }
 
+        /** @psalm-var non-empty-list<(TAsArray is true ? array<string, mixed> : TModel)> $models */
         $this->addInverseRelations($models);
 
         return $models;
     }
 
+    /** @psalm-return (TAsArray is true ? array<string, mixed> : TModel)|null */
     public function one(): array|ActiveRecordInterface|null
     {
         if ($this->shouldEmulateExecution()) {
@@ -451,6 +464,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $model = $this->primaryModel ?? $this->model;
 
+        /** @psalm-suppress UnsafeGenericInstantiation, InvalidTemplateParam */
         $relation = (new static($model))
             ->from([$tableName])
             ->link($link)
@@ -509,6 +523,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this->sql;
     }
 
+    /** @psalm-return (TAsArray is true ? array<string, mixed> : TModel)|null */
     public function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null
     {
         $values = (array) $values;
@@ -543,6 +558,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return $this;
     }
 
+    /** @psalm-return TModel */
     public function getModel(): ActiveRecordInterface
     {
         return clone $this->model;
@@ -686,7 +702,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @return ActiveRecordInterface[]|array[] The model instances.
      *
      * @psalm-param non-empty-list<array<string, mixed>> $rows
-     * @psalm-return non-empty-list<ActiveQueryResult>
+     * @psalm-return non-empty-list<(TAsArray is true ? array<string, mixed> : TModel)>
      */
     protected function createModels(array $rows): array
     {
@@ -702,12 +718,12 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $rows = ($this->resultCallback)($rows);
 
             if ($rows[0] instanceof ActiveRecordInterface) {
-                /** @psalm-var non-empty-list<ActiveRecordInterface> */
+                /** @psalm-var non-empty-list<TModel> */
                 return $rows;
             }
         }
-        /** @var non-empty-list<array<string, mixed>> $rows */
 
+        /** @psalm-var non-empty-list<array<string, mixed>> $rows */
         return array_map(
             fn(array $row) => $this->getModel()->populateRecord($row),
             $rows,
@@ -758,9 +774,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return array_values(array_combine($hash, $rows));
     }
 
-    private function createInstance(): static
+    private function createInstance(): ActiveQueryInterface
     {
-        return (new static($this->model))
+        return $this->model
+            ->createQuery()
             ->where($this->getWhere())
             ->limit($this->getLimit())
             ->offset($this->getOffset())
@@ -780,7 +797,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * @psalm-param array<string, mixed> $row
-     * @psalm-return ActiveQueryResult
+     * @psalm-return (TAsArray is true ? array<string, mixed> : TModel)
      */
     private function populateOne(array $row): ActiveRecordInterface|array
     {
@@ -800,8 +817,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws ReflectionException
      * @throws Throwable
      *
-     * @psalm-param non-empty-list<ActiveQueryResult> $models
-     * @psalm-param-out non-empty-list<ActiveQueryResult> $models
+     * @psalm-param non-empty-list<ActiveRecordInterface|array<string, mixed>> $models
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array<string, mixed>> $models
      */
     private function findWith(array $with, array &$models): void
     {
@@ -872,14 +889,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveRecordInterface[]|array[] $result the array of related records as generated
      * by {@see ActiveQuery::populate()}
      *
-     * @throws InvalidConfigException
-     *
-     * @psalm-param non-empty-list<ActiveQueryResult> $result
-     * @psalm-param-out non-empty-list<ActiveQueryResult> $result
+     * @psalm-param non-empty-list<(TAsArray is true ? array<string, mixed> : TModel)> $result
+     * @psalm-param-out non-empty-list<(TAsArray is true ? array<string, mixed> : TModel)> $result
      */
     private function addInverseRelations(array &$result): void
     {
         if ($this->inverseOf === null) {
+            /** @psalm-var non-empty-list<(TAsArray is true ? array<string, mixed> : TModel)> $result */
             return;
         }
 
@@ -889,7 +905,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $inverseRelation = $relatedModel->relationQuery($this->inverseOf);
             $primaryModel = $inverseRelation->isMultiple() ? [$this->primaryModel] : $this->primaryModel;
 
-            /** @var ActiveRecordInterface $relatedModel */
+            /** @psalm-var TModel $relatedModel */
             foreach ($result as $relatedModel) {
                 $relatedModel->populateRelation($this->inverseOf, $primaryModel);
             }
@@ -902,5 +918,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $relatedModel[$this->inverseOf] = $primaryModel;
             }
         }
+
+        /** @psalm-var non-empty-list<(TAsArray is true ? array<string, mixed> : TModel)> $result */
     }
 }
