@@ -778,7 +778,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         return $this->model
             ->createQuery()
-            ->where($this->getWhere())
+            ->setWhere($this->getWhere())
             ->limit($this->getLimit())
             ->offset($this->getOffset())
             ->orderBy($this->getOrderBy())
