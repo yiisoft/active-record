@@ -774,11 +774,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         return array_values(array_combine($hash, $rows));
     }
 
-    private function createInstance(): ActiveQueryInterface
+    private function createInstance(): static
     {
-        return $this->model
-            ->createQuery()
-            ->setWhere($this->getWhere())
+        /** @psalm-suppress UnsafeGenericInstantiation, InvalidTemplateParam */
+        return (new static($this->model))
+            ->where($this->getWhere())
             ->limit($this->getLimit())
             ->offset($this->getOffset())
             ->orderBy($this->getOrderBy())
