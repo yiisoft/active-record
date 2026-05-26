@@ -44,7 +44,7 @@ interface ActiveRecordInterface
      * @template T as ActiveRecordInterface
      * @template TModelClass as T|class-string<T>|null
      * @psalm-param TModelClass $modelClass
-     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), false>
+     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), null>
      */
     public function createQuery(self|string|null $modelClass = null): ActiveQueryInterface;
 
@@ -304,7 +304,7 @@ interface ActiveRecordInterface
      * @template T as ActiveRecordInterface
      * @psalm-param T|class-string<T> $modelClass
      * @psalm-param array<string, string> $link
-     * @psalm-return ActiveQueryInterface<T, false>
+     * @psalm-return ActiveQueryInterface<T, null>
      */
     public function hasMany(self|string $modelClass, array $link): ActiveQueryInterface;
 
@@ -343,7 +343,7 @@ interface ActiveRecordInterface
      * @template T as ActiveRecordInterface
      * @psalm-param T|class-string<T> $modelClass
      * @psalm-param array<string, string> $link
-     * @psalm-return ActiveQueryInterface<T, false>
+     * @psalm-return ActiveQueryInterface<T, null>
      */
     public function hasOne(self|string $modelClass, array $link): ActiveQueryInterface;
 
@@ -467,7 +467,7 @@ interface ActiveRecordInterface
      * @template T as ActiveRecordInterface
      * @template TModelClass as T|class-string<T>|null
      * @psalm-param TModelClass $modelClass
-     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), false>
+     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), null>
      */
     public static function query(self|string|null $modelClass = null): ActiveQueryInterface;
 

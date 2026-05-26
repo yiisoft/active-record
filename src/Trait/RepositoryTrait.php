@@ -51,7 +51,7 @@ trait RepositoryTrait
      * No condition is applied if `null` (by default).
      * @param array $params The parameters to be bound to the SQL statement during execution.
      *
-     * @psalm-return ActiveQueryInterface<static, false>
+     * @psalm-return ActiveQueryInterface<static, null>
      */
     public static function find(array|string|ExpressionInterface|null $condition = null, array $params = []): ActiveQueryInterface
     {
@@ -206,7 +206,7 @@ trait RepositoryTrait
      *
      * @return ActiveQueryInterface The newly created {@see ActiveQueryInterface} instance.
      *
-     * @psalm-return ActiveQueryInterface<static, false>
+     * @psalm-return ActiveQueryInterface<static, null>
      */
     public static function findBySql(string $sql, array $params = []): ActiveQueryInterface
     {

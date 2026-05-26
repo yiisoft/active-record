@@ -64,7 +64,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @template T as ActiveRecordInterface
      * @template TModelClass as T|class-string<T>|null
      * @psalm-param TModelClass $modelClass
-     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), false>
+     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), null>
      */
     public function createQuery(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
@@ -428,11 +428,11 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @template T as ActiveRecordInterface
      * @template TModelClass as T|class-string<T>|null
      * @psalm-param TModelClass $modelClass
-     * @psalm-return ActiveQuery<(TModelClass is null ? static : T), false>
+     * @psalm-return ActiveQuery<(TModelClass is null ? static : T), null>
      */
     public static function query(ActiveRecordInterface|string|null $modelClass = null): ActiveQueryInterface
     {
-        /** @psalm-var ActiveQuery<(TModelClass is null ? static : T), false> */
+        /** @psalm-var ActiveQuery<(TModelClass is null ? static : T), null> */
         return new ActiveQuery($modelClass ?? static::class);
     }
 
@@ -837,7 +837,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
      * @template T as ActiveRecordInterface
      * @psalm-param T|class-string<T> $modelClass
      * @psalm-param array<string, string> $link
-     * @psalm-return ActiveQueryInterface<T, false>
+     * @psalm-return ActiveQueryInterface<T, null>
      *
      * @see AbstractActiveRecord::hasOne()
      * @see AbstractActiveRecord::hasMany()
@@ -847,7 +847,7 @@ abstract class AbstractActiveRecord implements ActiveRecordInterface
         array $link,
         bool $multiple,
     ): ActiveQueryInterface {
-        /** @psalm-var ActiveQueryInterface<T, false> */
+        /** @psalm-var ActiveQueryInterface<T, null> */
         return $this->createQuery($modelClass)->primaryModel($this)->link($link)->multiple($multiple);
     }
 
