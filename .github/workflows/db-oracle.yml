@@ -22,6 +22,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
 jobs:
   build:
     name: PHP ${{ matrix.php }}
@@ -43,7 +45,7 @@ jobs:
 
     services:
       oci:
-        image: gvenzl/oracle-xe:latest
+        image: gvenzl/oracle-xe:21
         ports:
           - 1521:1521
         env:
@@ -63,10 +65,12 @@ jobs:
         run: docker exec -i oci bash -c "sqlplus -s system/root@XE <<< 'ALTER USER system DEFAULT TABLESPACE USERS;'"
 
       - name: Checkout.
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
 
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ env.extensions }}
@@ -77,7 +81,7 @@ jobs:
         run: composer remove --dev yiisoft/db-sqlite yiisoft/db-mysql yiisoft/db-pgsql yiisoft/db-mssql
 
       - name: Install required yiisoft/db and yiisoft/db-oracle
-        uses: yiisoft/actions/install-packages@master
+        uses: yiisoft/actions/install-packages@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
         with:
           packages: >-
             ['db', 'db-oracle']
@@ -86,7 +90,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite=Oracle --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml

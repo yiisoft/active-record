@@ -1,7 +1,7 @@
 name: Update README packages
 
 on:
-  pull_request_target:
+  pull_request:
     paths:
       - '.github/workflows/update-readme-packages.yml'
       - 'composer.json'
@@ -11,6 +11,6 @@ permissions:
 
 jobs:
   update-readme:
-    uses: yiisoft/actions/.github/workflows/update-readme-packages.yml@master
+    uses: yiisoft/actions/.github/workflows/update-readme-packages.yml@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
     secrets:
       TOKEN: ${{ secrets.YIISOFT_GITHUB_TOKEN }}
