@@ -68,7 +68,7 @@ jobs:
         uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f
 
       - name: Install required yiisoft/db and yiisoft/db-pgsql
-        uses: yiisoft/actions/install-packages@ab62d6b3b0e0cff6c9724ec5a395bedb41c639a2
+        uses: yiisoft/actions/install-packages@master
         with:
           packages: >-
             ['db', 'db-pgsql']
