@@ -22,6 +22,8 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
 jobs:
   build:
     name: PHP ${{ matrix.php }}
@@ -43,7 +45,7 @@ jobs:
 
     services:
       oci:
-        image: gvenzl/oracle-xe:latest
+        image: gvenzl/oracle-xe:21@sha256:c2682a4216b0fe65537912c4a049c7e5c15a85bb7c94bb8137d5f2d2eef60603
         ports:
           - 1521:1521
         env:
@@ -63,10 +65,12 @@ jobs:
         run: docker exec -i oci bash -c "sqlplus -s system/root@XE <<< 'ALTER USER system DEFAULT TABLESPACE USERS;'"
 
       - name: Checkout.
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ env.extensions }}
@@ -86,7 +90,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite=Oracle --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
