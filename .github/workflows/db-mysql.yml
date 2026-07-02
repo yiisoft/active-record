@@ -45,7 +45,7 @@ jobs:
 
     services:
       mysql:
-        image: mysql:9
+        image: mysql:9@sha256:55e529b57e06b3da98df40600de2245a0ab4bb4b979e3ead4339349b0b50bf4a
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: true
           MYSQL_DATABASE: ar-test
@@ -57,12 +57,12 @@ jobs:
 
     steps:
       - name: Checkout.
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           persist-credentials: false
 
       - name: Install PHP with extensions.
-        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ matrix.php }}
           extensions: ${{ env.extensions }}
@@ -82,7 +82,7 @@ jobs:
         run: vendor/bin/phpunit --testsuite=Mysql --coverage-clover=coverage.xml --colors=always --display-warnings --display-deprecations
 
       - name: Upload coverage to Codecov.
-        uses: codecov/codecov-action@04b047e8bb82a0c002c8312c1c880fbc6a999d45
+        uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
