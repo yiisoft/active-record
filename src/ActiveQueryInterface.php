@@ -19,11 +19,12 @@ use Yiisoft\Definitions\Exception\NotInstantiableException;
 /**
  * A common interface to be implemented by active record query classes.
  *
- * That are methods for all normal queries that return active records but also relational queries in which the query
+ * These are methods for all normal queries that return active records but also relational queries in which the query
  * represents a relation between two active record classes and will return related records only.
  *
+ * @template TModel as ActiveRecordInterface
+ * @template TAsArray as ?bool
  * @psalm-type Via = array{string, ActiveQueryInterface, bool}|ActiveQueryInterface
- * @psalm-type ActiveQueryResult = ActiveRecordInterface|array<string, mixed>
  */
 interface ActiveQueryInterface extends QueryInterface
 {
@@ -39,16 +40,20 @@ interface ActiveQueryInterface extends QueryInterface
      * on {@see ActiveQueryInterface::isAsArray()} result.
      * Empty array if the query results in nothing.
      *
-     * @psalm-return array<ActiveRecordInterface|array>
+     * @psalm-return (TAsArray is true ? array<array<string, mixed>> : TModel[])
      */
     public function all(): array;
 
     /**
      * Sets the {@see ActiveQuery::$asArray} property.
      *
-     * @param bool|null $value Whether to return the query results in terms of arrays instead of Active Records.
+     * @param ?bool $value Whether to return the query results in terms of arrays instead of Active Records.
      *
      * @return static The query object itself.
+     *
+     * @template T as ?bool
+     * @psalm-param T $value
+     * @psalm-return static<TModel, T>
      */
     public function asArray(?bool $value = true): static;
 
@@ -217,6 +222,7 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @psalm-param array<string|callable(ActiveQueryInterface):void>|string $with
      * @psalm-param array<string,string>|string $joinType
+     * @psalm-return static<TModel, TAsArray>
      */
     public function joinWith(
         array|string $with,
@@ -372,8 +378,8 @@ interface ActiveQueryInterface extends QueryInterface
      * @psalm-param list<array<string, mixed>> $rows
      * @psalm-return (
      *     $rows is non-empty-list<array<string, mixed>>
-     *         ? non-empty-list<ActiveQueryResult>
-     *         : list<ActiveQueryResult>
+     *         ? non-empty-list<(TAsArray is true ? array<string, mixed> : TModel)>
+     *         : list<(TAsArray is true ? array<string, mixed> : TModel)>
      * )
      */
     public function populate(array $rows): array;
@@ -446,6 +452,12 @@ interface ActiveQueryInterface extends QueryInterface
      * @throws Throwable if the relation is invalid.
      *
      * @return ActiveRecordInterface|ActiveRecordInterface[]|array|array[]|null the related record(s).
+     *
+     * @psalm-return (
+     *     TAsArray is true
+     *         ? array<string, mixed>|array<array<string, mixed>>
+     *         : TModel|TModel[]
+     * )|null
      */
     public function relatedRecords(): ActiveRecordInterface|array|null;
 
@@ -483,12 +495,16 @@ interface ActiveQueryInterface extends QueryInterface
      *     $customer = $customerQuery->findByPk($id);
      * }
      * ```
+     *
+     * @psalm-return (TAsArray is true ? array<string, mixed> : TModel)|null
      */
     public function findByPk(array|float|int|string $values): array|ActiveRecordInterface|null;
 
     /**
      * Returns a value indicating whether the query result rows should be returned as arrays instead of Active Record
      * models.
+     *
+     * @psalm-return TAsArray
      */
     public function isAsArray(): ?bool;
 
@@ -547,6 +563,8 @@ interface ActiveQueryInterface extends QueryInterface
 
     /**
      * @return ActiveRecordInterface The model instance associated with this query.
+     *
+     * @psalm-return TModel
      */
     public function getModel(): ActiveRecordInterface;
 
@@ -581,6 +599,8 @@ interface ActiveQueryInterface extends QueryInterface
      *
      * @return ActiveRecordInterface|array|null The first row as an `array` or instance of {@see ActiveRecordInterface}
      * of the query result, depends on {@see ActiveQueryInterface::isAsArray()} result. `null` if the query results in nothing.
+     *
+     * @psalm-return (TAsArray is true ? array<string, mixed> : TModel)|null
      */
     public function one(): array|ActiveRecordInterface|null;
 
@@ -595,8 +615,8 @@ interface ActiveQueryInterface extends QueryInterface
      * {@see ActiveQueryInterface::link()} is invalid.
      * @return ActiveRecordInterface[]|array[] The related models.
      *
-     * @psalm-param non-empty-list<ActiveQueryResult> $primaryModels
-     * @psalm-param-out non-empty-list<ActiveQueryResult> $primaryModels
+     * @psalm-param non-empty-list<ActiveRecordInterface|array<string, mixed>> $primaryModels
+     * @psalm-param-out non-empty-list<ActiveRecordInterface|array<string, mixed>> $primaryModels
      */
     public function populateRelation(string $name, array &$primaryModels): array;
 }

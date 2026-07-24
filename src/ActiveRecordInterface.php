@@ -17,7 +17,6 @@ use Yiisoft\Db\Schema\Column\ColumnInterface;
 use Yiisoft\Db\Schema\TableSchemaInterface;
 
 /**
- * @psalm-import-type ModelClass from ActiveQuery
  * @psalm-import-type RawFrom from QueryInterface
  */
 interface ActiveRecordInterface
@@ -42,7 +41,10 @@ interface ActiveRecordInterface
      * @param ActiveRecordInterface|string|null $modelClass The class name of the related record, or an instance
      * of the related record. If `null`, the current model will be used.
      *
-     * @psalm-param ModelClass|null $modelClass
+     * @template T as ActiveRecordInterface
+     * @template TModelClass as T|class-string<T>|null
+     * @psalm-param TModelClass $modelClass
+     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), null>
      */
     public function createQuery(self|string|null $modelClass = null): ActiveQueryInterface;
 
@@ -299,8 +301,10 @@ interface ActiveRecordInterface
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param ModelClass $modelClass
+     * @template T as ActiveRecordInterface
+     * @psalm-param T|class-string<T> $modelClass
      * @psalm-param array<string, string> $link
+     * @psalm-return ActiveQueryInterface<T, null>
      */
     public function hasMany(self|string $modelClass, array $link): ActiveQueryInterface;
 
@@ -336,8 +340,10 @@ interface ActiveRecordInterface
      *
      * @return ActiveQueryInterface The relational query object.
      *
-     * @psalm-param ModelClass $modelClass
+     * @template T as ActiveRecordInterface
+     * @psalm-param T|class-string<T> $modelClass
      * @psalm-param array<string, string> $link
+     * @psalm-return ActiveQueryInterface<T, null>
      */
     public function hasOne(self|string $modelClass, array $link): ActiveQueryInterface;
 
@@ -458,7 +464,10 @@ interface ActiveRecordInterface
      * @param ActiveRecordInterface|string|null $modelClass The class name of the related record, or an instance
      * of the related record. If `null`, the current model class will be used.
      *
-     * @psalm-param ModelClass|null $modelClass
+     * @template T as ActiveRecordInterface
+     * @template TModelClass as T|class-string<T>|null
+     * @psalm-param TModelClass $modelClass
+     * @psalm-return ActiveQueryInterface<(TModelClass is null ? static : T), null>
      */
     public static function query(self|string|null $modelClass = null): ActiveQueryInterface;
 
