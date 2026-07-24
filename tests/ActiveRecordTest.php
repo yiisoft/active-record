@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use ArgumentCountError;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use LogicException;
@@ -36,6 +35,7 @@ use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NoPk;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\NullValues;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\Order;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItem;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderItemWithNullFK;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithConstructor;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderWithCustomerProfileViaCustomerRelation;
@@ -1035,10 +1035,9 @@ abstract class ActiveRecordTest extends TestCase
 
         $this->assertInstanceOf(Customer::class, $customer);
 
-        $this->expectException(ArgumentCountError::class);
-        $this->expectExceptionMessage('Too few arguments to function');
+        $customer = $order->getCustomerWithFactory();
 
-        $order->getCustomerWithFactory();
+        $this->assertInstanceOf(Customer::class, $customer);
     }
 
     public function testWithFactoryReturnsCloneAndKeepsOriginalUnchanged(): void
@@ -2113,26 +2112,31 @@ abstract class ActiveRecordTest extends TestCase
 
     public function testWithConstructorQuery(): void
     {
-        $this->expectException(ArgumentCountError::class);
-        $this->expectExceptionMessage('Too few arguments to function');
+        $orders = OrderWithConstructor::query()->all();
 
-        OrderWithConstructor::query()->all();
+        $this->assertCount(3, $orders);
+
+        $orderItems = OrderItemWithConstructor::query()->all();
+
+        $this->assertCount(6, $orderItems);
     }
 
     public function testWithConstructorRelations(): void
     {
-        $this->expectException(ArgumentCountError::class);
-        $this->expectExceptionMessage('Too few arguments to function');
+        $orderItems = (new OrderWithConstructor(1))->createQuery()->findByPk(1)->getOrderItems();
 
-        (new OrderWithConstructor(1))->createQuery()->findByPk(1)->getOrderItems();
+        $this->assertCount(2, $orderItems);
     }
 
     public function testWithConstructorRepositoryTrait(): void
     {
-        $this->expectException(ArgumentCountError::class);
-        $this->expectExceptionMessage('Too few arguments to function');
+        $orders = OrderWithConstructor::findAll();
 
-        OrderWithConstructor::findAll();
+        $this->assertCount(3, $orders);
+
+        $order = OrderWithConstructor::findByPk(1);
+
+        $this->assertSame(1, $order->getId());
     }
 
     public function testWithConstructorNewInstance(): void
