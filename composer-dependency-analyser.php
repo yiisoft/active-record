@@ -15,7 +15,7 @@ $config = (new Configuration())
     // consumers who don't `use` the trait don't need the package. See the "suggest" section
     // in composer.json.
     ->ignoreErrorsOnPackages(
-        ['yiisoft/arrays', 'yiisoft/event-dispatcher', 'yiisoft/factory'],
+        ['psr/log', 'yiisoft/arrays', 'yiisoft/event-dispatcher', 'yiisoft/factory'],
         [ErrorType::DEV_DEPENDENCY_IN_PROD],
     )
     // psr/event-dispatcher is the PSR interface backing the optional yiisoft/event-dispatcher

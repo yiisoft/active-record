@@ -36,9 +36,7 @@ final class EventDispatcherProvider
      */
     public static function get(string $targetClass): EventDispatcherInterface
     {
-        if (!isset(self::$dispatchers[$targetClass])) {
-            self::$dispatchers[$targetClass] = new Dispatcher(new Provider(self::getListenersFromAttributes($targetClass)));
-        }
+        self::$dispatchers[$targetClass] ??= new Dispatcher(new Provider(self::getListenersFromAttributes($targetClass)));
 
         return self::$dispatchers[$targetClass];
     }

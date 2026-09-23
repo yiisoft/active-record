@@ -11,6 +11,7 @@ and should be used based on your specific needs.
 - [CustomTableNameTrait](custom-table-name.md) allows using a custom table name for a model;
 - [EventsTrait](events.md) allows using events and handlers for a model;
 - [FactoryTrait](factory.md) allows creating models and relations using [yiisoft/factory](https://github.com/yiisoft/factory);
+- [LazyLoadGuardTrait](lazy-load-guard.md) allows detecting N+1 queries caused by lazy loading of relations;
 - [MagicPropertiesTrait](magic-properties.md) stores properties in a private property and provides magic getters
   and setters for accessing the model properties and relations;
 - [MagicRelationsTrait](magic-relations.md) allows using methods with prefix `get` and suffix `Query` to define
