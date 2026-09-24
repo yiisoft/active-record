@@ -162,7 +162,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     ) {
         $this->model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
-            : new $modelClass();
+            : $modelClass::instantiate();
 
         parent::__construct($this->model->db());
     }
