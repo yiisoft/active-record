@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Internal;
 
-use WeakMap;
 use Yiisoft\ActiveRecord\ActiveRecordInterface;
 use Yiisoft\ActiveRecord\LazyLoadGuard;
 
 use function count;
+use function spl_object_id;
 
 /**
- * Counts the records of one result set that lazy loaded a relation. The records are held weakly, so that the
- * counts are freed together with the result set they belong to.
+ * Counts the records of one result set that lazy loaded a relation. The counts are freed together with the result
+ * set they belong to, which the records are the only reference to.
  *
  * @internal
  *
@@ -21,9 +21,12 @@ use function count;
 final class LazyLoadResultSet
 {
     /**
-     * @var WeakMap[] The records that lazy loaded the relation, by relation `[relation => WeakMap, ...]`.
+     * @var array[] The ids of the records that lazy loaded the relation `[relation => [record_id => true], ...]`.
      *
-     * @psalm-var array<string, WeakMap<ActiveRecordInterface, true>>
+     * The records of a result set are known when it's registered, while all of them are alive, so an id of a
+     * freed record is never reused within the same result set.
+     *
+     * @psalm-var array<string, array<int, true>>
      */
     private array $records = [];
 
@@ -34,16 +37,8 @@ final class LazyLoadResultSet
      */
     public function registerLazyLoad(ActiveRecordInterface $record, string $relation): int
     {
-        $records = $this->records[$relation] ?? null;
+        $this->records[$relation][spl_object_id($record)] = true;
 
-        if ($records === null) {
-            /** @psalm-var WeakMap<ActiveRecordInterface, true> $records */
-            $records = new WeakMap();
-            $this->records[$relation] = $records;
-        }
-
-        $records[$record] = true;
-
-        return count($records);
+        return count($this->records[$relation]);
     }
 }
