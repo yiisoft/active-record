@@ -54,6 +54,27 @@ abstract class LazyLoadGuardTest extends TestCase
         $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 1], LazyLoadGuard::getCounters());
     }
 
+    public function testLazyLoadsOfSeparateResultSetsAreNotReported(): void
+    {
+        $logger = new SimpleLogger();
+        LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
+
+        CustomerLazyLoadGuardModel::query()->findByPk(1)->getOrders();
+        CustomerLazyLoadGuardModel::query()->findByPk(2)->getOrders();
+
+        $this->assertSame([], $logger->getMessages());
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 2], LazyLoadGuard::getCounters());
+    }
+
+    public function testModeStrictIgnoresLazyLoadsOfSeparateResultSets(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        CustomerLazyLoadGuardModel::query()->findByPk(1)->getOrders();
+
+        $this->assertIsArray(CustomerLazyLoadGuardModel::query()->findByPk(2)->getOrders());
+    }
+
     public function testModeLogWithoutLoggerReturnsRelation(): void
     {
         $customer = CustomerLazyLoadGuardModel::query()->findByPk(1);

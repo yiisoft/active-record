@@ -7,7 +7,12 @@ namespace Yiisoft\ActiveRecord;
 use Exception;
 use LogicException;
 use Psr\Log\LoggerInterface;
+use WeakMap;
 use Yiisoft\ActiveRecord\Trait\LazyLoadGuardTrait;
+
+use function class_uses;
+use function get_parent_class;
+use function reset;
 
 /**
  * Detects N+1 queries caused by lazy loading of relations in models using {@see LazyLoadGuardTrait}.
@@ -18,9 +23,26 @@ final class LazyLoadGuard
     private static ?LoggerInterface $logger = null;
 
     /**
-     * @var int[] Number of detected lazy loads `[model_class::relation_name => count, ...]`
+     * @var int[] Number of registered lazy loads `[model_class::relation_name => count, ...]`
      */
     private static array $counters = [];
+
+    /**
+     * @var WeakMap|null The result set each model was populated from, keyed by model.
+     */
+    private static ?WeakMap $resultSets = null;
+
+    /**
+     * @var int[] Number of lazy loads within one result set `[result_set_id model_class::relation_name => count]`
+     */
+    private static array $resultSetCounters = [];
+
+    private static int $lastResultSetId = 0;
+
+    /**
+     * @var bool[] Whether a model class uses {@see LazyLoadGuardTrait} `[model_class => bool, ...]`
+     */
+    private static array $guardedClasses = [];
 
     /**
      * Sets the mode of the guard and the logger used in the {@see LazyLoadGuardMode::Log} mode.
@@ -32,8 +54,35 @@ final class LazyLoadGuard
     }
 
     /**
-     * Registers a lazy load of the relation and reports it according to the mode, starting from the second lazy load
-     * of the same relation, since loading a relation once isn't an N+1 problem.
+     * Groups the models of one result set, so that the guard can tell a relation loaded for several records of
+     * the same result set, which is an N+1 query, from the same relation loaded for records that were each
+     * fetched by a query of their own, which has nothing to eager load across.
+     *
+     * @param ActiveRecordInterface[]|array[] $models The models populated from one result set.
+     *
+     * @see ActiveQuery::populate()
+     */
+    public static function registerResultSet(array $models): void
+    {
+        $firstModel = reset($models);
+
+        if (!$firstModel instanceof ActiveRecordInterface || !self::isGuarded($firstModel::class)) {
+            return;
+        }
+
+        self::$resultSets ??= new WeakMap();
+        $resultSetId = ++self::$lastResultSetId;
+
+        foreach ($models as $model) {
+            if ($model instanceof ActiveRecordInterface) {
+                self::$resultSets[$model] = $resultSetId;
+            }
+        }
+    }
+
+    /**
+     * Registers a lazy load of the relation and reports it according to the mode, starting from the second record
+     * of the same result set that loads the relation, since one record loading a relation isn't an N+1 problem.
      *
      * @throws LogicException In the {@see LazyLoadGuardMode::Strict} mode.
      */
@@ -44,7 +93,18 @@ final class LazyLoadGuard
 
         self::$counters[$relation] = (self::$counters[$relation] ?? 0) + 1;
 
-        if (self::$counters[$relation] === 1) {
+        $resultSets = self::$resultSets ??= new WeakMap();
+
+        /** A record populated outside a result set is a result set of its own. */
+        $resultSets[$model] ??= ++self::$lastResultSetId;
+
+        /** @var int $resultSetId */
+        $resultSetId = $resultSets[$model];
+
+        $counter = $resultSetId . ' ' . $relation;
+        $count = self::$resultSetCounters[$counter] = (self::$resultSetCounters[$counter] ?? 0) + 1;
+
+        if ($count === 1) {
             return;
         }
 
@@ -57,14 +117,15 @@ final class LazyLoadGuard
             [
                 'model' => $modelClass,
                 'relation' => $relationName,
-                'count' => self::$counters[$relation],
+                'count' => $count,
                 'trace' => (new Exception())->getTraceAsString(),
             ],
         );
     }
 
     /**
-     * Returns the number of detected lazy loads `[model_class::relation_name => count, ...]`.
+     * Returns the number of registered lazy loads `[model_class::relation_name => count, ...]`, including the ones
+     * that weren't reported because they belong to result sets of their own.
      *
      * @return int[]
      */
@@ -81,5 +142,26 @@ final class LazyLoadGuard
         self::$mode = LazyLoadGuardMode::Log;
         self::$logger = null;
         self::$counters = [];
+        self::$resultSets = null;
+        self::$resultSetCounters = [];
+        self::$lastResultSetId = 0;
+    }
+
+    /**
+     * @param class-string $modelClass
+     */
+    private static function isGuarded(string $modelClass): bool
+    {
+        if (isset(self::$guardedClasses[$modelClass])) {
+            return self::$guardedClasses[$modelClass];
+        }
+
+        $traits = [];
+
+        for ($class = $modelClass; $class !== false; $class = get_parent_class($class)) {
+            $traits += class_uses($class) ?: [];
+        }
+
+        return self::$guardedClasses[$modelClass] = isset($traits[LazyLoadGuardTrait::class]);
     }
 }
