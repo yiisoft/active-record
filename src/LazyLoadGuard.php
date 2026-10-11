@@ -7,11 +7,11 @@ namespace Yiisoft\ActiveRecord;
 use Exception;
 use Psr\Log\LoggerInterface;
 use WeakMap;
+use Yiisoft\ActiveRecord\Internal\LazyLoadResultSet;
 use Yiisoft\ActiveRecord\Trait\LazyLoadGuardTrait;
 
 use function class_uses;
 use function get_parent_class;
-use function reset;
 
 /**
  * Detects N+1 queries caused by lazy loading of relations in models using {@see LazyLoadGuardTrait}.
@@ -28,15 +28,10 @@ final class LazyLoadGuard
 
     /**
      * @var WeakMap|null The result set each model was populated from, keyed by model.
+     *
+     * @psalm-var WeakMap<ActiveRecordInterface, LazyLoadResultSet>|null
      */
     private static ?WeakMap $resultSets = null;
-
-    /**
-     * @var int[] Number of lazy loads within one result set `[result_set_id model_class::relation_name => count]`
-     */
-    private static array $resultSetCounters = [];
-
-    private static int $lastResultSetId = 0;
 
     /**
      * @var bool[] Whether a model class uses {@see LazyLoadGuardTrait} `[model_class => bool, ...]`
@@ -55,8 +50,8 @@ final class LazyLoadGuard
     }
 
     /**
-     * Groups the models of one result set, so that the guard can tell a relation loaded for several records of
-     * the same result set, which is an N+1 query, from the same relation loaded for records that were each
+     * Groups the models of one result set, so that the guard can tell a relation loaded by several records of
+     * the same result set, which is an N+1 query, from the same relation loaded by records that were each
      * fetched by a query of their own, which has nothing to eager load across.
      *
      * @param ActiveRecordInterface[]|array[] $models The models populated from one result set.
@@ -65,19 +60,15 @@ final class LazyLoadGuard
      */
     public static function registerResultSet(array $models): void
     {
-        $firstModel = reset($models);
-
-        if (!$firstModel instanceof ActiveRecordInterface || !self::isGuarded($firstModel::class)) {
-            return;
-        }
-
-        self::$resultSets ??= new WeakMap();
-        $resultSetId = ++self::$lastResultSetId;
+        $resultSet = null;
 
         foreach ($models as $model) {
-            if ($model instanceof ActiveRecordInterface) {
-                self::$resultSets[$model] = $resultSetId;
+            if (!$model instanceof ActiveRecordInterface || !self::isGuarded($model::class)) {
+                continue;
             }
+
+            $resultSet ??= new LazyLoadResultSet();
+            self::resultSets()[$model] = $resultSet;
         }
     }
 
@@ -94,16 +85,16 @@ final class LazyLoadGuard
 
         self::$counters[$relation] = (self::$counters[$relation] ?? 0) + 1;
 
-        $resultSets = self::$resultSets ??= new WeakMap();
+        $resultSets = self::resultSets();
+        $resultSet = $resultSets[$model] ?? null;
 
-        /** A record populated outside a result set is a result set of its own. */
-        $resultSets[$model] ??= ++self::$lastResultSetId;
+        if ($resultSet === null) {
+            /** A record populated outside a result set is a result set of its own. */
+            $resultSet = new LazyLoadResultSet();
+            $resultSets[$model] = $resultSet;
+        }
 
-        /** @var int $resultSetId */
-        $resultSetId = $resultSets[$model];
-
-        $counter = $resultSetId . ' ' . $relation;
-        $count = self::$resultSetCounters[$counter] = (self::$resultSetCounters[$counter] ?? 0) + 1;
+        $count = $resultSet->registerLazyLoad($model, $relation);
 
         if ($count === 1) {
             return;
@@ -113,7 +104,7 @@ final class LazyLoadGuard
             . " Eager load it with \"with('$relationName')\" to run one query instead of $count.";
 
         if (self::$mode === LazyLoadGuardMode::Strict) {
-            throw new LazyLoadException($message, $relationName);
+            throw new LazyLoadException($message, $modelClass, $relationName);
         }
 
         self::$logger?->warning(
@@ -139,16 +130,35 @@ final class LazyLoadGuard
     }
 
     /**
-     * Resets the mode, the logger and the counters to their defaults.
+     * Clears the counters and the registered result sets, keeping the mode and the logger. Call it between the
+     * requests of a long-running worker, so that the result sets of one request aren't counted against the next.
+     */
+    public static function resetCounters(): void
+    {
+        self::$counters = [];
+        self::$resultSets = null;
+    }
+
+    /**
+     * Resets the counters, the mode and the logger to their defaults.
      */
     public static function reset(): void
     {
         self::$mode = LazyLoadGuardMode::Log;
         self::$logger = null;
-        self::$counters = [];
-        self::$resultSets = null;
-        self::$resultSetCounters = [];
-        self::$lastResultSetId = 0;
+
+        self::resetCounters();
+    }
+
+    /**
+     * @psalm-return WeakMap<ActiveRecordInterface, LazyLoadResultSet>
+     */
+    private static function resultSets(): WeakMap
+    {
+        /** @psalm-var WeakMap<ActiveRecordInterface, LazyLoadResultSet> $resultSets */
+        $resultSets = self::$resultSets ?? new WeakMap();
+
+        return self::$resultSets = $resultSets;
     }
 
     /**
@@ -156,16 +166,25 @@ final class LazyLoadGuard
      */
     private static function isGuarded(string $modelClass): bool
     {
-        if (isset(self::$guardedClasses[$modelClass])) {
-            return self::$guardedClasses[$modelClass];
+        return self::$guardedClasses[$modelClass] ??= self::usesGuardTrait($modelClass);
+    }
+
+    /**
+     * Whether the class, one of its parents or one of the traits they use, directly or through another trait,
+     * uses {@see LazyLoadGuardTrait}. {@see class_uses()} only returns the traits used directly by the class.
+     *
+     * @param class-string $class
+     */
+    private static function usesGuardTrait(string $class): bool
+    {
+        foreach (class_uses($class) ?: [] as $trait) {
+            if ($trait === LazyLoadGuardTrait::class || self::usesGuardTrait($trait)) {
+                return true;
+            }
         }
 
-        $traits = [];
+        $parent = get_parent_class($class);
 
-        for ($class = $modelClass; $class !== false; $class = get_parent_class($class)) {
-            $traits += class_uses($class) ?: [];
-        }
-
-        return self::$guardedClasses[$modelClass] = isset($traits[LazyLoadGuardTrait::class]);
+        return $parent !== false && self::usesGuardTrait($parent);
     }
 }
