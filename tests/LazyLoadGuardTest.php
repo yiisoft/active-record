@@ -10,6 +10,7 @@ use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
 use Yiisoft\ActiveRecord\LazyLoadGuard;
 use Yiisoft\ActiveRecord\LazyLoadGuardMode;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerLazyLoadGuardModel;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerLazyLoadGuardModel as MagicCustomerLazyLoadGuardModel;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 
@@ -154,6 +155,27 @@ abstract class LazyLoadGuardTest extends TestCase
         }
 
         $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 2], LazyLoadGuard::getCounters());
+    }
+
+    public function testWorksWithMagicPropertiesTrait(): void
+    {
+        foreach (MagicCustomerLazyLoadGuardModel::query()->all() as $customer) {
+            $customer->orders;
+        }
+
+        $this->assertSame([MagicCustomerLazyLoadGuardModel::class . '::orders' => 3], LazyLoadGuard::getCounters());
+    }
+
+    public function testModeStrictThrowsForMagicPropertyRelation(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = MagicCustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->orders;
+
+        $this->expectException(LogicException::class);
+
+        $customers[1]->orders;
     }
 
     public function testWorksWithEventsTrait(): void
