@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\ActiveRecord\Tests;
 
-use LogicException;
 use Yiisoft\ActiveRecord\Event\AfterPopulate;
 use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
+use Yiisoft\ActiveRecord\LazyLoadException;
 use Yiisoft\ActiveRecord\LazyLoadGuard;
 use Yiisoft\ActiveRecord\LazyLoadGuardMode;
 use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerLazyLoadGuardModel;
@@ -133,13 +133,29 @@ abstract class LazyLoadGuardTest extends TestCase
         $customers = CustomerLazyLoadGuardModel::query()->all();
         $customers[0]->getOrders();
 
-        $this->expectException(LogicException::class);
+        $this->expectException(LazyLoadException::class);
         $this->expectExceptionMessage(
             'Relation "' . CustomerLazyLoadGuardModel::class . '::orders" is lazy loaded by 2 records of one result'
             . ' set. Eager load it with "with(\'orders\')" to run one query instead of 2.',
         );
 
         $customers[1]->getOrders();
+    }
+
+    public function testTheThrownExceptionSuggestsEagerLoadingTheRelation(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = CustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->getOrders();
+
+        try {
+            $customers[1]->getOrders();
+            $this->fail('The guard did not report the lazy load.');
+        } catch (LazyLoadException $e) {
+            $this->assertSame('Relation is lazy loaded by several records of one result set', $e->getName());
+            $this->assertStringContainsString("with('orders')", (string) $e->getSolution());
+        }
     }
 
     public function testModeStrictCountsLazyLoadBeforeThrowing(): void
@@ -151,7 +167,7 @@ abstract class LazyLoadGuardTest extends TestCase
 
         try {
             $customers[1]->getOrders();
-        } catch (LogicException) {
+        } catch (LazyLoadException) {
         }
 
         $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 2], LazyLoadGuard::getCounters());
@@ -173,7 +189,7 @@ abstract class LazyLoadGuardTest extends TestCase
         $customers = MagicCustomerLazyLoadGuardModel::query()->all();
         $customers[0]->orders;
 
-        $this->expectException(LogicException::class);
+        $this->expectException(LazyLoadException::class);
 
         $customers[1]->orders;
     }

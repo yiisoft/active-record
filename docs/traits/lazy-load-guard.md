@@ -38,10 +38,10 @@ use Yiisoft\ActiveRecord\LazyLoadGuardMode;
 LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
 ```
 
-| Mode     | Behavior                                                                          |
-|----------|-----------------------------------------------------------------------------------|
+| Mode     | Behavior                                                                           |
+|----------|------------------------------------------------------------------------------------|
 | `Log`    | Default. Writes a PSR-3 warning; the context carries the model, relation and trace |
-| `Strict` | Throws `LogicException`                                                           |
+| `Strict` | Throws `LazyLoadException`                                                         |
 
 Both modes report the same text, which names the relation, how many records of the result set read it and the
 `with()` call that would replace them with one query:

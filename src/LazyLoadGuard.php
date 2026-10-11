@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\ActiveRecord;
 
 use Exception;
-use LogicException;
 use Psr\Log\LoggerInterface;
 use WeakMap;
 use Yiisoft\ActiveRecord\Trait\LazyLoadGuardTrait;
@@ -86,7 +85,7 @@ final class LazyLoadGuard
      * Registers a lazy load of the relation and reports it according to the mode, starting from the second record
      * of the same result set that loads the relation, since one record loading a relation isn't an N+1 problem.
      *
-     * @throws LogicException In the {@see LazyLoadGuardMode::Strict} mode.
+     * @throws LazyLoadException In the {@see LazyLoadGuardMode::Strict} mode.
      */
     public static function check(ActiveRecordInterface $model, string $relationName): void
     {
@@ -114,7 +113,7 @@ final class LazyLoadGuard
             . " Eager load it with \"with('$relationName')\" to run one query instead of $count.";
 
         if (self::$mode === LazyLoadGuardMode::Strict) {
-            throw new LogicException($message);
+            throw new LazyLoadException($message, $relationName);
         }
 
         self::$logger?->warning(
