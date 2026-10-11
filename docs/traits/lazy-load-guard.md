@@ -13,8 +13,23 @@ final class Customer extends ActiveRecord
 }
 ```
 
-Every lazy load is registered by [LazyLoadGuard](../../src/LazyLoadGuard.php). Starting from the second lazy load
-of the same relation it's reported according to the mode, since loading a relation once isn't an N+1 problem:
+Lazy loads are counted by [LazyLoadGuard](../../src/LazyLoadGuard.php) per result set, and reported according to
+the mode starting from the second record of the same result set that reads the relation. One record reading a
+relation isn't an N+1 problem, and neither are records that were each fetched by a query of their own, since there
+is nothing to eager load across them:
+
+```php
+// Reported: one query for the customers, then one query per customer for the orders.
+foreach (Customer::query()->all() as $customer) {
+    $customer->getOrders();
+}
+
+// Not reported: each customer came from a query of its own.
+Customer::query()->findByPk(1)->getOrders();
+Customer::query()->findByPk(2)->getOrders();
+```
+
+The mode and the logger are set statically:
 
 ```php
 use Yiisoft\ActiveRecord\LazyLoadGuard;
@@ -23,14 +38,15 @@ use Yiisoft\ActiveRecord\LazyLoadGuardMode;
 LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
 ```
 
-| Mode     | Behavior                                                                                          |
-|----------|---------------------------------------------------------------------------------------------------|
-| `Log`    | Default. Reports a PSR-3 warning with the relation name, the lazy load count and a stack trace  |
-| `Strict` | Throws `LogicException`                                                                           |
+| Mode     | Behavior                                                                                             |
+|----------|------------------------------------------------------------------------------------------------------|
+| `Log`    | Default. Reports a PSR-3 warning with the relation name, the count within the result set and a trace |
+| `Strict` | Throws `LogicException`                                                                              |
 
 In `Log` mode the logger is optional; when it's omitted the lazy loads are still counted and readable through
-`LazyLoadGuard::getCounters()`, but nothing is written anywhere. `LazyLoadGuard::reset()` restores the defaults
-and clears the counters.
+`LazyLoadGuard::getCounters()`, but nothing is written anywhere. `getCounters()` returns every lazy load per
+relation, including the ones that weren't reported because they belong to result sets of their own.
+`LazyLoadGuard::reset()` restores the defaults and clears the counters.
 
 The counters live until `LazyLoadGuard::reset()` is called. In long-running workers call it after each request.
 

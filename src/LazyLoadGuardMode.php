@@ -9,8 +9,8 @@ namespace Yiisoft\ActiveRecord;
  */
 enum LazyLoadGuardMode
 {
-    /** Every lazy load is reported as a PSR-3 warning. */
+    /** A reported lazy load is written as a PSR-3 warning. */
     case Log;
-    /** Every lazy load throws a `LogicException`. */
+    /** A reported lazy load throws a `LogicException`. */
     case Strict;
 }
