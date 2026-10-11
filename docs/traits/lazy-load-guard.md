@@ -38,17 +38,36 @@ use Yiisoft\ActiveRecord\LazyLoadGuardMode;
 LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
 ```
 
-| Mode     | Behavior                                                                                             |
-|----------|------------------------------------------------------------------------------------------------------|
-| `Log`    | Default. Reports a PSR-3 warning with the relation name, the count within the result set and a trace |
-| `Strict` | Throws `LogicException`                                                                              |
+| Mode     | Behavior                                                                          |
+|----------|-----------------------------------------------------------------------------------|
+| `Log`    | Default. Writes a PSR-3 warning; the context carries the model, relation and trace |
+| `Strict` | Throws `LogicException`                                                           |
+
+Both modes report the same text, which names the relation, how many records of the result set read it and the
+`with()` call that would replace them with one query:
+
+```
+Relation "App\Model\Customer::orders" is lazy loaded by 3 records of one result set.
+Eager load it with "with('orders')" to run one query instead of 3.
+```
 
 In `Log` mode the logger is optional; when it's omitted the lazy loads are still counted and readable through
 `LazyLoadGuard::getCounters()`, but nothing is written anywhere. `getCounters()` returns every lazy load per
 relation, including the ones that weren't reported because they belong to result sets of their own.
-`LazyLoadGuard::reset()` restores the defaults and clears the counters.
 
-The counters live until `LazyLoadGuard::reset()` is called. In long-running workers call it after each request.
+The counters live until `LazyLoadGuard::reset()` is called. In long-running workers call it after each request,
+and in a test suite between tests, so that result sets of one test aren't counted against the next:
+
+```php
+protected function setUp(): void
+{
+    LazyLoadGuard::reset();
+    LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+}
+```
+
+`reset()` clears the counters and restores the mode and the logger to their defaults, so set them again
+afterwards, as above.
 
 The guard is meant for development and testing, e.g. `Strict` in the test suite and `Log` on staging.
 
