@@ -11,6 +11,6 @@ enum LazyLoadGuardMode
 {
     /** A reported lazy load is written as a PSR-3 warning. */
     case Log;
-    /** A reported lazy load throws a `LogicException`. */
+    /** A reported lazy load throws a {@see LazyLoadException}. */
     case Strict;
 }

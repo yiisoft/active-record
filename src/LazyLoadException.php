@@ -13,8 +13,14 @@ use Yiisoft\FriendlyException\FriendlyExceptionInterface;
  */
 final class LazyLoadException extends LogicException implements FriendlyExceptionInterface
 {
-    public function __construct(string $message, private readonly string $relationName)
-    {
+    /**
+     * @param class-string $modelClass
+     */
+    public function __construct(
+        string $message,
+        private readonly string $modelClass,
+        private readonly string $relationName,
+    ) {
         parent::__construct($message);
     }
 
@@ -30,11 +36,11 @@ final class LazyLoadException extends LogicException implements FriendlyExceptio
             the records, so that the relation is read with a single query:
 
             ```php
-            \$customers = Customer::query()->with('$this->relationName')->all();
+            \$records = \\{$this->modelClass}::query()->with('$this->relationName')->all();
             ```
 
             When the lazy loads are intentional, switch the guard to `LazyLoadGuardMode::Log` to keep reporting
-            them without throwing, or to `LazyLoadGuardMode::Disabled` to stop reporting them.
+            them without throwing.
             SOLUTION;
     }
 }
