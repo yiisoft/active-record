@@ -133,7 +133,10 @@ abstract class LazyLoadGuardTest extends TestCase
         $customers[0]->getOrders();
 
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Relation "' . CustomerLazyLoadGuardModel::class . '::orders" is lazy loaded.');
+        $this->expectExceptionMessage(
+            'Relation "' . CustomerLazyLoadGuardModel::class . '::orders" is lazy loaded by 2 records of one result'
+            . ' set. Eager load it with "with(\'orders\')" to run one query instead of 2.',
+        );
 
         $customers[1]->getOrders();
     }

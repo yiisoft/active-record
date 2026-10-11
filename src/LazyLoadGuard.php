@@ -45,7 +45,9 @@ final class LazyLoadGuard
     private static array $guardedClasses = [];
 
     /**
-     * Sets the mode of the guard and the logger used in the {@see LazyLoadGuardMode::Log} mode.
+     * Sets the mode of the guard and the logger to report to. The logger is only used in the
+     * {@see LazyLoadGuardMode::Log} mode, since {@see LazyLoadGuardMode::Strict} carries the same information in
+     * the exception it throws.
      */
     public static function set(LazyLoadGuardMode $mode, ?LoggerInterface $logger = null): void
     {
@@ -108,12 +110,15 @@ final class LazyLoadGuard
             return;
         }
 
+        $message = "Relation \"$relation\" is lazy loaded by $count records of one result set."
+            . " Eager load it with \"with('$relationName')\" to run one query instead of $count.";
+
         if (self::$mode === LazyLoadGuardMode::Strict) {
-            throw new LogicException("Relation \"$relation\" is lazy loaded.");
+            throw new LogicException($message);
         }
 
         self::$logger?->warning(
-            "Relation \"$relation\" is lazy loaded.",
+            $message,
             [
                 'model' => $modelClass,
                 'relation' => $relationName,
