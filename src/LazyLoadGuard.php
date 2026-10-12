@@ -60,6 +60,7 @@ final class LazyLoadGuard
      */
     public static function registerResultSet(array $models): void
     {
+        $resultSets = null;
         $resultSet = null;
 
         foreach ($models as $model) {
@@ -67,8 +68,9 @@ final class LazyLoadGuard
                 continue;
             }
 
+            $resultSets ??= self::resultSets();
             $resultSet ??= new LazyLoadResultSet();
-            self::resultSets()[$model] = $resultSet;
+            $resultSets[$model] = $resultSet;
         }
     }
 
