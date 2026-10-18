@@ -88,13 +88,16 @@ final class LazyLoadGuard
         self::$counters[$relation] = (self::$counters[$relation] ?? 0) + 1;
 
         $resultSets = self::resultSets();
-        $resultSet = $resultSets[$model] ?? null;
 
-        if ($resultSet === null) {
-            /** A record populated outside a result set is a result set of its own. */
-            $resultSet = new LazyLoadResultSet();
-            $resultSets[$model] = $resultSet;
-        }
+        /**
+         * A record populated outside a result set is a result set of its own.
+         *
+         * @psalm-suppress PossiblyNullArgument
+         */
+        $resultSets[$model] ??= new LazyLoadResultSet();
+
+        /** @psalm-var LazyLoadResultSet $resultSet */
+        $resultSet = $resultSets[$model];
 
         $count = $resultSet->registerLazyLoad($model, $relation);
 
@@ -157,10 +160,11 @@ final class LazyLoadGuard
      */
     private static function resultSets(): WeakMap
     {
-        /** @psalm-var WeakMap<ActiveRecordInterface, LazyLoadResultSet> $resultSets */
-        $resultSets = self::$resultSets ?? new WeakMap();
-
-        return self::$resultSets = $resultSets;
+        /**
+         * @psalm-suppress PropertyTypeCoercion
+         * @psalm-var WeakMap<ActiveRecordInterface, LazyLoadResultSet>
+         */
+        return self::$resultSets ??= new WeakMap();
     }
 
     /**
