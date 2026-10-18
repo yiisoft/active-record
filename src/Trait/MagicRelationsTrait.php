@@ -59,7 +59,7 @@ trait MagicRelationsTrait
             $type === null
             || !is_a('\\' . $type->getName(), ActiveQueryInterface::class, true)
         ) {
-            $typeName = $type?->getName() ?? 'mixed';
+            $typeName = $type === null ? 'mixed' : $type->getName();
 
             throw new InvalidArgumentException(
                 'Relation query method "' . static::class . '::' . $getter . '()" should return type "'
