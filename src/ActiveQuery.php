@@ -321,6 +321,10 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $models = $this->createModels($rows);
 
+        if (count($models) > 1) {
+            LazyLoadGuard::registerResultSet($models);
+        }
+
         if (!empty($this->with)) {
             $this->findWith($this->with, $models);
         }

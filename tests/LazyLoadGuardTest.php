@@ -1,0 +1,318 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Yiisoft\ActiveRecord\Tests;
+
+use Yiisoft\ActiveRecord\Event\AfterPopulate;
+use Yiisoft\ActiveRecord\Event\EventDispatcherProvider;
+use Yiisoft\ActiveRecord\LazyLoadException;
+use Yiisoft\ActiveRecord\LazyLoadGuard;
+use Yiisoft\ActiveRecord\LazyLoadGuardMode;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\CustomerLazyLoadGuardModel;
+use Yiisoft\ActiveRecord\Tests\Stubs\ActiveRecord\OrderLazyLoadGuardModel;
+use Yiisoft\ActiveRecord\Tests\Stubs\MagicActiveRecord\CustomerLazyLoadGuardModel as MagicCustomerLazyLoadGuardModel;
+use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
+use Yiisoft\Test\Support\Log\SimpleLogger;
+
+abstract class LazyLoadGuardTest extends TestCase
+{
+    public function setUp(): void
+    {
+        LazyLoadGuard::reset();
+        EventDispatcherProvider::reset();
+    }
+
+    public function tearDown(): void
+    {
+        LazyLoadGuard::reset();
+        EventDispatcherProvider::reset();
+    }
+
+    public function testLazyLoadIsCounted(): void
+    {
+        foreach (CustomerLazyLoadGuardModel::query()->all() as $customer) {
+            $customer->getOrders();
+        }
+
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 3], LazyLoadGuard::getCounters());
+    }
+
+    public function testEagerLoadedRelationIsNotCounted(): void
+    {
+        foreach (CustomerLazyLoadGuardModel::query()->with('orders')->all() as $customer) {
+            $customer->getOrders();
+        }
+
+        $this->assertSame([], LazyLoadGuard::getCounters());
+    }
+
+    public function testLoadedRelationIsCountedOnce(): void
+    {
+        $customer = CustomerLazyLoadGuardModel::query()->findByPk(1);
+        $customer->getOrders();
+        $customer->getOrders();
+
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 1], LazyLoadGuard::getCounters());
+    }
+
+    public function testLazyLoadsOfSeparateResultSetsAreNotReported(): void
+    {
+        $logger = new SimpleLogger();
+        LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
+
+        CustomerLazyLoadGuardModel::query()->findByPk(1)->getOrders();
+        CustomerLazyLoadGuardModel::query()->findByPk(2)->getOrders();
+
+        $this->assertSame([], $logger->getMessages());
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 2], LazyLoadGuard::getCounters());
+    }
+
+    public function testModeStrictIgnoresLazyLoadsOfSeparateResultSets(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        CustomerLazyLoadGuardModel::query()->findByPk(1)->getOrders();
+
+        $this->assertIsArray(CustomerLazyLoadGuardModel::query()->findByPk(2)->getOrders());
+    }
+
+    public function testModeLogWithoutLoggerReturnsRelation(): void
+    {
+        $customer = CustomerLazyLoadGuardModel::query()->findByPk(1);
+
+        $this->assertCount(1, $customer->getOrders());
+    }
+
+    public function testModeLogIgnoresSingleLazyLoad(): void
+    {
+        $logger = new SimpleLogger();
+        LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
+
+        $customer = CustomerLazyLoadGuardModel::query()->findByPk(1);
+        $customer->getOrders();
+
+        $this->assertSame([], $logger->getMessages());
+    }
+
+    public function testModeLogWritesWarningWithContext(): void
+    {
+        $logger = new SimpleLogger();
+        LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
+
+        foreach (CustomerLazyLoadGuardModel::query()->all() as $customer) {
+            $customer->getOrders();
+        }
+
+        $messages = $logger->getMessages();
+
+        $this->assertCount(2, $messages);
+        $this->assertSame('warning', $messages[0]['level']);
+        $this->assertStringContainsString('orders', $messages[0]['message']);
+
+        $context = $messages[0]['context'];
+
+        $this->assertSame(CustomerLazyLoadGuardModel::class, $context['model']);
+        $this->assertSame('orders', $context['relation']);
+        $this->assertSame(2, $context['count']);
+        $this->assertIsString($context['trace']);
+    }
+
+    public function testModeStrictIgnoresSingleLazyLoad(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customer = CustomerLazyLoadGuardModel::query()->findByPk(1);
+
+        $this->assertCount(1, $customer->getOrders());
+    }
+
+    public function testModeStrictThrowsExceptionWithRelationName(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = CustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->getOrders();
+
+        $this->expectException(LazyLoadException::class);
+        $this->expectExceptionMessage(
+            'Relation "' . CustomerLazyLoadGuardModel::class . '::orders" is lazy loaded by 2 records of one result'
+            . ' set. Eager load it with "with(\'orders\')" to run one query instead of 2.',
+        );
+
+        $customers[1]->getOrders();
+    }
+
+    public function testTheThrownExceptionSuggestsEagerLoadingTheRelation(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = CustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->getOrders();
+
+        try {
+            $customers[1]->getOrders();
+            $this->fail('The guard did not report the lazy load.');
+        } catch (LazyLoadException $e) {
+            $this->assertSame('Relation is lazy loaded by several records of one result set', $e->getName());
+            $this->assertStringContainsString("with('orders')", (string) $e->getSolution());
+        }
+    }
+
+    public function testModeStrictCountsLazyLoadBeforeThrowing(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = CustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->getOrders();
+
+        try {
+            $customers[1]->getOrders();
+        } catch (LazyLoadException) {
+        }
+
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 2], LazyLoadGuard::getCounters());
+    }
+
+    public function testWorksWithMagicPropertiesTrait(): void
+    {
+        foreach (MagicCustomerLazyLoadGuardModel::query()->all() as $customer) {
+            $customer->orders;
+        }
+
+        $this->assertSame([MagicCustomerLazyLoadGuardModel::class . '::orders' => 3], LazyLoadGuard::getCounters());
+    }
+
+    public function testModeStrictThrowsForMagicPropertyRelation(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = MagicCustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->orders;
+
+        $this->expectException(LazyLoadException::class);
+
+        $customers[1]->orders;
+    }
+
+    public function testWorksWithEventsTrait(): void
+    {
+        $events = [];
+
+        EventDispatcherProvider::set(
+            CustomerLazyLoadGuardModel::class,
+            new SimpleEventDispatcher(
+                static function (object $event) use (&$events): void {
+                    $events[] = $event::class;
+                },
+            ),
+        );
+
+        $customer = CustomerLazyLoadGuardModel::query()->findByPk(1);
+        $customer->getOrders();
+
+        $this->assertContains(AfterPopulate::class, $events);
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 1], LazyLoadGuard::getCounters());
+    }
+
+    public function testRecordReloadingRelationAfterRefreshIsNotReported(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = CustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->getOrders();
+        $customers[0]->refresh();
+
+        $this->assertCount(1, $customers[0]->getOrders());
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 2], LazyLoadGuard::getCounters());
+    }
+
+    public function testRecordReloadingRelationAfterResetRelationIsNotReported(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = CustomerLazyLoadGuardModel::query()->all();
+        $customers[0]->getOrders();
+        $customers[0]->resetRelation('orders');
+        $customers[0]->getOrders();
+
+        $this->expectException(LazyLoadException::class);
+        $this->expectExceptionMessage('is lazy loaded by 2 records of one result set');
+
+        $customers[1]->getOrders();
+    }
+
+    public function testAsArrayResultSetIsNotRegistered(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $customers = CustomerLazyLoadGuardModel::query()->asArray()->all();
+
+        $this->assertCount(3, $customers);
+        $this->assertSame([], LazyLoadGuard::getCounters());
+    }
+
+    public function testNestedLazyLoadOfEagerLoadedRecordsIsReported(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $orders = [];
+
+        foreach (CustomerLazyLoadGuardModel::query()->with('guardedOrders')->all() as $customer) {
+            foreach ($customer->getGuardedOrders() as $order) {
+                $orders[] = $order;
+            }
+        }
+
+        $orders[0]->getItems();
+
+        $this->expectException(LazyLoadException::class);
+        $this->expectExceptionMessage(OrderLazyLoadGuardModel::class . '::items');
+
+        $orders[1]->getItems();
+    }
+
+    public function testGuardTraitUsedByAnotherTraitIsDetected(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict);
+
+        $orders = OrderLazyLoadGuardModel::query()->all();
+        $orders[0]->getItems();
+
+        $this->expectException(LazyLoadException::class);
+
+        $orders[1]->getItems();
+    }
+
+    public function testResetCountersKeepsModeAndLogger(): void
+    {
+        $logger = new SimpleLogger();
+        LazyLoadGuard::set(LazyLoadGuardMode::Log, $logger);
+
+        CustomerLazyLoadGuardModel::query()->findByPk(1)->getOrders();
+        LazyLoadGuard::resetCounters();
+
+        $this->assertSame([], LazyLoadGuard::getCounters());
+
+        foreach (CustomerLazyLoadGuardModel::query()->all() as $customer) {
+            $customer->getOrders();
+        }
+
+        $this->assertCount(2, $logger->getMessages());
+    }
+
+    public function testReset(): void
+    {
+        LazyLoadGuard::set(LazyLoadGuardMode::Strict, new SimpleLogger());
+        LazyLoadGuard::reset();
+
+        $customer = CustomerLazyLoadGuardModel::query()->findByPk(1);
+        $customer->getOrders();
+
+        $this->assertSame([CustomerLazyLoadGuardModel::class . '::orders' => 1], LazyLoadGuard::getCounters());
+
+        LazyLoadGuard::reset();
+
+        $this->assertSame([], LazyLoadGuard::getCounters());
+    }
+}
