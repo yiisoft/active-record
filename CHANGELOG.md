@@ -2,7 +2,7 @@
 
 ## 1.1.1 under development
 
-- Enh #590: Add `LazyLoadGuardTrait` and `LazyLoadGuard` to detect N+1 queries
+- Enh #590, #594: Add `LazyLoadGuardTrait` and `LazyLoadGuard` to detect N+1 queries
   (@KalimeroMK)
 
 ## 1.1.0 May 14, 2026
