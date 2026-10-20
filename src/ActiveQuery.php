@@ -321,7 +321,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         $models = $this->createModels($rows);
 
-        if (count($models) > 1) {
+        if (!$this->asArray && count($models) > 1) {
+            /** @var ActiveRecordInterface[] $models */
             LazyLoadGuard::registerResultSet($models);
         }
 

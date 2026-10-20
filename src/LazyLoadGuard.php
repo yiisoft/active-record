@@ -54,7 +54,7 @@ final class LazyLoadGuard
      * the same result set, which is an N+1 query, from the same relation loaded by records that were each
      * fetched by a query of their own, which has nothing to eager load across.
      *
-     * @param ActiveRecordInterface[]|array[] $models The models populated from one result set.
+     * @param ActiveRecordInterface[] $models The models populated from one result set.
      *
      * @see ActiveQuery::populate()
      */
@@ -64,7 +64,7 @@ final class LazyLoadGuard
         $resultSet = null;
 
         foreach ($models as $model) {
-            if (!$model instanceof ActiveRecordInterface || !self::isGuarded($model::class)) {
+            if (!self::isGuarded($model::class)) {
                 continue;
             }
 
@@ -89,12 +89,10 @@ final class LazyLoadGuard
 
         $resultSets = self::resultSets();
 
-        /**
-         * A record populated outside a result set is a result set of its own.
-         *
-         * @psalm-suppress PossiblyNullArgument
-         */
-        $resultSets[$model] ??= new LazyLoadResultSet();
+        // A record fetched by a query of its own has nothing to eager load across.
+        if (!isset($resultSets[$model])) {
+            return;
+        }
 
         /** @psalm-var LazyLoadResultSet $resultSet */
         $resultSet = $resultSets[$model];
