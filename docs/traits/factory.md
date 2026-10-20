@@ -55,7 +55,7 @@ Also, you cannot use `RepositoryTrait` with `FactoryTrait`, because it uses stat
 ## See also
 
 - [Using Dependency Injection With Active Record](../using-di.md);
-- [Dependency Injection](https://github.com/yiisoft/docs/blob/master/guide/en/concept-di-container.md);
+- [Dependency Injection](https://yiisoft.github.io/docs/guide/concept-di-container);
 - [Factory](https://github.com/yiisoft/factory).
 
 Back to [Extending Functionality With Traits](traits.md).

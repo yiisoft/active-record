@@ -28,15 +28,18 @@
     ],
     "require": {
         "php": "8.1 - 8.5",
-        "yiisoft/db": "^2.0"
+        "yiisoft/db": "^2.0",
+        "yiisoft/friendly-exception": "^1.1"
     },
     "require-dev": {
         "ext-pdo": "*",
         "bamarni/composer-bin-plugin": "^1.8.3",
         "friendsofphp/php-cs-fixer": "^3.89.1",
-        "maglnet/composer-require-checker": "^4.7.1",
         "phpunit/phpunit": "^10.5.58",
+        "psr/log": "^2.0|^3.0",
+        "psr/simple-cache": "^2.0|^3.0",
         "rector/rector": "^2.2.3",
+        "shipmonk/composer-dependency-analyser": "^1.8",
         "spatie/phpunit-watcher": "^1.24",
         "yiisoft/arrays": "^3.2",
         "yiisoft/db-mssql": "^2.0",
@@ -59,7 +62,8 @@
         "yiisoft/db-mssql": "For MSSQL database support",
         "yiisoft/db-oracle": "For Oracle database support",
         "yiisoft/factory": "For factory support",
-        "yiisoft/event-dispatcher": "For events support"
+        "yiisoft/event-dispatcher": "For events support",
+        "psr/log": "For \\Yiisoft\\ActiveRecord\\LazyLoadGuard logging support"
     },
     "autoload": {
         "psr-4": {
@@ -93,6 +97,7 @@
         }
     },
     "scripts": {
+        "dependency-analyser": "composer-dependency-analyser",
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
     }
