@@ -85,7 +85,7 @@ trait EventsTrait
     {
         $model = $modelClass instanceof ActiveRecordInterface
             ? $modelClass
-            : new ($modelClass ?? static::class)();
+            : ($modelClass !== null ? $modelClass::instantiate() : static::instantiate());
 
         $eventDispatcher = EventDispatcherProvider::get($model::class);
         $eventDispatcher->dispatch($event = new BeforeCreateQuery($model));
